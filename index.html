@@ -1,28 +1,432 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neon Llama Garage</title>
-    <style>
-        html, body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background-color: #0b0f19; /* Matches a dark synthwave aesthetic */
-        }
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            display: block;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Neon Llama Garage | Custom Diecast</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-color: #030305; --grid-color: rgba(0, 240, 255, 0.12);
+      --card-bg: rgba(10, 10, 15, 0.75); --card-border: rgba(255, 255, 255, 0.08);
+      --neon-pink: #ff107a; --neon-cyan: #00f0ff; --neon-yellow: #ffc107;
+      --text-main: #ffffff; 
+    }
+    body { background-color: var(--bg-color); color: var(--text-main); font-family: 'Rajdhani', sans-serif; min-height: 100vh; overflow-x: hidden; margin: 0; }
+    body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(transparent 60%, var(--neon-pink) 160%), linear-gradient(rgba(3,3,5,0.92) 0%, rgba(3,3,5,0.5) 100%); z-index: -2; }
+    .grid-bg { position: fixed; bottom: -50%; left: -50%; width: 200%; height: 100%; background-image: linear-gradient(var(--grid-color) 1px, transparent 1px), linear-gradient(90deg, var(--grid-color) 1px, transparent 1px); background-size: 40px 40px; transform: perspective(500px) rotateX(60deg); z-index: -1; animation: gridMove 15s linear infinite; opacity: 0.5; }
+    @keyframes gridMove { 0% { transform: perspective(500px) rotateX(60deg) translateY(0); } 100% { transform: perspective(500px) rotateX(60deg) translateY(40px); } }
+
+    .top-nav { background-color: rgba(5, 5, 8, 0.92); backdrop-filter: blur(14px); border-bottom: 2px solid rgba(255, 16, 122, 0.4); padding: 15px 40px; position: sticky; top: 0; z-index: 1000; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 6px 30px rgba(255, 16, 122, 0.25); }
+    .nav-brand-container { display: flex; align-items: center; gap: 25px; }
+    .nav-llama-logo { height: 90px; width: auto; filter: drop-shadow(0 0 16px rgba(255, 16, 122, 0.9)) drop-shadow(0 0 6px rgba(0, 240, 255, 0.6)); }
+    .nav-brand-text { font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 2.2rem; letter-spacing: 2.5px; color: var(--text-main); text-transform: uppercase; margin: 0; text-shadow: 0 0 12px rgba(255,255,255,0.3); }
+    .nav-brand-text span { color: var(--neon-cyan); text-shadow: 0 0 15px rgba(0, 240, 255, 0.6); }
+    .header-tagline { font-family: 'Orbitron', sans-serif; font-size: 0.9rem; color: var(--neon-pink); letter-spacing: 4px; text-transform: uppercase; margin: 4px 0 0 0; text-shadow: 0 0 8px rgba(255, 16, 122, 0.5); }
+
+    /* Tabs */
+    .nav-tabs { border-bottom: 1px solid var(--card-border); margin: 20px 40px; }
+    .nav-tabs .nav-link { color: #d1d5db; font-family: 'Orbitron', sans-serif; font-weight: 700; border: none; text-transform: uppercase; letter-spacing: 1px; background: transparent; transition: all 0.3s; cursor: pointer;}
+    .nav-tabs .nav-link:hover { color: var(--neon-cyan); }
+    .nav-tabs .nav-link.active { color: var(--neon-pink); border-bottom: 2px solid var(--neon-pink); background: transparent; text-shadow: 0 0 8px rgba(255, 16, 122, 0.5); }
+
+    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; padding: 20px 40px 80px; max-width: 1400px; margin: 0 auto; }
+    .diecast-card { background: var(--card-bg); backdrop-filter: blur(12px); border: 1px solid var(--card-border); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5); transition: all 0.3s; cursor: pointer; position: relative; }
+    .diecast-card:hover { transform: translateY(-5px); border-color: rgba(0, 240, 255, 0.4); box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 15px rgba(0, 240, 255, 0.15); }
+    .diecast-img { width: 100%; height: 210px; object-fit: cover; background: #000; border-bottom: 1px solid var(--card-border); }
+    
+    .sold-out-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 210px; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 5; backdrop-filter: grayscale(100%); }
+    .sold-out-text { font-family: 'Orbitron', sans-serif; color: #fff; font-size: 2rem; font-weight: 900; letter-spacing: 4px; text-shadow: 0 0 15px rgba(255,0,0,0.8); border: 3px solid #ff0000; padding: 10px 20px; transform: rotate(-10deg); }
+
+    .btn-buy { background: linear-gradient(45deg, transparent 5%, var(--neon-pink) 5%); border: none; color: #fff; font-family: 'Orbitron', sans-serif; font-weight: 900; letter-spacing: 2px; padding: 11px 18px; display: block; text-transform: uppercase; transition: all 0.3s; box-shadow: 5px 0px 0px var(--neon-cyan); font-size: 0.95rem; width: 100%; text-align: center; }
+    .btn-buy:hover { background: linear-gradient(45deg, transparent 5%, var(--neon-cyan) 5%); box-shadow: 5px 0px 0px var(--neon-pink); color: #000; }
+    
+    .btn-waitlist { background: linear-gradient(45deg, transparent 5%, var(--neon-yellow) 5%); box-shadow: 5px 0px 0px #ff9800; color: #000; }
+    .btn-waitlist:hover { background: linear-gradient(45deg, transparent 5%, #ff9800 5%); box-shadow: 5px 0px 0px var(--neon-yellow); color: #000; }
+
+    /* Modal Styling */
+    .modal-content { background-color: rgba(10, 10, 15, 0.95); backdrop-filter: blur(20px); border: 1px solid var(--neon-cyan); border-radius: 12px; color: #fff; box-shadow: 0 0 40px rgba(0, 240, 255, 0.2); }
+    .modal-header { border-bottom: 1px solid var(--card-border); }
+    .carousel-inner img { height: 400px; object-fit: contain; background: #000; border-radius: 8px; border: 1px solid var(--card-border); }
+
+    /* HIGH CONTRAST Footer Forms */
+    .footer-section { background: rgba(5, 5, 8, 0.95); border-top: 2px solid rgba(0, 240, 255, 0.4); padding: 60px 20px; margin-top: 60px; position: relative; z-index: 10; }
+    
+    .form-control-cyber { 
+      background: rgba(10, 10, 15, 0.9); 
+      border: 2px solid var(--neon-cyan); 
+      color: #ffffff !important; 
+      font-family: 'Rajdhani', sans-serif; 
+      font-size: 1.1rem;
+      padding: 10px 15px; 
+      box-shadow: 0 0 8px rgba(0, 240, 255, 0.1);
+    }
+    
+    .form-control-cyber:focus { 
+      background: #000000; 
+      border-color: var(--neon-pink); 
+      box-shadow: 0 0 15px rgba(255, 16, 122, 0.4); 
+      outline: none; 
+    }
+    
+    .form-control-cyber::placeholder { 
+      color: rgba(255, 255, 255, 0.65) !important; 
+      font-weight: 500;
+    }
+
+    .high-contrast-text { color: #f8fafc !important; font-weight: 600; font-size: 1.1rem; }
+  </style>
 </head>
 <body>
-    <!-- Replace the URL below with your actual deployed Google Apps Script web app URL -->
-    <iframe src="https://script.google.com/macros/s/YOUR_GAS_DEPLOYMENT_ID/exec"></iframe>
+
+  <div class="grid-bg"></div>
+
+  <header class="top-nav">
+    <div class="nav-brand-container">
+      <img src="llama-icon.png" alt="Neon Llama Logo" class="nav-llama-logo" onerror="this.style.display='none'">
+      <div>
+        <h1 class="nav-brand-text">Neon Llama <span>Garage</span></h1>
+        <p class="header-tagline">Custom Diecast Vault</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- Dynamic Tabs -->
+  <ul class="nav nav-tabs" id="seriesTabs" role="tablist">
+      <li class="nav-item"><button class="nav-link active" onclick="renderGrid('AVAILABLE', event)">AVAILABLE DROPS</button></li>
+  </ul>
+
+  <main class="container-fluid">
+    <div id="catalogGrid" class="product-grid">
+      <div class="text-center w-100 py-5 fw-bold" style="grid-column: 1 / -1; color: var(--neon-cyan); font-family: 'Orbitron', sans-serif;">
+        <div class="spinner-border spinner-border-sm me-3"></div> INITIALIZING SYSTEM...
+      </div>
+    </div>
+  </main>
+
+  <!-- Detail Modal -->
+  <div class="modal fade" id="productModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+      <div class="modal-content p-2">
+        <div class="modal-header border-0">
+          <h4 class="modal-title font-monospace fw-bold text-info" id="modTitle">Loading...</h4>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body row g-4">
+          <div class="col-lg-7">
+            <div id="modCarousel" class="carousel slide mb-3" data-bs-interval="false">
+              <div class="carousel-inner" id="modCarouselInner"></div>
+              <button class="carousel-control-prev" type="button" data-bs-target="#modCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon"></span>
+              </button>
+              <button class="carousel-control-next" type="button" data-bs-target="#modCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon"></span>
+              </button>
+            </div>
+            <!-- MISSING DIV ADDED HERE -->
+            <div id="modThumbnails" class="d-flex gap-2 overflow-auto justify-content-center pb-2"></div>
+          </div>
+          <div class="col-lg-5 d-flex flex-column">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <span id="modPrice" class="fs-3 fw-bold" style="font-family:'Orbitron';"></span>
+              <span id="modBadge" class="badge bg-dark border border-info text-info p-2" style="font-family:'Orbitron';"></span>
+            </div>
+            <div id="modDesc" class="mb-4 high-contrast-text"></div>
+            <div id="modCtaContainer" class="mt-auto"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer-section">
+    <div style="max-width: 1400px; margin: 0 auto;" class="row g-5">
+      <div class="col-md-5">
+        <h3 class="section-title" style="font-family:'Orbitron'; color:var(--neon-cyan);">JOIN THE GARAGE</h3>
+        <p class="high-contrast-text mb-3">Sign up for early access to drops and exclusive chases.</p>
+        <form class="d-flex gap-2" onsubmit="submitNativeForm(event, 'Newsletter')">
+          <input type="email" id="nlEmail" class="form-control form-control-cyber" placeholder="ENTER YOUR EMAIL" required>
+          <button type="submit" id="nlBtn" class="btn-buy" style="width:auto;">SUBSCRIBE</button>
+        </form>
+      </div>
+      <div class="col-md-7">
+        <h3 class="section-title" style="font-family:'Orbitron'; color:var(--neon-cyan);">SECURE COMM LINK</h3>
+        <form onsubmit="submitNativeForm(event, 'Contact')">
+          <div class="row g-3 mb-3">
+            <div class="col-sm-6"><input type="text" id="ctName" class="form-control form-control-cyber" placeholder="NAME" required></div>
+            <div class="col-sm-6"><input type="email" id="ctEmail" class="form-control form-control-cyber" placeholder="EMAIL ADDRESS" required></div>
+          </div>
+          <textarea id="ctMsg" class="form-control form-control-cyber mb-3" rows="3" placeholder="TRANSMISSION..." required></textarea>
+          <button type="submit" id="ctBtn" class="btn-buy">TRANSMIT MESSAGE</button>
+        </form>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Pointing back to your live Apps Script execution URL
+    const GAS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxe1WwM8zoYYR1aU4N2EcsqvAjh0PXgVzPwIh1ZnwaB4YYdfwI-fd8eJysx37lgMplHwQ/exec';
+    let globalBatches = [];
+    let productModal;
+    let currentModalBatch = null;
+
+    function convertDriveUrl(url) {
+      if (!url) return '';
+      let match = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
+      return match ? `https://drive.google.com/thumbnail?id=${match[1]}&sz=w800` : url;
+    }
+
+    // LOCALLY HOSTED FETCH ROUTINE
+    async function loadCatalog() {
+      productModal = new bootstrap.Modal(document.getElementById('productModal'));
+      
+      const grid = document.getElementById('catalogGrid');
+      
+      // 1. Immersive Terminal Loading Screen
+      grid.innerHTML = `
+        <div class="text-center w-100 py-5" style="grid-column: 1 / -1;">
+          <div class="p-4 mx-auto rounded" style="max-width: 500px; background: rgba(3,3,5,0.9); border: 2px solid var(--neon-cyan); box-shadow: 0 0 25px rgba(0,240,255,0.25); text-align: left; font-family: 'Orbitron', monospace;">
+            <div class="d-flex align-items-center mb-3 border-bottom border-secondary pb-2">
+              <div class="spinner-border spinner-border-sm text-info me-2"></div>
+              <span class="text-info fw-bold" style="font-size: 0.85rem; letter-spacing: 2px;">NEON LLAMA OS v6.0</span>
+            </div>
+            <div id="termLog" class="text-muted" style="font-size: 0.75rem; line-height: 1.6; color: #a0aec0 !important; height: 90px; overflow: hidden;">
+              > INITIALIZING SYSTEM CORE...<br>
+            </div>
+          </div>
+        </div>
+      `;
+
+      // Simulated Cyber Logs Sequence while waiting for Google
+      const logEl = document.getElementById('termLog');
+      const logs = [
+          "> ESTABLISHING SECURE PIPELINE TO VAULT...",
+          "> BYPASSING LOCAL HOST RESTRICTIONS...",
+          "> SYNCING UTAH & TEXAS INVENTORY NODES...",
+          "> DECRYPTING CHASE ALGORITHM & ASSETS...",
+          "> ESTABLISHING NEON GRID..."
+      ];
+      
+      let logIdx = 0;
+      let logInterval = setInterval(() => {
+          if (logIdx < logs.length && logEl) {
+              logEl.innerHTML += logs[logIdx] + "<br>";
+              logEl.scrollTop = logEl.scrollHeight;
+              logIdx++;
+          }
+      }, 300);
+
+      try {
+        const res = await fetch(GAS_ENDPOINT + '?feed=public');
+        const data = await res.json();
+        
+        clearInterval(logInterval);
+        
+        if(!data.success) {
+            grid.innerHTML = `<h4 class="text-danger" style="font-family:'Orbitron';">SYSTEM ERROR: Failed to parse inventory.</h4>`;
+            return;
+        }
+        
+        globalBatches = data.batches || [];
+        
+        // Generate Tabs
+        const themes = [...new Set(globalBatches.map(b => b.theme))].sort();
+        const tabList = document.getElementById('seriesTabs');
+        themes.forEach(t => {
+            tabList.innerHTML += `<li class="nav-item"><button class="nav-link" onclick="renderGrid('${t}', event)">${t}</button></li>`;
+        });
+        
+        // Initial load
+        renderGrid('AVAILABLE', null);
+      } catch (err) {
+        clearInterval(logInterval);
+        grid.innerHTML = `<h4 class="text-danger" style="font-family:'Orbitron';">SYSTEM ERROR: ${err.message}</h4>`;
+      }
+    }
+
+    function renderGrid(filter, e) {
+      document.querySelectorAll('.nav-link').forEach(btn => btn.classList.remove('active'));
+      if (e && e.target) {
+          e.target.classList.add('active');
+      } else {
+          const firstTab = document.querySelector('.nav-tabs .nav-link');
+          if (firstTab) firstTab.classList.add('active');
+      }
+
+      const grid = document.getElementById('catalogGrid');
+      let filtered = globalBatches;
+      
+      if (filter === 'AVAILABLE') {
+          filtered = globalBatches.filter(b => (b.utahStock + b.texasStock) > 0);
+      } else {
+          filtered = globalBatches.filter(b => b.theme === filter);
+      }
+
+      if (filtered.length === 0) {
+          grid.innerHTML = `<h5 class="high-contrast-text w-100 text-center py-5" style="font-family:'Orbitron';">NO CARS FOUND IN THIS SECTOR</h5>`;
+          return;
+      }
+
+      grid.innerHTML = filtered.map(item => {
+          const hero = item.heroImg ? convertDriveUrl(item.heroImg) : '';
+          const totalStock = item.utahStock + item.texasStock;
+          const isSoldOut = totalStock <= 0;
+          const overlay = isSoldOut ? `<div class="sold-out-overlay"><div class="sold-out-text">SOLD OUT</div></div>` : '';
+          const runSize = item.plannedTotal > 0 ? `ONLY ${item.plannedTotal} EVER MADE` : 'CUSTOM RUN';
+
+          // Call To Action Button (Directly on the grid card)
+          let cta = '';
+          if (isSoldOut) {
+              cta = `<button class="btn-buy w-100 bg-secondary shadow-none mt-3" disabled onclick="event.stopPropagation()">SOLD OUT</button>`;
+          } else if (item.ebayUrl) {
+              cta = `<a href="${item.ebayUrl}" target="_blank" class="btn-buy w-100 mt-3 text-decoration-none" onclick="event.stopPropagation()">SECURE ON eBay</a>`;
+          } else {
+              cta = `<button class="btn-buy w-100 btn-waitlist mt-3" onclick="event.stopPropagation(); openModal('${item.id}', true)">JOIN WAITLIST</button>`;
+          }
+          
+          return `
+            <div class="diecast-card" onclick="openModal('${item.id}')">
+              <div class="position-relative">
+                <span class="badge bg-dark border border-info text-info position-absolute top-0 end-0 m-2 z-3" style="font-family: 'Orbitron'; font-size: 0.65rem; box-shadow: 0 0 8px rgba(0, 240, 255, 0.4);">${runSize}</span>
+                ${overlay}
+                <img src="${hero}" class="diecast-img">
+              </div>
+              <div class="p-3 d-flex flex-column flex-grow-1">
+                <h5 class="fw-bold mb-1" style="font-family:'Orbitron';">${item.theme}</h5>
+                <div class="d-flex justify-content-between align-items-center">
+                    <p class="text-info fw-bold mb-0">${item.model}</p>
+                    <span class="price-tag fs-5 fw-bold">$${item.minPrice.toFixed(2)}</span>
+                </div>
+                ${item.plannedChase > 0 ? `<div class="text-warning fw-bold mt-2" style="font-size: 0.7rem; letter-spacing: 0.5px; text-shadow: 0 0 8px rgba(255, 193, 7, 0.6); font-family: 'Orbitron', sans-serif;">⚠️ CHASE AVAILABLE (1 IN ${item.plannedTotal})</div>` : ''}
+                <div class="mt-auto pt-2 border-top border-secondary mt-3">
+                    ${cta}
+                </div>
+              </div>
+            </div>`;
+      }).join('');
+    }
+
+    function openModal(batchId, autoTriggerWaitlist = false) {
+        const item = globalBatches.find(b => b.id === batchId);
+        if (!item) return;
+        currentModalBatch = item;
+
+        document.getElementById('modTitle').innerText = item.title;
+        document.getElementById('modPrice').innerText = `$${item.minPrice.toFixed(2)}`;
+        document.getElementById('modDesc').innerHTML = item.desc;
+        document.getElementById('modBadge').innerText = item.plannedTotal > 0 ? `ONLY ${item.plannedTotal} EVER MADE` : 'CUSTOM RUN';
+
+        let slides = '';
+        let thumbs = '';
+        
+        if (item.images && item.images.length > 0) {
+            item.images.forEach((url, i) => {
+                let activeClass = (i === 0) ? 'active' : '';
+                let cleanUrl = convertDriveUrl(url);
+                slides += `<div class="carousel-item ${activeClass}"><img src="${cleanUrl}" class="d-block w-100"></div>`;
+                thumbs += `<img src="${cleanUrl}" class="img-thumbnail bg-dark border-secondary p-1" style="width: 75px; height: 75px; object-fit: cover; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'" data-bs-target="#modCarousel" data-bs-slide-to="${i}">`;
+            });
+        } else {
+            let cleanUrl = item.heroImg ? convertDriveUrl(item.heroImg) : '';
+            slides = `<div class="carousel-item active"><img src="${cleanUrl}" class="d-block w-100"></div>`;
+            thumbs = `<img src="${cleanUrl}" class="img-thumbnail bg-dark border-secondary p-1" style="width: 75px; height: 75px; object-fit: cover;">`;
+        }
+        
+        document.getElementById('modCarouselInner').innerHTML = slides;
+        document.getElementById('modThumbnails').innerHTML = thumbs;
+
+        const isSoldOut = (item.utahStock + item.texasStock) <= 0;
+        if (isSoldOut) {
+            document.getElementById('modCtaContainer').innerHTML = `<button class="btn-buy w-100 bg-secondary shadow-none" disabled>SOLD OUT</button>`;
+        } else if (item.ebayUrl) {
+            document.getElementById('modCtaContainer').innerHTML = `<a href="${item.ebayUrl}" target="_blank" class="btn-buy w-100 text-decoration-none">SECURE ON eBay</a>`;
+        } else {
+            resetModalCta();
+        }
+
+        productModal.show();
+        
+        if (autoTriggerWaitlist) {
+            setTimeout(triggerInlineWaitlist, 300);
+        }
+    }
+
+    function resetModalCta() {
+        document.getElementById('modCtaContainer').innerHTML = `<button class="btn-buy w-100 btn-waitlist" onclick="triggerInlineWaitlist()">JOIN WAITLIST</button>`;
+    }
+
+    function triggerInlineWaitlist() {
+        const container = document.getElementById('modCtaContainer');
+        container.innerHTML = `
+            <div class="p-3 rounded" style="background: rgba(255, 193, 7, 0.08); border: 1px solid var(--neon-yellow);">
+                <label class="small fw-bold text-warning mb-2" style="font-family: 'Orbitron';">NOTIFY ME WHEN DROPPED</label>
+                <form class="d-flex gap-2" onsubmit="submitWaitlist(event)">
+                    <input type="email" id="wlEmail" class="form-control form-control-cyber py-1" placeholder="EMAIL ADDRESS" style="font-size: 0.9rem;" required>
+                    <button type="submit" id="wlBtn" class="btn-buy btn-waitlist px-3 py-1" style="width: auto; font-size: 0.8rem;">LOCK IN</button>
+                </form>
+                <button class="btn btn-link text-muted small p-0 mt-2 text-decoration-none" onclick="resetModalCta()" style="font-size: 0.75rem;">Cancel</button>
+            </div>
+        `;
+        setTimeout(() => document.getElementById('wlEmail').focus(), 100);
+    }
+
+    // FIRE AND FORGET OPTIMISTIC UI: Waitlist
+    function submitWaitlist(e) {
+        e.preventDefault();
+        
+        const payload = {
+            type: 'Waitlist',
+            email: document.getElementById('wlEmail').value,
+            name: "N/A",
+            message: `Waitlist Request: ${currentModalBatch.theme} ${currentModalBatch.model} (${currentModalBatch.id})`
+        };
+
+        // Instantly transform the UI with zero wait time
+        document.getElementById('modCtaContainer').innerHTML = `
+            <div class="alert py-2 text-center fw-bold small mb-0" style="background: rgba(0, 240, 255, 0.15); border: 1px solid var(--neon-cyan); color: #fff; font-family: 'Orbitron'; letter-spacing: 1px;">
+                ✅ SECURED. YOU'RE ON THE LIST.
+            </div>`;
+
+        // Send data to Google in the background invisibly
+        fetch(GAS_ENDPOINT, { method: 'POST', body: JSON.stringify(payload) }).catch(err => console.log(err));
+    }
+
+    // FIRE AND FORGET OPTIMISTIC UI: Footer Forms
+    function submitNativeForm(e, type) {
+        e.preventDefault();
+        const formEl = e.target;
+
+        const payload = {
+            type: type,
+            email: type === 'Newsletter' ? document.getElementById('nlEmail').value : document.getElementById('ctEmail').value,
+            name: type === 'Contact' ? document.getElementById('ctName').value : "",
+            message: type === 'Contact' ? document.getElementById('ctMsg').value : ""
+        };
+
+        // Instantly dissolve the form into a sleek success banner
+        if (type === 'Newsletter') {
+            formEl.outerHTML = `
+                <div class="alert py-3 text-center fw-bold mb-0" style="background: rgba(0, 240, 255, 0.15); border: 1px solid var(--neon-cyan); color: #fff; font-family: 'Orbitron'; letter-spacing: 1px;">
+                    ✅ THANKS FOR SIGNING UP. WELCOME TO THE GARAGE.
+                </div>`;
+        } else {
+            formEl.outerHTML = `
+                <div class="alert py-3 text-center fw-bold mb-0" style="background: rgba(0, 240, 255, 0.15); border: 1px solid var(--neon-cyan); color: #fff; font-family: 'Orbitron'; letter-spacing: 1px;">
+                    ✅ TRANSMISSION RECEIVED. WE WILL REVIEW SHORTLY.
+                </div>`;
+        }
+
+        // Send data to Google in the background invisibly
+        fetch(GAS_ENDPOINT, { method: 'POST', body: JSON.stringify(payload) }).catch(err => console.log(err));
+    }
+
+    document.addEventListener('DOMContentLoaded', loadCatalog);
+  </script>
 </body>
 </html>
