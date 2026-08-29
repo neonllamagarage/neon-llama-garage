@@ -383,7 +383,7 @@
           container.style.display = 'none'; return;
       }
       
-      container.style.display = 'flex';
+      container.style.display = 'block';
       grid.innerHTML = drops.map(b => {
           const dStr = b.dropTime ? b.dropTime.toLocaleDateString('en-US', {month: 'short', day: 'numeric'}).toUpperCase() : 'TBA';
           const tStr = b.dropTime ? b.dropTime.toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit', timeZoneName: 'short'}) : '';
