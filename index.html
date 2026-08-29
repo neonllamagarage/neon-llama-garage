@@ -82,7 +82,7 @@
     .carousel-inner img { height: 400px; object-fit: contain; background: #000; border-radius: 8px; border: 1px solid var(--card-border); }
 
     /* About Section */
-    .about-section { background: rgba(5, 5, 8, 0.7); backdrop-filter: blur(10px); border-top: 2px solid rgba(255, 16, 122, 0.4); padding: 80px 40px; margin-top: 40px; text-align: center; }
+    .about-section { background: rgba(10, 10, 15, 0.7); backdrop-filter: blur(10px); border-radius: 12px; border: 1px solid var(--card-border); padding: 60px 40px; margin: 0 auto 80px; max-width: 1000px; text-align: center; display: none; }
     .about-content { max-width: 800px; margin: 0 auto; color: #d1d5db; line-height: 1.8; font-size: 1.1rem; }
     .about-title { font-family: 'Orbitron', sans-serif; color: var(--neon-cyan); font-size: 2.2rem; font-weight: 900; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 25px; text-shadow: 0 0 15px rgba(0, 240, 255, 0.3); }
 
@@ -135,16 +135,16 @@
         <div class="spinner-border spinner-border-sm me-3"></div> LOADING...
       </div>
     </div>
+    
+    <!-- About Us Section (Now controlled by tabs) -->
+    <section id="aboutSection" class="about-section">
+      <div class="about-content">
+        <h2 class="about-title">THE NEON LLAMA STORY</h2>
+        <p>Neon Llama Garage is a family-owned, father-and-son team operating out of dual workshops. Avid collectors since 1995, we got tired of staring at the same traditional race cars on the pegs.</p>
+        <p>Tim handles the vehicle sourcing, drilling, stripping, and custom painting in the Utah shop, while the Texas base manages the precision decals, packaging, and order fulfillment. We build exactly what we want to see on our own walls: visually disruptive, high-impact customs designed to stand out in a display of thousands.</p>
+      </div>
+    </section>
   </main>
-
-  <!-- About Us Section -->
-  <section class="about-section">
-    <div class="about-content">
-      <h2 class="about-title">THE PIKE'S 13 STORY</h2>
-      <p>Neon Llama Garage is the custom diecast wing of Pike's 13. We are a family-owned, father-and-son team operating out of dual workshops. Avid collectors since 1995, we got tired of staring at the same traditional race cars on the pegs.</p>
-      <p>Tim handles the vehicle sourcing, drilling, stripping, and custom painting in the Utah shop, while the Texas base manages the precision decals, packaging, and order fulfillment. We build exactly what we want to see on our own walls: visually disruptive, high-impact customs designed to stand out in a display of thousands.</p>
-    </div>
-  </section>
 
   <!-- Detail Modal -->
   <div class="modal fade" id="productModal" tabindex="-1">
@@ -232,14 +232,26 @@
         
         globalBatches = data.batches || [];
         processTimeData(); 
+        
+        // Filter out teaser phase cars so they don't spawn empty theme tabs
+        const now = new Date();
+        const oneDayMs = 24 * 60 * 60 * 1000;
+        const visibleBatches = globalBatches.filter(b => {
+            if (!b.dropTime) return true;
+            return (b.dropTime.getTime() - now.getTime()) <= oneDayMs;
+        });
 
-        const themes = [...new Set(globalBatches.map(b => b.theme))].sort();
+        const themes = [...new Set(visibleBatches.map(b => b.theme))].sort();
         const tabList = document.getElementById('seriesTabs');
+        
         tabList.innerHTML = `<li class="nav-item"><button class="nav-link active" onclick="renderGrid('AVAILABLE', event)">AVAILABLE DROPS</button></li>`;
         
         themes.forEach(t => {
             tabList.innerHTML += `<li class="nav-item"><button class="nav-link" onclick="renderGrid('${t}', event)">${t}</button></li>`;
         });
+        
+        // Add About Us tab
+        tabList.innerHTML += `<li class="nav-item"><button class="nav-link" onclick="renderGrid('ABOUT', event)">ABOUT US</button></li>`;
         
         renderGrid('AVAILABLE', null);
     } catch (err) {
@@ -394,20 +406,39 @@
     }
 
     const grid = document.getElementById('catalogGrid');
-    let filtered = globalBatches;
+    const aboutSection = document.getElementById('aboutSection');
+
+    // Toggle view for About Us
+    if (filter === 'ABOUT') {
+        grid.style.display = 'none';
+        aboutSection.style.display = 'block';
+        return;
+    } else {
+        grid.style.display = 'grid';
+        aboutSection.style.display = 'none';
+    }
+
+    const now = new Date();
+    const oneDayMs = 24 * 60 * 60 * 1000;
+    
+    // Filter out teaser phase cars from grids
+    let visibleBatches = globalBatches.filter(b => {
+        if (!b.dropTime) return true;
+        return (b.dropTime.getTime() - now.getTime()) <= oneDayMs;
+    });
+
+    let filtered = visibleBatches;
     
     if (filter === 'AVAILABLE') {
-        filtered = globalBatches.filter(b => b.totalStock > 0);
+        filtered = visibleBatches.filter(b => b.totalStock > 0);
     } else {
-        filtered = globalBatches.filter(b => b.theme === filter);
+        filtered = visibleBatches.filter(b => b.theme === filter);
     }
 
     if (filtered.length === 0) {
         grid.innerHTML = `<h5 class="high-contrast-text w-100 text-center py-5" style="font-family:'Orbitron';">NO CARS FOUND IN THIS SECTOR</h5>`;
         return;
     }
-
-    const now = new Date();
 
     grid.innerHTML = filtered.map(item => {
         const hero = item.heroImg ? convertDriveUrl(item.heroImg) : '';
