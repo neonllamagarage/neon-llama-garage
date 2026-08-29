@@ -36,7 +36,12 @@
     /* Hero Billboard */
     .hero-billboard { position: relative; width: 100%; min-height: 380px; border: 2px solid var(--neon-cyan); border-radius: 12px; overflow: hidden; display: none; box-shadow: 0 0 30px rgba(0, 240, 255, 0.2); }
     .hero-bg { width: 100%; height: 100%; position: absolute; top: 0; left: 0; object-fit: cover; z-index: 0; }
-    .hero-overlay { position: relative; width: 100%; min-height: 380px; background: linear-gradient(90deg, rgba(3,3,5,0.98) 0%, rgba(3,3,5,0.85) 45%, rgba(3,3,5,0.0) 85%); display: flex; flex-direction: column; justify-content: center; padding: 40px; z-index: 1; }
+    
+    /* Dynamic Phase Overlays */
+    .hero-overlay { position: relative; width: 100%; min-height: 380px; display: flex; flex-direction: column; justify-content: center; padding: 40px; z-index: 1; transition: background 1s ease; }
+    .overlay-teaser { background: linear-gradient(90deg, rgba(3,3,5,0.98) 0%, rgba(3,3,5,0.95) 50%, rgba(3,3,5,0.4) 100%); }
+    .overlay-reveal { background: linear-gradient(90deg, rgba(3,3,5,0.98) 0%, rgba(3,3,5,0.85) 45%, rgba(3,3,5,0.0) 85%); }
+    
     .hero-phase { font-family: 'Orbitron'; letter-spacing: 4px; font-size: 1rem; font-weight: 900; margin-bottom: 5px; }
     .hero-title { font-family: 'Orbitron'; font-size: 3rem; font-weight: 900; line-height: 1.1; margin: 0 0 10px 0; text-transform: uppercase; text-shadow: 0 0 15px rgba(255,255,255,0.3); }
     .hero-countdown { font-family: 'Orbitron'; font-size: 2rem; color: var(--neon-yellow); font-weight: 700; text-shadow: 0 0 15px rgba(255, 193, 7, 0.5); margin-bottom: 20px; }
@@ -284,7 +289,7 @@
       
       wrapper.innerHTML = `
         <img src="${hero}" class="hero-bg">
-        <div class="hero-overlay">
+        <div id="heroOverlay" class="hero-overlay overlay-teaser">
            <div id="bbPhase" class="hero-phase"></div>
            <h2 class="hero-title">${item.theme}<br><span style="font-size: 1.5rem; color: #d1d5db; letter-spacing: 1px;">${item.model}</span></h2>
            <div id="bbCountdown" class="hero-countdown"></div>
@@ -299,12 +304,14 @@
 
   function updateBillboardTick(item) {
       const now = new Date();
+      const overlay = document.getElementById('heroOverlay');
       const cLabel = document.getElementById('bbCountdown');
       const pLabel = document.getElementById('bbPhase');
       const cta = document.getElementById('bbCta');
       if(!cLabel) return;
 
       if (item.totalStock <= 0) {
+          if (overlay) { overlay.classList.add('overlay-reveal'); overlay.classList.remove('overlay-teaser'); }
           pLabel.innerText = "THE VAULT"; pLabel.style.color = "#ff0000"; pLabel.style.textShadow = "0 0 10px #ff0000";
           cLabel.innerText = "SOLD OUT"; cLabel.style.color = "#ff0000";
           cta.innerHTML = `<button class="btn-buy" disabled style="background: rgba(255,0,0,0.2); box-shadow: none;">OUT OF STOCK</button>`;
@@ -312,6 +319,7 @@
       }
 
       if (item.dropTime <= now) {
+          if (overlay) { overlay.classList.add('overlay-reveal'); overlay.classList.remove('overlay-teaser'); }
           pLabel.innerText = "LIVE NOW"; pLabel.style.color = "var(--neon-cyan)"; pLabel.style.textShadow = "0 0 10px var(--neon-cyan)";
           cLabel.innerText = "AVAILABLE"; cLabel.style.color = "#fff";
           if (item.stripeLink) {
@@ -321,7 +329,19 @@
           }
       } else {
           let diff = item.dropTime.getTime() - now.getTime();
-          pLabel.innerText = diff <= (24*60*60*1000) ? "REVEAL PHASE" : "TEASER PHASE";
+          let isTeaser = diff > (24 * 60 * 60 * 1000);
+          
+          if (overlay) {
+              if (isTeaser) {
+                  overlay.classList.add('overlay-teaser');
+                  overlay.classList.remove('overlay-reveal');
+              } else {
+                  overlay.classList.add('overlay-reveal');
+                  overlay.classList.remove('overlay-teaser');
+              }
+          }
+
+          pLabel.innerText = isTeaser ? "TEASER PHASE" : "REVEAL PHASE";
           pLabel.style.color = "var(--neon-pink)"; pLabel.style.textShadow = "0 0 10px var(--neon-pink)";
 
           let d = Math.floor(diff / (1000 * 60 * 60 * 24));
@@ -436,8 +456,16 @@
       document.getElementById('modDesc').innerHTML = item.desc;
       document.getElementById('modBadge').innerText = item.plannedTotal > 0 ? `ONLY ${item.plannedTotal} EVER MADE` : 'CUSTOM RUN';
 
+      const now = new Date();
+      const dropTime = item.launchDate ? new Date(item.launchDate) : null;
+      const isTeaser = dropTime && (dropTime.getTime() - now.getTime() > (24 * 60 * 60 * 1000));
+      const isSoldOut = item.totalStock <= 0;
+      const isLocked = dropTime && dropTime > now;
+
       let slides = '';
-      if (item.images && item.images.length > 0) {
+      
+      // Teaser Logic: Force the hero image only until the 24-hour Reveal Phase
+      if (!isTeaser && item.images && item.images.length > 0) {
           item.images.forEach((url, i) => {
               slides += `<div class="carousel-item ${i===0?'active':''}"><img src="${convertDriveUrl(url)}" class="d-block w-100"></div>`;
           });
@@ -445,11 +473,6 @@
           slides = `<div class="carousel-item active"><img src="${item.heroImg ? convertDriveUrl(item.heroImg) : ''}" class="d-block w-100"></div>`;
       }
       document.getElementById('modCarouselInner').innerHTML = slides;
-
-      const now = new Date();
-      const dropTime = item.launchDate ? new Date(item.launchDate) : null;
-      const isSoldOut = item.totalStock <= 0;
-      const isLocked = dropTime && dropTime > now;
 
       let cta = '';
       if (isSoldOut) {
