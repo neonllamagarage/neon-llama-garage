@@ -29,22 +29,22 @@
     .nav-brand-text span { color: var(--neon-cyan); text-shadow: 0 0 15px rgba(0, 240, 255, 0.6); }
     .header-tagline { font-family: 'Orbitron', sans-serif; font-size: 0.8rem; color: var(--neon-pink); letter-spacing: 3px; text-transform: uppercase; margin: 2px 0 0 0; text-shadow: 0 0 8px rgba(255, 16, 122, 0.5); }
 
-    /* Dashboard Layout (Side by Side) */
-    .dashboard-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 25px; max-width: 1400px; margin: 20px auto 10px; padding: 0 40px; align-items: start; }
+    /* Dashboard Layout */
+    .dashboard-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 30px; max-width: 1400px; margin: 30px auto 20px; padding: 0 40px; align-items: stretch; }
     @media (max-width: 1024px) { .dashboard-layout { grid-template-columns: 1fr; gap: 20px; } }
 
     /* Hero Billboard */
     .hero-billboard { position: relative; width: 100%; min-height: 380px; border: 2px solid var(--neon-cyan); border-radius: 12px; overflow: hidden; display: none; box-shadow: 0 0 30px rgba(0, 240, 255, 0.2); }
-    .hero-bg { width: 100%; height: 100%; position: absolute; top: 0; left: 0; object-fit: cover; opacity: 0.5; z-index: 0; }
-    .hero-overlay { position: relative; width: 100%; min-height: 380px; background: linear-gradient(90deg, rgba(3,3,5,0.95) 0%, rgba(3,3,5,0.2) 100%); display: flex; flex-direction: column; justify-content: center; padding: 40px; z-index: 1; }
+    .hero-bg { width: 100%; height: 100%; position: absolute; top: 0; left: 0; object-fit: cover; z-index: 0; }
+    .hero-overlay { position: relative; width: 100%; min-height: 380px; background: linear-gradient(90deg, rgba(3,3,5,0.98) 0%, rgba(3,3,5,0.85) 45%, rgba(3,3,5,0.0) 85%); display: flex; flex-direction: column; justify-content: center; padding: 40px; z-index: 1; }
     .hero-phase { font-family: 'Orbitron'; letter-spacing: 4px; font-size: 1rem; font-weight: 900; margin-bottom: 5px; }
     .hero-title { font-family: 'Orbitron'; font-size: 3rem; font-weight: 900; line-height: 1.1; margin: 0 0 10px 0; text-transform: uppercase; text-shadow: 0 0 15px rgba(255,255,255,0.3); }
     .hero-countdown { font-family: 'Orbitron'; font-size: 2rem; color: var(--neon-yellow); font-weight: 700; text-shadow: 0 0 15px rgba(255, 193, 7, 0.5); margin-bottom: 20px; }
 
     /* Launch Ledger */
-    .ledger-container { width: 100%; margin: 0; padding: 0; }
-    .ledger-row { background: var(--card-bg); border: 1px solid var(--card-border); border-left: 4px solid var(--neon-cyan); padding: 12px 20px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s; }
-    .ledger-row:hover { background: rgba(10, 10, 15, 0.95); border-color: var(--neon-cyan); box-shadow: 0 0 15px rgba(0, 240, 255, 0.15); }
+    .ledger-container { background: rgba(10, 10, 15, 0.6); backdrop-filter: blur(8px); border: 1px solid var(--card-border); border-radius: 12px; padding: 20px; width: 100%; display: flex; flex-direction: column; }
+    .ledger-row { background: rgba(10, 10, 15, 0.9); border: 1px solid var(--card-border); border-left: 4px solid var(--neon-cyan); padding: 12px 20px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s; }
+    .ledger-row:hover { background: #000; border-color: var(--neon-cyan); box-shadow: 0 0 15px rgba(0, 240, 255, 0.15); }
     .ledger-date { font-family: 'Orbitron'; color: var(--neon-cyan); font-weight: 700; width: 120px; flex-shrink: 0; line-height: 1.2; }
     .ledger-info { flex-grow: 1; padding: 0 15px; }
     .ledger-theme { font-weight: 700; font-size: 1.1rem; margin: 0; letter-spacing: 1px; text-transform: uppercase; line-height: 1.2; }
@@ -52,7 +52,7 @@
     @media (max-width: 768px) { .ledger-row { flex-direction: column; align-items: flex-start; gap: 10px; } .ledger-date { width: 100%; border-bottom: 1px solid var(--card-border); padding-bottom: 5px;} .ledger-info { padding: 0; width: 100%; } }
 
     /* Tabs */
-    .nav-tabs { border-bottom: 1px solid var(--card-border); margin: 10px 40px 20px; }
+    .nav-tabs { border-bottom: 1px solid var(--card-border); margin: 20px 40px 25px; }
     .nav-tabs .nav-link { color: #d1d5db; font-family: 'Orbitron', sans-serif; font-weight: 700; border: none; text-transform: uppercase; letter-spacing: 1px; background: transparent; transition: all 0.3s; cursor: pointer;}
     .nav-tabs .nav-link:hover { color: var(--neon-cyan); }
     .nav-tabs .nav-link.active { color: var(--neon-pink); border-bottom: 2px solid var(--neon-pink); background: transparent; text-shadow: 0 0 8px rgba(255, 16, 122, 0.5); }
@@ -76,26 +76,15 @@
     .modal-header { border-bottom: 1px solid var(--card-border); }
     .carousel-inner img { height: 400px; object-fit: contain; background: #000; border-radius: 8px; border: 1px solid var(--card-border); }
 
+    /* About Section */
+    .about-section { background: rgba(5, 5, 8, 0.7); backdrop-filter: blur(10px); border-top: 2px solid rgba(255, 16, 122, 0.4); padding: 80px 40px; margin-top: 40px; text-align: center; }
+    .about-content { max-width: 800px; margin: 0 auto; color: #d1d5db; line-height: 1.8; font-size: 1.1rem; }
+    .about-title { font-family: 'Orbitron', sans-serif; color: var(--neon-cyan); font-size: 2.2rem; font-weight: 900; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 25px; text-shadow: 0 0 15px rgba(0, 240, 255, 0.3); }
+
     /* HIGH CONTRAST Footer Forms */
-    .footer-section { background: rgba(5, 5, 8, 0.95); border-top: 2px solid rgba(0, 240, 255, 0.4); padding: 60px 20px; margin-top: 60px; position: relative; z-index: 10; }
-    
-    .form-control-cyber { 
-      background: rgba(10, 10, 15, 0.9); 
-      border: 2px solid var(--neon-cyan); 
-      color: #ffffff !important; 
-      font-family: 'Rajdhani', sans-serif; 
-      font-size: 1.1rem;
-      padding: 10px 15px; 
-      box-shadow: 0 0 8px rgba(0, 240, 255, 0.1);
-    }
-    
-    .form-control-cyber:focus { 
-      background: #000000; 
-      border-color: var(--neon-pink); 
-      box-shadow: 0 0 15px rgba(255, 16, 122, 0.4); 
-      outline: none; 
-    }
-    
+    .footer-section { background: rgba(3, 3, 5, 0.98); border-top: 1px solid var(--card-border); padding: 60px 20px; position: relative; z-index: 10; }
+    .form-control-cyber { background: rgba(10, 10, 15, 0.9); border: 2px solid var(--neon-cyan); color: #ffffff !important; font-family: 'Rajdhani', sans-serif; font-size: 1.1rem; padding: 10px 15px; box-shadow: 0 0 8px rgba(0, 240, 255, 0.1); }
+    .form-control-cyber:focus { background: #000000; border-color: var(--neon-pink); box-shadow: 0 0 15px rgba(255, 16, 122, 0.4); outline: none; }
     .form-control-cyber::placeholder { color: rgba(255, 255, 255, 0.65) !important; font-weight: 500; }
     .high-contrast-text { color: #f8fafc !important; font-weight: 600; font-size: 1.1rem; }
   </style>
@@ -122,7 +111,7 @@
 
     <!-- Launch Ledger (Right/Secondary) -->
     <section id="launchLedgerContainer" class="ledger-container" style="display:none;">
-      <h3 style="font-family:'Orbitron'; font-size: 1.2rem; font-weight: 700; margin: 0 0 12px 0; text-shadow: 0 0 10px rgba(255,255,255,0.2);">
+      <h3 style="font-family:'Orbitron'; font-size: 1.2rem; font-weight: 700; margin: 0 0 15px 0; text-shadow: 0 0 10px rgba(255,255,255,0.2);">
         UPCOMING <span style="color:var(--neon-pink);">DROPS</span>
       </h3>
       <div id="launchLedgerGrid"></div>
@@ -142,6 +131,15 @@
       </div>
     </div>
   </main>
+
+  <!-- About Us Section -->
+  <section class="about-section">
+    <div class="about-content">
+      <h2 class="about-title">THE PIKE'S 13 STORY</h2>
+      <p>Neon Llama Garage is the custom diecast wing of Pike's 13. We are a family-owned, father-and-son team operating out of dual workshops. Avid collectors since 1995, we got tired of staring at the same traditional race cars on the pegs.</p>
+      <p>Tim handles the vehicle sourcing, drilling, stripping, and custom painting in the Utah shop, while the Texas base manages the precision decals, packaging, and order fulfillment. We build exactly what we want to see on our own walls: visually disruptive, high-impact customs designed to stand out in a display of thousands.</p>
+    </div>
+  </section>
 
   <!-- Detail Modal -->
   <div class="modal fade" id="productModal" tabindex="-1">
@@ -347,7 +345,7 @@
           container.style.display = 'none'; return;
       }
       
-      container.style.display = 'block';
+      container.style.display = 'flex';
       grid.innerHTML = drops.map(b => {
           const dStr = b.dropTime ? b.dropTime.toLocaleDateString('en-US', {month: 'short', day: 'numeric'}).toUpperCase() : 'TBA';
           const tStr = b.dropTime ? b.dropTime.toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit', timeZoneName: 'short'}) : '';
