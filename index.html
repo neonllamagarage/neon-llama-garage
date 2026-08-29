@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Neon Llama Garage | Custom Diecast</title>
-  <link rel="icon" type="image/png" href="llama-icon.png">
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -29,6 +28,24 @@
     .nav-brand-text { font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 2.2rem; letter-spacing: 2.5px; color: var(--text-main); text-transform: uppercase; margin: 0; text-shadow: 0 0 12px rgba(255,255,255,0.3); }
     .nav-brand-text span { color: var(--neon-cyan); text-shadow: 0 0 15px rgba(0, 240, 255, 0.6); }
     .header-tagline { font-family: 'Orbitron', sans-serif; font-size: 0.9rem; color: var(--neon-pink); letter-spacing: 4px; text-transform: uppercase; margin: 4px 0 0 0; text-shadow: 0 0 8px rgba(255, 16, 122, 0.5); }
+
+    /* Hero Billboard */
+    .hero-billboard { position: relative; width: 100%; max-width: 1400px; margin: 20px auto; border: 2px solid var(--neon-cyan); border-radius: 12px; overflow: hidden; display: none; box-shadow: 0 0 30px rgba(0, 240, 255, 0.2); }
+    .hero-bg { width: 100%; height: 400px; object-fit: cover; opacity: 0.5; }
+    .hero-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(90deg, rgba(3,3,5,0.95) 0%, rgba(3,3,5,0.2) 100%); display: flex; flex-direction: column; justify-content: center; padding: 50px; }
+    .hero-phase { font-family: 'Orbitron'; letter-spacing: 4px; font-size: 1.1rem; font-weight: 900; margin-bottom: 5px; }
+    .hero-title { font-family: 'Orbitron'; font-size: 3.5rem; font-weight: 900; line-height: 1.1; margin: 0 0 10px 0; text-transform: uppercase; text-shadow: 0 0 15px rgba(255,255,255,0.3); }
+    .hero-countdown { font-family: 'Orbitron'; font-size: 2.2rem; color: var(--neon-yellow); font-weight: 700; text-shadow: 0 0 15px rgba(255, 193, 7, 0.5); margin-bottom: 25px; }
+
+    /* Launch Ledger */
+    .ledger-container { max-width: 1400px; margin: 0 auto 30px; padding: 0 40px; }
+    .ledger-row { background: var(--card-bg); border: 1px solid var(--card-border); border-left: 4px solid var(--neon-cyan); padding: 15px 25px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s; }
+    .ledger-row:hover { background: rgba(10, 10, 15, 0.95); border-color: var(--neon-cyan); box-shadow: 0 0 15px rgba(0, 240, 255, 0.15); }
+    .ledger-date { font-family: 'Orbitron'; color: var(--neon-cyan); font-weight: 700; width: 150px; flex-shrink: 0; }
+    .ledger-info { flex-grow: 1; padding: 0 20px; }
+    .ledger-theme { font-weight: 700; font-size: 1.2rem; margin: 0; letter-spacing: 1px; text-transform: uppercase;}
+    .ledger-model { color: #8b9eb3; font-size: 0.95rem; margin: 0; font-weight: 600; }
+    @media (max-width: 768px) { .ledger-row { flex-direction: column; align-items: flex-start; gap: 15px; } .ledger-date { width: 100%; border-bottom: 1px solid var(--card-border); padding-bottom: 8px;} .ledger-info { padding: 0; } }
 
     /* Tabs */
     .nav-tabs { border-bottom: 1px solid var(--card-border); margin: 20px 40px; }
@@ -89,13 +106,24 @@
 
   <header class="top-nav">
     <div class="nav-brand-container">
-      <img src="llama-icon.png" alt="Neon Llama Logo" class="nav-llama-logo" onerror="this.style.display='none'">
+      <img src="YOUR_DIRECT_IMAGE_URL_HERE" alt="Neon Llama Logo" class="nav-llama-logo" id="mainLogo">
       <div>
         <h1 class="nav-brand-text">Neon Llama <span>Garage</span></h1>
         <p class="header-tagline">Custom Diecast Vault</p>
       </div>
     </div>
   </header>
+
+  <!-- Hero Billboard Injection Point -->
+  <div style="padding: 0 40px;">
+    <section id="heroBillboard" class="hero-billboard"></section>
+  </div>
+
+  <!-- Launch Ledger Injection Point -->
+  <section id="launchLedgerContainer" class="ledger-container" style="display:none;">
+    <h3 style="font-family:'Orbitron'; font-size: 1.4rem; font-weight: 700; margin: 20px 0; text-shadow: 0 0 10px rgba(255,255,255,0.2);">UPCOMING <span style="color:var(--neon-pink);">DROPS</span></h3>
+    <div id="launchLedgerGrid"></div>
+  </section>
 
   <!-- Dynamic Tabs -->
   <ul class="nav nav-tabs" id="seriesTabs" role="tablist">
@@ -120,7 +148,7 @@
         </div>
         <div class="modal-body row g-4">
           <div class="col-lg-7">
-            <div id="modCarousel" class="carousel slide mb-3" data-bs-interval="false">
+            <div id="modCarousel" class="carousel slide" data-bs-interval="false">
               <div class="carousel-inner" id="modCarouselInner"></div>
               <button class="carousel-control-prev" type="button" data-bs-target="#modCarousel" data-bs-slide="prev">
                 <span class="carousel-control-prev-icon"></span>
@@ -129,8 +157,6 @@
                 <span class="carousel-control-next-icon"></span>
               </button>
             </div>
-            <!-- MISSING DIV ADDED HERE -->
-            <div id="modThumbnails" class="d-flex gap-2 overflow-auto justify-content-center pb-2"></div>
           </div>
           <div class="col-lg-5 d-flex flex-column">
             <div class="d-flex justify-content-between align-items-center mb-3">
@@ -170,264 +196,295 @@
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    // Pointing back to your live Apps Script execution URL
-    const GAS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxe1WwM8zoYYR1aU4N2EcsqvAjh0PXgVzPwIh1ZnwaB4YYdfwI-fd8eJysx37lgMplHwQ/exec';
-    let globalBatches = [];
-    let productModal;
-    let currentModalBatch = null;
+ <script>
+  let globalBatches = [];
+  let productModal;
+  let countdownTimer;
 
-    function convertDriveUrl(url) {
-      if (!url) return '';
-      let match = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
-      return match ? `https://drive.google.com/thumbnail?id=${match[1]}&sz=w800` : url;
-    }
+  function convertDriveUrl(url) {
+    if (!url) return '';
+    let match = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
+    return match ? `https://drive.google.com/thumbnail?id=${match[1]}&sz=w800` : url;
+  }
 
-    // LOCALLY HOSTED FETCH ROUTINE
-    async function loadCatalog() {
-      productModal = new bootstrap.Modal(document.getElementById('productModal'));
+  function loadCatalog() {
+    productModal = new bootstrap.Modal(document.getElementById('productModal'));
+    
+    google.script.run
+      .withSuccessHandler(res => {
+          if(!res.success) {
+              document.getElementById('catalogGrid').innerHTML = `<h4 class="text-danger">SYSTEM ERROR: Failed to parse inventory.</h4>`;
+              return;
+          }
+          globalBatches = res.batches || [];
+          
+          processTimeData(); 
+
+          const themes = [...new Set(globalBatches.map(b => b.theme))].sort();
+          const tabList = document.getElementById('seriesTabs');
+          themes.forEach(t => {
+              tabList.innerHTML += `<li class="nav-item"><button class="nav-link" onclick="renderGrid('${t}', event)">${t}</button></li>`;
+          });
+          
+          renderGrid('AVAILABLE', null);
+      })
+      .withFailureHandler(err => {
+          document.getElementById('catalogGrid').innerHTML = `<h4 class="text-danger" style="font-family:'Orbitron';">CRITICAL ERROR: ${err.message}</h4>`;
+      })
+      .getSalesPortalData();
+  }
+
+  function processTimeData() {
+      const now = new Date();
+      const thirtyDaysOut = new Date(now.getTime() + (30 * 24 * 60 * 60 * 1000));
+
+      globalBatches.forEach(b => {
+          b.dropTime = b.launchDate ? new Date(b.launchDate) : null;
+          b.isUpcoming = b.dropTime && b.dropTime > now;
+          b.ageMs = b.dropTime ? now.getTime() - b.dropTime.getTime() : 0;
+      });
+
+      let billboardBatch = null;
+      let recentLive = globalBatches.filter(b => b.dropTime && b.ageMs >= 0 && b.ageMs <= (72 * 60 * 60 * 1000) && b.totalStock > 0);
       
-      const grid = document.getElementById('catalogGrid');
+      if (recentLive.length > 0) {
+          recentLive.sort((a, b) => a.ageMs - b.ageMs);
+          billboardBatch = recentLive[0];
+      } else {
+          let upcoming = globalBatches.filter(b => b.isUpcoming);
+          if (upcoming.length > 0) {
+              upcoming.sort((a, b) => a.dropTime.getTime() - b.dropTime.getTime());
+              billboardBatch = upcoming[0];
+          }
+      }
+
+      if (billboardBatch) renderBillboard(billboardBatch);
+
+      let ledgerDrops = globalBatches.filter(b => b.isUpcoming && b.dropTime <= thirtyDaysOut);
+      ledgerDrops.sort((a, b) => a.dropTime.getTime() - b.dropTime.getTime());
+      renderLedger(ledgerDrops.slice(0, 8));
+  }
+
+  function renderBillboard(item) {
+      const wrapper = document.getElementById('heroBillboard');
+      wrapper.style.display = 'block';
+      const hero = item.heroImg ? convertDriveUrl(item.heroImg) : '';
       
-      // 1. Immersive Terminal Loading Screen
-      grid.innerHTML = `
-        <div class="text-center w-100 py-5" style="grid-column: 1 / -1;">
-          <div class="p-4 mx-auto rounded" style="max-width: 500px; background: rgba(3,3,5,0.9); border: 2px solid var(--neon-cyan); box-shadow: 0 0 25px rgba(0,240,255,0.25); text-align: left; font-family: 'Orbitron', monospace;">
-            <div class="d-flex align-items-center mb-3 border-bottom border-secondary pb-2">
-              <div class="spinner-border spinner-border-sm text-info me-2"></div>
-              <span class="text-info fw-bold" style="font-size: 0.85rem; letter-spacing: 2px;">NEON LLAMA OS v6.0</span>
-            </div>
-            <div id="termLog" class="text-muted" style="font-size: 0.75rem; line-height: 1.6; color: #a0aec0 !important; height: 90px; overflow: hidden;">
-              > INITIALIZING SYSTEM CORE...<br>
-            </div>
-          </div>
+      wrapper.innerHTML = `
+        <img src="${hero}" class="hero-bg">
+        <div class="hero-overlay">
+           <div id="bbPhase" class="hero-phase"></div>
+           <h2 class="hero-title">${item.theme}<br><span style="font-size: 2rem; color: #d1d5db;">${item.model}</span></h2>
+           <div id="bbCountdown" class="hero-countdown"></div>
+           <div style="max-width: 320px;" id="bbCta"></div>
         </div>
       `;
-
-      // Simulated Cyber Logs Sequence while waiting for Google
-      const logEl = document.getElementById('termLog');
-      const logs = [
-          "> ESTABLISHING SECURE PIPELINE TO VAULT...",
-          "> BYPASSING LOCAL HOST RESTRICTIONS...",
-          "> SYNCING UTAH & TEXAS INVENTORY NODES...",
-          "> DECRYPTING CHASE ALGORITHM & ASSETS...",
-          "> ESTABLISHING NEON GRID..."
-      ];
       
-      let logIdx = 0;
-      let logInterval = setInterval(() => {
-          if (logIdx < logs.length && logEl) {
-              logEl.innerHTML += logs[logIdx] + "<br>";
-              logEl.scrollTop = logEl.scrollHeight;
-              logIdx++;
-          }
-      }, 300);
+      clearInterval(countdownTimer);
+      updateBillboardTick(item);
+      countdownTimer = setInterval(() => updateBillboardTick(item), 1000);
+  }
 
-      try {
-        const res = await fetch(GAS_ENDPOINT + '?feed=public');
-        const data = await res.json();
-        
-        clearInterval(logInterval);
-        
-        if(!data.success) {
-            grid.innerHTML = `<h4 class="text-danger" style="font-family:'Orbitron';">SYSTEM ERROR: Failed to parse inventory.</h4>`;
-            return;
-        }
-        
-        globalBatches = data.batches || [];
-        
-        // Generate Tabs
-        const themes = [...new Set(globalBatches.map(b => b.theme))].sort();
-        const tabList = document.getElementById('seriesTabs');
-        themes.forEach(t => {
-            tabList.innerHTML += `<li class="nav-item"><button class="nav-link" onclick="renderGrid('${t}', event)">${t}</button></li>`;
-        });
-        
-        // Initial load
-        renderGrid('AVAILABLE', null);
-      } catch (err) {
-        clearInterval(logInterval);
-        grid.innerHTML = `<h4 class="text-danger" style="font-family:'Orbitron';">SYSTEM ERROR: ${err.message}</h4>`;
-      }
-    }
+  function updateBillboardTick(item) {
+      const now = new Date();
+      const cLabel = document.getElementById('bbCountdown');
+      const pLabel = document.getElementById('bbPhase');
+      const cta = document.getElementById('bbCta');
+      if(!cLabel) return;
 
-    function renderGrid(filter, e) {
-      document.querySelectorAll('.nav-link').forEach(btn => btn.classList.remove('active'));
-      if (e && e.target) {
-          e.target.classList.add('active');
-      } else {
-          const firstTab = document.querySelector('.nav-tabs .nav-link');
-          if (firstTab) firstTab.classList.add('active');
-      }
-
-      const grid = document.getElementById('catalogGrid');
-      let filtered = globalBatches;
-      
-      if (filter === 'AVAILABLE') {
-          filtered = globalBatches.filter(b => (b.utahStock + b.texasStock) > 0);
-      } else {
-          filtered = globalBatches.filter(b => b.theme === filter);
-      }
-
-      if (filtered.length === 0) {
-          grid.innerHTML = `<h5 class="high-contrast-text w-100 text-center py-5" style="font-family:'Orbitron';">NO CARS FOUND IN THIS SECTOR</h5>`;
+      if (item.totalStock <= 0) {
+          pLabel.innerText = "THE VAULT"; pLabel.style.color = "#ff0000"; pLabel.style.textShadow = "0 0 10px #ff0000";
+          cLabel.innerText = "SOLD OUT"; cLabel.style.color = "#ff0000";
+          cta.innerHTML = `<button class="btn-buy" disabled style="background: rgba(255,0,0,0.2); box-shadow: none;">OUT OF STOCK</button>`;
           return;
       }
 
-      grid.innerHTML = filtered.map(item => {
-          const hero = item.heroImg ? convertDriveUrl(item.heroImg) : '';
-          const totalStock = item.utahStock + item.texasStock;
-          const isSoldOut = totalStock <= 0;
-          const overlay = isSoldOut ? `<div class="sold-out-overlay"><div class="sold-out-text">SOLD OUT</div></div>` : '';
-          const runSize = item.plannedTotal > 0 ? `ONLY ${item.plannedTotal} EVER MADE` : 'CUSTOM RUN';
-
-          // Call To Action Button (Directly on the grid card)
-          let cta = '';
-          if (isSoldOut) {
-              cta = `<button class="btn-buy w-100 bg-secondary shadow-none mt-3" disabled onclick="event.stopPropagation()">SOLD OUT</button>`;
-          } else if (item.ebayUrl) {
-              cta = `<a href="${item.ebayUrl}" target="_blank" class="btn-buy w-100 mt-3 text-decoration-none" onclick="event.stopPropagation()">SECURE ON eBay</a>`;
+      if (item.dropTime <= now) {
+          pLabel.innerText = "LIVE NOW"; pLabel.style.color = "var(--neon-cyan)"; pLabel.style.textShadow = "0 0 10px var(--neon-cyan)";
+          cLabel.innerText = "AVAILABLE"; cLabel.style.color = "#fff";
+          if (item.stripeLink) {
+              cta.innerHTML = `<a href="${item.stripeLink}" target="_blank" class="btn-buy text-decoration-none" style="font-size:1.1rem; padding: 14px;">SECURE NOW</a>`;
           } else {
-              cta = `<button class="btn-buy w-100 btn-waitlist mt-3" onclick="event.stopPropagation(); openModal('${item.id}', true)">JOIN WAITLIST</button>`;
+              cta.innerHTML = `<button class="btn-buy" onclick="alert('Checkout link synchronizing...')">STANDBY</button>`;
           }
+      } else {
+          let diff = item.dropTime.getTime() - now.getTime();
+          pLabel.innerText = diff <= (24*60*60*1000) ? "REVEAL PHASE" : "TEASER PHASE";
+          pLabel.style.color = "var(--neon-pink)"; pLabel.style.textShadow = "0 0 10px var(--neon-pink)";
+
+          let d = Math.floor(diff / (1000 * 60 * 60 * 24));
+          let h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          let m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+          let s = Math.floor((diff % (1000 * 60)) / 1000);
+          
+          let timeStr = d > 0 ? `${d}D ` : '';
+          timeStr += `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+          
+          cLabel.innerText = `T-MINUS ${timeStr}`;
+          cta.innerHTML = `<button class="btn-buy btn-waitlist" style="font-size:1.1rem; padding: 14px;" onclick='openModal(${JSON.stringify(item).replace(/'/g, "&apos;")})'>NOTIFY ME</button>`;
+      }
+  }
+
+  function renderLedger(drops) {
+      const container = document.getElementById('launchLedgerContainer');
+      const grid = document.getElementById('launchLedgerGrid');
+      
+      if (drops.length === 0) {
+          container.style.display = 'none'; return;
+      }
+      
+      container.style.display = 'block';
+      grid.innerHTML = drops.map(b => {
+          const dStr = b.dropTime ? b.dropTime.toLocaleDateString('en-US', {month: 'short', day: 'numeric'}).toUpperCase() : 'TBA';
+          const tStr = b.dropTime ? b.dropTime.toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit', timeZoneName: 'short'}) : '';
           
           return `
-            <div class="diecast-card" onclick="openModal('${item.id}')">
-              <div class="position-relative">
-                <span class="badge bg-dark border border-info text-info position-absolute top-0 end-0 m-2 z-3" style="font-family: 'Orbitron'; font-size: 0.65rem; box-shadow: 0 0 8px rgba(0, 240, 255, 0.4);">${runSize}</span>
-                ${overlay}
-                <img src="${hero}" class="diecast-img">
+          <div class="ledger-row">
+              <div class="ledger-date">${dStr}<br><span style="font-size: 0.8rem; color: #8b9eb3;">${tStr}</span></div>
+              <div class="ledger-info">
+                  <p class="ledger-theme">${b.theme}</p>
+                  <p class="ledger-model">${b.model}</p>
               </div>
-              <div class="p-3 d-flex flex-column flex-grow-1">
-                <h5 class="fw-bold mb-1" style="font-family:'Orbitron';">${item.theme}</h5>
-                <div class="d-flex justify-content-between align-items-center">
-                    <p class="text-info fw-bold mb-0">${item.model}</p>
-                    <span class="price-tag fs-5 fw-bold">$${item.minPrice.toFixed(2)}</span>
-                </div>
-                ${item.plannedChase > 0 ? `<div class="text-warning fw-bold mt-2" style="font-size: 0.7rem; letter-spacing: 0.5px; text-shadow: 0 0 8px rgba(255, 193, 7, 0.6); font-family: 'Orbitron', sans-serif;">⚠️ CHASE AVAILABLE (1 IN ${item.plannedTotal})</div>` : ''}
-                <div class="mt-auto pt-2 border-top border-secondary mt-3">
-                    ${cta}
-                </div>
+              <div style="width: 140px; flex-shrink: 0;">
+                  <button class="btn-buy btn-waitlist w-100 py-2" style="font-size: 0.8rem;" onclick='openModal(${JSON.stringify(b).replace(/'/g, "&apos;")})'>LOCK IN</button>
               </div>
-            </div>`;
+          </div>`;
       }).join('');
+  }
+
+  function renderGrid(filter, e) {
+    document.querySelectorAll('.nav-link').forEach(btn => btn.classList.remove('active'));
+    if (e && e.target) {
+        e.target.classList.add('active');
+    } else {
+        const firstTab = document.querySelector('.nav-tabs .nav-link');
+        if (firstTab) firstTab.classList.add('active');
     }
 
-    function openModal(batchId, autoTriggerWaitlist = false) {
-        const item = globalBatches.find(b => b.id === batchId);
-        if (!item) return;
-        currentModalBatch = item;
+    const grid = document.getElementById('catalogGrid');
+    let filtered = globalBatches;
+    
+    if (filter === 'AVAILABLE') {
+        filtered = globalBatches.filter(b => b.totalStock > 0);
+    } else {
+        filtered = globalBatches.filter(b => b.theme === filter);
+    }
 
-        document.getElementById('modTitle').innerText = item.title;
-        document.getElementById('modPrice').innerText = `$${item.minPrice.toFixed(2)}`;
-        document.getElementById('modDesc').innerHTML = item.desc;
-        document.getElementById('modBadge').innerText = item.plannedTotal > 0 ? `ONLY ${item.plannedTotal} EVER MADE` : 'CUSTOM RUN';
+    if (filtered.length === 0) {
+        grid.innerHTML = `<h5 class="high-contrast-text w-100 text-center py-5" style="font-family:'Orbitron';">NO CARS FOUND IN THIS SECTOR</h5>`;
+        return;
+    }
 
-        let slides = '';
-        let thumbs = '';
-        
-        if (item.images && item.images.length > 0) {
-            item.images.forEach((url, i) => {
-                let activeClass = (i === 0) ? 'active' : '';
-                let cleanUrl = convertDriveUrl(url);
-                slides += `<div class="carousel-item ${activeClass}"><img src="${cleanUrl}" class="d-block w-100"></div>`;
-                thumbs += `<img src="${cleanUrl}" class="img-thumbnail bg-dark border-secondary p-1" style="width: 75px; height: 75px; object-fit: cover; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'" data-bs-target="#modCarousel" data-bs-slide-to="${i}">`;
-            });
-        } else {
-            let cleanUrl = item.heroImg ? convertDriveUrl(item.heroImg) : '';
-            slides = `<div class="carousel-item active"><img src="${cleanUrl}" class="d-block w-100"></div>`;
-            thumbs = `<img src="${cleanUrl}" class="img-thumbnail bg-dark border-secondary p-1" style="width: 75px; height: 75px; object-fit: cover;">`;
-        }
-        
-        document.getElementById('modCarouselInner').innerHTML = slides;
-        document.getElementById('modThumbnails').innerHTML = thumbs;
+    const now = new Date();
 
-        const isSoldOut = (item.utahStock + item.texasStock) <= 0;
+    grid.innerHTML = filtered.map(item => {
+        const hero = item.heroImg ? convertDriveUrl(item.heroImg) : '';
+        const isSoldOut = item.totalStock <= 0;
+        const dropTime = new Date(item.launchDate);
+        const isLocked = item.launchDate && dropTime > now;
+
+        const overlay = isSoldOut ? `<div class="sold-out-overlay"><div class="sold-out-text">SOLD OUT</div></div>` : '';
+        const runSize = item.plannedTotal > 0 ? `ONLY ${item.plannedTotal} EVER MADE` : 'CUSTOM RUN';
+
+        let cta = '';
         if (isSoldOut) {
-            document.getElementById('modCtaContainer').innerHTML = `<button class="btn-buy w-100 bg-secondary shadow-none" disabled>SOLD OUT</button>`;
-        } else if (item.ebayUrl) {
-            document.getElementById('modCtaContainer').innerHTML = `<a href="${item.ebayUrl}" target="_blank" class="btn-buy w-100 text-decoration-none">SECURE ON eBay</a>`;
+            cta = `<button class="btn-buy w-100 bg-secondary shadow-none mt-3" disabled onclick="event.stopPropagation()">SOLD OUT</button>`;
+        } else if (isLocked) {
+            cta = `<button class="btn-buy w-100 btn-waitlist mt-3" disabled onclick="event.stopPropagation()">DROPS ${dropTime.toLocaleDateString('en-US', {month: 'short', day: 'numeric', hour: 'numeric', minute:'2-digit'})}</button>`;
+        } else if (item.stripeLink) {
+            cta = `<a href="${item.stripeLink}" target="_blank" class="btn-buy w-100 mt-3 text-decoration-none" onclick="event.stopPropagation()">SECURE NOW</a>`;
         } else {
-            resetModalCta();
+            cta = `<button class="btn-buy w-100 btn-waitlist mt-3" onclick="event.stopPropagation(); alert('Checkout link pending for ${item.model}')">STANDBY</button>`;
         }
-
-        productModal.show();
         
-        if (autoTriggerWaitlist) {
-            setTimeout(triggerInlineWaitlist, 300);
-        }
-    }
-
-    function resetModalCta() {
-        document.getElementById('modCtaContainer').innerHTML = `<button class="btn-buy w-100 btn-waitlist" onclick="triggerInlineWaitlist()">JOIN WAITLIST</button>`;
-    }
-
-    function triggerInlineWaitlist() {
-        const container = document.getElementById('modCtaContainer');
-        container.innerHTML = `
-            <div class="p-3 rounded" style="background: rgba(255, 193, 7, 0.08); border: 1px solid var(--neon-yellow);">
-                <label class="small fw-bold text-warning mb-2" style="font-family: 'Orbitron';">NOTIFY ME WHEN DROPPED</label>
-                <form class="d-flex gap-2" onsubmit="submitWaitlist(event)">
-                    <input type="email" id="wlEmail" class="form-control form-control-cyber py-1" placeholder="EMAIL ADDRESS" style="font-size: 0.9rem;" required>
-                    <button type="submit" id="wlBtn" class="btn-buy btn-waitlist px-3 py-1" style="width: auto; font-size: 0.8rem;">LOCK IN</button>
-                </form>
-                <button class="btn btn-link text-muted small p-0 mt-2 text-decoration-none" onclick="resetModalCta()" style="font-size: 0.75rem;">Cancel</button>
+        return `
+          <div class="diecast-card" onclick='openModal(${JSON.stringify(item).replace(/'/g, "&apos;")})'>
+            <div class="position-relative">
+              <span class="badge bg-dark border border-info text-info position-absolute top-0 end-0 m-2 z-3" style="font-family: 'Orbitron'; font-size: 0.65rem; box-shadow: 0 0 8px rgba(0, 240, 255, 0.4);">${runSize}</span>
+              ${overlay}
+              <img src="${hero}" class="diecast-img">
             </div>
-        `;
-        setTimeout(() => document.getElementById('wlEmail').focus(), 100);
-    }
+            <div class="p-3 d-flex flex-column flex-grow-1">
+              <h5 class="fw-bold mb-1" style="font-family:'Orbitron';">${item.theme}</h5>
+              <div class="d-flex justify-content-between align-items-center">
+                  <p class="text-info fw-bold mb-0">${item.model}</p>
+                  <span class="price-tag fs-5 fw-bold">$${item.minPrice.toFixed(2)}</span>
+              </div>
+              <div class="mt-auto pt-2 border-top border-secondary mt-3">
+                  ${cta}
+              </div>
+            </div>
+          </div>`;
+    }).join('');
+  }
 
-    // FIRE AND FORGET OPTIMISTIC UI: Waitlist
-    function submitWaitlist(e) {
-        e.preventDefault();
-        
-        const payload = {
-            type: 'Waitlist',
-            email: document.getElementById('wlEmail').value,
-            name: "N/A",
-            message: `Waitlist Request: ${currentModalBatch.theme} ${currentModalBatch.model} (${currentModalBatch.id})`
-        };
+  function openModal(item) {
+      document.getElementById('modTitle').innerText = item.title;
+      document.getElementById('modPrice').innerText = `$${item.minPrice.toFixed(2)}`;
+      document.getElementById('modDesc').innerHTML = item.desc;
+      document.getElementById('modBadge').innerText = item.plannedTotal > 0 ? `ONLY ${item.plannedTotal} EVER MADE` : 'CUSTOM RUN';
 
-        // Instantly transform the UI with zero wait time
-        document.getElementById('modCtaContainer').innerHTML = `
-            <div class="alert py-2 text-center fw-bold small mb-0" style="background: rgba(0, 240, 255, 0.15); border: 1px solid var(--neon-cyan); color: #fff; font-family: 'Orbitron'; letter-spacing: 1px;">
-                ✅ SECURED. YOU'RE ON THE LIST.
-            </div>`;
+      let slides = '';
+      if (item.images && item.images.length > 0) {
+          item.images.forEach((url, i) => {
+              slides += `<div class="carousel-item ${i===0?'active':''}"><img src="${convertDriveUrl(url)}" class="d-block w-100"></div>`;
+          });
+      } else {
+          slides = `<div class="carousel-item active"><img src="${item.heroImg ? convertDriveUrl(item.heroImg) : ''}" class="d-block w-100"></div>`;
+      }
+      document.getElementById('modCarouselInner').innerHTML = slides;
 
-        // Send data to Google in the background invisibly
-        fetch(GAS_ENDPOINT, { method: 'POST', body: JSON.stringify(payload) }).catch(err => console.log(err));
-    }
+      const now = new Date();
+      const dropTime = new Date(item.launchDate);
+      const isSoldOut = item.totalStock <= 0;
+      const isLocked = item.launchDate && dropTime > now;
 
-    // FIRE AND FORGET OPTIMISTIC UI: Footer Forms
-    function submitNativeForm(e, type) {
-        e.preventDefault();
-        const formEl = e.target;
+      let cta = '';
+      if (isSoldOut) {
+          cta = `<button class="btn-buy w-100 bg-secondary shadow-none" disabled>SOLD OUT</button>`;
+      } else if (isLocked) {
+          cta = `<button class="btn-buy w-100 btn-waitlist" disabled>DROPS ${dropTime.toLocaleDateString('en-US', {month: 'short', day: 'numeric', hour: 'numeric', minute:'2-digit'})}</button>`;
+      } else if (item.stripeLink) {
+          cta = `<a href="${item.stripeLink}" target="_blank" class="btn-buy w-100 text-decoration-none">SECURE NOW</a>`;
+      } else {
+          cta = `<button class="btn-buy w-100 btn-waitlist" onclick="alert('Checkout link pending for ${item.model}')">STANDBY</button>`;
+      }
+      document.getElementById('modCtaContainer').innerHTML = cta;
 
-        const payload = {
-            type: type,
-            email: type === 'Newsletter' ? document.getElementById('nlEmail').value : document.getElementById('ctEmail').value,
-            name: type === 'Contact' ? document.getElementById('ctName').value : "",
-            message: type === 'Contact' ? document.getElementById('ctMsg').value : ""
-        };
+      productModal.show();
+  }
 
-        // Instantly dissolve the form into a sleek success banner
-        if (type === 'Newsletter') {
-            formEl.outerHTML = `
-                <div class="alert py-3 text-center fw-bold mb-0" style="background: rgba(0, 240, 255, 0.15); border: 1px solid var(--neon-cyan); color: #fff; font-family: 'Orbitron'; letter-spacing: 1px;">
-                    ✅ THANKS FOR SIGNING UP. WELCOME TO THE GARAGE.
-                </div>`;
-        } else {
-            formEl.outerHTML = `
-                <div class="alert py-3 text-center fw-bold mb-0" style="background: rgba(0, 240, 255, 0.15); border: 1px solid var(--neon-cyan); color: #fff; font-family: 'Orbitron'; letter-spacing: 1px;">
-                    ✅ TRANSMISSION RECEIVED. WE WILL REVIEW SHORTLY.
-                </div>`;
-        }
+  function submitNativeForm(e, type) {
+      e.preventDefault();
+      const btnId = type === 'Newsletter' ? 'nlBtn' : 'ctBtn';
+      const btn = document.getElementById(btnId);
+      btn.innerText = "TRANSMITTING...";
+      btn.disabled = true;
 
-        // Send data to Google in the background invisibly
-        fetch(GAS_ENDPOINT, { method: 'POST', body: JSON.stringify(payload) }).catch(err => console.log(err));
-    }
+      const payload = {
+          type: type,
+          email: type === 'Newsletter' ? document.getElementById('nlEmail').value : document.getElementById('ctEmail').value,
+          name: type === 'Contact' ? document.getElementById('ctName').value : "",
+          message: type === 'Contact' ? document.getElementById('ctMsg').value : ""
+      };
 
-    document.addEventListener('DOMContentLoaded', loadCatalog);
-  </script>
+      google.script.run
+          .withSuccessHandler(res => {
+              btn.innerText = "TRANSMITTED ✅";
+              e.target.reset();
+              setTimeout(() => {
+                  btn.innerText = type === 'Newsletter' ? "SUBSCRIBE" : "TRANSMIT MESSAGE";
+                  btn.disabled = false;
+              }, 3000);
+          })
+          .withFailureHandler(err => {
+              btn.innerText = "ERROR - RETRY";
+              btn.disabled = false;
+          })
+          .submitCrmForm(payload);
+  }
+
+  document.addEventListener('DOMContentLoaded', loadCatalog);
+</script>
 </body>
 </html>
