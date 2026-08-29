@@ -137,8 +137,8 @@
 
   <main class="container-fluid">
     <div id="catalogGrid" class="product-grid">
-      <div class="text-center w-100 py-5 fw-bold" style="grid-column: 1 / -1; color: var(--neon-cyan); font-family: 'Orbitron', sans-serif;">
-        <div class="spinner-border spinner-border-sm me-3"></div> INITIALIZING SYSTEM...
+      <div class="text-center w-100 py-5 fw-bold" style="grid-column: 1 / -1; color: var(--neon-cyan); font-family: 'Orbitron', sans-serif; letter-spacing: 2px;">
+        <div class="spinner-border spinner-border-sm me-3"></div> LOADING...
       </div>
     </div>
   </main>
@@ -179,22 +179,22 @@
   <footer class="footer-section">
     <div style="max-width: 1400px; margin: 0 auto;" class="row g-5">
       <div class="col-md-5">
-        <h3 class="section-title" style="font-family:'Orbitron'; color:var(--neon-cyan);">JOIN THE GARAGE</h3>
+        <h3 class="section-title" style="font-family:'Orbitron'; color:var(--neon-cyan);">NEWSLETTER</h3>
         <p class="high-contrast-text mb-3">Sign up for early access to drops and exclusive chases.</p>
         <form class="d-flex gap-2" onsubmit="submitNativeForm(event, 'Newsletter')">
-          <input type="email" id="nlEmail" class="form-control form-control-cyber" placeholder="ENTER YOUR EMAIL" required>
+          <input type="email" id="nlEmail" class="form-control form-control-cyber" placeholder="EMAIL ADDRESS" required>
           <button type="submit" id="nlBtn" class="btn-buy" style="width:auto;">SUBSCRIBE</button>
         </form>
       </div>
       <div class="col-md-7">
-        <h3 class="section-title" style="font-family:'Orbitron'; color:var(--neon-cyan);">SECURE COMM LINK</h3>
+        <h3 class="section-title" style="font-family:'Orbitron'; color:var(--neon-cyan);">CONTACT US</h3>
         <form onsubmit="submitNativeForm(event, 'Contact')">
           <div class="row g-3 mb-3">
             <div class="col-sm-6"><input type="text" id="ctName" class="form-control form-control-cyber" placeholder="NAME" required></div>
             <div class="col-sm-6"><input type="email" id="ctEmail" class="form-control form-control-cyber" placeholder="EMAIL ADDRESS" required></div>
           </div>
-          <textarea id="ctMsg" class="form-control form-control-cyber mb-3" rows="3" placeholder="TRANSMISSION..." required></textarea>
-          <button type="submit" id="ctBtn" class="btn-buy">TRANSMIT MESSAGE</button>
+          <textarea id="ctMsg" class="form-control form-control-cyber mb-3" rows="3" placeholder="MESSAGE..." required></textarea>
+          <button type="submit" id="ctBtn" class="btn-buy">SEND MESSAGE</button>
         </form>
       </div>
     </div>
@@ -217,13 +217,6 @@
   async function loadCatalog() {
     productModal = new bootstrap.Modal(document.getElementById('productModal'));
     const grid = document.getElementById('catalogGrid');
-    
-    // Minimalist Loading State
-    grid.innerHTML = `
-      <div class="text-center w-100 py-5 fw-bold" style="grid-column: 1 / -1; color: var(--neon-cyan); font-family: 'Orbitron', sans-serif; letter-spacing: 2px;">
-        <div class="spinner-border spinner-border-sm me-3"></div> SYNCING VAULT...
-      </div>
-    `;
 
     try {
         const res = await fetch(GAS_ENDPOINT + '?feed=public');
@@ -324,7 +317,7 @@
           pLabel.innerText = "LIVE NOW"; pLabel.style.color = "var(--neon-cyan)"; pLabel.style.textShadow = "0 0 10px var(--neon-cyan)";
           cLabel.innerText = "AVAILABLE"; cLabel.style.color = "#fff";
           if (item.stripeLink) {
-              cta.innerHTML = `<a href="${item.stripeLink}" target="_blank" class="btn-buy text-decoration-none" style="font-size:1.1rem; padding: 14px;">SECURE NOW</a>`;
+              cta.innerHTML = `<a href="${item.stripeLink}" target="_blank" class="btn-buy text-decoration-none" style="font-size:1.1rem; padding: 14px;">BUY NOW</a>`;
           } else {
               cta.innerHTML = `<button class="btn-buy" onclick="alert('Checkout link synchronizing...')">STANDBY</button>`;
           }
@@ -367,7 +360,7 @@
                   <p class="ledger-model">${b.model}</p>
               </div>
               <div style="width: 120px; flex-shrink: 0;">
-                  <button class="btn-buy btn-waitlist w-100 py-1" style="font-size: 0.8rem;" onclick='openModal(${JSON.stringify(b).replace(/'/g, "&apos;")})'>LOCK IN</button>
+                  <button class="btn-buy btn-waitlist w-100 py-1" style="font-size: 0.8rem;" onclick='openModal(${JSON.stringify(b).replace(/'/g, "&apos;")})'>NOTIFY ME</button>
               </div>
           </div>`;
       }).join('');
@@ -413,7 +406,7 @@
         } else if (isLocked) {
             cta = `<button class="btn-buy w-100 btn-waitlist mt-3" disabled onclick="event.stopPropagation()">DROPS ${dropTime.toLocaleDateString('en-US', {month: 'short', day: 'numeric', hour: 'numeric', minute:'2-digit'})}</button>`;
         } else if (item.stripeLink) {
-            cta = `<a href="${item.stripeLink}" target="_blank" class="btn-buy w-100 mt-3 text-decoration-none" onclick="event.stopPropagation()">SECURE NOW</a>`;
+            cta = `<a href="${item.stripeLink}" target="_blank" class="btn-buy w-100 mt-3 text-decoration-none" onclick="event.stopPropagation()">BUY NOW</a>`;
         } else {
             cta = `<button class="btn-buy w-100 btn-waitlist mt-3" onclick="event.stopPropagation(); alert('Checkout link pending for ${item.model}')">STANDBY</button>`;
         }
@@ -466,7 +459,7 @@
       } else if (isLocked) {
           cta = `<button class="btn-buy w-100 btn-waitlist" disabled>DROPS ${dropTime.toLocaleDateString('en-US', {month: 'short', day: 'numeric', hour: 'numeric', minute:'2-digit'})}</button>`;
       } else if (item.stripeLink) {
-          cta = `<a href="${item.stripeLink}" target="_blank" class="btn-buy w-100 text-decoration-none">SECURE NOW</a>`;
+          cta = `<a href="${item.stripeLink}" target="_blank" class="btn-buy w-100 text-decoration-none">BUY NOW</a>`;
       } else {
           cta = `<button class="btn-buy w-100 btn-waitlist" onclick="alert('Checkout link pending for ${item.model}')">STANDBY</button>`;
       }
@@ -479,7 +472,7 @@
       e.preventDefault();
       const btnId = type === 'Newsletter' ? 'nlBtn' : 'ctBtn';
       const btn = document.getElementById(btnId);
-      btn.innerText = "TRANSMITTING...";
+      btn.innerText = "SENDING...";
       btn.disabled = true;
 
       const payload = {
@@ -491,10 +484,10 @@
 
       fetch(GAS_ENDPOINT, { method: 'POST', body: JSON.stringify(payload) })
           .then(() => {
-              btn.innerText = "TRANSMITTED ✅";
+              btn.innerText = "MESSAGE SENT ✅";
               e.target.reset();
               setTimeout(() => {
-                  btn.innerText = type === 'Newsletter' ? "SUBSCRIBE" : "TRANSMIT MESSAGE";
+                  btn.innerText = type === 'Newsletter' ? "SUBSCRIBE" : "SEND MESSAGE";
                   btn.disabled = false;
               }, 3000);
           })
