@@ -106,7 +106,7 @@
 
   <header class="top-nav">
     <div class="nav-brand-container">
-      <img src="YOUR_DIRECT_IMAGE_URL_HERE" alt="Neon Llama Logo" class="nav-llama-logo" id="mainLogo">
+      <img src="llama-icon.png" alt="Neon Llama Logo" class="nav-llama-logo" onerror="this.style.display='none'">
       <div>
         <h1 class="nav-brand-text">Neon Llama <span>Garage</span></h1>
         <p class="header-tagline">Custom Diecast Vault</p>
@@ -131,11 +131,7 @@
   </ul>
 
   <main class="container-fluid">
-    <div id="catalogGrid" class="product-grid">
-      <div class="text-center w-100 py-5 fw-bold" style="grid-column: 1 / -1; color: var(--neon-cyan); font-family: 'Orbitron', sans-serif;">
-        <div class="spinner-border spinner-border-sm me-3"></div> INITIALIZING SYSTEM...
-      </div>
-    </div>
+    <div id="catalogGrid" class="product-grid"></div>
   </main>
 
   <!-- Detail Modal -->
@@ -196,7 +192,8 @@
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
- <script>
+  <script>
+  // Exact Endpoint configured
   const GAS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxe1WwM8zoYYR1aU4N2EcsqvAjh0PXgVzPwIh1ZnwaB4YYdfwI-fd8eJysx37lgMplHwQ/exec';
   
   let globalBatches = [];
@@ -213,12 +210,47 @@
     productModal = new bootstrap.Modal(document.getElementById('productModal'));
     const grid = document.getElementById('catalogGrid');
     
+    // Immersive Terminal Loader injected instantly
+    grid.innerHTML = `
+      <div class="text-center w-100 py-5" style="grid-column: 1 / -1;">
+        <div class="p-4 mx-auto rounded" style="max-width: 500px; background: rgba(3,3,5,0.9); border: 2px solid var(--neon-cyan); box-shadow: 0 0 25px rgba(0,240,255,0.25); text-align: left; font-family: 'Orbitron', monospace;">
+          <div class="d-flex align-items-center mb-3 border-bottom border-secondary pb-2">
+            <div class="spinner-border spinner-border-sm text-info me-2"></div>
+            <span class="text-info fw-bold" style="font-size: 0.85rem; letter-spacing: 2px;">NEON LLAMA OS v6.0</span>
+          </div>
+          <div id="termLog" class="text-muted" style="font-size: 0.75rem; line-height: 1.6; color: #a0aec0 !important; height: 90px; overflow: hidden;">
+            > INITIALIZING SYSTEM CORE...<br>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const logEl = document.getElementById('termLog');
+    const logs = [
+        "> ESTABLISHING SECURE PIPELINE TO VAULT...",
+        "> BYPASSING LOCAL HOST RESTRICTIONS...",
+        "> SYNCING UTAH & TEXAS INVENTORY NODES...",
+        "> DECRYPTING CHASE ALGORITHM & ASSETS...",
+        "> ESTABLISHING NEON GRID..."
+    ];
+    
+    let logIdx = 0;
+    let logInterval = setInterval(() => {
+        if (logIdx < logs.length && logEl) {
+            logEl.innerHTML += logs[logIdx] + "<br>";
+            logEl.scrollTop = logEl.scrollHeight;
+            logIdx++;
+        }
+    }, 300);
+
     try {
         const res = await fetch(GAS_ENDPOINT + '?feed=public');
         const data = await res.json();
         
+        clearInterval(logInterval);
+        
         if(!data.success) {
-            grid.innerHTML = `<h4 class="text-danger" style="font-family:'Orbitron';">SYSTEM ERROR: Failed to parse inventory.</h4>`;
+            grid.innerHTML = `<div class="text-center w-100"><h4 class="text-danger" style="font-family:'Orbitron';">SYSTEM ERROR: Failed to parse inventory.</h4></div>`;
             return;
         }
         
@@ -227,13 +259,21 @@
 
         const themes = [...new Set(globalBatches.map(b => b.theme))].sort();
         const tabList = document.getElementById('seriesTabs');
+        tabList.innerHTML = `<li class="nav-item"><button class="nav-link active" onclick="renderGrid('AVAILABLE', event)">AVAILABLE DROPS</button></li>`;
+        
         themes.forEach(t => {
             tabList.innerHTML += `<li class="nav-item"><button class="nav-link" onclick="renderGrid('${t}', event)">${t}</button></li>`;
         });
         
         renderGrid('AVAILABLE', null);
     } catch (err) {
-        grid.innerHTML = `<h4 class="text-danger" style="font-family:'Orbitron';">CRITICAL ERROR: ${err.message}</h4>`;
+        clearInterval(logInterval);
+        grid.innerHTML = `
+          <div class="text-center w-100 py-5" style="grid-column: 1 / -1;">
+            <h4 class="text-danger fw-bold" style="font-family:'Orbitron';">CONNECTION ERROR</h4>
+            <p class="text-muted">The browser blocked the connection to Google Apps Script.</p>
+            <p class="small text-info mt-3">Fix: Ensure your Apps Script Web App is deployed as a "New Version" with Access set to "Anyone".</p>
+          </div>`;
     }
   }
 
@@ -487,6 +527,6 @@
   }
 
   document.addEventListener('DOMContentLoaded', loadCatalog);
-</script>
+  </script>
 </body>
 </html>
