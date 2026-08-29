@@ -197,6 +197,8 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
  <script>
+  const GAS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxe1WwM8zoYYR1aU4N2EcsqvAjh0PXgVzPwIh1ZnwaB4YYdfwI-fd8eJysx37lgMplHwQ/exec';
+  
   let globalBatches = [];
   let productModal;
   let countdownTimer;
@@ -207,31 +209,32 @@
     return match ? `https://drive.google.com/thumbnail?id=${match[1]}&sz=w800` : url;
   }
 
-  function loadCatalog() {
+  async function loadCatalog() {
     productModal = new bootstrap.Modal(document.getElementById('productModal'));
+    const grid = document.getElementById('catalogGrid');
     
-    google.script.run
-      .withSuccessHandler(res => {
-          if(!res.success) {
-              document.getElementById('catalogGrid').innerHTML = `<h4 class="text-danger">SYSTEM ERROR: Failed to parse inventory.</h4>`;
-              return;
-          }
-          globalBatches = res.batches || [];
-          
-          processTimeData(); 
+    try {
+        const res = await fetch(GAS_ENDPOINT + '?feed=public');
+        const data = await res.json();
+        
+        if(!data.success) {
+            grid.innerHTML = `<h4 class="text-danger" style="font-family:'Orbitron';">SYSTEM ERROR: Failed to parse inventory.</h4>`;
+            return;
+        }
+        
+        globalBatches = data.batches || [];
+        processTimeData(); 
 
-          const themes = [...new Set(globalBatches.map(b => b.theme))].sort();
-          const tabList = document.getElementById('seriesTabs');
-          themes.forEach(t => {
-              tabList.innerHTML += `<li class="nav-item"><button class="nav-link" onclick="renderGrid('${t}', event)">${t}</button></li>`;
-          });
-          
-          renderGrid('AVAILABLE', null);
-      })
-      .withFailureHandler(err => {
-          document.getElementById('catalogGrid').innerHTML = `<h4 class="text-danger" style="font-family:'Orbitron';">CRITICAL ERROR: ${err.message}</h4>`;
-      })
-      .getSalesPortalData();
+        const themes = [...new Set(globalBatches.map(b => b.theme))].sort();
+        const tabList = document.getElementById('seriesTabs');
+        themes.forEach(t => {
+            tabList.innerHTML += `<li class="nav-item"><button class="nav-link" onclick="renderGrid('${t}', event)">${t}</button></li>`;
+        });
+        
+        renderGrid('AVAILABLE', null);
+    } catch (err) {
+        grid.innerHTML = `<h4 class="text-danger" style="font-family:'Orbitron';">CRITICAL ERROR: ${err.message}</h4>`;
+    }
   }
 
   function processTimeData() {
@@ -380,8 +383,8 @@
     grid.innerHTML = filtered.map(item => {
         const hero = item.heroImg ? convertDriveUrl(item.heroImg) : '';
         const isSoldOut = item.totalStock <= 0;
-        const dropTime = new Date(item.launchDate);
-        const isLocked = item.launchDate && dropTime > now;
+        const dropTime = item.launchDate ? new Date(item.launchDate) : null;
+        const isLocked = dropTime && dropTime > now;
 
         const overlay = isSoldOut ? `<div class="sold-out-overlay"><div class="sold-out-text">SOLD OUT</div></div>` : '';
         const runSize = item.plannedTotal > 0 ? `ONLY ${item.plannedTotal} EVER MADE` : 'CUSTOM RUN';
@@ -435,9 +438,9 @@
       document.getElementById('modCarouselInner').innerHTML = slides;
 
       const now = new Date();
-      const dropTime = new Date(item.launchDate);
+      const dropTime = item.launchDate ? new Date(item.launchDate) : null;
       const isSoldOut = item.totalStock <= 0;
-      const isLocked = item.launchDate && dropTime > now;
+      const isLocked = dropTime && dropTime > now;
 
       let cta = '';
       if (isSoldOut) {
@@ -468,8 +471,8 @@
           message: type === 'Contact' ? document.getElementById('ctMsg').value : ""
       };
 
-      google.script.run
-          .withSuccessHandler(res => {
+      fetch(GAS_ENDPOINT, { method: 'POST', body: JSON.stringify(payload) })
+          .then(() => {
               btn.innerText = "TRANSMITTED ✅";
               e.target.reset();
               setTimeout(() => {
@@ -477,11 +480,10 @@
                   btn.disabled = false;
               }, 3000);
           })
-          .withFailureHandler(err => {
+          .catch(err => {
               btn.innerText = "ERROR - RETRY";
               btn.disabled = false;
-          })
-          .submitCrmForm(payload);
+          });
   }
 
   document.addEventListener('DOMContentLoaded', loadCatalog);
