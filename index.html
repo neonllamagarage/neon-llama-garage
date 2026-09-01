@@ -572,23 +572,24 @@
           newsletterOptIn: document.getElementById('notifyNewsletter').checked
       };
 
-      // FIX: Added text/plain headers to bypass strict CORS preflight checks
       fetch(GAS_ENDPOINT, { 
           method: 'POST', 
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify(payload) 
       })
-      .then(response => {
-          if (!response.ok) throw new Error("Network Error");
-          btn.innerText = "REMINDER SET ✅";
+      .then(res => res.json())
+      .then(data => {
+          if (!data.success) throw new Error(data.error);
+          btn.innerText = payload.type === 'Notify' ? "REMINDER SET ✅" : "MESSAGE SENT ✅";
+          if (e.target.tagName === 'FORM') e.target.reset();
           setTimeout(() => {
-              notifyModal.hide();
-              btn.innerText = "SET REMINDER";
+              if (payload.type === 'Notify') notifyModal.hide();
+              btn.innerText = payload.type === 'Notify' ? "SET REMINDER" : (payload.type === 'Newsletter' ? "SUBSCRIBE" : "SEND MESSAGE");
               btn.disabled = false;
           }, 2000);
       })
       .catch(err => {
-          console.error("Fetch Error:", err);
+          console.error("Backend Error:", err);
           btn.innerText = "ERROR - RETRY";
           btn.disabled = false;
       });
