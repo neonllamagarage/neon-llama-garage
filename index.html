@@ -572,19 +572,26 @@
           newsletterOptIn: document.getElementById('notifyNewsletter').checked
       };
 
-      fetch(GAS_ENDPOINT, { method: 'POST', body: JSON.stringify(payload) })
-          .then(() => {
-              btn.innerText = "REMINDER SET ✅";
-              setTimeout(() => {
-                  notifyModal.hide();
-                  btn.innerText = "SET REMINDER";
-                  btn.disabled = false;
-              }, 2000);
-          })
-          .catch(err => {
-              btn.innerText = "ERROR - RETRY";
+      // FIX: Added text/plain headers to bypass strict CORS preflight checks
+      fetch(GAS_ENDPOINT, { 
+          method: 'POST', 
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload) 
+      })
+      .then(response => {
+          if (!response.ok) throw new Error("Network Error");
+          btn.innerText = "REMINDER SET ✅";
+          setTimeout(() => {
+              notifyModal.hide();
+              btn.innerText = "SET REMINDER";
               btn.disabled = false;
-          });
+          }, 2000);
+      })
+      .catch(err => {
+          console.error("Fetch Error:", err);
+          btn.innerText = "ERROR - RETRY";
+          btn.disabled = false;
+      });
   }
 
   function submitNativeForm(e, type) {
@@ -601,19 +608,26 @@
           message: type === 'Contact' ? document.getElementById('ctMsg').value : ""
       };
 
-      fetch(GAS_ENDPOINT, { method: 'POST', body: JSON.stringify(payload) })
-          .then(() => {
-              btn.innerText = "MESSAGE SENT ✅";
-              e.target.reset();
-              setTimeout(() => {
-                  btn.innerText = type === 'Newsletter' ? "SUBSCRIBE" : "SEND MESSAGE";
-                  btn.disabled = false;
-              }, 3000);
-          })
-          .catch(err => {
-              btn.innerText = "ERROR - RETRY";
+      // FIX: Added text/plain headers to bypass strict CORS preflight checks
+      fetch(GAS_ENDPOINT, { 
+          method: 'POST', 
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload) 
+      })
+      .then(response => {
+          if (!response.ok) throw new Error("Network Error");
+          btn.innerText = "MESSAGE SENT ✅";
+          e.target.reset();
+          setTimeout(() => {
+              btn.innerText = type === 'Newsletter' ? "SUBSCRIBE" : "SEND MESSAGE";
               btn.disabled = false;
-          });
+          }, 3000);
+      })
+      .catch(err => {
+          console.error("Fetch Error:", err);
+          btn.innerText = "ERROR - RETRY";
+          btn.disabled = false;
+      });
   }
 
   document.addEventListener('DOMContentLoaded', loadCatalog);
