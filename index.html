@@ -29,15 +29,12 @@
     .nav-brand-text span { color: var(--neon-cyan); text-shadow: 0 0 15px rgba(0, 240, 255, 0.6); }
     .header-tagline { font-family: 'Orbitron', sans-serif; font-size: 0.8rem; color: var(--neon-pink); letter-spacing: 3px; text-transform: uppercase; margin: 2px 0 0 0; text-shadow: 0 0 8px rgba(255, 16, 122, 0.5); }
 
-    /* Dashboard Layout */
     .dashboard-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 30px; max-width: 1400px; margin: 30px auto 20px; padding: 0 40px; align-items: stretch; }
     @media (max-width: 1024px) { .dashboard-layout { grid-template-columns: 1fr; gap: 20px; } }
 
-    /* Hero Billboard */
     .hero-billboard { position: relative; width: 100%; min-height: 380px; border: 2px solid var(--neon-cyan); border-radius: 12px; overflow: hidden; display: none; box-shadow: 0 0 30px rgba(0, 240, 255, 0.2); }
     .hero-bg { width: 100%; height: 100%; position: absolute; top: 0; left: 0; object-fit: cover; z-index: 0; }
     
-    /* Dynamic Phase Overlays */
     .hero-overlay { position: relative; width: 100%; min-height: 380px; display: flex; flex-direction: column; justify-content: center; padding: 40px; z-index: 1; transition: background 1s ease; }
     .overlay-teaser { background: linear-gradient(90deg, rgba(3,3,5,0.98) 0%, rgba(3,3,5,0.95) 50%, rgba(3,3,5,0.4) 100%); }
     .overlay-reveal { background: linear-gradient(90deg, rgba(3,3,5,0.98) 0%, rgba(3,3,5,0.85) 45%, rgba(3,3,5,0.0) 85%); }
@@ -46,7 +43,6 @@
     .hero-title { font-family: 'Orbitron'; font-size: 3rem; font-weight: 900; line-height: 1.1; margin: 0 0 10px 0; text-transform: uppercase; text-shadow: 0 0 15px rgba(255,255,255,0.3); }
     .hero-countdown { font-family: 'Orbitron'; font-size: 2rem; color: var(--neon-yellow); font-weight: 700; text-shadow: 0 0 15px rgba(255, 193, 7, 0.5); margin-bottom: 20px; }
 
-    /* Launch Ledger */
     .ledger-container { background: rgba(10, 10, 15, 0.6); backdrop-filter: blur(8px); border: 1px solid var(--card-border); border-radius: 12px; padding: 20px; width: 100%; display: flex; flex-direction: column; }
     .ledger-row { background: rgba(10, 10, 15, 0.9); border: 1px solid var(--card-border); border-left: 4px solid var(--neon-cyan); padding: 12px 20px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s; }
     .ledger-row:hover { background: #000; border-color: var(--neon-cyan); box-shadow: 0 0 15px rgba(0, 240, 255, 0.15); }
@@ -56,7 +52,6 @@
     .ledger-model { color: #8b9eb3; font-size: 0.85rem; margin: 0; font-weight: 600; }
     @media (max-width: 768px) { .ledger-row { flex-direction: column; align-items: flex-start; gap: 10px; } .ledger-date { width: 100%; border-bottom: 1px solid var(--card-border); padding-bottom: 5px;} .ledger-info { padding: 0; width: 100%; } }
 
-    /* Tabs */
     .nav-tabs { border-bottom: 1px solid var(--card-border); margin: 20px 40px 25px; }
     .nav-tabs .nav-link { color: #d1d5db; font-family: 'Orbitron', sans-serif; font-weight: 700; border: none; text-transform: uppercase; letter-spacing: 1px; background: transparent; transition: all 0.3s; cursor: pointer;}
     .nav-tabs .nav-link:hover { color: var(--neon-cyan); }
@@ -76,22 +71,22 @@
     .btn-waitlist { background: linear-gradient(45deg, transparent 5%, var(--neon-yellow) 5%); box-shadow: 5px 0px 0px #ff9800; color: #000; }
     .btn-waitlist:hover { background: linear-gradient(45deg, transparent 5%, #ff9800 5%); box-shadow: 5px 0px 0px var(--neon-yellow); color: #000; }
 
-    /* Modal Styling */
     .modal-content { background-color: rgba(10, 10, 15, 0.95); backdrop-filter: blur(20px); border: 1px solid var(--neon-cyan); border-radius: 12px; color: #fff; box-shadow: 0 0 40px rgba(0, 240, 255, 0.2); }
     .modal-header { border-bottom: 1px solid var(--card-border); }
     .carousel-inner img { height: 400px; object-fit: contain; background: #000; border-radius: 8px; border: 1px solid var(--card-border); }
 
-    /* About Section */
     .about-section { background: rgba(10, 10, 15, 0.7); backdrop-filter: blur(10px); border-radius: 12px; border: 1px solid var(--card-border); padding: 60px 40px; margin: 0 auto 80px; max-width: 1000px; text-align: center; display: none; }
     .about-content { max-width: 800px; margin: 0 auto; color: #d1d5db; line-height: 1.8; font-size: 1.1rem; }
     .about-title { font-family: 'Orbitron', sans-serif; color: var(--neon-cyan); font-size: 2.2rem; font-weight: 900; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 25px; text-shadow: 0 0 15px rgba(0, 240, 255, 0.3); }
 
-    /* HIGH CONTRAST Footer Forms */
     .footer-section { background: rgba(3, 3, 5, 0.98); border-top: 1px solid var(--card-border); padding: 60px 20px; position: relative; z-index: 10; }
     .form-control-cyber { background: rgba(10, 10, 15, 0.9); border: 2px solid var(--neon-cyan); color: #ffffff !important; font-family: 'Rajdhani', sans-serif; font-size: 1.1rem; padding: 10px 15px; box-shadow: 0 0 8px rgba(0, 240, 255, 0.1); }
     .form-control-cyber:focus { background: #000000; border-color: var(--neon-pink); box-shadow: 0 0 15px rgba(255, 16, 122, 0.4); outline: none; }
     .form-control-cyber::placeholder { color: rgba(255, 255, 255, 0.65) !important; font-weight: 500; }
     .high-contrast-text { color: #f8fafc !important; font-weight: 600; font-size: 1.1rem; }
+    
+    .form-check-input:checked { background-color: var(--neon-cyan); border-color: var(--neon-cyan); }
+    .form-check-input:focus { border-color: var(--neon-pink); box-shadow: 0 0 0 0.25rem rgba(255, 16, 122, 0.25); }
   </style>
 </head>
 <body>
@@ -108,13 +103,10 @@
     </div>
   </header>
 
-  <!-- Split Dashboard Layout -->
   <div class="dashboard-layout">
     
-    <!-- Hero Billboard (Left/Primary) -->
     <section id="heroBillboard" class="hero-billboard"></section>
 
-    <!-- Launch Ledger (Right/Secondary) -->
     <section id="launchLedgerContainer" class="ledger-container" style="display:none;">
       <h3 style="font-family:'Orbitron'; font-size: 1.2rem; font-weight: 700; margin: 0 0 15px 0; text-shadow: 0 0 10px rgba(255,255,255,0.2);">
         UPCOMING <span style="color:var(--neon-pink);">DROPS</span>
@@ -124,9 +116,8 @@
     
   </div>
 
-  <!-- Dynamic Tabs -->
   <ul class="nav nav-tabs" id="seriesTabs" role="tablist">
-      <li class="nav-item"><button class="nav-link active" onclick="renderGrid('AVAILABLE', event)">AVAILABLE DROPS</button></li>
+      <!-- Tabs populated via JS -->
   </ul>
 
   <main class="container-fluid">
@@ -136,7 +127,6 @@
       </div>
     </div>
     
-    <!-- About Us Section (Now controlled by tabs) -->
     <section id="aboutSection" class="about-section">
       <div class="about-content">
         <h2 class="about-title">THE NEON LLAMA STORY</h2>
@@ -146,7 +136,7 @@
     </section>
   </main>
 
-  <!-- Detail Modal -->
+  <!-- Product Detail Modal -->
   <div class="modal fade" id="productModal" tabindex="-1">
     <div class="modal-dialog modal-xl modal-dialog-centered">
       <div class="modal-content p-2">
@@ -174,6 +164,38 @@
             <div id="modDesc" class="mb-4 high-contrast-text"></div>
             <div id="modCtaContainer" class="mt-auto"></div>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dedicated Notify Modal -->
+  <div class="modal fade" id="notifyModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content p-3 border-warning" style="box-shadow: 0 0 30px rgba(255, 193, 7, 0.2);">
+        <div class="modal-header border-0 pb-0">
+          <h4 class="modal-title font-monospace fw-bold" style="color: var(--neon-yellow); font-family: 'Orbitron';">DROP ALERT</h4>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p class="text-white mb-1">Set a reminder for:</p>
+          <p id="notifyItemName" class="text-info fw-bold mb-4" style="font-family:'Orbitron'; font-size: 1.2rem;"></p>
+          
+          <form id="notifyForm" onsubmit="submitNotifyForm(event)">
+            <input type="hidden" id="notifyTheme">
+            <input type="hidden" id="notifyModel">
+            
+            <input type="email" id="notifyEmail" class="form-control form-control-cyber mb-3" placeholder="YOUR EMAIL ADDRESS" required>
+            
+            <div class="form-check mb-4">
+              <input class="form-check-input" type="checkbox" id="notifyNewsletter" checked style="background-color: var(--card-bg);">
+              <label class="form-check-label text-white" for="notifyNewsletter" style="font-size: 0.95rem; opacity: 0.8;">
+                Also add me to the Neon Llama newsletter for early access to future chases and vault drops.
+              </label>
+            </div>
+            
+            <button type="submit" id="notifyBtn" class="btn-buy btn-waitlist w-100 fs-5">SET REMINDER</button>
+          </form>
         </div>
       </div>
     </div>
@@ -209,6 +231,7 @@
   
   let globalBatches = [];
   let productModal;
+  let notifyModal;
   let countdownTimer;
 
   function convertDriveUrl(url) {
@@ -217,9 +240,25 @@
     return match ? `https://drive.google.com/thumbnail?id=${match[1]}&sz=w800` : url;
   }
 
+  function triggerNotify(theme, model) {
+      if (productModal) {
+          productModal.hide();
+      }
+      
+      // Populate and show the dedicated modal
+      document.getElementById('notifyItemName').innerText = `${theme} - ${model}`;
+      document.getElementById('notifyTheme').value = theme;
+      document.getElementById('notifyModel').value = model;
+      document.getElementById('notifyForm').reset();
+      
+      notifyModal.show();
+  }
+
   async function loadCatalog() {
     productModal = new bootstrap.Modal(document.getElementById('productModal'));
+    notifyModal = new bootstrap.Modal(document.getElementById('notifyModal'));
     const grid = document.getElementById('catalogGrid');
+    const tabList = document.getElementById('seriesTabs');
 
     try {
         const res = await fetch(GAS_ENDPOINT + '?feed=public');
@@ -233,27 +272,13 @@
         globalBatches = data.batches || [];
         processTimeData(); 
         
-        // Filter out teaser phase cars so they don't spawn empty theme tabs
-        const now = new Date();
-        const oneDayMs = 24 * 60 * 60 * 1000;
-        const visibleBatches = globalBatches.filter(b => {
-            if (!b.dropTime) return true;
-            return (b.dropTime.getTime() - now.getTime()) <= oneDayMs;
-        });
-
-        const themes = [...new Set(visibleBatches.map(b => b.theme))].sort();
-        const tabList = document.getElementById('seriesTabs');
+        tabList.innerHTML = `
+          <li class="nav-item"><button class="nav-link active" onclick="renderGrid('NOW', event)">NOW</button></li>
+          <li class="nav-item"><button class="nav-link" onclick="renderGrid('PAST', event)">PAST</button></li>
+          <li class="nav-item"><button class="nav-link" onclick="renderGrid('ABOUT', event)">ABOUT US</button></li>
+        `;
         
-        tabList.innerHTML = `<li class="nav-item"><button class="nav-link active" onclick="renderGrid('AVAILABLE', event)">AVAILABLE DROPS</button></li>`;
-        
-        themes.forEach(t => {
-            tabList.innerHTML += `<li class="nav-item"><button class="nav-link" onclick="renderGrid('${t}', event)">${t}</button></li>`;
-        });
-        
-        // Add About Us tab
-        tabList.innerHTML += `<li class="nav-item"><button class="nav-link" onclick="renderGrid('ABOUT', event)">ABOUT US</button></li>`;
-        
-        renderGrid('AVAILABLE', null);
+        renderGrid('NOW', null);
     } catch (err) {
         grid.innerHTML = `
           <div class="text-center w-100 py-5" style="grid-column: 1 / -1;">
@@ -365,7 +390,9 @@
           timeStr += `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
           
           cLabel.innerText = `T-MINUS ${timeStr}`;
-          cta.innerHTML = `<button class="btn-buy btn-waitlist" style="font-size:1rem; padding: 12px;" onclick='openModal(${JSON.stringify(item).replace(/'/g, "&apos;")})'>NOTIFY ME</button>`;
+          const safeTheme = item.theme.replace(/'/g, "\\'");
+          const safeModel = item.model.replace(/'/g, "\\'");
+          cta.innerHTML = `<button class="btn-buy btn-waitlist" style="font-size:1rem; padding: 12px;" onclick="triggerNotify('${safeTheme}', '${safeModel}')">NOTIFY ME</button>`;
       }
   }
 
@@ -381,6 +408,8 @@
       grid.innerHTML = drops.map(b => {
           const dStr = b.dropTime ? b.dropTime.toLocaleDateString('en-US', {month: 'short', day: 'numeric'}).toUpperCase() : 'TBA';
           const tStr = b.dropTime ? b.dropTime.toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit', timeZoneName: 'short'}) : '';
+          const safeTheme = b.theme.replace(/'/g, "\\'");
+          const safeModel = b.model.replace(/'/g, "\\'");
           
           return `
           <div class="ledger-row">
@@ -390,7 +419,7 @@
                   <p class="ledger-model">${b.model}</p>
               </div>
               <div style="width: 120px; flex-shrink: 0;">
-                  <button class="btn-buy btn-waitlist w-100 py-1" style="font-size: 0.8rem;" onclick='openModal(${JSON.stringify(b).replace(/'/g, "&apos;")})'>NOTIFY ME</button>
+                  <button class="btn-buy btn-waitlist w-100 py-1" style="font-size: 0.8rem;" onclick="triggerNotify('${safeTheme}', '${safeModel}')">NOTIFY ME</button>
               </div>
           </div>`;
       }).join('');
@@ -408,7 +437,6 @@
     const grid = document.getElementById('catalogGrid');
     const aboutSection = document.getElementById('aboutSection');
 
-    // Toggle view for About Us
     if (filter === 'ABOUT') {
         grid.style.display = 'none';
         aboutSection.style.display = 'block';
@@ -421,18 +449,11 @@
     const now = new Date();
     const oneDayMs = 24 * 60 * 60 * 1000;
     
-    // Filter out teaser phase cars from grids
-    let visibleBatches = globalBatches.filter(b => {
-        if (!b.dropTime) return true;
-        return (b.dropTime.getTime() - now.getTime()) <= oneDayMs;
-    });
-
-    let filtered = visibleBatches;
-    
-    if (filter === 'AVAILABLE') {
-        filtered = visibleBatches.filter(b => b.totalStock > 0);
-    } else {
-        filtered = visibleBatches.filter(b => b.theme === filter);
+    let filtered = [];
+    if (filter === 'NOW') {
+        filtered = globalBatches.filter(b => (!b.dropTime || (b.dropTime.getTime() - now.getTime()) <= oneDayMs) && b.totalStock > 0);
+    } else if (filter === 'PAST') {
+        filtered = globalBatches.filter(b => b.totalStock <= 0);
     }
 
     if (filtered.length === 0) {
@@ -448,12 +469,15 @@
 
         const overlay = isSoldOut ? `<div class="sold-out-overlay"><div class="sold-out-text">SOLD OUT</div></div>` : '';
         const runSize = item.plannedTotal > 0 ? `ONLY ${item.plannedTotal} EVER MADE` : 'CUSTOM RUN';
+        
+        const safeTheme = item.theme.replace(/'/g, "\\'");
+        const safeModel = item.model.replace(/'/g, "\\'");
 
         let cta = '';
         if (isSoldOut) {
             cta = `<button class="btn-buy w-100 bg-secondary shadow-none mt-3" disabled onclick="event.stopPropagation()">SOLD OUT</button>`;
         } else if (isLocked) {
-            cta = `<button class="btn-buy w-100 btn-waitlist mt-3" disabled onclick="event.stopPropagation()">DROPS ${dropTime.toLocaleDateString('en-US', {month: 'short', day: 'numeric', hour: 'numeric', minute:'2-digit'})}</button>`;
+            cta = `<button class="btn-buy w-100 btn-waitlist mt-3" onclick="event.stopPropagation(); triggerNotify('${safeTheme}', '${safeModel}');">NOTIFY ME</button>`;
         } else if (item.stripeLink) {
             cta = `<a href="${item.stripeLink}" target="_blank" class="btn-buy w-100 mt-3 text-decoration-none" onclick="event.stopPropagation()">BUY NOW</a>`;
         } else {
@@ -495,8 +519,16 @@
 
       let slides = '';
       
-      // Teaser Logic: Force the hero image only until the 24-hour Reveal Phase
-      if (!isTeaser && item.images && item.images.length > 0) {
+      if (isTeaser) {
+          slides = `
+          <div class="carousel-item active position-relative">
+              <div class="position-absolute w-100 h-100 d-flex flex-column align-items-center justify-content-center" style="background: rgba(0,0,0,0.7); z-index: 10;">
+                  <h3 style="font-family: 'Orbitron'; color: var(--neon-pink); text-shadow: 0 0 15px var(--neon-pink); letter-spacing: 4px;">TEASER PHASE</h3>
+                  <p class="text-white text-uppercase" style="letter-spacing: 2px;">Image locked until T-Minus 24H</p>
+              </div>
+              <img src="${item.heroImg ? convertDriveUrl(item.heroImg) : ''}" class="d-block w-100" style="filter: brightness(0.15) blur(8px);">
+          </div>`;
+      } else if (item.images && item.images.length > 0) {
           item.images.forEach((url, i) => {
               slides += `<div class="carousel-item ${i===0?'active':''}"><img src="${convertDriveUrl(url)}" class="d-block w-100"></div>`;
           });
@@ -505,11 +537,14 @@
       }
       document.getElementById('modCarouselInner').innerHTML = slides;
 
+      const safeTheme = item.theme.replace(/'/g, "\\'");
+      const safeModel = item.model.replace(/'/g, "\\'");
+
       let cta = '';
       if (isSoldOut) {
           cta = `<button class="btn-buy w-100 bg-secondary shadow-none" disabled>SOLD OUT</button>`;
       } else if (isLocked) {
-          cta = `<button class="btn-buy w-100 btn-waitlist" disabled>DROPS ${dropTime.toLocaleDateString('en-US', {month: 'short', day: 'numeric', hour: 'numeric', minute:'2-digit'})}</button>`;
+          cta = `<button class="btn-buy w-100 btn-waitlist" onclick="triggerNotify('${safeTheme}', '${safeModel}')">NOTIFY ME (DROPS ${dropTime.toLocaleDateString('en-US', {month: 'short', day: 'numeric'})})</button>`;
       } else if (item.stripeLink) {
           cta = `<a href="${item.stripeLink}" target="_blank" class="btn-buy w-100 text-decoration-none">BUY NOW</a>`;
       } else {
@@ -518,6 +553,35 @@
       document.getElementById('modCtaContainer').innerHTML = cta;
 
       productModal.show();
+  }
+
+  function submitNotifyForm(e) {
+      e.preventDefault();
+      const btn = document.getElementById('notifyBtn');
+      btn.innerText = "SAVING...";
+      btn.disabled = true;
+
+      const payload = {
+          type: 'Notify',
+          email: document.getElementById('notifyEmail').value,
+          theme: document.getElementById('notifyTheme').value,
+          model: document.getElementById('notifyModel').value,
+          newsletterOptIn: document.getElementById('notifyNewsletter').checked
+      };
+
+      fetch(GAS_ENDPOINT, { method: 'POST', body: JSON.stringify(payload) })
+          .then(() => {
+              btn.innerText = "REMINDER SET ✅";
+              setTimeout(() => {
+                  notifyModal.hide();
+                  btn.innerText = "SET REMINDER";
+                  btn.disabled = false;
+              }, 2000);
+          })
+          .catch(err => {
+              btn.innerText = "ERROR - RETRY";
+              btn.disabled = false;
+          });
   }
 
   function submitNativeForm(e, type) {
