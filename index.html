@@ -449,18 +449,27 @@
     }
 
     const now = new Date();
-    const oneDayMs = 24 * 60 * 60 * 1000;
     
     let filtered = [];
     if (filter === 'NOW') {
-        filtered = globalBatches.filter(b => (!b.dropTime || (b.dropTime.getTime() - now.getTime()) <= oneDayMs) && b.totalStock > 0);
+        // Show any batch with active stock, whether live now or upcoming in Teaser/Reveal
+        filtered = globalBatches.filter(b => b.totalStock > 0);
+        
+        // Sort: Currently live drops first, then upcoming drops by nearest launch date
+        filtered.sort((a, b) => {
+            let aTime = a.dropTime ? a.dropTime.getTime() : 0;
+            let bTime = b.dropTime ? b.dropTime.getTime() : 0;
+            let aIsLive = aTime <= now.getTime();
+            let bIsLive = bTime <= now.getTime();
+
+            if (aIsLive && !bIsLive) return -1;
+            if (!aIsLive && bIsLive) return 1;
+            return aTime - bTime;
+        });
     } else if (filter === 'PAST') {
         filtered = globalBatches.filter(b => b.totalStock <= 0);
-    }
-
-    if (filtered.length === 0) {
-        grid.innerHTML = `<h5 class="high-contrast-text w-100 text-center py-5" style="font-family:'Orbitron';">NO CARS FOUND IN THIS SECTOR</h5>`;
-        return;
+        // Sort most recently sold out first
+        filtered.sort((a, b) => (b.dropTime ? b.dropTime.getTime() : 0) - (a.dropTime ? a.dropTime.getTime() : 0));
     }
 
     grid.innerHTML = filtered.map(item => {
