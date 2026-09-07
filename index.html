@@ -323,11 +323,19 @@
   function renderBillboard(item) {
       const wrapper = document.getElementById('heroBillboard');
       wrapper.style.display = 'block';
-      const hero = item.heroImg ? convertDriveUrl(item.heroImg) : '';
+      const rawHero = item.heroImg ? convertDriveUrl(item.heroImg) : '';
+      
+      const now = new Date();
+      const dropTime = item.dropTime ? item.dropTime : null;
+      const diff = dropTime ? dropTime.getTime() - now.getTime() : 0;
+      const isTeaser = diff > (24 * 60 * 60 * 1000); // True if more than 24h away
+
+      // Apply blur and dark filter to background if in Teaser Phase (>24h)
+      const bgStyle = isTeaser ? 'filter: brightness(0.15) blur(8px);' : '';
       
       wrapper.innerHTML = `
-        <img src="${hero}" class="hero-bg">
-        <div id="heroOverlay" class="hero-overlay overlay-teaser">
+        <img src="${rawHero}" class="hero-bg" style="${bgStyle}">
+        <div id="heroOverlay" class="hero-overlay ${isTeaser ? 'overlay-teaser' : 'overlay-reveal'}">
            <div id="bbPhase" class="hero-phase"></div>
            <h2 class="hero-title">${item.theme}<br><span style="font-size: 1.5rem; color: #d1d5db; letter-spacing: 1px;">${item.model}</span></h2>
            <div id="bbCountdown" class="hero-countdown"></div>
@@ -472,11 +480,18 @@
         filtered.sort((a, b) => (b.dropTime ? b.dropTime.getTime() : 0) - (a.dropTime ? a.dropTime.getTime() : 0));
     }
 
+    // --- FIX 2: CATALOG CARD BLUR & ACTUAL DROP TIME TEXT (Update renderGrid in NeonLlama.html) ---
     grid.innerHTML = filtered.map(item => {
-        const hero = item.heroImg ? convertDriveUrl(item.heroImg) : '';
+        const rawHero = item.heroImg ? convertDriveUrl(item.heroImg) : '';
         const isSoldOut = item.totalStock <= 0;
         const dropTime = item.launchDate ? new Date(item.launchDate) : null;
-        const isLocked = dropTime && dropTime > now;
+        const now = new Date();
+        const diff = dropTime ? dropTime.getTime() - now.getTime() : 0;
+        const isTeaser = dropTime && diff > (24 * 60 * 60 * 1000);
+
+        // Blur image during teaser phase
+        const imgStyle = isTeaser ? 'filter: brightness(0.15) blur(6px);' : '';
+        const teaserWatermark = isTeaser ? `<div class="position-absolute w-100 h-100 d-flex align-items-center justify-content-center z-2" style="pointer-events: none;"><span class="badge bg-dark border border-warning text-warning fw-bold px-2 py-1" style="font-family:'Orbitron'; font-size:0.75rem;">LOCKED (TEASER)</span></div>` : '';
 
         const overlay = isSoldOut ? `<div class="sold-out-overlay"><div class="sold-out-text">SOLD OUT</div></div>` : '';
         const runSize = item.plannedTotal > 0 ? `ONLY ${item.plannedTotal} EVER MADE` : 'CUSTOM RUN';
@@ -484,10 +499,15 @@
         const safeTheme = item.theme.replace(/'/g, "\\'");
         const safeModel = item.model.replace(/'/g, "\\'");
 
+        // Format actual drop time nicely (e.g., "SEP 11 @ 7:00 PM")
+        const dropTimeFormatted = dropTime ? dropTime.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toUpperCase() + ' @ ' + dropTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : 'TBA';
+
         let cta = '';
         if (isSoldOut) {
             cta = `<button class="btn-buy w-100 bg-secondary shadow-none mt-3" disabled onclick="event.stopPropagation()">SOLD OUT</button>`;
-        } else if (isLocked) {
+        } else if (isTeaser) {
+            cta = `<button class="btn-buy w-100 btn-waitlist mt-3" onclick="event.stopPropagation(); triggerNotify('${item.id}', '${safeTheme}', '${safeModel}');">DROPS ${dropTimeFormatted}</button>`;
+        } else if (dropTime && dropTime > now) {
             cta = `<button class="btn-buy w-100 btn-waitlist mt-3" onclick="event.stopPropagation(); triggerNotify('${item.id}', '${safeTheme}', '${safeModel}');">NOTIFY ME</button>`;
         } else if (item.stripeLink) {
             cta = `<a href="${item.stripeLink}" target="_blank" class="btn-buy w-100 mt-3 text-decoration-none" onclick="event.stopPropagation()">BUY NOW</a>`;
@@ -497,10 +517,11 @@
         
         return `
           <div class="diecast-card" onclick='openModal(${JSON.stringify(item).replace(/'/g, "&apos;")})'>
-            <div class="position-relative">
+            <div class="position-relative overflow-hidden" style="height: 210px; background: #000;">
               <span class="badge bg-dark border border-info text-info position-absolute top-0 end-0 m-2 z-3" style="font-family: 'Orbitron'; font-size: 0.65rem; box-shadow: 0 0 8px rgba(0, 240, 255, 0.4);">${runSize}</span>
+              ${teaserWatermark}
               ${overlay}
-              <img src="${hero}" class="diecast-img">
+              <img src="${rawHero}" class="diecast-img" style="${imgStyle} height: 210px; width: 100%; object-fit: cover;">
             </div>
             <div class="p-3 d-flex flex-column flex-grow-1">
               <h5 class="fw-bold mb-1" style="font-family:'Orbitron';">${item.theme}</h5>
