@@ -532,7 +532,20 @@
           </div>`;
       } else if (item.images && item.images.length > 0) {
           item.images.forEach((url, i) => {
-              slides += `<div class="carousel-item ${i===0?'active':''}"><img src="${convertDriveUrl(url)}" class="d-block w-100"></div>`;
+              const cleanUrl = convertDriveUrl(url);
+              const isVideo = cleanUrl.toLowerCase().endsWith('.mp4') || cleanUrl.toLowerCase().endsWith('.mov');
+
+              if (isVideo) {
+                  slides += `
+                  <div class="carousel-item ${i === 0 ? 'active' : ''}">
+                      <video src="${cleanUrl}" controls playsinline class="d-block w-100" style="max-height: 400px; background: #000; border-radius: 8px;"></video>
+                  </div>`;
+              } else {
+                  slides += `
+                  <div class="carousel-item ${i === 0 ? 'active' : ''}">
+                      <img src="${cleanUrl}" class="d-block w-100" style="max-height: 400px; object-fit: contain; background: #000; border-radius: 8px;">
+                  </div>`;
+              }
           });
       } else {
           slides = `<div class="carousel-item active"><img src="${item.heroImg ? convertDriveUrl(item.heroImg) : ''}" class="d-block w-100"></div>`;
