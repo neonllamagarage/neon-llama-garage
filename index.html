@@ -320,31 +320,26 @@
       renderLedger(ledgerDrops.slice(0, 8));
   }
 
-  function renderBillboard(item) {
-      const wrapper = document.getElementById('heroBillboard');
-      wrapper.style.display = 'block';
-      const rawHero = item.heroImg ? convertDriveUrl(item.heroImg) : '';
-      
-      const now = new Date();
-      const dropTime = item.launchDate ? new Date(item.launchDate) : null;
-      const isTeaser = dropTime && (dropTime.getTime() - now.getTime() > (24 * 60 * 60 * 1000));
-      const isSoldOut = item.totalStock <= 0;
-      const isLocked = dropTime && dropTime > now;
-
-      let slides = '';
-      
-      if (isTeaser) {
-          const dropFormatted = dropTime ? dropTime.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toUpperCase() + ' @ ' + dropTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : 'TBA';
-          slides = `
-          <div class="carousel-item active position-relative">
-              <div class="position-absolute w-100 h-100 d-flex flex-column align-items-center justify-content-center text-center p-3" style="background: rgba(0,0,0,0.75); z-index: 10;">
-                  <h3 style="font-family: 'Orbitron'; color: var(--neon-pink); text-shadow: 0 0 15px var(--neon-pink); letter-spacing: 4px; margin-bottom: 10px;">TEASER PHASE</h3>
-                  <p class="text-white text-uppercase fw-bold" style="letter-spacing: 1px; font-size: 1.1rem;">Image locked until reveal</p>
-                  <p class="text-warning fw-bold mb-0" style="font-family: 'Orbitron'; font-size: 0.9rem;">DROPS ${dropFormatted}</p>
-              </div>
-              <img src="${item.heroImg ? convertDriveUrl(item.heroImg) : ''}" class="d-block w-100" style="filter: brightness(0.15) blur(8px); max-height: 400px; object-fit: contain;">
-          </div>`;
-      }
+function renderBillboard(item) {
+    const wrapper = document.getElementById('heroBillboard');
+    wrapper.style.display = 'block';
+    const hero = item.heroImg ? convertDriveUrl(item.heroImg) : '';
+    
+    // Clean original layout: No inline blur or brightness filters on the hero image
+    wrapper.innerHTML = `
+      <img src="${hero}" class="hero-bg">
+      <div id="heroOverlay" class="hero-overlay overlay-teaser">
+         <div id="bbPhase" class="hero-phase"></div>
+         <h2 class="hero-title">${item.theme}<br><span style="font-size: 1.5rem; color: #d1d5db; letter-spacing: 1px;">${item.model}</span></h2>
+         <div id="bbCountdown" class="hero-countdown"></div>
+         <div style="max-width: 280px;" id="bbCta"></div>
+      </div>
+    `;
+    
+    clearInterval(countdownTimer);
+    updateBillboardTick(item);
+    countdownTimer = setInterval(() => updateBillboardTick(item), 1000);
+}
 
   function updateBillboardTick(item) {
       const now = new Date();
@@ -478,61 +473,67 @@
         filtered.sort((a, b) => (b.dropTime ? b.dropTime.getTime() : 0) - (a.dropTime ? a.dropTime.getTime() : 0));
     }
 
-    // --- FIX 2: CATALOG CARD BLUR & ACTUAL DROP TIME TEXT (Update renderGrid in NeonLlama.html) ---
-    grid.innerHTML = filtered.map(item => {
-        const rawHero = item.heroImg ? convertDriveUrl(item.heroImg) : '';
-        const isSoldOut = item.totalStock <= 0;
-        const dropTime = item.launchDate ? new Date(item.launchDate) : null;
-        const now = new Date();
-        const diff = dropTime ? dropTime.getTime() - now.getTime() : 0;
-        const isTeaser = dropTime && diff > (24 * 60 * 60 * 1000);
+    // --- FIX 2: CATALOG CARD (Clean Teaser Silhouette + Drop Time) ---
+grid.innerHTML = filtered.map(item => {
+    const rawHero = item.heroImg ? convertDriveUrl(item.heroImg) : '';
+    const isSoldOut = item.totalStock <= 0;
+    const dropTime = item.launchDate ? new Date(item.launchDate) : null;
+    const now = new Date();
+    const diff = dropTime ? dropTime.getTime() - now.getTime() : 0;
+    const isTeaser = dropTime && diff > (24 * 60 * 60 * 1000);
 
-        // Blur image during teaser phase
-        const imgStyle = isTeaser ? 'filter: brightness(0.15) blur(6px);' : '';
-        const teaserWatermark = isTeaser ? `<div class="position-absolute w-100 h-100 d-flex align-items-center justify-content-center z-2" style="pointer-events: none;"><span class="badge bg-dark border border-warning text-warning fw-bold px-2 py-1" style="font-family:'Orbitron'; font-size:0.75rem;">LOCKED (TEASER)</span></div>` : '';
+    // Teaser tint: Subtle dimming and silhouette overlay instead of heavy destructive blur
+    const imgStyle = isTeaser ? 'filter: brightness(0.65) contrast(1.1);' : '';
+    const teaserTintOverlay = isTeaser 
+        ? `<div class="position-absolute w-100 h-100 top-0 start-0 d-flex flex-column align-items-center justify-content-center z-2" style="background: linear-gradient(180deg, rgba(3,3,5,0.4) 0%, rgba(3,3,5,0.85) 100%); pointer-events: none;">
+             <span class="badge bg-dark border border-warning text-warning fw-bold px-2 py-1 shadow-sm" style="font-family:'Orbitron'; font-size:0.7rem; letter-spacing:1px;">TEASER PHASE</span>
+           </div>` 
+        : '';
 
-        const overlay = isSoldOut ? `<div class="sold-out-overlay"><div class="sold-out-text">SOLD OUT</div></div>` : '';
-        const runSize = item.plannedTotal > 0 ? `ONLY ${item.plannedTotal} EVER MADE` : 'CUSTOM RUN';
-        
-        const safeTheme = item.theme.replace(/'/g, "\\'");
-        const safeModel = item.model.replace(/'/g, "\\'");
+    const overlay = isSoldOut ? `<div class="sold-out-overlay"><div class="sold-out-text">SOLD OUT</div></div>` : '';
+    const runSize = item.plannedTotal > 0 ? `ONLY ${item.plannedTotal} EVER MADE` : 'CUSTOM RUN';
+    
+    const safeTheme = item.theme.replace(/'/g, "\\'");
+    const safeModel = item.model.replace(/'/g, "\\'");
 
-        // Format actual drop time nicely (e.g., "SEP 11 @ 7:00 PM")
-        const dropTimeFormatted = dropTime ? dropTime.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toUpperCase() + ' @ ' + dropTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : 'TBA';
+    // Nicely formatted launch stamp
+    const dropTimeFormatted = dropTime 
+        ? dropTime.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toUpperCase() + ' @ ' + dropTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) 
+        : 'TBA';
 
-        let cta = '';
-        if (isSoldOut) {
-            cta = `<button class="btn-buy w-100 bg-secondary shadow-none mt-3" disabled onclick="event.stopPropagation()">SOLD OUT</button>`;
-        } else if (isTeaser) {
-            cta = `<button class="btn-buy w-100 btn-waitlist mt-3" onclick="event.stopPropagation(); triggerNotify('${item.id}', '${safeTheme}', '${safeModel}');">DROPS ${dropTimeFormatted}</button>`;
-        } else if (dropTime && dropTime > now) {
-            cta = `<button class="btn-buy w-100 btn-waitlist mt-3" onclick="event.stopPropagation(); triggerNotify('${item.id}', '${safeTheme}', '${safeModel}');">NOTIFY ME</button>`;
-        } else if (item.stripeLink) {
-            cta = `<a href="${item.stripeLink}" target="_blank" class="btn-buy w-100 mt-3 text-decoration-none" onclick="event.stopPropagation()">BUY NOW</a>`;
-        } else {
-            cta = `<button class="btn-buy w-100 btn-waitlist mt-3" onclick="event.stopPropagation(); alert('Checkout link pending for ${item.model}')">STANDBY</button>`;
-        }
-        
-        return `
-          <div class="diecast-card" onclick='openModal(${JSON.stringify(item).replace(/'/g, "&apos;")})'>
-            <div class="position-relative overflow-hidden" style="height: 210px; background: #000;">
-              <span class="badge bg-dark border border-info text-info position-absolute top-0 end-0 m-2 z-3" style="font-family: 'Orbitron'; font-size: 0.65rem; box-shadow: 0 0 8px rgba(0, 240, 255, 0.4);">${runSize}</span>
-              ${teaserWatermark}
-              ${overlay}
-              <img src="${rawHero}" class="diecast-img" style="${imgStyle} height: 210px; width: 100%; object-fit: cover;">
-            </div>
-            <div class="p-3 d-flex flex-column flex-grow-1">
-              <h5 class="fw-bold mb-1" style="font-family:'Orbitron';">${item.theme}</h5>
-              <div class="d-flex justify-content-between align-items-center">
-                  <p class="text-info fw-bold mb-0">${item.model}</p>
-                  <span class="price-tag fs-5 fw-bold">$${item.minPrice.toFixed(2)}</span>
-              </div>
-              <div class="mt-auto pt-2 border-top border-secondary mt-3">
-                  ${cta}
-              </div>
-            </div>
-          </div>`;
-    }).join('');
+    let cta = '';
+    if (isSoldOut) {
+        cta = `<button class="btn-buy w-100 bg-secondary shadow-none mt-3" disabled onclick="event.stopPropagation()">SOLD OUT</button>`;
+    } else if (isTeaser) {
+        cta = `<button class="btn-buy w-100 btn-waitlist mt-3" onclick="event.stopPropagation(); triggerNotify('${item.id}', '${safeTheme}', '${safeModel}');">DROPS ${dropTimeFormatted}</button>`;
+    } else if (dropTime && dropTime > now) {
+        cta = `<button class="btn-buy w-100 btn-waitlist mt-3" onclick="event.stopPropagation(); triggerNotify('${item.id}', '${safeTheme}', '${safeModel}');">NOTIFY ME</button>`;
+    } else if (item.stripeLink) {
+        cta = `<a href="${item.stripeLink}" target="_blank" class="btn-buy w-100 mt-3 text-decoration-none" onclick="event.stopPropagation()">BUY NOW</a>`;
+    } else {
+        cta = `<button class="btn-buy w-100 btn-waitlist mt-3" onclick="event.stopPropagation(); alert('Checkout link pending for ${item.model}')">STANDBY</button>`;
+    }
+    
+    return `
+      <div class="diecast-card" onclick='openModal(${JSON.stringify(item).replace(/'/g, "&apos;")})'>
+        <div class="position-relative overflow-hidden" style="height: 210px; background: #000;">
+          <span class="badge bg-dark border border-info text-info position-absolute top-0 end-0 m-2 z-3" style="font-family: 'Orbitron'; font-size: 0.65rem; box-shadow: 0 0 8px rgba(0, 240, 255, 0.4);">${runSize}</span>
+          ${teaserTintOverlay}
+          ${overlay}
+          <img src="${rawHero}" class="diecast-img" style="${imgStyle} height: 210px; width: 100%; object-fit: cover;">
+        </div>
+        <div class="p-3 d-flex flex-column flex-grow-1">
+          <h5 class="fw-bold mb-1" style="font-family:'Orbitron';">${item.theme}</h5>
+          <div class="d-flex justify-content-between align-items-center">
+              <p class="text-info fw-bold mb-0">${item.model}</p>
+              <span class="price-tag fs-5 fw-bold">$${item.minPrice.toFixed(2)}</span>
+          </div>
+          <div class="mt-auto pt-2 border-top border-secondary mt-3">
+              ${cta}
+          </div>
+        </div>
+      </div>`;
+}).join('');
   }
 
   function openModal(item) {
