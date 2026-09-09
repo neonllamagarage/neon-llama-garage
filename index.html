@@ -1,3 +1,4 @@
+//ACTUAL CODE LIVES ON GITHUB!!!! 
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -278,6 +279,15 @@
         `;
         
         renderGrid('NOW', null);
+
+        // Deep-link auto-open for targeted batch hash (e.g. #B-024)
+        if (window.location.hash) {
+            const rawHash = window.location.hash.replace('#', '').trim().toUpperCase();
+            const targetBatch = globalBatches.find(b => String(b.id).trim().toUpperCase() === rawHash);
+            if (targetBatch) {
+                setTimeout(() => openModal(targetBatch), 200);
+            }
+        }
     } catch (err) {
         grid.innerHTML = `
           <div class="text-center w-100 py-5" style="grid-column: 1 / -1;">
