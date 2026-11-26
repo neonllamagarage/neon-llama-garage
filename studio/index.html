@@ -188,7 +188,7 @@
           <span>🖼️</span> ALBUMS <span id="albumsCountBadge" class="px-1.5 py-0.2 rounded bg-purple-950 text-purple-200 text-[10px] font-mono border border-purple-500/40">0</span>
         </button>
         <button onclick="openConceptGenModal(true)" class="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-orbitron font-black text-xs border border-pink-400/50 shadow-lg shadow-pink-900/40 transition active:scale-95 flex items-center gap-1.5">
-          <span>✨</span> + NEW CAR (v4.0.0)
+          <span>✨</span> + NEW CAR (v4.1.0)
         </button>
         <div class="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-[10px] font-mono text-cyan-400">
           STORE: <a href="https://neonllamagarage.com" target="_blank" class="hover:underline font-bold text-white">NEONLLAMAGARAGE.COM</a>
@@ -628,7 +628,7 @@
           <div>
             <h2 class="font-orbitron font-black text-base text-pink-400 flex items-center gap-2 tracking-wide flex-wrap">
               <span>UNIVERSAL DIECAST WIZARD</span>
-              <span class="px-2.5 py-0.5 rounded bg-cyan-950 text-cyan-300 text-[10px] font-mono border border-cyan-400 font-black shadow-[0_0_10px_rgba(6,182,212,0.5)]">v4.0.0 LIVE</span>
+              <span class="px-2.5 py-0.5 rounded bg-cyan-950 text-cyan-300 text-[10px] font-mono border border-cyan-400 font-black shadow-[0_0_10px_rgba(6,182,212,0.5)]">v4.1.0 LIVE</span>
               <span class="px-2 py-0.5 rounded bg-purple-950 text-purple-300 text-[10px] font-mono border border-purple-400/50">💎 GEMINI 3.1 • AUTO-ALBUMS</span>
             </h2>
             <p class="text-xs text-slate-400">1. Car & Printable Panels → 2. Photos → 3. 8-to-3 Concepts (+Feedback) → 4. Pure Flat Print-Ready Decals (+Tweak & Export)</p>
@@ -3015,14 +3015,26 @@
       });
     }
 
-    function buildPureFlatDecalPrompt(panelLabel, casting, winVar, feedback) {
+    function buildPureFlatDecalPrompt(panelKey, panelLabel, casting, winVar, feedback, hasDriverRef = false) {
       const fbText = feedback ? `USER TWEAK INSTRUCTION: "${feedback}".` : '';
-      return `PURE FLAT 2D VECTOR-STYLE PRINT-READY DECAL GRAPHIC SHEET ONLY for the ${panelLabel} of the custom 1:64 Hot Wheels ${casting} design shown in the attached reference image (${winVar.title}: ${winVar.story}). ${fbText}
-CRITICAL STRICT REQUIREMENTS:
-- Output ONLY the isolated flat 2D graphic artwork itself, completely flat orthographic 2D print art.
-- ABSOLUTELY NO CAR, NO VEHICLE OUTLINE, NO WHEELS, NO TIRES, NO WINDOWS, NO DOOR SEAMS, NO PANEL LINES, NO SHADOWS, NO 3D PERSPECTIVE, NO TABLE, NO BACKGROUND TEXTURE.
-- Centered cleanly with generous margin on a 100% SOLID PURE FLAT WHITE (#FFFFFF) background so it can be cleanly cut to transparent PNG for UV printing.
-- Crisp vector-sharp edges, vibrant high-contrast print colors, ready for 600 DPI eufyMake UV flatbed decal printing.`;
+      let layoutSpec = '';
+      if (panelKey === 'side_driver') {
+        layoutSpec = `SHAPE & ORIENTATION: Wide horizontal landscape sticker/decal banner (~2.5:1 wide horizontal strip) designed to sit on the flat left side panel. Front of car is on the LEFT, rear is on the RIGHT. Any lettering MUST read cleanly LEFT-TO-RIGHT.`;
+      } else if (panelKey === 'side_passenger') {
+        layoutSpec = `SHAPE & ORIENTATION: Wide horizontal landscape sticker/decal banner (~2.5:1 wide horizontal strip) designed to sit on the flat right side panel. Match the EXACT color palette, ink style, and graphics of the attached Driver Side decal, EXCEPT reverse the graphic flow direction (front on RIGHT, rear on LEFT) while keeping EVERY SINGLE WORD AND LETTER 100% LEGIBLE LEFT-TO-RIGHT (NEVER BACKWARDS OR MIRRORED TEXT!).`;
+      } else if (panelKey === 'roof') {
+        layoutSpec = `SHAPE & ORIENTATION: Clean flat 2D rectangular top-down roof graphic strip. Match the EXACT same color palette, ink tones, and art style of the attached Driver Side decal so the roof and sides look like one unified set!`;
+      } else {
+        layoutSpec = `SHAPE & ORIENTATION: Clean flat 2D rectangular top-down graphic decal for the ${panelLabel}. Match the EXACT same color palette and art style of the attached Driver Side decal!`;
+      }
+
+      return `PURE FLAT 2D DIE-CUT STICKER / DECAL ARTWORK ONLY for the ${panelLabel} of "${winVar.title}" (${winVar.story}). ${fbText}
+${layoutSpec}
+ABSOLUTE ZERO-VEHICLE RULES (CRITICAL):
+- Draw ONLY the pure flat 2D graphic illustration / sticker artwork itself.
+- DO NOT draw a van or car silhouette! DO NOT draw wheel arch cutouts! DO NOT draw window holes! DO NOT draw headlights, bumpers, door seams, tires, wheels, roof racks, or any vehicle shape!
+- Completely flat 2D graphic design centered with clean white margin on a 100% SOLID PURE FLAT WHITE (#FFFFFF) background.
+- Crisp vector-sharp ink edges, zero shadows, zero 3D perspective, ready for 600 DPI eufyMake UV flatbed decal printing.`;
     }
 
     async function generatePureFlatDecals() {
@@ -3034,23 +3046,23 @@ CRITICAL STRICT REQUIREMENTS:
       const grid = document.getElementById("finalDecalsGrid");
       if (!grid) return;
 
-      // Build list of active print panels from Step 1 toggles
+      // Build list of active print panels from Step 1 toggles (Passenger Side generated natively so text is NEVER backwards!)
       const panels = [
-        { key: 'side_driver', label: 'DRIVER SIDE (LEFT)', mode: activePrintZones.side, mirrorOf: null },
-        { key: 'side_passenger', label: 'PASSENGER SIDE (RIGHT — MATCHED MIRROR)', mode: activePrintZones.side, mirrorOf: 'side_driver' }
+        { key: 'side_driver', label: 'DRIVER SIDE (LEFT)', mode: activePrintZones.side },
+        { key: 'side_passenger', label: 'PASSENGER SIDE (RIGHT)', mode: activePrintZones.side }
       ];
-      if (activePrintZones.roof !== 'off') panels.push({ key: 'roof', label: 'ROOF PANEL (TOP-DOWN)', mode: activePrintZones.roof, mirrorOf: null });
-      if (activePrintZones.hood !== 'off') panels.push({ key: 'hood', label: 'HOOD PANEL (TOP-DOWN)', mode: activePrintZones.hood, mirrorOf: null });
-      if (activePrintZones.trunk !== 'off') panels.push({ key: 'trunk', label: 'TRUNK / TAILGATE PANEL', mode: activePrintZones.trunk, mirrorOf: null });
+      if (activePrintZones.roof !== 'off') panels.push({ key: 'roof', label: 'ROOF PANEL (TOP-DOWN)', mode: activePrintZones.roof });
+      if (activePrintZones.hood !== 'off') panels.push({ key: 'hood', label: 'HOOD PANEL (TOP-DOWN)', mode: activePrintZones.hood });
+      if (activePrintZones.trunk !== 'off') panels.push({ key: 'trunk', label: 'TRUNK / TAILGATE PANEL', mode: activePrintZones.trunk });
 
-      generatedFinalDecals = panels.map(p => ({ ...p, cmykPng: null, underbasePng: null }));
+      generatedFinalDecals = panels.map(p => ({ ...p, rawImg: null, cmykPng: null, underbasePng: null }));
       grid.innerHTML = "";
 
-      const refImgs = [];
-      if (winVar.img && winVar.img.startsWith('data:image/')) refImgs.push(winVar.img);
+      const baseRefs = [];
+      if (winVar.img && winVar.img.startsWith('data:image/')) baseRefs.push(winVar.img);
 
       // Render loading cards
-      generatedFinalDecals.forEach((p, idx) => {
+      generatedFinalDecals.forEach((p) => {
         const card = document.createElement('div');
         card.id = `decalCard_${p.key}`;
         card.className = "bg-slate-950 rounded-2xl border border-slate-800 p-4 space-y-3 shadow-xl flex flex-col justify-between";
@@ -3062,7 +3074,7 @@ CRITICAL STRICT REQUIREMENTS:
             </div>
             <div id="decalPreview_${p.key}" class="w-full h-52 rounded-xl border border-slate-700 flex flex-col items-center justify-center p-3 text-center space-y-2" style="background-image: linear-gradient(45deg, #1e293b 25%, transparent 25%), linear-gradient(-45deg, #1e293b 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #1e293b 75%), linear-gradient(-45deg, transparent 75%, #1e293b 75%); background-size: 16px 16px; background-position: 0 0, 0 8px, 8px -8px, -8px 0px; background-color: #0f172a;">
               <div class="w-8 h-8 rounded-full border-2 border-emerald-400 border-t-pink-500 animate-spin"></div>
-              <span class="text-[10px] font-mono text-emerald-300">${p.mirrorOf ? 'WAITING TO MIRROR DRIVER SIDE...' : 'GENERATING PURE FLAT DECAL...'}</span>
+              <span class="text-[10px] font-mono text-emerald-300">${p.key === 'side_driver' ? 'GENERATING MASTER FLAT DECAL...' : 'WAITING FOR DRIVER SIDE PALETTE LOCK...'}</span>
             </div>
           </div>
           <div id="decalActions_${p.key}" class="flex items-center gap-2 text-[10px] font-mono text-slate-500">
@@ -3072,43 +3084,61 @@ CRITICAL STRICT REQUIREMENTS:
         grid.appendChild(card);
       });
 
-      // Generate each unique panel (Driver Side auto-generates mirrored Passenger Side for $0 extra!)
-      for (const p of generatedFinalDecals) {
-        if (p.mirrorOf) continue;
-        await renderSingleDecalPanel(p, casting, winVar, feedback, refImgs);
+      // 1. Generate Driver Side FIRST so it locks the exact color palette & art style
+      const driverPanel = generatedFinalDecals.find(x => x.key === 'side_driver');
+      if (driverPanel) {
+        await renderSingleDecalPanel(driverPanel, casting, winVar, feedback, baseRefs);
       }
+
+      // 2. Pass Driver Side as visual palette/style anchor to Passenger Side + Roof/Hood/Trunk in parallel!
+      const anchoredRefs = [...baseRefs];
+      if (driverPanel && driverPanel.rawImg) anchoredRefs.push(driverPanel.rawImg);
+
+      const remaining = generatedFinalDecals.filter(x => x.key !== 'side_driver');
+      await Promise.all(remaining.map(p => renderSingleDecalPanel(p, casting, winVar, feedback, anchoredRefs)));
     }
 
     async function renderSingleDecalPanel(p, casting, winVar, feedback, refImgs) {
       const previewEl = document.getElementById(`decalPreview_${p.key}`);
-      const actionsEl = document.getElementById(`decalActions_${p.key}`);
-      const prompt = buildPureFlatDecalPrompt(p.label, casting, winVar, feedback);
+      if (previewEl) {
+        previewEl.innerHTML = `
+          <div class="w-8 h-8 rounded-full border-2 border-emerald-400 border-t-pink-500 animate-spin"></div>
+          <span class="text-[10px] font-mono text-emerald-300">GENERATING PURE FLAT ${p.label}...</span>
+        `;
+      }
+
+      const prompt = buildPureFlatDecalPrompt(p.key, p.label, casting, winVar, feedback, refImgs.length > 1);
       const res = await generateAiImage(prompt, refImgs);
 
       if (!res.ok || !res.image) {
         if (previewEl) {
-          previewEl.innerHTML = `<div class="text-xs text-red-400 font-bold">⚠️ ${res.error || 'Decal render failed'}</div>`;
+          previewEl.innerHTML = `
+            <div class="text-xs text-red-400 font-bold">⚠️ ${res.error || 'Decal render failed'}</div>
+            <button type="button" onclick="regenerateSingleDecal('${p.key}')" class="mt-2 px-3 py-1 rounded bg-red-900 text-white text-[10px] font-bold">🔄 Retry</button>
+          `;
         }
         return;
       }
 
+      p.rawImg = res.image;
       const processed = await processPureFlatDecalImage(res.image, false);
       p.cmykPng = processed.transparentPng;
       p.underbasePng = processed.underbasePng;
       saveToCastingAlbum(casting, 'Final Decal', `${winVar.title} — ${p.label}`, p.cmykPng);
       updateDecalCardUI(p, casting);
+    }
 
-      // If this was Driver Side, automatically build the mirrored Passenger Side!
-      if (p.key === 'side_driver') {
-        const passPanel = generatedFinalDecals.find(x => x.key === 'side_passenger');
-        if (passPanel) {
-          const mirrored = await processPureFlatDecalImage(res.image, true);
-          passPanel.cmykPng = mirrored.transparentPng;
-          passPanel.underbasePng = mirrored.underbasePng;
-          saveToCastingAlbum(casting, 'Final Decal', `${winVar.title} — ${passPanel.label}`, passPanel.cmykPng);
-          updateDecalCardUI(passPanel, casting);
-        }
-      }
+    async function regenerateSingleDecal(panelKey) {
+      const p = generatedFinalDecals.find(x => x.key === panelKey);
+      const winVar = currentWinningVariation;
+      if (!p || !winVar) return;
+      const casting = (document.getElementById("donorCastingInput")?.value || "Hot Wheels Custom").trim();
+      const feedback = (document.getElementById("decalFeedbackInput")?.value || "").trim();
+      const refImgs = [];
+      if (winVar.img && winVar.img.startsWith('data:image/')) refImgs.push(winVar.img);
+      const driverPanel = generatedFinalDecals.find(x => x.key === 'side_driver');
+      if (panelKey !== 'side_driver' && driverPanel && driverPanel.rawImg) refImgs.push(driverPanel.rawImg);
+      await renderSingleDecalPanel(p, casting, winVar, feedback, refImgs);
     }
 
     function updateDecalCardUI(p, casting) {
@@ -3129,13 +3159,16 @@ CRITICAL STRICT REQUIREMENTS:
       if (actionsEl) {
         actionsEl.innerHTML = `
           <a href="${p.cmykPng}" download="${safeName}_CMYK_transparent.png" class="flex-1 py-2 text-center rounded-lg bg-emerald-600/30 hover:bg-emerald-500/40 border border-emerald-500/50 text-emerald-200 font-orbitron font-bold text-[10px] transition">
-            ⬇ CMYK PNG
+            ⬇ CMYK
           </a>
           <a href="${p.underbasePng}" download="${safeName}_WHITE_UNDERBASE.png" class="flex-1 py-2 text-center rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white font-orbitron font-bold text-[10px] transition">
-            ⬇ WHITE BASE
+            ⬇ WHITE
           </a>
-          <button type="button" onclick="openImageLightbox('${p.underbasePng}', '${p.label} — 100% Solid White Underbase')" class="px-2.5 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 text-[10px]" title="Inspect White Underbase">
+          <button type="button" onclick="openImageLightbox('${p.underbasePng}', '${p.label} — 100% Solid White Underbase')" class="px-2 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 text-[10px]" title="Inspect White Underbase">
             👁️
+          </button>
+          <button type="button" onclick="regenerateSingleDecal('${p.key}')" class="px-2 py-2 rounded-lg bg-pink-950/80 hover:bg-pink-800 border border-pink-500/50 text-pink-200 text-[10px]" title="Regenerate Just This Panel">
+            🔄
           </button>
         `;
       }
