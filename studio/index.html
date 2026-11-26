@@ -672,36 +672,26 @@
       </div>
 
       <!-- ===================================================================== -->
-      <!-- VIEW 1: THE 8 STARTER DIRECTIONS & THE BIG ILLUMINATED SHOWCASE       -->
+      <!-- VIEW 1: 8 LIVE VISUAL CONCEPTS (POWERED BY CLOUDFLARE FLUX.1)         -->
       <!-- ===================================================================== -->
       <div id="ideaStarterShowcaseView" class="space-y-4">
         
-        <!-- THE BIG ILLUMINATED SHOWCASE CONTAINER -->
-        <div class="w-full rounded-2xl bg-black border border-slate-800 overflow-hidden relative shadow-2xl group flex flex-col items-center justify-center p-2 min-h-64" id="showcaseImageWrapper">
-          <div id="dynamicShowcaseContainer" class="w-full max-h-80 flex items-center justify-center">
-            <!-- Dynamically rendered Big Showcase Image (Photo or SVG Canvas) -->
-          </div>
-          <div class="w-full flex items-center justify-between text-xs font-orbitron font-bold text-white px-3 py-1.5 bg-black/80 backdrop-blur-md border-t border-slate-800 rounded-b-xl mt-1">
-            <span class="flex items-center gap-2">
-              <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span id="showcaseDisplayTitle">ILLUMINATED SHOWCASE: 8 DYNAMIC STARTER CONCEPTS</span>
-            </span>
-            <div class="flex items-center gap-2">
-              <span class="text-[11px] text-slate-400 font-mono">CLICK ANY CAR OR PLAQUE TO DIVE IN</span>
+        <div class="flex items-center justify-between bg-slate-950 p-4 rounded-xl border border-slate-800 flex-wrap gap-2">
+          <div>
+            <div class="font-orbitron font-black text-sm text-white flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse"></span>
+              8 LIVE GENERATED VISUAL CONCEPTS
             </div>
+            <div class="text-xs text-slate-400 mt-0.5" id="conceptsCastingSubtitle">Synthesizing 8 custom 1:64 scale liveries in real-time via Cloudflare FLUX...</div>
+          </div>
+          <div class="text-xs font-mono text-cyan-400" id="starterCountLabel">
+            8 CONCEPTS READY
           </div>
         </div>
 
-        <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
-          <div class="font-orbitron font-black text-sm text-white flex items-center gap-2">
-            <span>✨</span> 8 DYNAMICALLY GENERATED CONCEPTS • PICK 1 TO CREATE 3 SUB-IDEA IMAGES:
-          </div>
-          <span class="text-xs text-pink-400 font-mono" id="starterCountLabel">8 DYNAMIC CONCEPTS READY</span>
-        </div>
-
-        <!-- 8 CARDS GRID -->
+        <!-- 8 INDIVIDUAL VISUAL CARDS GRID -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="starterCardsGrid">
-          <!-- Populated in real time by JavaScript -->
+          <!-- Populated in real time with individual live FLUX image cards -->
         </div>
 
       </div>
@@ -1667,43 +1657,39 @@
         let currentShowcaseSetIndex = 0;
 
                 // LIVE CLOUDFLARE WORKERS AI PIPELINE (FLUX.1-SCHNELL + LLAMA 3)
-    const AI_API_BASE = 'https://neonllamagarage.com/api';
+    const AI_API_BASE = "https://neonllamagarage.com/api";
 
     async function generateAiImage(prompt) {
       try {
         const resp = await fetch(`${AI_API_BASE}/generate-image`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ prompt })
         });
-        if (!resp.ok) return null;
+        if (!resp.ok) {
+          const errText = await resp.text().catch(() => resp.statusText);
+          return { ok: false, error: `Cloudflare API ${resp.status}: ${errText}` };
+        }
         const data = await resp.json();
-        return data.image || null;
+        if (!data.image) {
+          return { ok: false, error: data.error || "No image payload in response" };
+        }
+        return { ok: true, image: data.image };
       } catch (e) {
-        console.warn('AI image generation error:', e);
-        return null;
+        console.error("generateAiImage failed:", e);
+        return { ok: false, error: e.message || String(e) };
       }
     }
 
     async function runRealtimeDynamicGenerator() {
-      const casting = document.getElementById('donorCastingInput').value.trim() || 'Hot Wheels Dairy Delivery';
-      const paint = document.getElementById('donorBodyPaintInput').value.trim() || 'Gloss Alpine White';
-      const wheels = document.getElementById('donorWheelInput').value.trim() || 'Purple Deep Dish Real Riders';
+      const casting = document.getElementById("donorCastingInput").value.trim() || "Hot Wheels Custom";
+      const paint = document.getElementById("donorBodyPaintInput").value.trim() || "Gloss White";
+      const wheels = document.getElementById("donorWheelInput").value.trim() || "Real Riders";
 
-      const showcaseContainer = document.getElementById('dynamicShowcaseContainer');
-      const titleEl = document.getElementById('showcaseDisplayTitle');
-      
-      // Put live generating state in showcase container immediately
-      if (showcaseContainer) {
-        showcaseContainer.innerHTML = `
-          <div class="w-full h-72 rounded-xl bg-slate-950 border border-cyan-500/50 flex flex-col items-center justify-center space-y-3 p-6 text-center animate-pulse">
-            <div class="w-12 h-12 rounded-full border-4 border-cyan-400 border-t-pink-500 animate-spin"></div>
-            <div class="font-orbitron font-black text-sm text-cyan-300">⚡ CLOUDFLARE FLUX ENGINE GENERATING SHOWCASE...</div>
-            <div class="text-xs text-slate-400 font-mono">Synthesizing 8 custom ${casting} (${paint}) models in illuminated acrylic case...</div>
-          </div>
-        `;
-      }
-      if (titleEl) titleEl.innerText = `GENERATING LIVE FLUX SHOWCASE: ${casting.toUpperCase()} (${paint.toUpperCase()})`;
+      const subtitleEl = document.getElementById("conceptsCastingSubtitle");
+      const countLabel = document.getElementById("starterCountLabel");
+      if (subtitleEl) subtitleEl.innerText = `Synthesizing 8 distinct 1:64 liveries for ${casting.toUpperCase()} (${paint.toUpperCase()}) with ${wheels}...`;
+      if (countLabel) countLabel.innerText = "⚡ SYNTHESIZING CONCEPTS...";
 
       showAiProcessing(casting, async () => {
         currentDynamicStarters = [];
@@ -1712,145 +1698,140 @@
         let concepts = [];
         try {
           const resp = await fetch(`${AI_API_BASE}/generate-concepts`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ casting, paint, notes: wheels })
           });
           if (resp.ok) {
             concepts = await resp.json();
           }
         } catch (e) {
-          console.warn('Concept generation fallback:', e);
+          console.warn("Concept generation fallback:", e);
         }
 
         if (!Array.isArray(concepts) || concepts.length === 0) {
           concepts = [
-            { title: "CYBERPUNK NEON", badge: "CYBER RUNNER", desc: `High-voltage circuitry and neon wireframe tampos on ${casting}.`, primary: "#00f0ff", accent: "#ff007f" },
-            { title: "TOKYO MIDNIGHT", badge: "DRIFT SPEC", desc: `Japanese Kanjo racer with kanji tampos and black cowl induction hood.`, primary: "#8b5cf6", accent: "#06b6d4" },
-            { title: "VINTAGE SCALLOPS", badge: "70S DRAGSTER", desc: `Classic 1970s street machine with deep emerald scallop flames and silver pinstriping.`, primary: "#f59e0b", accent: "#ef4444" },
-            { title: "ACID SPLASH", badge: "STREET ART", desc: `High-impact aerosol splatter graffiti and urban drips.`, primary: "#10b981", accent: "#eab308" },
+            { title: "CYBERPUNK NEON", badge: "CYBER RUNNER", desc: `High-voltage neon circuitry and wireframe tampos tailored for ${casting}.`, primary: "#00f0ff", accent: "#ff007f" },
+            { title: "TOKYO MIDNIGHT", badge: "DRIFT SPEC", desc: `Kanjo highway racer with kanji tampos, aero mirrors, and deep dish alloys.`, primary: "#8b5cf6", accent: "#06b6d4" },
+            { title: "VINTAGE SCALLOPS", badge: "70S DRAGSTER", desc: `Classic 1970s street machine with deep scallop flames and pin-striping.`, primary: "#f59e0b", accent: "#ef4444" },
+            { title: "ACID SPLASH", badge: "STREET ART", desc: `High-impact aerosol splatter graffiti and urban drip graphics.`, primary: "#10b981", accent: "#eab308" },
             { title: "GHOST PEARL", badge: "CONCOURSE SHOW", desc: `Ultra-clean show car with translucent ghost pearlescent stripes and chrome trim.`, primary: "#e2e8f0", accent: "#38bdf8" },
             { title: "TRACK DAY 13", badge: "TRANS-AM RACER", desc: `Historic road race livery with bold #13 roundels on doors and front chin spoiler.`, primary: "#ef4444", accent: "#000000" },
             { title: "RETRO HORIZON", badge: "OUTRUN SUNSET", desc: `Tri-tone gradient sunset racing stripes cutting across body panels.`, primary: "#f97316", accent: "#facc15" },
-            { title: "RAW STEALTH", badge: "PROTOTYPE", desc: `Monochromatic satin finish with blackout trim and dark bronze alloys.`, primary: "#84cc16", accent: "#18181b" }
+            { title: "RAW STEALTH", badge: "PROTOTYPE", desc: `Monochromatic satin stealth finish with blackout trim and dark alloys.`, primary: "#84cc16", accent: "#18181b" }
           ];
         }
 
-        // Build 8 dynamic starters
+        // Build 8 dynamic starters with tailored FLUX prompts
         concepts.slice(0, 8).forEach((c, idx) => {
           const variations = [
             {
-              title: c.title + ' // TRACK SPEC',
-              subName: 'Motorsport Racing Livery',
-              badge: 'TRACK SPEC',
-              badgeColor: 'border-cyan-500 bg-cyan-950 text-cyan-300',
+              title: c.title + " // TRACK SPEC",
+              badge: "TRACK SPEC",
+              badgeColor: "border-red-500/60 bg-red-950/80 text-red-300",
               baseName: paint,
+              baseColor: "#111827",
+              primaryName: "Track Inks",
+              accentName: "Sponsor Decals",
               wheelName: wheels,
-              primaryInk: c.primary || '#00f0ff',
-              accentInk: c.accent || '#ff007f',
+              primaryInk: c.primary || "#00f0ff",
+              accentInk: c.accent || "#ff007f",
               story: `Aggressive motorsport track layout for ${c.title}. Features door #13 roundel, sponsor decals, and front aero splitter.`,
               sideLivery: `Door #13 racing roundel + micro sponsor decal stack + aerodynamic speed sweep.`,
               roofLivery: `Dual bold longitudinal racing stripes with roof number tampo.`,
               uvSpecs: `100% Solid White Underbase • 600 DPI CMYK pass • Spot Matte Varnish.`,
               cardback: `Checkered raceway blister card with metallic silver foil badge.`,
               chaseIdea: `1-of-10 Chase: Raw Zamac unpainted body with tinted clearcoat.`,
-              prompt: `Commercial product macro photography of 1:64 scale custom Hot Wheels ${casting} diecast car in ${paint} paint, aggressive track racing livery with bold #13 door tampo, front splitter, black wheels, dark reflective studio turntable, sharp focus, 8k`
+              img: null,
+              prompt: `Commercial product macro photography of 1:64 scale custom Hot Wheels ${casting} diecast car in ${paint} paint, ${wheels}, aggressive track racing livery with bold #13 door tampo, front chin splitter, dark reflective studio turntable, sharp macro focus, 8k`
             },
             {
-              title: c.title + ' // NEO-TUNER',
-              subName: 'Slammed Geometric Street',
-              badge: 'NEO-TUNER',
-              badgeColor: 'border-pink-500 bg-pink-950 text-pink-300',
+              title: c.title + " // NEO-TUNER",
+              badge: "NEO-TUNER",
+              badgeColor: "border-cyan-500/60 bg-cyan-950/80 text-cyan-300",
               baseName: paint,
+              baseColor: "#0f172a",
+              primaryName: "Tuner Graphics",
+              accentName: "Neon Accents",
               wheelName: wheels,
-              primaryInk: c.primary || '#8b5cf6',
-              accentInk: c.accent || '#06b6d4',
-              story: `Low-slammed street tuner edition of ${c.title}. Geometric ultraviolet angle cuts, Japanese kanji micro-typography, and contrast roof accent.`,
-              sideLivery: `Large geometric side panel wrap + Japanese kanji text + angled speed gradients.`,
-              roofLivery: `Solid gloss black roof with centered laser-etched insignia.`,
+              primaryInk: c.accent || "#ff007f",
+              accentInk: c.primary || "#00f0ff",
+              story: `Slammed pro-touring street tuner style with modern geometric side graphics and stance.`,
+              sideLivery: `Full body geometric slash graphics + stylized typography.`,
+              roofLivery: `Matte blackout roof wrap with gloss clear-varnish pattern.`,
               uvSpecs: `Raised 3D Clear Gloss UV Varnish (+0.3mm relief) on typography and logos.`,
               cardback: `Tokyo midnight highway neon card with holographic serial number.`,
               chaseIdea: `1-of-10 Chase: Glow-in-the-dark base paint with high-voltage circuits.`,
-              prompt: `Commercial product macro photography of 1:64 scale custom Hot Wheels ${casting} diecast car in ${paint} paint, slammed pro-touring street tuner style with modern geometric side graphics, deep dish wheels, dark studio background, sharp focus, 8k`
+              img: null,
+              prompt: `Commercial product macro photography of 1:64 scale custom Hot Wheels ${casting} diecast car in ${paint} paint, ${wheels}, slammed pro-touring street tuner style with modern geometric side graphics, dark reflective studio turntable, sharp focus, 8k`
             },
             {
-              title: c.title + ' // SHOW CAR',
-              subName: 'Ghost Pearl & Chrome',
-              badge: 'LUXURY SHOW',
-              badgeColor: 'border-amber-500 bg-amber-950 text-amber-300',
+              title: c.title + " // SHOW CAR",
+              badge: "CONCOURSE",
+              badgeColor: "border-purple-500/60 bg-purple-950/80 text-purple-300",
               baseName: paint,
+              baseColor: "#1e1b4b",
+              primaryName: "Pearl Accents",
+              accentName: "Chrome Highlights",
               wheelName: wheels,
-              primaryInk: c.primary || '#e2e8f0',
-              accentInk: c.accent || '#facc15',
-              story: `Concourse show car edition of ${c.title}. Translucent ghost pearl graphics shimmering over ${paint}, delicate pinstriping, and mirror chrome accents.`,
-              sideLivery: `Delicate swooping pinstripe flourishes + minimalist crest badge.`,
-              roofLivery: `Elegantly framed geometric roof panel with micro-pin lines.`,
+              primaryInk: c.primary || "#00f0ff",
+              accentInk: "#ffffff",
+              story: `Luxury concourse show car with subtle ghost pearlescent stripes and chrome trim.`,
+              sideLivery: `Minimalist high-elegance pinstripes + subtle brand crest on front fender.`,
+              roofLivery: `Solid body color with micro metallic metalflake shimmer.`,
               uvSpecs: `Selective white underbase allowing pearlescent flake to shimmer through ink.`,
               cardback: `Luxury matte black velvet-touch blister card with gold foil seal.`,
               chaseIdea: `1-of-10 Chase: 24K gold-plated wheels with deep-dish chrome lips.`,
-              prompt: `Commercial product macro photography of 1:64 scale custom Hot Wheels ${casting} diecast car in ${paint} paint, luxury concourse show car with subtle ghost pearlescent stripes, polished chrome wheels, dark studio turntable, sharp focus, 8k`
+              img: null,
+              prompt: `Commercial product macro photography of 1:64 scale custom Hot Wheels ${casting} diecast car in ${paint} paint, ${wheels}, luxury concourse show car with subtle ghost pearlescent stripes, polished trim, dark reflective studio turntable, sharp focus, 8k`
             }
           ];
 
           currentDynamicStarters.push({
-            id: 'starter_' + idx,
-            name: (idx + 1) + '. ' + c.title,
+            id: "dir-" + idx,
+            name: c.title,
             title: c.title,
-            badge: c.badge || 'CUSTOM',
-            badgeColor: 'border-pink-500/60 bg-pink-950/80 text-pink-300',
-            img: null, // Will be filled dynamically by live AI or crops
-            prompt: `Commercial studio macro photo of 1:64 scale custom Hot Wheels ${casting} diecast car in ${paint} paint, ${c.title} custom livery, dark studio background, sharp focus, 8k`,
+            badge: c.badge || "CUSTOM",
+            badgeColor: "border-pink-500/60 bg-pink-950/80 text-pink-300",
+            primary: c.primary || "#00f0ff",
+            accent: c.accent || "#ff007f",
+            img: null,
+            prompt: `Commercial product macro photography of 1:64 scale custom Hot Wheels ${casting} diecast car in ${paint} paint, ${wheels}, ${c.title} custom livery, ${c.desc}, dark reflective studio turntable, sharp macro focus, 8k`,
             desc: c.desc || `Custom ${c.title} livery calibrated for ${casting}.`,
             variations: variations
           });
         });
 
+        if (countLabel) countLabel.innerText = "8 CONCEPTS READY • GENERATING LIVE FLUX PREVIEWS";
         renderStarterCards();
         backToStarterShowcase();
-
-        // 2. ACTUALLY CALL CLOUDFLARE FLUX LIVE TO GENERATE A BRAND-NEW SHOWCASE IMAGE!
-        const showcasePrompt = `Commercial product photography of an illuminated clear acrylic collector display case with 2 shelves of 4 slots. Inside are 8 custom 1:64 scale diecast Hot Wheels ${casting} muscle cars in ${paint} paint with custom liveries and wheels. Under each car is an illuminated metallic nameplate plaque. Studio lighting, sharp focus, 8k resolution, photorealistic collector showcase.`;
-        
-        generateAiImage(showcasePrompt).then(liveImg => {
-          if (liveImg && showcaseContainer) {
-            showcaseContainer.innerHTML = `<img src="${liveImg}" class="w-full max-h-80 object-cover object-center rounded-xl shadow-2xl">`;
-            if (titleEl) titleEl.innerText = `LIVE FLUX SHOWCASE: 8 CONCEPTS ON ${casting.toUpperCase()} (${paint.toUpperCase()})`;
-            showToast(`🔥 Fresh FLUX showcase generated live on Cloudflare!`, '✨');
-          }
-        });
-
-        showToast(`AI synthesized 8 concepts for ${casting} in ${paint}!`, '🧠');
+        showToast(`AI synthesized 8 concepts for ${casting}!`, "🧠");
       });
     }
 
     function renderStarterCards() {
-      const container = document.getElementById('starterCardsGrid');
+      const container = document.getElementById("starterCardsGrid");
       if (!container) return;
-      container.innerHTML = '';
+      container.innerHTML = "";
 
       currentDynamicStarters.forEach((dir, idx) => {
-        const card = document.createElement('div');
-        card.className = "bg-slate-950/90 rounded-2xl border border-slate-800 hover:border-pink-500/70 p-3.5 flex flex-col justify-between space-y-3 shadow-xl transition group";
-        
-        const previewContent = dir.img 
-          ? `<img src="${dir.img}" class="w-full h-full object-cover rounded-lg drop-shadow-xl transition duration-300 group-hover:scale-105" loading="lazy">`
-          : `<div class="w-full h-full flex flex-col items-center justify-center p-3 text-center space-y-2 bg-gradient-to-br from-slate-900 to-black rounded-lg border border-slate-800/80">
-               <div class="flex items-center gap-2">
-                 <span class="w-4 h-4 rounded-full border border-white/30 shadow" style="background-color: ${dir.primary || '#00f0ff'}"></span>
-                 <span class="w-4 h-4 rounded-full border border-white/30 shadow" style="background-color: ${dir.accent || '#ff007f'}"></span>
-               </div>
-               <div class="font-orbitron font-black text-xs text-white tracking-wider">${dir.title}</div>
-               <div class="text-[10px] font-mono text-cyan-400">1:64 LIVERY SPEC</div>
-             </div>`;
+        const imgBoxId = `starterImgBox_${idx}`;
+        const card = document.createElement("div");
+        card.className = "bg-slate-950/95 rounded-2xl border border-slate-800 hover:border-pink-500/70 p-3.5 flex flex-col justify-between space-y-3 shadow-xl transition group";
 
         card.innerHTML = `
           <div class="space-y-2.5">
-            <div class="w-full h-32 rounded-xl bg-gradient-to-b from-slate-900 to-black p-1 border border-slate-800/80 flex items-center justify-center relative overflow-hidden group">
-              ${previewContent}
+            <div id="${imgBoxId}" class="w-full h-44 rounded-xl bg-slate-900 border border-slate-800 flex flex-col items-center justify-center relative overflow-hidden p-2 text-center">
+              <div class="flex flex-col items-center justify-center space-y-2 animate-pulse">
+                <div class="w-8 h-8 rounded-full border-2 border-cyan-400 border-t-pink-500 animate-spin"></div>
+                <span class="text-[10px] font-mono text-cyan-300">GENERATING FLUX RENDER...</span>
+                <span class="text-[9px] font-mono text-slate-500">Cloudflare Workers AI</span>
+              </div>
               <span class="absolute top-1.5 left-1.5 px-2 py-0.5 rounded text-[9px] font-orbitron font-bold border ${dir.badgeColor} backdrop-blur-sm">
                 ${dir.badge}
               </span>
             </div>
+
             <div>
               <div class="flex items-center justify-between">
                 <h3 class="font-orbitron font-black text-xs text-white group-hover:text-pink-400 transition tracking-wide">${dir.title}</h3>
@@ -1858,12 +1839,92 @@
               </div>
               <p class="text-[11px] text-slate-400 leading-snug mt-1">${dir.desc}</p>
             </div>
+
+            <div class="flex items-center gap-2 pt-1 border-t border-slate-900 text-[10px] font-mono text-slate-400">
+              <span>COLORWAY:</span>
+              <span class="w-3.5 h-3.5 rounded border border-white/20" style="background-color: ${dir.primary}"></span>
+              <span class="w-3.5 h-3.5 rounded border border-white/20" style="background-color: ${dir.accent}"></span>
+            </div>
           </div>
+
           <button onclick="pickDynamicStarter(${idx})" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-pink-600 via-purple-600 to-cyan-600 hover:from-pink-500 hover:to-cyan-500 text-white font-orbitron font-black text-xs shadow-md transition active:scale-95 flex items-center justify-center gap-1.5">
             <span>👉</span> SELECT & CREATE 3 SUB-IDEAS
           </button>
         `;
         container.appendChild(card);
+
+        // TRIGGER LIVE FLUX GENERATION FOR THIS CONCEPT
+        generateAiImage(dir.prompt).then(res => {
+          const imgBox = document.getElementById(imgBoxId);
+          if (!imgBox) return;
+
+          if (res && res.ok && res.image) {
+            dir.img = res.image;
+            imgBox.className = "w-full h-44 rounded-xl bg-black border border-slate-800 flex items-center justify-center relative overflow-hidden group";
+            imgBox.innerHTML = `
+              <img src="${res.image}" class="w-full h-full object-cover rounded-lg drop-shadow-xl transition duration-300 group-hover:scale-105">
+              <span class="absolute top-1.5 left-1.5 px-2 py-0.5 rounded text-[9px] font-orbitron font-bold border ${dir.badgeColor} backdrop-blur-sm">
+                ${dir.badge}
+              </span>
+              <span class="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 rounded text-[8px] font-mono bg-black/80 border border-emerald-500/60 text-emerald-300 backdrop-blur-sm">
+                ● LIVE FLUX
+              </span>
+            `;
+          } else {
+            // ZERO FALLBACK IMAGES - EXACT ERROR DISPLAY
+            const errMsg = (res && res.error) ? res.error : "Unknown generation failure";
+            imgBox.className = "w-full h-44 rounded-xl bg-red-950/40 border border-red-500/80 flex flex-col items-center justify-center p-3 text-center space-y-1.5";
+            imgBox.innerHTML = `
+              <span class="text-xs font-orbitron font-bold text-red-400">⚠️ FLUX RENDER ERROR</span>
+              <span class="text-[10px] text-red-300 font-mono line-clamp-3">${errMsg}</span>
+              <button onclick="retryStarterCard(${idx})" class="mt-1 px-2.5 py-1 bg-red-900/80 hover:bg-red-800 text-white rounded text-[10px] font-bold border border-red-500/50">
+                🔄 Retry Render
+              </button>
+            `;
+          }
+        });
+      });
+    }
+
+    function retryStarterCard(idx) {
+      const dir = currentDynamicStarters[idx];
+      if (!dir) return;
+      const imgBoxId = `starterImgBox_${idx}`;
+      const imgBox = document.getElementById(imgBoxId);
+      if (imgBox) {
+        imgBox.className = "w-full h-44 rounded-xl bg-slate-900 border border-slate-800 flex flex-col items-center justify-center relative overflow-hidden p-2 text-center";
+        imgBox.innerHTML = `
+          <div class="flex flex-col items-center justify-center space-y-2 animate-pulse">
+            <div class="w-8 h-8 rounded-full border-2 border-cyan-400 border-t-pink-500 animate-spin"></div>
+            <span class="text-[10px] font-mono text-cyan-300">RETRYING FLUX RENDER...</span>
+          </div>
+        `;
+      }
+      generateAiImage(dir.prompt).then(res => {
+        if (!imgBox) return;
+        if (res && res.ok && res.image) {
+          dir.img = res.image;
+          imgBox.className = "w-full h-44 rounded-xl bg-black border border-slate-800 flex items-center justify-center relative overflow-hidden group";
+          imgBox.innerHTML = `
+            <img src="${res.image}" class="w-full h-full object-cover rounded-lg drop-shadow-xl transition duration-300 group-hover:scale-105">
+            <span class="absolute top-1.5 left-1.5 px-2 py-0.5 rounded text-[9px] font-orbitron font-bold border ${dir.badgeColor} backdrop-blur-sm">
+              ${dir.badge}
+            </span>
+            <span class="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 rounded text-[8px] font-mono bg-black/80 border border-emerald-500/60 text-emerald-300 backdrop-blur-sm">
+              ● LIVE FLUX
+            </span>
+          `;
+        } else {
+          const errMsg = (res && res.error) ? res.error : "Unknown generation failure";
+          imgBox.className = "w-full h-44 rounded-xl bg-red-950/40 border border-red-500/80 flex flex-col items-center justify-center p-3 text-center space-y-1.5";
+          imgBox.innerHTML = `
+            <span class="text-xs font-orbitron font-bold text-red-400">⚠️ FLUX RENDER ERROR</span>
+            <span class="text-[10px] text-red-300 font-mono line-clamp-3">${errMsg}</span>
+            <button onclick="retryStarterCard(${idx})" class="mt-1 px-2.5 py-1 bg-red-900/80 hover:bg-red-800 text-white rounded text-[10px] font-bold border border-red-500/50">
+              🔄 Retry Render
+            </button>
+          `;
+        }
       });
     }
 
@@ -1873,28 +1934,28 @@
       currentSelectedStarter = dir;
 
       showAiProcessing(dir.title, () => {
-        document.getElementById('ideaStarterShowcaseView').classList.add('hidden');
-        document.getElementById('threeVariationsView').classList.remove('hidden');
+        document.getElementById("ideaStarterShowcaseView").classList.add("hidden");
+        document.getElementById("threeVariationsView").classList.remove("hidden");
 
-        const titleEl = document.getElementById('activeDirectionHeaderTitle');
+        const titleEl = document.getElementById("activeDirectionHeaderTitle");
         if (titleEl) titleEl.innerText = (dir.title || dir.name).toUpperCase();
 
         renderThreeSubIdeas(dir);
-        showToast(`AI generating 3 sub-idea images for ${dir.title}!`, '🎨');
+        showToast(`AI generating 3 sub-idea images for ${dir.title}!`, "🎨");
       });
     }
 
-    // Dynamic 3 Sub-Ideas Renderer with Live FLUX Generation
+    // Dynamic 3 Sub-Ideas Renderer with Live FLUX Generation (Zero Fallback Images)
     function renderThreeSubIdeas(dir) {
-      const container = document.getElementById('threeVariationsContainer');
+      const container = document.getElementById("threeVariationsContainer");
       if (!container) return;
-      container.innerHTML = '';
+      container.innerHTML = "";
 
       dir.variations.forEach((v, idx) => {
         const cardId = `subIdeaCard_${idx}`;
         const imgContainerId = `subIdeaImg_${idx}`;
 
-        const card = document.createElement('div');
+        const card = document.createElement("div");
         card.id = cardId;
         card.className = "bg-slate-950/95 rounded-2xl border border-slate-800 hover:border-pink-500/80 flex flex-col justify-between p-4 space-y-4 shadow-2xl transition";
         card.innerHTML = `
@@ -1910,10 +1971,11 @@
             </div>
 
             <!-- LIVE FLUX IMAGE CONTAINER -->
-            <div id="${imgContainerId}" class="w-full h-48 rounded-xl bg-gradient-to-b from-slate-900 to-black p-1 border border-slate-800/80 flex flex-col items-center justify-center relative overflow-hidden group">
-              <div class="flex flex-col items-center justify-center space-y-2 p-4 text-center animate-pulse">
+            <div id="${imgContainerId}" class="w-full h-48 rounded-xl bg-slate-900 border border-slate-800/80 flex flex-col items-center justify-center relative overflow-hidden group p-2 text-center">
+              <div class="flex flex-col items-center justify-center space-y-2 animate-pulse">
                 <div class="w-8 h-8 rounded-full border-2 border-cyan-400 border-t-pink-500 animate-spin"></div>
                 <span class="text-[10px] font-mono text-cyan-300">RENDERING WITH FLUX.1 LIVE...</span>
+                <span class="text-[9px] font-mono text-slate-500">Cloudflare Workers AI</span>
               </div>
             </div>
 
@@ -1939,30 +2001,83 @@
         `;
         container.appendChild(card);
 
-        // TRIGGER LIVE FLUX IMAGE GENERATION FOR THIS SUB-IDEA!
-        generateAiImage(v.prompt).then(liveImg => {
+        // TRIGGER LIVE FLUX IMAGE GENERATION FOR THIS SUB-IDEA
+        generateAiImage(v.prompt).then(res => {
           const imgBox = document.getElementById(imgContainerId);
-          if (imgBox && liveImg) {
-            v.img = liveImg;
+          if (!imgBox) return;
+
+          if (res && res.ok && res.image) {
+            v.img = res.image;
+            imgBox.className = "w-full h-48 rounded-xl bg-black border border-slate-800/80 flex items-center justify-center relative overflow-hidden group";
             imgBox.innerHTML = `
-              <img src="${liveImg}" alt="${v.title}" class="w-full h-full object-cover rounded-lg drop-shadow-2xl transition duration-300 group-hover:scale-105">
+              <img src="${res.image}" alt="${v.title}" class="w-full h-full object-cover rounded-lg drop-shadow-2xl transition duration-300 group-hover:scale-105">
               <div class="absolute bottom-2 left-2 text-[9px] font-mono text-emerald-300 bg-black/80 px-2 py-0.5 rounded border border-emerald-500/50 backdrop-blur-sm">
                 ● LIVE FLUX RENDER
               </div>
+            `;
+          } else {
+            const errMsg = (res && res.error) ? res.error : "Unknown generation failure";
+            imgBox.className = "w-full h-48 rounded-xl bg-red-950/40 border border-red-500/80 flex flex-col items-center justify-center p-3 text-center space-y-1.5";
+            imgBox.innerHTML = `
+              <span class="text-xs font-orbitron font-bold text-red-400">⚠️ FLUX RENDER ERROR</span>
+              <span class="text-[10px] text-red-300 font-mono line-clamp-3">${errMsg}</span>
+              <button onclick="retrySubIdeaRender('${dir.id}', ${idx})" class="mt-1 px-2.5 py-1 bg-red-900/80 hover:bg-red-800 text-white rounded text-[10px] font-bold border border-red-500/50">
+                🔄 Retry Render
+              </button>
             `;
           }
         });
       });
     }
 
+    function retrySubIdeaRender(dirId, idx) {
+      const dir = currentDynamicStarters.find(x => x.id === dirId);
+      if (!dir) return;
+      const v = dir.variations[idx];
+      if (!v) return;
+      const imgContainerId = `subIdeaImg_${idx}`;
+      const imgBox = document.getElementById(imgContainerId);
+      if (imgBox) {
+        imgBox.className = "w-full h-48 rounded-xl bg-slate-900 border border-slate-800/80 flex flex-col items-center justify-center relative overflow-hidden group p-2 text-center";
+        imgBox.innerHTML = `
+          <div class="flex flex-col items-center justify-center space-y-2 animate-pulse">
+            <div class="w-8 h-8 rounded-full border-2 border-cyan-400 border-t-pink-500 animate-spin"></div>
+            <span class="text-[10px] font-mono text-cyan-300">RETRYING FLUX RENDER...</span>
+          </div>
+        `;
+      }
+      generateAiImage(v.prompt).then(res => {
+        if (!imgBox) return;
+        if (res && res.ok && res.image) {
+          v.img = res.image;
+          imgBox.className = "w-full h-48 rounded-xl bg-black border border-slate-800/80 flex items-center justify-center relative overflow-hidden group";
+          imgBox.innerHTML = `
+            <img src="${res.image}" alt="${v.title}" class="w-full h-full object-cover rounded-lg drop-shadow-2xl transition duration-300 group-hover:scale-105">
+            <div class="absolute bottom-2 left-2 text-[9px] font-mono text-emerald-300 bg-black/80 px-2 py-0.5 rounded border border-emerald-500/50 backdrop-blur-sm">
+              ● LIVE FLUX RENDER
+            </div>
+          `;
+        } else {
+          const errMsg = (res && res.error) ? res.error : "Unknown generation failure";
+          imgBox.className = "w-full h-48 rounded-xl bg-red-950/40 border border-red-500/80 flex flex-col items-center justify-center p-3 text-center space-y-1.5";
+          imgBox.innerHTML = `
+            <span class="text-xs font-orbitron font-bold text-red-400">⚠️ FLUX RENDER ERROR</span>
+            <span class="text-[10px] text-red-300 font-mono line-clamp-3">${errMsg}</span>
+            <button onclick="retrySubIdeaRender('${dir.id}', ${idx})" class="mt-1 px-2.5 py-1 bg-red-900/80 hover:bg-red-800 text-white rounded text-[10px] font-bold border border-red-500/50">
+              🔄 Retry Render
+            </button>
+          `;
+        }
+      });
+    }
 
     function lockInSubIdea(dirId, varIdx) {
       const dir = currentDynamicStarters.find(x => x.id === dirId);
       if (!dir) return;
       const v = dir.variations[varIdx];
-      const casting = document.getElementById('donorCastingInput').value.trim() || 'Hot Wheels Custom';
-      const paint = document.getElementById('donorBodyPaintInput').value.trim() || 'Custom Finish';
-      const wheels = document.getElementById('donorWheelInput').value.trim() || 'Real Riders';
+      const casting = document.getElementById("donorCastingInput").value.trim() || "Hot Wheels Custom";
+      const paint = document.getElementById("donorBodyPaintInput").value.trim() || "Custom Finish";
+      const wheels = document.getElementById("donorWheelInput").value.trim() || "Real Riders";
 
       let targetBatch = null;
 
@@ -1972,16 +2087,16 @@
           theme: v.title,
           model: casting,
           color: paint,
-          status: 'Step 3: Prepress Decals',
-          section: 'wip', // Placed directly into Row 2 (WIP) at Step 3
+          status: "Step 3: Prepress Decals",
+          section: "wip",
           currentStep: 3,
           progress: 35,
           price: 50.00,
-          qty: '10 Reg • 1 Chase',
+          qty: "10 Reg • 1 Chase",
           carCost: 1.50,
           whlCost: 3.00,
           ovhCost: 2.00,
-          hero: v.img,
+          hero: v.img || null,
           completedSteps: [1, 2],
           conceptData: v
         };
@@ -1991,22 +2106,22 @@
       } else {
         targetBatch = workshopBatches.find(x => x.id === currentActiveBatchId);
         if (!targetBatch) {
-          const nextId = 'B-0' + (workshopBatches.length + 1);
+          const nextId = "B-0" + (workshopBatches.length + 1);
           targetBatch = {
             id: nextId,
             theme: v.title,
             model: casting,
             color: paint,
-            status: 'Step 3: Prepress Decals',
-            section: 'wip',
+            status: "Step 3: Prepress Decals",
+            section: "wip",
             currentStep: 3,
             progress: 35,
             price: 50.00,
-            qty: '10 Reg • 1 Chase',
+            qty: "10 Reg • 1 Chase",
             carCost: 1.50,
             whlCost: 3.00,
             ovhCost: 2.00,
-            hero: v.img,
+            hero: v.img || null,
             completedSteps: [1, 2],
             conceptData: v
           };
@@ -2016,11 +2131,11 @@
           targetBatch.theme = v.title;
           targetBatch.model = casting;
           targetBatch.color = paint;
-          targetBatch.hero = v.img;
+          targetBatch.hero = v.img || targetBatch.hero;
           targetBatch.conceptData = v;
           targetBatch.currentStep = 3;
-          targetBatch.status = 'Step 3: Prepress Decals';
-          targetBatch.section = 'wip';
+          targetBatch.status = "Step 3: Prepress Decals";
+          targetBatch.section = "wip";
           if (!targetBatch.completedSteps.includes(1)) targetBatch.completedSteps.push(1);
           if (!targetBatch.completedSteps.includes(2)) targetBatch.completedSteps.push(2);
         }
@@ -2028,14 +2143,12 @@
 
       saveBatchesToStorage();
       renderFleetRows();
-      toggleModal('conceptGenModal');
+      toggleModal("conceptGenModal");
 
       // IMMEDIATELY JUMP TO STEP 3: PREPRESS DECALS STUDIO
       openPrepressModal();
-      showToast(`🎯 Concept locked in! Launching Step 3: Print-Ready Decals for ${v.title}!`, '📐');
+      showToast(`🎯 Concept locked in! Launching Step 3: Print-Ready Decals for ${v.title}!`, "📐");
     }
-
-
     function backToStarterShowcase() {
       const showcaseView = document.getElementById('ideaStarterShowcaseView');
       const varView = document.getElementById('threeVariationsView');
