@@ -188,7 +188,7 @@
           <span>🖼️</span> ALBUMS <span id="albumsCountBadge" class="px-1.5 py-0.2 rounded bg-purple-950 text-purple-200 text-[10px] font-mono border border-purple-500/40">0</span>
         </button>
         <button onclick="openConceptGenModal(true)" class="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-orbitron font-black text-xs border border-pink-400/50 shadow-lg shadow-pink-900/40 transition active:scale-95 flex items-center gap-1.5">
-          <span>✨</span> + NEW CAR (v5.0.4)
+          <span>✨</span> + NEW CAR (v5.0.5)
         </button>
         <div class="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-[10px] font-mono text-cyan-400">
           STORE: <a href="https://neonllamagarage.com" target="_blank" class="hover:underline font-bold text-white">NEONLLAMAGARAGE.COM</a>
@@ -317,7 +317,7 @@
       </div>
 
       <!-- ===================================================================== -->
-      <!-- v5.0.4 GUIDED 5-STEP VERIFIED PRODUCTION PIPELINE BAR                 -->
+      <!-- v5.0.5 GUIDED 5-STEP VERIFIED PRODUCTION PIPELINE BAR                 -->
       <!-- ===================================================================== -->
       <div id="nlgPipelineBar" class="bg-gradient-to-r from-[#0b1020] via-[#10162b] to-[#0b1020] border border-cyan-500/40 rounded-2xl p-3.5 shadow-xl space-y-3">
         <div class="flex items-center justify-between flex-wrap gap-2">
@@ -649,7 +649,7 @@
           <div>
             <h2 class="font-orbitron font-black text-base text-pink-400 flex items-center gap-2 tracking-wide flex-wrap">
               <span>UNIVERSAL DIECAST WIZARD</span>
-              <span class="px-2.5 py-0.5 rounded bg-cyan-950 text-cyan-300 text-[10px] font-mono border border-cyan-400 font-black shadow-[0_0_10px_rgba(6,182,212,0.5)]">v5.0.4 LIVE</span>
+              <span class="px-2.5 py-0.5 rounded bg-cyan-950 text-cyan-300 text-[10px] font-mono border border-cyan-400 font-black shadow-[0_0_10px_rgba(6,182,212,0.5)]">v5.0.5 LIVE</span>
               <span class="px-2 py-0.5 rounded bg-purple-950 text-purple-300 text-[10px] font-mono border border-purple-400/50">💎 GEMINI 3.1 • AUTO-ALBUMS</span>
             </h2>
             <p class="text-xs text-slate-400">1. Car & Printable Panels → 2. Photos → 3. 8-to-3 Concepts (+Feedback) → 4. Pure Flat Print-Ready Decals (+Tweak & Export)</p>
@@ -3142,7 +3142,12 @@
           // Knock out large pure-white interior cutouts (e.g. enclosed side windows) to 100% transparent so eufyMake NEVER prints white ink on windows!
           const whiteVisited = new Uint8Array(w * h);
           const wq = new Int32Array(w * h);
-          const isPureWhite = (p4) => data[p4 + 3] > 20 && data[p4] > 240 && data[p4 + 1] > 240 && data[p4 + 2] > 240;
+          const isPureWhite = (p4) => {
+            if (data[p4 + 3] <= 20) return false;
+            const r = data[p4], g = data[p4 + 1], b = data[p4 + 2];
+            const mx = Math.max(r, g, b), mn = Math.min(r, g, b);
+            return mn > 215 && (mx - mn) < 26;
+          };
           const minWindowPx = Math.max(450, Math.floor(w * h * 0.004));
           for (let pos = 0; pos < w * h; pos++) {
             if (!whiteVisited[pos] && isPureWhite(pos * 4)) {
@@ -3356,6 +3361,24 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
     }
 
 
+
+    async function copyMirrorToOppositeSide(srcKey) {
+      const dstKey = srcKey === 'side_driver' ? 'side_passenger' : 'side_driver';
+      const src = generatedFinalDecals.find(x => x.key === srcKey);
+      const dst = generatedFinalDecals.find(x => x.key === dstKey);
+      if (!src || !src.cmykPng || !dst) return;
+      const casting = (document.getElementById("donorCastingInput")?.value || "Hot Wheels Custom").trim();
+      const processed = await processPureFlatDecalImage(src.cmykPng, true);
+      dst.cmykPng = processed.transparentPng;
+      dst.underbasePng = processed.underbasePng;
+      dst.rawImg = processed.transparentPng;
+      if (typeof nlgSaveCarState === 'function') {
+        nlgSaveCarState({ savedDecals: generatedFinalDecals.filter(d => d && d.cmykPng), steps: { decalsGenerated: true } });
+      }
+      updateDecalCardUI(dst, casting);
+      if (typeof showToast === 'function') showToast(`Mirrored clean ${src.label} → ${dst.label} (0¢)!`, '🪞');
+    }
+
     async function flipSingleDecalHorizontal(panelKey) {
       const p = generatedFinalDecals.find(x => x.key === panelKey);
       if (!p || !p.cmykPng) return;
@@ -3396,9 +3419,10 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
           <button type="button" onclick="openImageLightbox('${p.underbasePng}', '${p.label} — 100% Solid White Underbase')" class="px-2 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 text-[10px]" title="Inspect White Underbase">
             👁️
           </button>
-          <button type="button" onclick="flipSingleDecalHorizontal('${p.key}')" class="px-2 py-2 rounded-lg bg-cyan-950/80 hover:bg-cyan-700 border border-cyan-500/50 text-cyan-200 text-[10px]" title="Mirror / Flip Horizontally (0¢ — Instant Opposite Side!)">
+          <button type="button" onclick="flipSingleDecalHorizontal('${p.key}')" class="px-2 py-2 rounded-lg bg-cyan-950/80 hover:bg-cyan-700 border border-cyan-500/50 text-cyan-200 text-[10px]" title="Flip This Panel Horizontally (0¢)">
             ↔
           </button>
+          ${(p.key === 'side_driver' || p.key === 'side_passenger') ? `<button type="button" onclick="copyMirrorToOppositeSide('${p.key}')" class="px-2 py-2 rounded-lg bg-purple-950/80 hover:bg-purple-700 border border-purple-500/50 text-purple-200 text-[10px]" title="Copy & Mirror this clean side to the opposite side (0¢ — 100% exact match!)">🪞</button>` : ''}
           <button type="button" onclick="regenerateSingleDecal('${p.key}')" class="px-2 py-2 rounded-lg bg-pink-950/80 hover:bg-pink-800 border border-pink-500/50 text-pink-200 text-[10px]" title="Regenerate Just This Panel">
             🔄
           </button>
@@ -4203,7 +4227,7 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
     };
 
     // =========================================================================
-    // v5.0.4 BLISTER CARD RULES ENGINE (FRONT + MIRRORED BACK • REAL QR • ALBUMS)
+    // v5.0.5 BLISTER CARD RULES ENGINE (FRONT + MIRRORED BACK • REAL QR • ALBUMS)
     // =========================================================================
     let nlgCardFormat = 'premium';
     let nlgCardSide = 'front';
@@ -5128,7 +5152,7 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
     };
 
     // =========================================================================
-    // v5.0.4 PER-CAR PERSISTENT MEMORY + SERIES WORDMARK LIBRARY + 5-STEP FLOW
+    // v5.0.5 PER-CAR PERSISTENT MEMORY + SERIES WORDMARK LIBRARY + 5-STEP FLOW
     // =========================================================================
     const NLG_STATE_DB_NAME = 'NeonLlamaPipelineDB';
     let _nlgStateDbPromise = null;
