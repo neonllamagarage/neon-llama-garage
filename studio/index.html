@@ -188,7 +188,7 @@
           <span>🖼️</span> ALBUMS <span id="albumsCountBadge" class="px-1.5 py-0.2 rounded bg-purple-950 text-purple-200 text-[10px] font-mono border border-purple-500/40">0</span>
         </button>
         <button onclick="openConceptGenModal(true)" class="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-orbitron font-black text-xs border border-pink-400/50 shadow-lg shadow-pink-900/40 transition active:scale-95 flex items-center gap-1.5">
-          <span>✨</span> + NEW CAR (v4.3.0)
+          <span>✨</span> + NEW CAR (v4.3.1)
         </button>
         <div class="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-[10px] font-mono text-cyan-400">
           STORE: <a href="https://neonllamagarage.com" target="_blank" class="hover:underline font-bold text-white">NEONLLAMAGARAGE.COM</a>
@@ -628,7 +628,7 @@
           <div>
             <h2 class="font-orbitron font-black text-base text-pink-400 flex items-center gap-2 tracking-wide flex-wrap">
               <span>UNIVERSAL DIECAST WIZARD</span>
-              <span class="px-2.5 py-0.5 rounded bg-cyan-950 text-cyan-300 text-[10px] font-mono border border-cyan-400 font-black shadow-[0_0_10px_rgba(6,182,212,0.5)]">v4.3.0 LIVE</span>
+              <span class="px-2.5 py-0.5 rounded bg-cyan-950 text-cyan-300 text-[10px] font-mono border border-cyan-400 font-black shadow-[0_0_10px_rgba(6,182,212,0.5)]">v4.3.1 LIVE</span>
               <span class="px-2 py-0.5 rounded bg-purple-950 text-purple-300 text-[10px] font-mono border border-purple-400/50">💎 GEMINI 3.1 • AUTO-ALBUMS</span>
             </h2>
             <p class="text-xs text-slate-400">1. Car & Printable Panels → 2. Photos → 3. 8-to-3 Concepts (+Feedback) → 4. Pure Flat Print-Ready Decals (+Tweak & Export)</p>
@@ -1147,13 +1147,34 @@
               </button>
             </div>
 
-            <!-- Loose Hero Photo Upload + 1-Click AI Buttons -->
+            <!-- Active Hero Photo Reference + Saved Ideas Picker + 1-Click AI Buttons -->
             <div class="p-3 rounded-xl bg-slate-900/70 border border-slate-800 space-y-2.5">
-              <div class="flex items-center justify-between gap-2">
-                <label class="text-[11px] font-bold text-slate-200">📸 Upload Loose Hero Photo (or Drop Finished Card Art)</label>
-                <span id="nlgHeroStatus" class="text-[10px] font-mono text-slate-400">No photo loaded</span>
+              <div class="flex items-center justify-between gap-2 flex-wrap">
+                <label class="text-[11px] font-bold text-slate-200">📸 Active Hero Reference (Fed to AI)</label>
+                <div class="flex items-center gap-2">
+                  <button type="button" onclick="nlgToggleSavedIdeasPicker()" class="px-2.5 py-1 rounded-lg bg-purple-950 hover:bg-purple-800 text-purple-200 border border-purple-500/50 text-[10px] font-orbitron font-bold">
+                    🖼️ Pick Saved Idea / Old Car
+                  </button>
+                  <span id="nlgHeroStatus" class="text-[10px] font-mono text-amber-400">No hero loaded</span>
+                </div>
               </div>
-              <input type="file" id="nlgHeroUpload" accept="image/*" onchange="nlgHandleHeroUpload(this)" class="w-full text-[11px] text-slate-300 bg-slate-950 border border-slate-800 rounded-lg p-1.5" />
+              <div class="flex items-center gap-3">
+                <div id="nlgHeroThumbBox" class="w-20 h-14 rounded-lg bg-slate-950 border border-slate-700 flex items-center justify-center overflow-hidden shrink-0">
+                  <span class="text-[9px] font-mono text-slate-500 text-center px-1">NO HERO</span>
+                </div>
+                <div class="flex-1 space-y-1">
+                  <input type="file" id="nlgHeroUpload" accept="image/*" onchange="nlgHandleHeroUpload(this)" class="w-full text-[11px] text-slate-300 bg-slate-950 border border-slate-800 rounded-lg p-1.5" />
+                  <p class="text-[10px] text-slate-400">Auto-loads your active car mock if you don't upload a loose photo. Or pick any old idea above.</p>
+                </div>
+              </div>
+              <!-- Collapsible Saved Ideas Picker -->
+              <div id="nlgSavedIdeasPicker" class="hidden bg-slate-950 border border-purple-500/40 rounded-xl p-2.5 space-y-2">
+                <div class="flex items-center justify-between text-[10px] font-mono text-purple-300">
+                  <span>SELECT ANY SAVED CAR OR IDEA TO LOAD AS HERO REFERENCE:</span>
+                  <button type="button" onclick="nlgToggleSavedIdeasPicker()" class="text-slate-400 hover:text-white">✕</button>
+                </div>
+                <div id="nlgSavedIdeasGrid" class="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-44 overflow-y-auto pr-1"></div>
+              </div>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <button type="button" id="nlgBtnGenCardArt" onclick="nlgGenerateAiCardArt()" class="py-2.5 px-3 rounded-xl bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-orbitron font-black text-[11px] shadow-lg transition">
                   ✨ Generate Text-Free Card Art (~3¢)
@@ -3435,6 +3456,7 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
                   </div>
                   <div class="flex items-center gap-1 shrink-0">
                     <button type="button" onclick="openDecalStudioFromAlbum(${item.id})" class="px-2 py-1 rounded bg-cyan-950/80 hover:bg-cyan-700 text-cyan-300 text-[10px] border border-cyan-500/40" title="Generate Print-Ready Decals from this Image">🖨️</button>
+                    <button type="button" onclick="openBlisterCardFromAlbum(${item.id})" class="px-2 py-1 rounded bg-purple-950/80 hover:bg-purple-700 text-purple-300 text-[10px] border border-purple-500/40" title="Open in Blister Card Builder">📦</button>
                     <a href="${item.image}" download="${(item.casting + '_' + item.title).toLowerCase().replace(/[^a-z0-9]+/g, '_')}.png" class="px-2 py-1 rounded bg-emerald-950/80 hover:bg-emerald-800 text-emerald-300 text-[10px] border border-emerald-500/40" title="Download PNG">⬇</a>
                     <button type="button" onclick="deleteAlbumItem(${item.id})" class="px-2 py-1 rounded bg-red-950/80 hover:bg-red-800 text-red-300 text-[10px] border border-red-500/40" title="Delete">✕</button>
                   </div>
@@ -3996,7 +4018,7 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
     };
 
     // =========================================================================
-    // v4.3.0 BLISTER CARD RULES ENGINE (FRONT + MIRRORED BACK • REAL QR • ALBUMS)
+    // v4.3.1 BLISTER CARD RULES ENGINE (FRONT + MIRRORED BACK • REAL QR • ALBUMS)
     // =========================================================================
     let nlgCardFormat = 'premium';
     let nlgCardSide = 'front';
@@ -4033,25 +4055,132 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
       img.src = 'assets/neon-llama-logo-clean.png';
     }
 
+    async function nlgGetAllSavedVisuals() {
+      const out = [];
+      try {
+        const albumItems = (typeof getAllAlbumItems === 'function') ? await getAllAlbumItems() : [];
+        albumItems.forEach(it => {
+          if (it.image) {
+            out.push({
+              id: 'alb_' + it.id,
+              casting: (it.casting || 'Custom Car').trim(),
+              title: (it.title || it.casting || 'Saved Idea').trim(),
+              stage: it.stage || 'Saved Idea',
+              image: it.image
+            });
+          }
+        });
+      } catch (e) {}
+      try {
+        if (Array.isArray(workshopBatches)) {
+          workshopBatches.forEach(b => {
+            const img = b.hero || (b.conceptData && b.conceptData.img) || null;
+            if (img && img.startsWith('data:image/')) {
+              out.push({
+                id: 'bat_' + b.id,
+                casting: (b.model || 'Custom Car').trim(),
+                title: (b.theme || b.model || 'Workshop Car').trim(),
+                stage: 'Workshop Batch',
+                image: img
+              });
+            }
+          });
+        }
+      } catch (e) {}
+      return out;
+    }
+
+    function nlgSetHeroReference(dataUrl, labelText) {
+      nlgHeroPhotoDataUrl = dataUrl || null;
+      const thumbBox = document.getElementById('nlgHeroThumbBox');
+      const statusEl = document.getElementById('nlgHeroStatus');
+      if (dataUrl) {
+        if (thumbBox) thumbBox.innerHTML = `<img src="${dataUrl}" class="w-full h-full object-contain" alt="Hero">`;
+        if (statusEl) {
+          statusEl.className = 'text-[10px] font-mono text-emerald-400';
+          statusEl.innerText = labelText || '✓ Hero photo locked';
+        }
+        const img = new Image();
+        img.onload = () => { nlgCardArtImg = img; nlgDrawCard(); };
+        img.src = dataUrl;
+      } else {
+        if (thumbBox) thumbBox.innerHTML = `<span class="text-[9px] font-mono text-slate-500 text-center px-1">NO HERO</span>`;
+        if (statusEl) {
+          statusEl.className = 'text-[10px] font-mono text-amber-400';
+          statusEl.innerText = 'No hero loaded';
+        }
+      }
+    }
+
+    async function nlgToggleSavedIdeasPicker() {
+      const box = document.getElementById('nlgSavedIdeasPicker');
+      const grid = document.getElementById('nlgSavedIdeasGrid');
+      if (!box || !grid) return;
+      box.classList.toggle('hidden');
+      if (box.classList.contains('hidden')) return;
+
+      const all = await nlgGetAllSavedVisuals();
+      const nonDecals = all.filter(x => !String(x.stage || '').toLowerCase().includes('decal') && !String(x.stage || '').toLowerCase().includes('wordmark'));
+      if (nonDecals.length === 0) {
+        grid.innerHTML = `<div class="col-span-full text-[11px] text-slate-400 p-3 text-center">No saved car ideas yet. Generate a car in + NEW CAR or upload a hero photo above.</div>`;
+        return;
+      }
+      grid.innerHTML = '';
+      nonDecals.forEach(item => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'bg-slate-900 hover:bg-slate-800 border border-slate-700 hover:border-pink-500 rounded-lg p-1.5 text-left space-y-1 transition';
+        btn.innerHTML = `
+          <div class="w-full h-16 bg-black rounded overflow-hidden flex items-center justify-center">
+            <img src="${item.image}" class="w-full h-full object-contain">
+          </div>
+          <div class="text-[9px] font-bold text-white truncate">${item.title}</div>
+          <div class="text-[8px] font-mono text-purple-300 truncate">${item.casting}</div>
+        `;
+        btn.onclick = () => {
+          if (document.getElementById('nlgInpCasting')) document.getElementById('nlgInpCasting').value = item.casting.toUpperCase();
+          if (document.getElementById('nlgInpTheme')) document.getElementById('nlgInpTheme').value = item.title.split('//')[0].trim().toUpperCase();
+          nlgSetHeroReference(item.image, `✓ Loaded: ${item.title.slice(0, 18)}`);
+          box.classList.add('hidden');
+          nlgShuffleGarageDrops();
+        };
+        grid.appendChild(btn);
+      });
+    }
+
+    async function openBlisterCardFromAlbum(itemId) {
+      const items = await getAllAlbumItems();
+      const item = items.find(x => x.id === itemId);
+      if (!item) return;
+      toggleModal('castingAlbumsModal');
+      toggleModal('cardModal');
+      if (document.getElementById('nlgInpCasting')) document.getElementById('nlgInpCasting').value = (item.casting || 'Hot Wheels Custom').toUpperCase();
+      if (document.getElementById('nlgInpTheme')) document.getElementById('nlgInpTheme').value = (item.title || 'CUSTOM DROP').split('//')[0].trim().toUpperCase();
+      nlgSetHeroReference(item.image, `✓ From Album: ${(item.title || '').slice(0, 16)}`);
+      nlgShuffleGarageDrops();
+    }
+
     async function nlgShuffleGarageDrops() {
       try {
-        const items = (typeof getAllAlbumItems === 'function') ? await getAllAlbumItems() : [];
+        const all = await nlgGetAllSavedVisuals();
         const currentCasting = (document.getElementById('nlgInpCasting')?.value || '').toUpperCase().trim();
-        // Prefer concept / sub-idea / card art images (not raw decals) from OTHER builds!
-        const candidates = items.filter(it => it.dataUrl && !String(it.stage || '').toLowerCase().includes('decal'));
-        const others = candidates.filter(it => String(it.casting || '').toUpperCase().trim() !== currentCasting);
+        // Exclude raw flat decals & wordmarks; prefer completed car visuals from OTHER builds!
+        const candidates = all.filter(it => {
+          const st = String(it.stage || '').toLowerCase();
+          return it.image && !st.includes('decal') && !st.includes('wordmark') && !st.includes('8-pack');
+        });
+        const others = candidates.filter(it => it.casting.toUpperCase() !== currentCasting);
         const pool = others.length >= 2 ? others : candidates;
 
-        // Shuffle pool
-        const shuffled = [...pool].sort(() => Math.random() - 0.5).slice(0, 2);
         const countEl = document.getElementById('nlgAlbumDropCount');
         if (countEl) countEl.innerText = pool.length;
 
+        const shuffled = [...pool].sort(() => Math.random() - 0.5).slice(0, 2);
         nlgGarageDrops = await Promise.all(shuffled.map(it => new Promise((resolve) => {
           const im = new Image();
-          im.onload = () => resolve({ img: im, label: (it.casting || 'CUSTOM DROP').toUpperCase(), sub: (it.title || 'NEON LLAMA ARCHIVE').toUpperCase().slice(0, 24) });
+          im.onload = () => resolve({ img: im, label: it.casting.toUpperCase(), sub: it.title.split('//')[0].trim().toUpperCase().slice(0, 22) });
           im.onerror = () => resolve(null);
-          im.src = it.dataUrl;
+          im.src = it.image;
         })));
         nlgGarageDrops = nlgGarageDrops.filter(Boolean);
         nlgDrawCard();
@@ -4086,12 +4215,7 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
       if (!input.files || !input.files[0]) return;
       const reader = new FileReader();
       reader.onload = (e) => {
-        nlgHeroPhotoDataUrl = e.target.result;
-        const status = document.getElementById('nlgHeroStatus');
-        if (status) status.innerText = '✓ Photo loaded';
-        const img = new Image();
-        img.onload = () => { nlgCardArtImg = img; nlgDrawCard(); };
-        img.src = e.target.result;
+        nlgSetHeroReference(e.target.result, '✓ Uploaded Hero Photo');
       };
       reader.readAsDataURL(input.files[0]);
     }
@@ -4179,10 +4303,20 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
       const status = document.getElementById('nlgAiCardStatus');
       const casting = (document.getElementById('nlgInpCasting')?.value || 'Custom 1:64 Hot Wheels').trim();
       const theme = (document.getElementById('nlgInpTheme')?.value || 'NEON FREEZE').trim();
-      const refs = nlgHeroPhotoDataUrl ? [nlgHeroPhotoDataUrl] : (currentWinningVariation?.img ? [currentWinningVariation.img] : []);
+      const activeBatch = (typeof workshopBatches !== 'undefined') ? workshopBatches.find(x => x.id === currentActiveBatchId) : null;
+      const fallbackHero = currentWinningVariation?.img || activeBatch?.hero || activeBatch?.conceptData?.img || null;
+      const heroRef = nlgHeroPhotoDataUrl || fallbackHero;
+      if (!heroRef) {
+        if (status) {
+          status.classList.remove('hidden');
+          status.innerText = '⚠️ Load a hero photo or click "🖼️ Pick Saved Idea / Old Car" first — refusing to invent a random car!';
+        }
+        return;
+      }
+      const refs = [heroRef];
       if (status) {
         status.classList.remove('hidden');
-        status.innerText = '⏳ Generating text-free full-bleed collector card illustration via Gemini 3.1...';
+        status.innerText = '⏳ Generating text-free full-bleed collector card illustration from your exact hero car...';
       }
       const prompt = `High-end Mattel Hot Wheels Car Culture / RLC collector blister-card background illustration featuring the EXACT custom 1:64 ${casting} ("${theme}") from the attached hero photo. Keep the EXACT car paint, side livery, and wheels from the photo, placed dynamically in the upper-middle action zone on a vibrant themed neon/cyber background matching the car's vibe. Leave the bottom 35% darker and uncluttered asphalt/reflections for the physical blister bubble. CRITICAL: ABSOLUTELY ZERO TEXT, ZERO LETTERS, ZERO LOGOS, ZERO BORDERS, ZERO CARD OUTLINE — pure edge-to-edge full-bleed illustration only.`;
       const res = await generateAiImage(prompt, refs);
@@ -4220,7 +4354,11 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
       nlgTitleLogoImg = await nlgKnockoutBlackToTransparent(res.image);
       const chk = document.getElementById('nlgChkAiLogo');
       if (chk) chk.checked = true;
-      if (status) status.innerText = `✓ Bespoke "${theme}" wordmark extracted to 100% transparent PNG!`;
+      const wmCasting = (document.getElementById('nlgInpCasting')?.value || 'Custom 1:64').trim();
+      if (typeof saveToCastingAlbum === 'function' && nlgTitleLogoImg?.src) {
+        saveToCastingAlbum(wmCasting, 'Card Wordmark', theme, nlgTitleLogoImg.src);
+      }
+      if (status) status.innerText = `✓ Bespoke "${theme}" wordmark extracted & saved to Albums!`;
       nlgDrawCard();
     }
 
@@ -4709,7 +4847,13 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
       nlgRenderCardToCanvas(off, includeGuides, includeGuides && targetSide === 'front', targetSide);
       const a = document.createElement('a');
       const name = (document.getElementById('nlgInpTheme')?.value || 'custom_card').toLowerCase().replace(/[^a-z0-9]+/g, '_');
-      a.href = off.toDataURL('image/png');
+      const pngUrl = off.toDataURL('image/png');
+      if (!includeGuides && typeof saveToCastingAlbum === 'function') {
+        const expCasting = (document.getElementById('nlgInpCasting')?.value || 'Custom 1:64').trim();
+        const expTheme = (document.getElementById('nlgInpTheme')?.value || 'Custom').trim();
+        saveToCastingAlbum(expCasting, `Blister Card (${targetSide.toUpperCase()})`, `${expTheme} — ${nlgCardFormat.toUpperCase()}`, pngUrl);
+      }
+      a.href = pngUrl;
       a.download = `${name}_${nlgCardFormat}_${targetSide}_300dpi${includeGuides ? '_with_guides' : ''}.png`;
       a.click();
     }
@@ -4721,7 +4865,7 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
       }
     }
 
-    // Hook into toggleModal so opening cardModal auto-loads logo, active car metadata & random saved drops!
+    // Hook into toggleModal so opening cardModal auto-loads logo, active car hero mock & random saved drops!
     const _origToggleModalForCard = toggleModal;
     toggleModal = function(id) {
       _origToggleModalForCard(id);
@@ -4729,17 +4873,19 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
         const modal = document.getElementById('cardModal');
         if (modal && !modal.classList.contains('hidden')) {
           nlgLoadBrandLogoOnce();
-          const activeCasting = document.getElementById('donorCastingInput')?.value?.trim();
+          const activeBatch = (typeof workshopBatches !== 'undefined') ? workshopBatches.find(x => x.id === currentActiveBatchId) : null;
+          const activeCasting = activeBatch?.model || document.getElementById('donorCastingInput')?.value?.trim();
+          const activeTheme = (currentWinningVariation?.title || activeBatch?.theme || '').split('//')[0].trim();
+          const activeHero = currentWinningVariation?.img || activeBatch?.hero || activeBatch?.conceptData?.img || null;
+
           if (activeCasting && document.getElementById('nlgInpCasting')) {
             document.getElementById('nlgInpCasting').value = activeCasting.toUpperCase();
           }
-          if (currentWinningVariation?.title && document.getElementById('nlgInpTheme')) {
-            document.getElementById('nlgInpTheme').value = currentWinningVariation.title.split('//')[0].trim().toUpperCase();
+          if (activeTheme && document.getElementById('nlgInpTheme')) {
+            document.getElementById('nlgInpTheme').value = activeTheme.toUpperCase();
           }
-          if (!nlgCardArtImg && currentWinningVariation?.img) {
-            const im = new Image();
-            im.onload = () => { nlgCardArtImg = im; nlgDrawCard(); };
-            im.src = currentWinningVariation.img;
+          if (!nlgHeroPhotoDataUrl && activeHero) {
+            nlgSetHeroReference(activeHero, `✓ Active Car Mock (${(activeTheme || activeCasting || '').slice(0, 14)})`);
           }
           nlgShuffleGarageDrops();
           nlgDrawCard();
