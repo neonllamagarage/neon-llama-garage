@@ -1381,12 +1381,13 @@
       }
     ];
 
+        let currentActiveBatchId = null;
     let workshopBatches = [];
 
     // Initialize Batches from LocalStorage or Defaults
     function initBatches() {
       try {
-        const saved = localStorage.getItem('neon_llama_workshop_fleet_v7');
+        const saved = localStorage.getItem('neon_llama_workshop_fleet_v8');
         if (saved) {
           workshopBatches = JSON.parse(saved);
         } else {
@@ -1395,11 +1396,21 @@
       } catch(e) {
         workshopBatches = JSON.parse(JSON.stringify(defaultBatches));
       }
+
+      // Self-heal: ensure every batch has valid hero, section, and completedSteps
+      if (!Array.isArray(workshopBatches) || workshopBatches.length === 0) {
+        workshopBatches = JSON.parse(JSON.stringify(defaultBatches));
+      }
+      workshopBatches.forEach(b => {
+        if (!b.hero) b.hero = 'assets/showcase_purple_haze.png';
+        if (!b.section) b.section = 'ideas';
+        if (!b.completedSteps) b.completedSteps = [];
+      });
     }
 
     function saveBatchesToStorage() {
       try {
-        localStorage.setItem('neon_llama_workshop_fleet_v7', JSON.stringify(workshopBatches));
+        localStorage.setItem('neon_llama_workshop_fleet_v8', JSON.stringify(workshopBatches));
       } catch(e) {}
     }
 
@@ -2135,13 +2146,14 @@
         }
 
         // If it's an SVG concept card vs a real photo
-        const isSvg = b.hero.startsWith('data:image/svg');
+        const heroSrc = (b && b.hero && typeof b.hero === 'string' && b.hero.length > 0) ? b.hero : 'assets/showcase_purple_haze.png';
+        const isSvg = heroSrc.startsWith('data:image/svg');
         const imgBg = isSvg ? 'bg-[#07090e] border border-slate-800' : 'bg-gradient-to-b from-slate-100 to-slate-200 border border-slate-300/40';
 
         card.innerHTML = `
           <div>
             <div class="h-32 sm:h-36 rounded-lg ${imgBg} overflow-hidden relative mb-2.5 flex items-center justify-center p-2">
-              <img src="${b.hero}" onerror="handleImageError(this, '${b.theme}', '${b.model}', '${b.color}')" class="w-full h-full object-contain">
+              <img src="${heroSrc}" onerror="handleImageError(this, '${b.theme}', '${b.model}', '${b.color}')" class="w-full h-full object-contain">
               <span class="absolute top-2 left-2 px-2 py-0.5 rounded bg-black/85 border ${badgeColor} text-[10px] font-orbitron font-black shadow-lg">${b.id}</span>
               <span class="absolute bottom-2 right-2 px-1.5 py-0.5 rounded bg-slate-900/90 text-[9px] font-mono text-slate-300 font-bold shadow-lg">${b.qty}</span>
             </div>
@@ -2398,6 +2410,22 @@
       if (b) workOnStep(b.currentStep);
     }
 
+        function showToast(msg, icon) {
+      if (!icon) icon = '✨';
+      let toast = document.getElementById('globalToastNotification');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'globalToastNotification';
+        toast.className = 'fixed bottom-5 right-5 z-[100] px-4 py-3 rounded-xl bg-slate-900 border border-cyan-500/80 text-white font-orbitron font-bold text-xs shadow-2xl flex items-center gap-2 transition duration-300 pointer-events-none transform translate-y-10 opacity-0';
+        if (document.body) document.body.appendChild(toast);
+      }
+      toast.innerHTML = '<span class="text-base">' + icon + '</span><span>' + msg + '</span>';
+      toast.classList.remove('translate-y-10', 'opacity-0');
+      setTimeout(function() {
+        toast.classList.add('translate-y-10', 'opacity-0');
+      }, 3500);
+    }
+
     function toggleModal(id) {
       document.getElementById(id).classList.toggle('hidden');
     }
@@ -2405,7 +2433,7 @@
     function openPrepressModal() { toggleModal('prepressModal'); }
     function openCardModal() { toggleModal('cardModal'); }
     function openLlamaCamModal() { toggleModal('llamaCamModal'); }
-    function openNewBatchModal() { openConceptGenModal(true); }
+    function openNewBatchModal() { toggleModal('newBatchModal'); }
 
     function downloadZipPack() {
       alert("📥 Downloading 600 DPI Print Pack for eufyMake!");
