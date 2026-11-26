@@ -185,7 +185,7 @@
           📸 LLAMA CAM
         </button>
         <button onclick="openConceptGenModal(true)" class="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-orbitron font-black text-xs border border-pink-400/50 shadow-lg shadow-pink-900/40 transition active:scale-95 flex items-center gap-1.5">
-          <span>✨</span> + NEW CAR (v3.7.0)
+          <span>✨</span> + NEW CAR (v3.8.0)
         </button>
         <div class="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-[10px] font-mono text-cyan-400">
           STORE: <a href="https://neonllamagarage.com" target="_blank" class="hover:underline font-bold text-white">NEONLLAMAGARAGE.COM</a>
@@ -625,10 +625,10 @@
           <div>
             <h2 class="font-orbitron font-black text-base text-pink-400 flex items-center gap-2 tracking-wide flex-wrap">
               <span>UNIVERSAL DIECAST WIZARD</span>
-              <span class="px-2.5 py-0.5 rounded bg-cyan-950 text-cyan-300 text-[10px] font-mono border border-cyan-400 font-black shadow-[0_0_10px_rgba(6,182,212,0.5)]">v3.7.0 LIVE</span>
-              <span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 text-[10px] font-mono border border-emerald-500/40">100% LIVE AI • ZERO PLACEHOLDERS</span>
+              <span class="px-2.5 py-0.5 rounded bg-cyan-950 text-cyan-300 text-[10px] font-mono border border-cyan-400 font-black shadow-[0_0_10px_rgba(6,182,212,0.5)]">v3.8.0 LIVE</span>
+              <span class="px-2 py-0.5 rounded bg-purple-950 text-purple-300 text-[10px] font-mono border border-purple-400/50">💎 GEMINI 3.1 FLASH IMAGE</span>
             </h2>
-            <p class="text-xs text-slate-400">Step 1: Pick or Type ANY Car/Truck → Step 2: Upload Photos (Auto-Skips if on File) → Step 3: Live AI Generates 8 Ideas</p>
+            <p class="text-xs text-slate-400">Step 1: Pick or Type ANY Car/Truck → Step 2: Reference Photos (Auto-Skips if on File) → Step 3: Gemini 3.1 Renders 1-Shot 8-Car Showcase</p>
           </div>
         </div>
         <div class="flex items-center gap-2">
@@ -754,24 +754,6 @@
                 <button type="button" onclick="setZoneMode('trunk', 'decal')" id="btn_trunk_decal" class="py-1 px-1 rounded font-bold transition bg-slate-800 text-slate-400 hover:text-white">DECAL</button>
               </div>
             </div>
-          </div>
-        </div>
-
-        <!-- OPTIONAL AI ENGINE SELECTOR (FREE LIVE FLUX vs PRO GEMINI KEY) -->
-        <div class="bg-slate-900/60 rounded-xl p-3 border border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <div class="flex items-center gap-3 flex-wrap">
-            <span class="text-[10px] font-orbitron font-bold text-cyan-400">AI ENGINE:</span>
-            <label class="flex items-center gap-1.5 text-xs text-white cursor-pointer">
-              <input type="radio" name="aiEngineMode" value="flux" checked onchange="toggleGeminiKeyBox()" class="accent-cyan-500">
-              <span>⚡ Free Live FLUX ($0.00 • 8 Individual Renders)</span>
-            </label>
-            <label class="flex items-center gap-1.5 text-xs text-purple-300 cursor-pointer">
-              <input type="radio" name="aiEngineMode" value="gemini" onchange="toggleGeminiKeyBox()" class="accent-pink-500">
-              <span>💎 Gemini 2.5 Flash Image (~3¢ • 1-Shot 8-Car Acrylic Case + Photo Grounding)</span>
-            </label>
-          </div>
-          <div id="geminiKeyInputWrap" class="hidden w-full sm:w-72">
-            <input type="password" id="geminiApiKeyInput" placeholder="Paste Gemini API Key (saved locally)..." onchange="localStorage.setItem('neon_llama_gemini_key', this.value.trim())" class="w-full bg-black px-2.5 py-1.5 rounded-lg border border-purple-500/60 text-xs text-white font-mono outline-none">
           </div>
         </div>
 
@@ -2179,61 +2161,48 @@
       return `Commercial studio product photography of an illuminated clear acrylic collector display case with 2 shelves of 4 slots (8 slots total) on a dark walnut workshop table. Inside are 8 custom 1:64 scale diecast Hot Wheels ${casting} models in ${paint} paint with ${wheels}. All 8 models share the identical ${casting} casting tooling, identical 1:64 scale, identical side-quarter viewing angle, and identical wheels. Each slot features a distinct custom livery: ${listText}. Under each slot is a sleek matte black display plaque with illuminated laser-etched theme name text. Soft overhead LED shelf lighting, ultra-sharp focus, photorealistic 8k diecast collector showcase.`;
     }
 
-    async function generateAiImage(prompt) {
+    async function urlOrDataToBase64(src) {
+      if (!src) return null;
+      if (src.startsWith('data:image/')) return src;
+      try {
+        const resp = await fetch(src);
+        const blob = await resp.blob();
+        return await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.onerror = () => resolve(null);
+          reader.readAsDataURL(blob);
+        });
+      } catch (e) {
+        return null;
+      }
+    }
+
+    async function getActiveReferenceBase64List() {
+      const out = [];
+      const s = await urlOrDataToBase64(userCastingPhotos.side);
+      const t = await urlOrDataToBase64(userCastingPhotos.top);
+      if (s) out.push(s);
+      if (t) out.push(t);
+      return out;
+    }
+
+    async function generateAiImage(prompt, referenceImages = []) {
       try {
         const resp = await fetch(`${AI_API_BASE}/generate-image`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ prompt })
+          body: JSON.stringify({ prompt, referenceImages })
         });
         if (!resp.ok) {
           const errText = await resp.text().catch(() => resp.statusText);
-          return { ok: false, error: `AI API ${resp.status}: ${errText.slice(0, 140)}` };
+          return { ok: false, error: `Gemini Backend ${resp.status}: ${errText.slice(0, 220)}` };
         }
         const data = await resp.json();
         if (!data.image) {
-          return { ok: false, error: data.error || "No image returned" };
+          return { ok: false, error: data.error || "No image returned from Gemini 3.1" };
         }
-        return { ok: true, image: data.image };
-      } catch (e) {
-        return { ok: false, error: e.message || String(e) };
-      }
-    }
-
-    async function generateGeminiImageDirect(prompt, apiKey, refPhotos) {
-      try {
-        const parts = [{ text: prompt }];
-        for (const p of (refPhotos || [])) {
-          if (p && p.startsWith('data:image/')) {
-            const m = p.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/);
-            if (m) parts.push({ inlineData: { mimeType: m[1], data: m[2] } });
-          }
-        }
-        const resp = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key=${encodeURIComponent(apiKey)}`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              contents: [{ parts }],
-              generationConfig: { responseModalities: ["TEXT", "IMAGE"] }
-            })
-          }
-        );
-        if (!resp.ok) {
-          const errText = await resp.text().catch(() => resp.statusText);
-          return { ok: false, error: `Gemini ${resp.status}: ${errText.slice(0, 180)}` };
-        }
-        const data = await resp.json();
-        for (const cand of (data.candidates || [])) {
-          for (const part of (cand.content?.parts || [])) {
-            if (part.inlineData?.data) {
-              const mime = part.inlineData.mimeType || 'image/png';
-              return { ok: true, image: `data:${mime};base64,${part.inlineData.data}` };
-            }
-          }
-        }
-        return { ok: false, error: "Gemini returned no image" };
+        return { ok: true, image: data.image, engine: data.engine || "gemini-3.1-flash-image" };
       } catch (e) {
         return { ok: false, error: e.message || String(e) };
       }
@@ -2247,8 +2216,6 @@
       const casting = (document.getElementById("donorCastingInput")?.value || "").trim() || "Hot Wheels Custom";
       const paint = (document.getElementById("donorBodyPaintInput")?.value || "").trim() || "Gloss White";
       const wheels = (document.getElementById("donorWheelInput")?.value || "").trim() || "Real Riders";
-      const engineMode = document.querySelector('input[name="aiEngineMode"]:checked')?.value || 'flux';
-      const geminiKey = (document.getElementById('geminiApiKeyInput')?.value || localStorage.getItem('neon_llama_gemini_key') || '').trim();
 
       goToWizardStep(3);
 
@@ -2258,23 +2225,26 @@
       const masterContainer = document.getElementById("masterShowcaseContainer");
       const masterBox = document.getElementById("masterShowcaseBox");
 
-      if (titleEl) titleEl.innerText = `8 LIVE CONCEPTS FOR: ${casting.toUpperCase()}`;
-      if (subtitleEl) subtitleEl.innerText = `${paint} • ${wheels} • Engine: ${engineMode === 'gemini' ? 'Gemini 2.5 Flash Image' : 'Free Live FLUX'}`;
-      if (countLabel) countLabel.innerText = "⚡ GENERATING LIVE...";
-      if (masterContainer) masterContainer.classList.add('hidden');
+      if (titleEl) titleEl.innerText = `💎 GEMINI 3.1 // 8-CONCEPT SHOWCASE FOR ${casting.toUpperCase()}`;
+      if (subtitleEl) subtitleEl.innerText = `${paint} • ${wheels} • 1 Single Gemini 3.1 Call (~3¢)`;
+      if (countLabel) countLabel.innerText = "⚡ GEMINI 3.1 RENDERING...";
 
-      const grid = document.getElementById("starterCardsGrid");
-      if (grid) {
-        grid.innerHTML = `
-          <div class="col-span-full py-12 flex flex-col items-center justify-center space-y-3 text-center">
-            <div class="w-10 h-10 rounded-full border-2 border-cyan-400 border-t-pink-500 animate-spin"></div>
-            <div class="font-orbitron font-bold text-sm text-white">SYNTHESIZING 8 LIVE CONCEPTS FOR ${casting.toUpperCase()}...</div>
-            <div class="text-xs font-mono text-slate-400">Zero placeholders • Rendering your exact casting live</div>
+      if (masterContainer && masterBox) {
+        masterContainer.classList.remove('hidden');
+        document.getElementById('masterShowcaseTitle').innerText = `💎 GEMINI 3.1 FLASH IMAGE // 8-CAR ACRYLIC SHOWCASE (${casting.toUpperCase()})`;
+        masterBox.innerHTML = `
+          <div class="flex flex-col items-center justify-center py-14 space-y-3 text-center">
+            <div class="w-12 h-12 rounded-full border-2 border-purple-400 border-t-pink-500 animate-spin"></div>
+            <div class="font-orbitron font-bold text-sm text-white">RENDERING 1-SHOT 8-CAR SHOWCASE FOR ${casting.toUpperCase()}...</div>
+            <div class="text-xs font-mono text-purple-300">Powered by Gemini 3.1 Flash Image • Matching your exact casting & reference photos</div>
           </div>
         `;
       }
 
-      // 1. Fetch 8 concepts tailored to THIS EXACT CAR / TRUCK
+      const grid = document.getElementById("starterCardsGrid");
+      if (grid) grid.innerHTML = "";
+
+      // 1. Generate 8 bespoke concepts via Gemini 2.5 Flash
       let concepts = [];
       try {
         const resp = await fetch(`${AI_API_BASE}/generate-concepts`, {
@@ -2292,13 +2262,13 @@
       if (!Array.isArray(concepts) || concepts.length < 4) {
         concepts = [
           { title: "SYNTHWAVE NEON", badge: "80S OUTRUN", style: "80s cyan and magenta neon laser grid stripes", desc: `Outrun neon wireframe tampos tailored for the ${casting}.`, primary: "#00f0ff", accent: "#ff007f" },
-          { title: "TOKYO MIDNIGHT", badge: "JDM DRIFT", style: "Japanese Kanjo street livery with geometric slashes and kanji decals", desc: `Midnight street drift graphics built for the ${casting}.`, primary: "#8b5cf6", accent: "#06b6d4" },
-          { title: "VINTAGE FLAMES", badge: "HOT ROD", style: "classic scalloped hot rod drag flames and fine pinstriping", desc: `Traditional 1970s drag flames flowing across the ${casting}.`, primary: "#f59e0b", accent: "#ef4444" },
-          { title: "SHOP TRUCK / RACE", badge: "WORKSHOP", style: "weathered vintage garage shop logo, door numbers, and racing stripes", desc: `Authentic shop livery with bold door lettering on the ${casting}.`, primary: "#10b981", accent: "#eab308" },
           { title: "LOWRIDER LACE", badge: "KANDY SHOW", style: "intricate silver and violet Chicano lace panels and candy scallops", desc: `Show-quality lowrider lace graphics tailored for the ${casting}.`, primary: "#9333ea", accent: "#e2e8f0" },
-          { title: "TRACK DAY 13", badge: "MOTORSPORT", style: "bold #13 racing roundels, sponsor decals, and checkered speed sweep", desc: `Trans-Am style motorsport livery with #13 roundels on the ${casting}.`, primary: "#ef4444", accent: "#111827" },
+          { title: "STREETWEAR DRIP", badge: "TOKYO STREET", style: "bold modern streetwear graphic blocks and high-contrast drip accents", desc: `High-contrast streetwear typography and drip graphics on the ${casting}.`, primary: "#ec4899", accent: "#10b981" },
           { title: "GALAXY NEBULA", badge: "DEEP SPACE", style: "cosmic violet and indigo stardust nebula airbrush graphics", desc: `Deep space cosmic nebula wrap across the ${casting} body panels.`, primary: "#6366f1", accent: "#a855f7" },
-          { title: "CYBER MECHA", badge: "SCI-FI SPEC", style: "futuristic armor panel lines, technical warning stencils, and glowing trim", desc: `High-tech sci-fi mecha panel livery for the ${casting}.`, primary: "#3b82f6", accent: "#00f0ff" }
+          { title: "DRAG FLAMES", badge: "HOT ROD", style: "classic scalloped hot rod drag flames and fine pinstriping", desc: `Traditional 1970s drag flames flowing across the ${casting}.`, primary: "#f59e0b", accent: "#ef4444" },
+          { title: "TOKYO MIDNIGHT", badge: "JDM DRIFT", style: "Japanese Kanjo street livery with geometric slashes and kanji decals", desc: `Midnight street drift graphics built for the ${casting}.`, primary: "#8b5cf6", accent: "#06b6d4" },
+          { title: "CYBER MECHA", badge: "SCI-FI SPEC", style: "futuristic armor panel lines, technical warning stencils, and glowing trim", desc: `High-tech sci-fi mecha panel livery for the ${casting}.`, primary: "#3b82f6", accent: "#00f0ff" },
+          { title: "TRACK DAY 13", badge: "MOTORSPORT", style: "bold #13 racing roundels, sponsor decals, and checkered speed sweep", desc: `Trans-Am style motorsport livery with #13 roundels on the ${casting}.`, primary: "#ef4444", accent: "#111827" }
         ];
       }
 
@@ -2368,89 +2338,77 @@
         };
       });
 
-      // 2. If Gemini mode selected and key present, render 1-shot 8-car acrylic showcase!
-      if (engineMode === 'gemini') {
-        if (!geminiKey) {
-          showToast('Please paste your Gemini API key in Step 1 (or switch to Free Live FLUX)!', '⚠️');
-          goToWizardStep(1);
-          return;
-        }
-        if (masterContainer && masterBox) {
-          masterContainer.classList.remove('hidden');
-          document.getElementById('masterShowcaseTitle').innerText = `💎 GEMINI 1-SHOT 8-CAR SHOWCASE // ${casting.toUpperCase()}`;
+      // Render the 8 clickable slot cards right away
+      renderStarterCards();
+
+      // 2. Render 1 SINGLE high-res 8-car acrylic showcase via Gemini 3.1 Flash Image (with reference photos attached!)
+      const refImages = await getActiveReferenceBase64List();
+      let showcasePrompt = buildGemini8PackPrompt(casting, paint, wheels, currentDynamicStarters);
+      if (refImages.length > 0) {
+        showcasePrompt = `MATCH THE EXACT PHYSICAL 1:64 DIECAST CASTING SHAPE, PROPORTIONS, BODY PAINT, AND WHEELS SHOWN IN THE ATTACHED REFERENCE PHOTO(S). ` + showcasePrompt;
+      }
+
+      const res = await generateAiImage(showcasePrompt, refImages);
+      if (masterBox) {
+        if (res.ok && res.image) {
+          window.latestMasterShowcaseImg = res.image;
           masterBox.innerHTML = `
-            <div class="flex flex-col items-center justify-center py-10 space-y-2">
-              <div class="w-10 h-10 rounded-full border-2 border-purple-400 border-t-pink-500 animate-spin"></div>
-              <span class="text-xs font-mono text-purple-300">RENDERING 1-SHOT 8-CAR SHOWCASE VIA GEMINI 2.5 FLASH IMAGE...</span>
+            <div class="relative w-full flex flex-col items-center space-y-2">
+              <img src="${res.image}" alt="${casting} 8-Car Showcase" class="w-full max-h-[580px] object-contain rounded-xl shadow-2xl">
+              <div class="text-[11px] font-mono text-emerald-300">
+                ✓ Rendered via Gemini 3.1 Flash Image ${refImages.length > 0 ? `(${refImages.length} donor reference photo${refImages.length > 1 ? 's' : ''} matched)` : ''} • Pick any slot below to develop 3 sub-ideas
+              </div>
             </div>
           `;
-          const showcasePrompt = buildGemini8PackPrompt(casting, paint, wheels, currentDynamicStarters);
-          const refList = [userCastingPhotos.side, userCastingPhotos.top].filter(Boolean);
-          generateGeminiImageDirect(showcasePrompt, geminiKey, refList).then(res => {
-            if (res.ok && res.image) {
-              masterBox.innerHTML = `<img src="${res.image}" alt="${casting} 8-Car Showcase" class="w-full max-h-[520px] object-contain rounded-lg">`;
-              if (countLabel) countLabel.innerText = "💎 GEMINI 1-SHOT COMPLETE";
-            } else {
-              masterBox.innerHTML = `<div class="text-center p-6 space-y-2"><div class="text-red-400 font-orbitron font-bold text-xs">⚠️ GEMINI API ERROR</div><div class="text-xs font-mono text-red-300">${res.error}</div></div>`;
-              if (countLabel) countLabel.innerText = "⚠️ GEMINI ERROR";
-            }
-          });
+          if (countLabel) countLabel.innerText = "💎 GEMINI 3.1 READY";
+        } else {
+          masterBox.innerHTML = `
+            <div class="text-center p-6 space-y-2">
+              <div class="text-red-400 font-orbitron font-bold text-xs">⚠️ GEMINI 3.1 RENDER ERROR</div>
+              <div class="text-xs font-mono text-red-300 max-w-xl mx-auto">${res.error}</div>
+              <button type="button" onclick="launchStep3LiveGeneration()" class="mt-2 px-4 py-2 rounded-lg bg-red-900/80 hover:bg-red-800 text-white text-xs font-orbitron font-bold border border-red-500/50">
+                🔄 Retry Gemini 3.1 Render
+              </button>
+            </div>
+          `;
+          if (countLabel) countLabel.innerText = "⚠️ RENDER ERROR";
         }
-        renderStarterCards(false); // Show 8 clickable concept cards without firing 8 extra calls
-      } else {
-        // FREE LIVE FLUX MODE: Fire 8 live renders for THIS EXACT CAR / TRUCK
-        renderStarterCards(true);
       }
     }
 
-    function renderStarterCards(triggerLiveFlux = true) {
+    function renderStarterCards() {
       const container = document.getElementById("starterCardsGrid");
       if (!container) return;
       container.innerHTML = "";
 
-      const countLabel = document.getElementById("starterCountLabel");
-      let completedCount = 0;
-
       currentDynamicStarters.forEach((dir, idx) => {
-        const imgBoxId = `starterImgBox_${idx}`;
         const card = document.createElement("div");
-        card.className = "bg-slate-950/95 rounded-2xl border border-slate-800 hover:border-pink-500/70 p-3.5 flex flex-col justify-between space-y-3 shadow-xl transition group";
+        card.className = "bg-slate-950/95 rounded-2xl border border-slate-800 hover:border-pink-500/70 p-4 flex flex-col justify-between space-y-3 shadow-xl transition group";
 
         let zonesBadges = `<span class="px-1.5 py-0.5 rounded text-[8px] font-mono bg-cyan-950 text-cyan-300 border border-cyan-500/40">SIDE: ${activePrintZones.side.toUpperCase()}</span>`;
         if (activePrintZones.roof !== 'off') zonesBadges += ` <span class="px-1.5 py-0.5 rounded text-[8px] font-mono bg-cyan-950 text-cyan-300 border border-cyan-500/40">ROOF: ${activePrintZones.roof.toUpperCase()}</span>`;
         if (activePrintZones.hood !== 'off') zonesBadges += ` <span class="px-1.5 py-0.5 rounded text-[8px] font-mono bg-pink-950 text-pink-300 border border-pink-500/40">HOOD: ${activePrintZones.hood.toUpperCase()}</span>`;
         if (activePrintZones.trunk !== 'off') zonesBadges += ` <span class="px-1.5 py-0.5 rounded text-[8px] font-mono bg-purple-950 text-purple-300 border border-purple-500/40">TRUNK: ${activePrintZones.trunk.toUpperCase()}</span>`;
 
-        const initialBoxHtml = triggerLiveFlux ? `
-          <div class="flex flex-col items-center justify-center space-y-2 animate-pulse">
-            <div class="w-8 h-8 rounded-full border-2 border-cyan-400 border-t-pink-500 animate-spin"></div>
-            <span class="text-[10px] font-mono text-cyan-300">RENDERING LIVE...</span>
-          </div>
-        ` : `
-          <div class="flex flex-col items-center justify-center space-y-1.5 p-3 text-center">
-            <span class="text-xs font-orbitron font-bold text-purple-300">SLOT #0${idx + 1} IN SHOWCASE ABOVE</span>
-            <span class="text-[10px] font-mono text-slate-400">Click below to develop 3 sub-ideas</span>
-          </div>
-        `;
+        const shelfPos = idx < 4 ? `TOP SHELF • SLOT ${idx + 1}` : `BOTTOM SHELF • SLOT ${idx - 3}`;
 
         card.innerHTML = `
           <div class="space-y-2.5">
-            <div id="${imgBoxId}" class="w-full h-48 rounded-xl bg-slate-900 border border-slate-800 flex flex-col items-center justify-center relative overflow-hidden p-2 text-center">
-              ${initialBoxHtml}
-              <span class="absolute top-1.5 left-1.5 px-2 py-0.5 rounded text-[9px] font-orbitron font-bold border ${dir.badgeColor} backdrop-blur-sm">
+            <div class="flex items-center justify-between">
+              <span class="px-2 py-0.5 rounded text-[9px] font-orbitron font-bold border ${dir.badgeColor}">
                 ${dir.badge}
+              </span>
+              <span class="text-[9px] font-mono text-purple-300 bg-purple-950/60 px-2 py-0.5 rounded border border-purple-500/30">
+                ${shelfPos}
               </span>
             </div>
 
             <div>
-              <div class="flex items-center justify-between">
-                <h3 class="font-orbitron font-black text-xs text-white group-hover:text-pink-400 transition tracking-wide">${dir.title}</h3>
-                <span class="text-[10px] font-mono text-slate-500">#0${idx + 1}</span>
-              </div>
+              <h3 class="font-orbitron font-black text-sm text-white group-hover:text-pink-400 transition tracking-wide">#0${idx + 1} ${dir.title}</h3>
               <p class="text-[11px] text-slate-400 leading-snug mt-1">${dir.desc}</p>
             </div>
 
-            <div class="flex items-center gap-1 flex-wrap pt-1 border-t border-slate-900">
+            <div class="flex items-center gap-1 flex-wrap pt-1.5 border-t border-slate-900">
               ${zonesBadges}
             </div>
 
@@ -2462,43 +2420,10 @@
           </div>
 
           <button onclick="pickDynamicStarter(${idx})" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-pink-600 via-purple-600 to-cyan-600 hover:from-pink-500 hover:to-cyan-500 text-white font-orbitron font-black text-xs shadow-md transition active:scale-95 flex items-center justify-center gap-1.5">
-            <span>👉</span> SELECT & VIEW 3 SUB-IDEAS
+            <span>👉</span> DEVELOP 3 SUB-IDEAS (~3¢)
           </button>
         `;
         container.appendChild(card);
-
-        if (triggerLiveFlux) {
-          generateAiImage(dir.prompt).then(res => {
-            completedCount++;
-            if (countLabel) countLabel.innerText = `${completedCount}/8 LIVE RENDERS COMPLETE`;
-            const imgBox = document.getElementById(imgBoxId);
-            if (!imgBox) return;
-
-            if (res && res.ok && res.image) {
-              dir.img = res.image;
-              imgBox.className = "w-full h-48 rounded-xl bg-white border border-slate-800 flex items-center justify-center relative overflow-hidden group";
-              imgBox.innerHTML = `
-                <img src="${res.image}" alt="${dir.title}" class="w-full h-full object-contain drop-shadow-xl transition duration-300 group-hover:scale-105">
-                <span class="absolute top-1.5 left-1.5 px-2 py-0.5 rounded text-[9px] font-orbitron font-bold border ${dir.badgeColor} backdrop-blur-sm">
-                  ${dir.badge}
-                </span>
-                <span class="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 rounded text-[8px] font-mono bg-black/80 border border-emerald-500/60 text-emerald-300 backdrop-blur-sm">
-                  ● LIVE AI
-                </span>
-              `;
-            } else {
-              const errMsg = (res && res.error) ? res.error : "Render failed";
-              imgBox.className = "w-full h-48 rounded-xl bg-red-950/40 border border-red-500/80 flex flex-col items-center justify-center p-3 text-center space-y-1.5";
-              imgBox.innerHTML = `
-                <span class="text-xs font-orbitron font-bold text-red-400">⚠️ RENDER ERROR</span>
-                <span class="text-[10px] text-red-300 font-mono line-clamp-3">${errMsg}</span>
-                <button onclick="retryStarterCard(${idx})" class="mt-1 px-2.5 py-1 bg-red-900/80 hover:bg-red-800 text-white rounded text-[10px] font-bold border border-red-500/50">
-                  🔄 Retry Render
-                </button>
-              `;
-            }
-          });
-        }
       });
     }
 
@@ -2542,10 +2467,12 @@
       showToast(`Rendering 3 live sub-ideas for ${dir.title}!`, "🎨");
     }
 
-    function renderThreeSubIdeas(dir) {
+    async function renderThreeSubIdeas(dir) {
       const container = document.getElementById("threeVariationsContainer");
       if (!container) return;
       container.innerHTML = "";
+
+      const refImages = await getActiveReferenceBase64List();
 
       dir.variations.forEach((v, idx) => {
         const cardId = `subIdeaCard_${idx}`;
@@ -2568,8 +2495,8 @@
 
             <div id="${imgContainerId}" class="w-full h-52 rounded-xl bg-slate-900 border border-slate-800/80 flex flex-col items-center justify-center relative overflow-hidden group p-2 text-center">
               <div class="flex flex-col items-center justify-center space-y-2 animate-pulse">
-                <div class="w-8 h-8 rounded-full border-2 border-cyan-400 border-t-pink-500 animate-spin"></div>
-                <span class="text-[10px] font-mono text-cyan-300">RENDERING LIVE SUB-IDEA...</span>
+                <div class="w-8 h-8 rounded-full border-2 border-purple-400 border-t-pink-500 animate-spin"></div>
+                <span class="text-[10px] font-mono text-purple-300">RENDERING VIA GEMINI 3.1...</span>
               </div>
             </div>
 
@@ -2593,8 +2520,11 @@
         `;
         container.appendChild(card);
 
-        // 100% LIVE AI RENDER FOR THIS SUB-IDEA (ZERO PLACEHOLDERS)
-        generateAiImage(v.prompt).then(res => {
+        const groundedPrompt = refImages.length > 0
+          ? `MATCH THE EXACT PHYSICAL 1:64 DIECAST CASTING SHAPE, PROPORTIONS, PAINT, AND WHEELS SHOWN IN THE ATTACHED REFERENCE PHOTO(S). ` + v.prompt
+          : v.prompt;
+
+        generateAiImage(groundedPrompt, refImages).then(res => {
           const imgBox = document.getElementById(imgContainerId);
           if (!imgBox) return;
 
@@ -2603,15 +2533,15 @@
             imgBox.className = "w-full h-52 rounded-xl bg-white border border-slate-800/80 flex items-center justify-center relative overflow-hidden group";
             imgBox.innerHTML = `
               <img src="${res.image}" alt="${v.title}" class="w-full h-full object-contain drop-shadow-2xl transition duration-300 group-hover:scale-105">
-              <div class="absolute bottom-2 left-2 text-[9px] font-mono text-emerald-300 bg-black/80 px-2 py-0.5 rounded border border-emerald-500/50 backdrop-blur-sm">
-                ● LIVE AI RENDER
+              <div class="absolute bottom-2 left-2 text-[9px] font-mono text-purple-300 bg-black/80 px-2 py-0.5 rounded border border-purple-500/50 backdrop-blur-sm">
+                💎 GEMINI 3.1
               </div>
             `;
           } else {
             const errMsg = (res && res.error) ? res.error : "Render failed";
             imgBox.className = "w-full h-52 rounded-xl bg-red-950/40 border border-red-500/80 flex flex-col items-center justify-center p-3 text-center space-y-1.5";
             imgBox.innerHTML = `
-              <span class="text-xs font-orbitron font-bold text-red-400">⚠️ RENDER ERROR</span>
+              <span class="text-xs font-orbitron font-bold text-red-400">⚠️ GEMINI RENDER ERROR</span>
               <span class="text-[10px] text-red-300 font-mono line-clamp-3">${errMsg}</span>
               <button onclick="retrySubIdeaRender('${dir.id}', ${idx})" class="mt-1 px-2.5 py-1 bg-red-900/80 hover:bg-red-800 text-white rounded text-[10px] font-bold border border-red-500/50">
                 🔄 Retry Render
@@ -2622,7 +2552,7 @@
       });
     }
 
-    function retrySubIdeaRender(dirId, idx) {
+    async function retrySubIdeaRender(dirId, idx) {
       const dir = currentDynamicStarters.find(x => x.id === dirId);
       if (!dir) return;
       const v = dir.variations[idx];
@@ -2633,20 +2563,24 @@
         imgBox.className = "w-full h-52 rounded-xl bg-slate-900 border border-slate-800/80 flex flex-col items-center justify-center relative overflow-hidden group p-2 text-center";
         imgBox.innerHTML = `
           <div class="flex flex-col items-center justify-center space-y-2 animate-pulse">
-            <div class="w-8 h-8 rounded-full border-2 border-cyan-400 border-t-pink-500 animate-spin"></div>
-            <span class="text-[10px] font-mono text-cyan-300">RETRYING DUAL-VIEW FLUX...</span>
+            <div class="w-8 h-8 rounded-full border-2 border-purple-400 border-t-pink-500 animate-spin"></div>
+            <span class="text-[10px] font-mono text-purple-300">RETRYING GEMINI 3.1...</span>
           </div>
         `;
       }
-      generateAiImage(v.prompt).then(res => {
+      const refImages = await getActiveReferenceBase64List();
+      const groundedPrompt = refImages.length > 0
+        ? `MATCH THE EXACT PHYSICAL 1:64 DIECAST CASTING SHAPE, PROPORTIONS, PAINT, AND WHEELS SHOWN IN THE ATTACHED REFERENCE PHOTO(S). ` + v.prompt
+        : v.prompt;
+      generateAiImage(groundedPrompt, refImages).then(res => {
         if (!imgBox) return;
         if (res && res.ok && res.image) {
           v.img = res.image;
           imgBox.className = "w-full h-52 rounded-xl bg-white border border-slate-800/80 flex items-center justify-center relative overflow-hidden group";
           imgBox.innerHTML = `
             <img src="${res.image}" alt="${v.title}" class="w-full h-full object-contain drop-shadow-2xl transition duration-300 group-hover:scale-105">
-            <div class="absolute bottom-2 left-2 text-[9px] font-mono text-emerald-300 bg-black/80 px-2 py-0.5 rounded border border-emerald-500/50 backdrop-blur-sm">
-              ● DUAL-VIEW FLUX RENDER
+            <div class="absolute bottom-2 left-2 text-[9px] font-mono text-purple-300 bg-black/80 px-2 py-0.5 rounded border border-purple-500/50 backdrop-blur-sm">
+              💎 GEMINI 3.1
             </div>
           `;
         } else {
