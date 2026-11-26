@@ -188,7 +188,7 @@
           <span>🖼️</span> ALBUMS <span id="albumsCountBadge" class="px-1.5 py-0.2 rounded bg-purple-950 text-purple-200 text-[10px] font-mono border border-purple-500/40">0</span>
         </button>
         <button onclick="openConceptGenModal(true)" class="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-orbitron font-black text-xs border border-pink-400/50 shadow-lg shadow-pink-900/40 transition active:scale-95 flex items-center gap-1.5">
-          <span>✨</span> + NEW CAR (v5.0.3)
+          <span>✨</span> + NEW CAR (v5.0.4)
         </button>
         <div class="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-[10px] font-mono text-cyan-400">
           STORE: <a href="https://neonllamagarage.com" target="_blank" class="hover:underline font-bold text-white">NEONLLAMAGARAGE.COM</a>
@@ -317,7 +317,7 @@
       </div>
 
       <!-- ===================================================================== -->
-      <!-- v5.0.3 GUIDED 5-STEP VERIFIED PRODUCTION PIPELINE BAR                 -->
+      <!-- v5.0.4 GUIDED 5-STEP VERIFIED PRODUCTION PIPELINE BAR                 -->
       <!-- ===================================================================== -->
       <div id="nlgPipelineBar" class="bg-gradient-to-r from-[#0b1020] via-[#10162b] to-[#0b1020] border border-cyan-500/40 rounded-2xl p-3.5 shadow-xl space-y-3">
         <div class="flex items-center justify-between flex-wrap gap-2">
@@ -649,7 +649,7 @@
           <div>
             <h2 class="font-orbitron font-black text-base text-pink-400 flex items-center gap-2 tracking-wide flex-wrap">
               <span>UNIVERSAL DIECAST WIZARD</span>
-              <span class="px-2.5 py-0.5 rounded bg-cyan-950 text-cyan-300 text-[10px] font-mono border border-cyan-400 font-black shadow-[0_0_10px_rgba(6,182,212,0.5)]">v5.0.3 LIVE</span>
+              <span class="px-2.5 py-0.5 rounded bg-cyan-950 text-cyan-300 text-[10px] font-mono border border-cyan-400 font-black shadow-[0_0_10px_rgba(6,182,212,0.5)]">v5.0.4 LIVE</span>
               <span class="px-2 py-0.5 rounded bg-purple-950 text-purple-300 text-[10px] font-mono border border-purple-400/50">💎 GEMINI 3.1 • AUTO-ALBUMS</span>
             </h2>
             <p class="text-xs text-slate-400">1. Car & Printable Panels → 2. Photos → 3. 8-to-3 Concepts (+Feedback) → 4. Pure Flat Print-Ready Decals (+Tweak & Export)</p>
@@ -3139,6 +3139,32 @@
             if (y < h - 1) enqueue(x, y + 1);
           }
 
+          // Knock out large pure-white interior cutouts (e.g. enclosed side windows) to 100% transparent so eufyMake NEVER prints white ink on windows!
+          const whiteVisited = new Uint8Array(w * h);
+          const wq = new Int32Array(w * h);
+          const isPureWhite = (p4) => data[p4 + 3] > 20 && data[p4] > 240 && data[p4 + 1] > 240 && data[p4 + 2] > 240;
+          const minWindowPx = Math.max(450, Math.floor(w * h * 0.004));
+          for (let pos = 0; pos < w * h; pos++) {
+            if (!whiteVisited[pos] && isPureWhite(pos * 4)) {
+              let wh = 0, wt = 0;
+              whiteVisited[pos] = 1;
+              wq[wt++] = pos;
+              while (wh < wt) {
+                const cur = wq[wh++];
+                const cx = cur % w, cy = (cur - cx) / w;
+                if (cx > 0 && !whiteVisited[cur - 1] && isPureWhite((cur - 1) * 4)) { whiteVisited[cur - 1] = 1; wq[wt++] = cur - 1; }
+                if (cx < w - 1 && !whiteVisited[cur + 1] && isPureWhite((cur + 1) * 4)) { whiteVisited[cur + 1] = 1; wq[wt++] = cur + 1; }
+                if (cy > 0 && !whiteVisited[cur - w] && isPureWhite((cur - w) * 4)) { whiteVisited[cur - w] = 1; wq[wt++] = cur - w; }
+                if (cy < h - 1 && !whiteVisited[cur + w] && isPureWhite((cur + w) * 4)) { whiteVisited[cur + w] = 1; wq[wt++] = cur + w; }
+              }
+              if (wt >= minWindowPx) {
+                for (let k = 0; k < wt; k++) {
+                  data[wq[k] * 4 + 3] = 0; // Transparent window cutout!
+                }
+              }
+            }
+          }
+
           // Auto-erase tiny disconnected floating specks / stray captions (e.g. tire text, footer labels < 1.5% of main decal area)
           const compId = new Int32Array(w * h);
           const compSizes = [0];
@@ -3643,10 +3669,11 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
           generatedFinalDecals = restored;
           grid.innerHTML = '';
           for (const p of generatedFinalDecals) {
-            // Re-generate solid white underbase from transparent CMYK PNG if not stored yet (0¢ canvas pass!)
-            if (!p.underbasePng && p.cmykPng && typeof processPureFlatDecalImage === 'function') {
+            // Re-run 0¢ cleanup pass (transparent window cutout + speck removal + fresh Solid White Underbase)
+            if (p.cmykPng && typeof processPureFlatDecalImage === 'function') {
               try {
                 const re = await processPureFlatDecalImage(p.cmykPng, false);
+                p.cmykPng = re.transparentPng;
                 p.underbasePng = re.underbasePng;
               } catch (e) {}
             }
@@ -4176,7 +4203,7 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
     };
 
     // =========================================================================
-    // v5.0.3 BLISTER CARD RULES ENGINE (FRONT + MIRRORED BACK • REAL QR • ALBUMS)
+    // v5.0.4 BLISTER CARD RULES ENGINE (FRONT + MIRRORED BACK • REAL QR • ALBUMS)
     // =========================================================================
     let nlgCardFormat = 'premium';
     let nlgCardSide = 'front';
@@ -5101,7 +5128,7 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
     };
 
     // =========================================================================
-    // v5.0.3 PER-CAR PERSISTENT MEMORY + SERIES WORDMARK LIBRARY + 5-STEP FLOW
+    // v5.0.4 PER-CAR PERSISTENT MEMORY + SERIES WORDMARK LIBRARY + 5-STEP FLOW
     // =========================================================================
     const NLG_STATE_DB_NAME = 'NeonLlamaPipelineDB';
     let _nlgStateDbPromise = null;
