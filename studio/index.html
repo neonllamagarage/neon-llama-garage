@@ -188,7 +188,7 @@
           <span>🖼️</span> ALBUMS <span id="albumsCountBadge" class="px-1.5 py-0.2 rounded bg-purple-950 text-purple-200 text-[10px] font-mono border border-purple-500/40">0</span>
         </button>
         <button onclick="openConceptGenModal(true)" class="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-orbitron font-black text-xs border border-pink-400/50 shadow-lg shadow-pink-900/40 transition active:scale-95 flex items-center gap-1.5">
-          <span>✨</span> + NEW CAR (v5.0.1)
+          <span>✨</span> + NEW CAR (v5.0.2)
         </button>
         <div class="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-[10px] font-mono text-cyan-400">
           STORE: <a href="https://neonllamagarage.com" target="_blank" class="hover:underline font-bold text-white">NEONLLAMAGARAGE.COM</a>
@@ -317,7 +317,7 @@
       </div>
 
       <!-- ===================================================================== -->
-      <!-- v5.0.1 GUIDED 5-STEP VERIFIED PRODUCTION PIPELINE BAR                 -->
+      <!-- v5.0.2 GUIDED 5-STEP VERIFIED PRODUCTION PIPELINE BAR                 -->
       <!-- ===================================================================== -->
       <div id="nlgPipelineBar" class="bg-gradient-to-r from-[#0b1020] via-[#10162b] to-[#0b1020] border border-cyan-500/40 rounded-2xl p-3.5 shadow-xl space-y-3">
         <div class="flex items-center justify-between flex-wrap gap-2">
@@ -649,7 +649,7 @@
           <div>
             <h2 class="font-orbitron font-black text-base text-pink-400 flex items-center gap-2 tracking-wide flex-wrap">
               <span>UNIVERSAL DIECAST WIZARD</span>
-              <span class="px-2.5 py-0.5 rounded bg-cyan-950 text-cyan-300 text-[10px] font-mono border border-cyan-400 font-black shadow-[0_0_10px_rgba(6,182,212,0.5)]">v5.0.1 LIVE</span>
+              <span class="px-2.5 py-0.5 rounded bg-cyan-950 text-cyan-300 text-[10px] font-mono border border-cyan-400 font-black shadow-[0_0_10px_rgba(6,182,212,0.5)]">v5.0.2 LIVE</span>
               <span class="px-2 py-0.5 rounded bg-purple-950 text-purple-300 text-[10px] font-mono border border-purple-400/50">💎 GEMINI 3.1 • AUTO-ALBUMS</span>
             </h2>
             <p class="text-xs text-slate-400">1. Car & Printable Panels → 2. Photos → 3. 8-to-3 Concepts (+Feedback) → 4. Pure Flat Print-Ready Decals (+Tweak & Export)</p>
@@ -4126,7 +4126,7 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
     };
 
     // =========================================================================
-    // v5.0.1 BLISTER CARD RULES ENGINE (FRONT + MIRRORED BACK • REAL QR • ALBUMS)
+    // v5.0.2 BLISTER CARD RULES ENGINE (FRONT + MIRRORED BACK • REAL QR • ALBUMS)
     // =========================================================================
     let nlgCardFormat = 'premium';
     let nlgCardSide = 'front';
@@ -4306,9 +4306,19 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
             image: it.image
           }));
 
-        // Prefer different casting/theme from current card; fall back to mystery silhouette if fewer than 2 exist
+        // Prefer different casting/theme from current card; supplement with official illustrated Neon Llama Garage archive drops!
+        const builtinIllustratedDrops = [
+          { casting: "'55 CHEVY GASSER", title: "STAINED GLASS", image: "assets/card_art_stained_glass_gasser.jpg" },
+          { casting: "'83 SILVERADO", title: "STAINED GLASS", image: "assets/card_art_stained_glass_silverado.jpg" }
+        ];
         const distinct = cardArts.filter(it => it.casting !== currentCasting || it.title !== currentTheme);
-        const pool = distinct;
+        const combined = [...distinct];
+        builtinIllustratedDrops.forEach(bd => {
+          if (bd.casting !== currentCasting && !combined.some(x => x.casting === bd.casting)) {
+            combined.push(bd);
+          }
+        });
+        const pool = combined;
 
         const countEl = document.getElementById('nlgAlbumDropCount');
         if (countEl) countEl.innerText = pool.length;
@@ -5041,7 +5051,7 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
     };
 
     // =========================================================================
-    // v5.0.1 PER-CAR PERSISTENT MEMORY + SERIES WORDMARK LIBRARY + 5-STEP FLOW
+    // v5.0.2 PER-CAR PERSISTENT MEMORY + SERIES WORDMARK LIBRARY + 5-STEP FLOW
     // =========================================================================
     const NLG_STATE_DB_NAME = 'NeonLlamaPipelineDB';
     let _nlgStateDbPromise = null;
@@ -5120,14 +5130,30 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
     }
 
     async function nlgGetAllSeriesWordmarks() {
+      const byKey = new Map();
       try {
         const db = await nlgOpenStateDB();
-        return await new Promise((resolve) => {
+        const saved = await new Promise((resolve) => {
           const req = db.transaction('wordmarks', 'readonly').objectStore('wordmarks').getAll();
-          req.onsuccess = () => resolve((req.result || []).sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0)));
+          req.onsuccess = () => resolve(req.result || []);
           req.onerror = () => resolve([]);
         });
-      } catch (e) { return []; }
+        saved.forEach(w => { if (w && w.key && w.image) byKey.set(w.key, w); });
+      } catch (e) {}
+      try {
+        if (typeof getAllAlbumItems === 'function') {
+          const albumItems = await getAllAlbumItems();
+          albumItems.forEach(it => {
+            if (String(it.stage || '').toLowerCase() === 'card wordmark' && it.image) {
+              const k = nlgNormSeriesKey(it.title || it.casting);
+              if (k && !byKey.has(k)) {
+                byKey.set(k, { key: k, label: String(it.title || it.casting).toUpperCase().trim(), image: it.image, updatedAt: it.createdAt || 0 });
+              }
+            }
+          });
+        }
+      } catch (e) {}
+      return Array.from(byKey.values()).sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
     }
 
     async function nlgTryAutoLoadSeriesWordmark(themeName) {
@@ -5424,19 +5450,41 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
             const hs = document.getElementById('nlgHeroStatus');
             if (hs) { hs.className = 'text-[10px] font-mono text-emerald-400'; hs.innerText = '✓ Saved Hero Restored'; }
           }
-          if (st?.cardArtDataUrl) {
+          const themeNow = (document.getElementById('nlgInpTheme')?.value || '').trim();
+          const castingNow = nlgCleanCastingName(document.getElementById('nlgInpCasting')?.value || '');
+          let artToLoad = st?.cardArtDataUrl || null;
+          if (!artToLoad && typeof getAllAlbumItems === 'function') {
+            try {
+              const albumItems = await getAllAlbumItems();
+              const normT = themeNow.toLowerCase();
+              const normC = castingNow.toLowerCase();
+              const matchArt = albumItems.find(it => {
+                if (String(it.stage || '').toLowerCase() !== 'blister card art' || !it.image) return false;
+                const itT = String(it.title || '').toLowerCase();
+                const itC = nlgCleanCastingName(it.casting || '').toLowerCase();
+                return (normT && itT.includes(normT)) || (normC && itC.includes(normC));
+              });
+              if (matchArt) {
+                artToLoad = matchArt.image;
+                nlgSaveCarState({ cardArtDataUrl: artToLoad, steps: { heroVerified: true, cardArtLocked: true } });
+              }
+            } catch (e) {}
+          }
+          if (artToLoad) {
             const im = new Image();
             im.onload = () => { nlgCardArtImg = im; nlgDrawCard(); };
-            im.src = st.cardArtDataUrl;
+            im.src = artToLoad;
           }
           if (st?.wordmarkDataUrl) {
             const wm = new Image();
             wm.onload = () => { nlgTitleLogoImg = wm; nlgDrawCard(); };
             wm.src = st.wordmarkDataUrl;
           } else {
-            // Auto-reuse existing Series Wordmark if another car in this series already generated one!
-            const themeNow = document.getElementById('nlgInpTheme')?.value || '';
-            await nlgTryAutoLoadSeriesWordmark(themeNow);
+            // Auto-reuse existing Series Wordmark (checks BOTH PipelineDB & prior Casting Albums!)
+            const foundWm = await nlgTryAutoLoadSeriesWordmark(themeNow);
+            if (foundWm && nlgTitleLogoImg?.src) {
+              nlgSaveCarState({ wordmarkDataUrl: nlgTitleLogoImg.src, useAiLogo: true, steps: { cardArtLocked: Boolean(artToLoad) } });
+            }
           }
 
           nlgRenderSavedWordmarksShelf();
