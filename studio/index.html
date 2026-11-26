@@ -188,7 +188,7 @@
           <span>🖼️</span> ALBUMS <span id="albumsCountBadge" class="px-1.5 py-0.2 rounded bg-purple-950 text-purple-200 text-[10px] font-mono border border-purple-500/40">0</span>
         </button>
         <button onclick="openConceptGenModal(true)" class="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-orbitron font-black text-xs border border-pink-400/50 shadow-lg shadow-pink-900/40 transition active:scale-95 flex items-center gap-1.5">
-          <span>✨</span> + NEW CAR (v5.0.6)
+          <span>✨</span> + NEW CAR (v5.1.0)
         </button>
         <div class="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-[10px] font-mono text-cyan-400">
           STORE: <a href="https://neonllamagarage.com" target="_blank" class="hover:underline font-bold text-white">NEONLLAMAGARAGE.COM</a>
@@ -317,7 +317,7 @@
       </div>
 
       <!-- ===================================================================== -->
-      <!-- v5.0.6 GUIDED 5-STEP VERIFIED PRODUCTION PIPELINE BAR                 -->
+      <!-- v5.1.0 GUIDED 5-STEP VERIFIED PRODUCTION PIPELINE BAR                 -->
       <!-- ===================================================================== -->
       <div id="nlgPipelineBar" class="bg-gradient-to-r from-[#0b1020] via-[#10162b] to-[#0b1020] border border-cyan-500/40 rounded-2xl p-3.5 shadow-xl space-y-3">
         <div class="flex items-center justify-between flex-wrap gap-2">
@@ -649,7 +649,7 @@
           <div>
             <h2 class="font-orbitron font-black text-base text-pink-400 flex items-center gap-2 tracking-wide flex-wrap">
               <span>UNIVERSAL DIECAST WIZARD</span>
-              <span class="px-2.5 py-0.5 rounded bg-cyan-950 text-cyan-300 text-[10px] font-mono border border-cyan-400 font-black shadow-[0_0_10px_rgba(6,182,212,0.5)]">v5.0.6 LIVE</span>
+              <span class="px-2.5 py-0.5 rounded bg-cyan-950 text-cyan-300 text-[10px] font-mono border border-cyan-400 font-black shadow-[0_0_10px_rgba(6,182,212,0.5)]">v5.1.0 LIVE</span>
               <span class="px-2 py-0.5 rounded bg-purple-950 text-purple-300 text-[10px] font-mono border border-purple-400/50">💎 GEMINI 3.1 • AUTO-ALBUMS</span>
             </h2>
             <p class="text-xs text-slate-400">1. Car & Printable Panels → 2. Photos → 3. 8-to-3 Concepts (+Feedback) → 4. Pure Flat Print-Ready Decals (+Tweak & Export)</p>
@@ -1151,6 +1151,10 @@
             <label class="flex items-center gap-1.5 cursor-pointer">
               <input type="checkbox" id="nlgChkBlister" checked onchange="nlgDrawCard()" class="accent-cyan-400" />
               <span>Blister Safe-Zone</span>
+            </label>
+            <label class="flex items-center gap-1.5 cursor-pointer" title="Extends artwork & background 0.125 inch (38px @ 300 DPI) past all trim edges & J-hook for clean cutting">
+              <input type="checkbox" id="nlgChkBleed" checked onchange="nlgDrawCard()" class="accent-emerald-400" />
+              <span class="text-emerald-300 font-bold">🖨️ 0.125" Print Bleed</span>
             </label>
             <button type="button" onclick="nlgShuffleGarageDrops()" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 text-[10px] font-mono text-cyan-300">
               🔀 Shuffle Back Drops (<span id="nlgAlbumDropCount">0</span>)
@@ -3202,24 +3206,68 @@
             }
           }
 
+          // Capture clean opaque mask BEFORE bleed so White Underbase can be choked inward by 2px (prevents white halo on eufyMake!)
+          const origMask = new Uint8Array(w * h);
+          for (let pIdx = 0; pIdx < w * h; pIdx++) {
+            origMask[pIdx] = data[pIdx * 4 + 3] > 20 ? 1 : 0;
+          }
+
+          // 1B. Apply +2px CMYK Outward Edge-Color Bleed (dilates perimeter colors outward without blurring interior!)
+          let curData = new Uint8ClampedArray(data);
+          for (let step = 0; step < 2; step++) {
+            const nextData = new Uint8ClampedArray(curData);
+            for (let y = 1; y < h - 1; y++) {
+              for (let x = 1; x < w - 1; x++) {
+                const o = (y * w + x) * 4;
+                if (curData[o + 3] <= 20) {
+                  let rSum = 0, gSum = 0, bSum = 0, cnt = 0;
+                  const nbrs = [o - 4, o + 4, o - w * 4, o + w * 4];
+                  for (const n of nbrs) {
+                    if (curData[n + 3] > 180) {
+                      rSum += curData[n]; gSum += curData[n + 1]; bSum += curData[n + 2]; cnt++;
+                    }
+                  }
+                  if (cnt > 0) {
+                    nextData[o] = (rSum / cnt) | 0;
+                    nextData[o + 1] = (gSum / cnt) | 0;
+                    nextData[o + 2] = (bSum / cnt) | 0;
+                    nextData[o + 3] = 255;
+                  }
+                }
+              }
+            }
+            curData = nextData;
+          }
+          imgData.data.set(curData);
           ctx.putImageData(imgData, 0, 0);
           const transparentPng = c.toDataURL('image/png');
 
-          // 2. Generate 100% Solid White Underbase PNG matching exact non-transparent pixels
+          // 2. Generate 100% Solid White Underbase PNG with -2px Inward Choke (zero white edge peek on UV printer!)
+          let chokeMask = origMask;
+          for (let step = 0; step < 2; step++) {
+            const nextMask = new Uint8Array(w * h);
+            for (let y = 1; y < h - 1; y++) {
+              for (let x = 1; x < w - 1; x++) {
+                const idx = y * w + x;
+                if (chokeMask[idx] && chokeMask[idx - 1] && chokeMask[idx + 1] && chokeMask[idx - w] && chokeMask[idx + w]) {
+                  nextMask[idx] = 1;
+                }
+              }
+            }
+            chokeMask = nextMask;
+          }
           const wc = document.createElement('canvas');
           wc.width = w;
           wc.height = h;
           const wctx = wc.getContext('2d');
           const wData = wctx.createImageData(w, h);
           const wd = wData.data;
-          for (let i = 0; i < data.length; i += 4) {
-            if (data[i + 3] > 20) {
-              wd[i] = 255;
-              wd[i + 1] = 255;
-              wd[i + 2] = 255;
-              wd[i + 3] = 255;
+          for (let pIdx = 0; pIdx < w * h; pIdx++) {
+            const o = pIdx * 4;
+            if (chokeMask[pIdx]) {
+              wd[o] = 255; wd[o + 1] = 255; wd[o + 2] = 255; wd[o + 3] = 255;
             } else {
-              wd[i + 3] = 0;
+              wd[o + 3] = 0;
             }
           }
           wctx.putImageData(wData, 0, 0);
@@ -4233,7 +4281,7 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
     };
 
     // =========================================================================
-    // v5.0.6 BLISTER CARD RULES ENGINE (FRONT + MIRRORED BACK • REAL QR • ALBUMS)
+    // v5.1.0 BLISTER CARD RULES ENGINE (FRONT + MIRRORED BACK • REAL QR • ALBUMS)
     // =========================================================================
     let nlgCardFormat = 'premium';
     let nlgCardSide = 'front';
@@ -5107,8 +5155,68 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
 
     function nlgExportCardPng(side, includeGuides) {
       const targetSide = side || nlgCardSide;
+      const includeBleed = !!document.getElementById('nlgChkBleed')?.checked;
+      const spec = NLG_FORMATS[nlgCardFormat];
+      const bleedPx = includeBleed ? 38 : 0; // Exact 0.125" (1/8 inch) bleed at 300 DPI!
+
+      const cardOff = document.createElement('canvas');
+      nlgRenderCardToCanvas(cardOff, false, false, targetSide);
+
       const off = document.createElement('canvas');
-      nlgRenderCardToCanvas(off, includeGuides, includeGuides && targetSide === 'front', targetSide);
+      off.width = spec.w + bleedPx * 2;
+      off.height = spec.h + bleedPx * 2;
+      const octx = off.getContext('2d');
+
+      if (includeBleed) {
+        // Fill full bleed canvas with seamless edge-extended artwork/background so ZERO white edge can ever appear after cutting!
+        if (targetSide === 'front' && nlgCardArtImg) {
+          octx.save();
+          const sc = Math.max(off.width / nlgCardArtImg.width, off.height / nlgCardArtImg.height) * 1.15;
+          const bw = nlgCardArtImg.width * sc, bh = nlgCardArtImg.height * sc;
+          octx.filter = 'blur(26px) brightness(0.82)';
+          octx.drawImage(nlgCardArtImg, (off.width - bw) / 2, (off.height - bh) / 2, bw, bh);
+          octx.restore();
+          // Extend matte-black footer seamlessly into the bottom 0.125" bleed!
+          octx.fillStyle = '#090b10';
+          octx.fillRect(0, bleedPx + spec.h - 155, off.width, 155 + bleedPx);
+        } else {
+          const isLight = !!document.getElementById('nlgChkLightBack')?.checked;
+          const bg = octx.createLinearGradient(0, 0, 0, off.height);
+          bg.addColorStop(0, isLight ? '#f1f3f7' : '#090c14');
+          bg.addColorStop(0.5, isLight ? '#e8ecf3' : '#101524');
+          bg.addColorStop(1, isLight ? '#e2e6ee' : '#070a11');
+          octx.fillStyle = bg;
+          octx.fillRect(0, 0, off.width, off.height);
+        }
+      }
+
+      // Draw crisp card centered inside the 0.125" bleed margin
+      octx.drawImage(cardOff, bleedPx, bleedPx);
+
+      // Optional die-cut guides + corner trim marks when exporting w/ Cutlines
+      if (includeGuides) {
+        octx.save();
+        octx.translate(bleedPx, bleedPx);
+        nlgCardPath(octx, spec.w, spec.h, nlgCardFormat, targetSide === 'back');
+        octx.strokeStyle = '#ff0055';
+        octx.lineWidth = 6;
+        octx.setLineDash([22, 14]);
+        octx.stroke();
+        octx.setLineDash([]);
+        // Corner trim crop marks inside bleed margin
+        if (includeBleed) {
+          octx.strokeStyle = '#ff0055';
+          octx.lineWidth = 3;
+          const m = 28;
+          // Top-left, top-right, bottom-left, bottom-right trim ticks
+          [[0,0,-1,-1],[spec.w,0,1,-1],[0,spec.h,-1,1],[spec.w,spec.h,1,1]].forEach(([cx,cy,dx,dy]) => {
+            octx.beginPath(); octx.moveTo(cx + dx*6, cy); octx.lineTo(cx + dx*m, cy); octx.stroke();
+            octx.beginPath(); octx.moveTo(cx, cy + dy*6); octx.lineTo(cx, cy + dy*m); octx.stroke();
+          });
+        }
+        octx.restore();
+      }
+
       const a = document.createElement('a');
       const name = (document.getElementById('nlgInpTheme')?.value || 'custom_card').toLowerCase().replace(/[^a-z0-9]+/g, '_');
       const pngUrl = off.toDataURL('image/png');
@@ -5118,7 +5226,7 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
         saveToCastingAlbum(expCasting, `Blister Card (${targetSide.toUpperCase()})`, `${expTheme} — ${nlgCardFormat.toUpperCase()}`, pngUrl);
       }
       a.href = pngUrl;
-      a.download = `${name}_${nlgCardFormat}_${targetSide}_300dpi${includeGuides ? '_with_guides' : ''}.png`;
+      a.download = `${name}_${nlgCardFormat}_${targetSide}_300dpi${includeBleed ? '_bleed' : ''}${includeGuides ? '_with_guides' : ''}.png`;
       a.click();
     }
 
@@ -5158,7 +5266,7 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
     };
 
     // =========================================================================
-    // v5.0.6 PER-CAR PERSISTENT MEMORY + SERIES WORDMARK LIBRARY + 5-STEP FLOW
+    // v5.1.0 PER-CAR PERSISTENT MEMORY + SERIES WORDMARK LIBRARY + 5-STEP FLOW
     // =========================================================================
     const NLG_STATE_DB_NAME = 'NeonLlamaPipelineDB';
     let _nlgStateDbPromise = null;
