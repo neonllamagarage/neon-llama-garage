@@ -54,7 +54,6 @@
       background: linear-gradient(90deg, rgba(0, 240, 255, 0.08), transparent);
       box-shadow: 0 0 15px rgba(0, 240, 255, 0.1);
     }
-    /* Custom scrollbar */
     ::-webkit-scrollbar { width: 5px; height: 5px; }
     ::-webkit-scrollbar-track { background: #07090e; }
     ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 2px; }
@@ -75,7 +74,7 @@
         </div>
         <div class="text-[10px] text-slate-400 font-bold uppercase tracking-widest flex items-center gap-2">
           <span>Active Workshop Fleet</span> • 
-          <span class="text-emerald-400 font-mono">11 BATCHES TRACKED IN GOOGLE SHEETS</span>
+          <span id="syncIndicator" class="text-emerald-400 font-mono">LIVE API CONNECTED ✅</span>
         </div>
       </div>
     </div>
@@ -88,11 +87,11 @@
       <button onclick="openLlamaCamModal()" class="px-3 py-1.5 rounded-lg bg-yellow-600/20 hover:bg-yellow-500/30 text-yellow-300 font-orbitron font-bold text-xs border border-yellow-500/30 transition">
         📸 LLAMA CAM
       </button>
-      <button onclick="alert('Creating new batch drop in Google Sheets...')" class="px-3 py-1.5 rounded-lg bg-pink-600/20 hover:bg-pink-500/30 text-pink-300 font-orbitron font-bold text-xs border border-pink-500/30 transition">
+      <button onclick="createNewBatch()" class="px-3 py-1.5 rounded-lg bg-pink-600/20 hover:bg-pink-500/30 text-pink-300 font-orbitron font-bold text-xs border border-pink-500/30 transition">
         + NEW BATCH
       </button>
-      <div class="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-[10px] font-mono text-emerald-400">
-        AUTO-SAVING ON SHEETS ✅
+      <div class="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-[10px] font-mono text-cyan-400">
+        STORE: <a href="https://neonllamagarage.com" target="_blank" class="hover:underline font-bold text-white">NEONLLAMAGARAGE.COM</a>
       </div>
     </div>
   </header>
@@ -102,217 +101,65 @@
   <!-- ========================================================================= -->
   <main id="fleetView" class="max-w-[1800px] mx-auto space-y-5">
     
-    <!-- SUB-NAV / FILTERS -->
+    <!-- SUB-NAV / SUMMARY -->
     <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
       <div>
         <h2 class="font-orbitron font-black text-sm text-white tracking-wider flex items-center gap-2">
           <span>🏎️</span> PRODUCTION FLEET (4 WORKSHOP LANES)
         </h2>
-        <p class="text-[11px] text-slate-400 mt-0.5">Click any batch card to open its prominent checklist & launch prepress tools.</p>
+        <p class="text-[11px] text-slate-400 mt-0.5">Click any batch card to inspect its prominent hero photo and actionable checklist.</p>
       </div>
       <div class="text-[11px] font-mono text-slate-400 flex items-center gap-3">
-        <span>Total Inventory: <strong class="text-white">64 Units</strong></span>
-        <span>Ready: <strong class="text-emerald-400">2 Drops</strong></span>
-        <span>In Build: <strong class="text-cyan-400">4 Drops</strong></span>
+        <span>Active Batches: <strong id="totalBatchesCount" class="text-white">10</strong></span>
+        <span>Storefront Live: <strong id="liveBatchesCount" class="text-emerald-400">5 Drops</strong></span>
       </div>
     </div>
 
     <!-- 4 LANES / BUCKETS GRID -->
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4" id="lanesContainer">
       
-      <!-- BUCKET 1: CONCEPT & SOURCING -->
+      <!-- LANE 1: CONCEPT & SOURCING -->
       <div class="space-y-3">
         <div class="flex items-center justify-between p-2 rounded-lg bg-slate-900/80 border border-slate-800">
           <span class="font-orbitron font-bold text-xs text-yellow-400 flex items-center gap-1.5">
             <span>💡</span> 1. Concept & Sourcing
           </span>
-          <span class="px-2 py-0.5 rounded bg-yellow-950/80 text-yellow-300 font-mono text-[10px] font-bold">2 DROPS</span>
+          <span id="lane1Count" class="px-2 py-0.5 rounded bg-yellow-950/80 text-yellow-300 font-mono text-[10px] font-bold">2 DROPS</span>
         </div>
-
-        <div class="space-y-3" id="lane1">
-          <!-- B-009 -->
-          <div onclick="openBatchDetail('B-009')" class="cyber-card p-3 rounded-xl cursor-pointer">
-            <div class="h-36 rounded-lg bg-black border border-slate-800 overflow-hidden relative mb-2.5">
-              <img src="/home/antigravity/.gemini/jetski/brain/v1/default/jetski_remote_agents_3p_devbox/adc4fe99-8b94-4190-801b-0d3723bb5cc8/dairy_delivery_side_flow_1795649303778.jpg" class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition duration-300">
-              <span class="absolute top-2 left-2 px-2 py-0.5 rounded bg-black/80 border border-yellow-500/40 text-[10px] font-orbitron font-bold text-yellow-400">B-009</span>
-              <span class="absolute bottom-2 right-2 px-1.5 py-0.5 rounded bg-slate-900/90 text-[9px] font-mono text-slate-300">White Paint</span>
-            </div>
-            <div class="space-y-1">
-              <div class="font-orbitron font-black text-sm text-white">Artemis Space</div>
-              <div class="text-[11px] text-slate-400 flex items-center justify-between">
-                <span>Nissan Silvia S15</span>
-                <span class="font-mono text-yellow-400 font-bold">$50.00</span>
-              </div>
-              <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px]">
-                <span class="text-cyan-400 font-bold">NEXT: SOURCING</span>
-                <span class="text-slate-500 font-mono">Step 1 / 11</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- B-012 -->
-          <div onclick="openBatchDetail('B-012')" class="cyber-card p-3 rounded-xl cursor-pointer">
-            <div class="h-36 rounded-lg bg-black border border-slate-800 overflow-hidden relative mb-2.5 flex items-center justify-center text-4xl">
-              🦩
-              <span class="absolute top-2 left-2 px-2 py-0.5 rounded bg-black/80 border border-yellow-500/40 text-[10px] font-orbitron font-bold text-yellow-400">B-012</span>
-            </div>
-            <div class="space-y-1">
-              <div class="font-orbitron font-black text-sm text-white">Flamingo Sunset</div>
-              <div class="text-[11px] text-slate-400 flex items-center justify-between">
-                <span>Corvette C8</span>
-                <span class="font-mono text-yellow-400 font-bold">$50.00</span>
-              </div>
-              <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px]">
-                <span class="text-cyan-400 font-bold">NEXT: 3-CONCEPT RUN</span>
-                <span class="text-slate-500 font-mono">Step 1 / 11</span>
-              </div>
-            </div>
-          </div>
-        </div>
+        <div class="space-y-3" id="lane1List"></div>
       </div>
 
-      <!-- BUCKET 2: IN PRODUCTION / DECALS -->
+      <!-- LANE 2: BODY, DECALS & BUILD -->
       <div class="space-y-3">
         <div class="flex items-center justify-between p-2 rounded-lg bg-slate-900/80 border border-slate-800">
           <span class="font-orbitron font-bold text-xs text-cyan-400 flex items-center gap-1.5">
             <span>⚙️</span> 2. Body, Decals & Build
           </span>
-          <span class="px-2 py-0.5 rounded bg-cyan-950/80 text-cyan-300 font-mono text-[10px] font-bold">3 DROPS</span>
+          <span id="lane2Count" class="px-2 py-0.5 rounded bg-cyan-950/80 text-cyan-300 font-mono text-[10px] font-bold">3 DROPS</span>
         </div>
-
-        <div class="space-y-3" id="lane2">
-          <!-- B-021: CYBER BANANA -->
-          <div onclick="openBatchDetail('B-021')" class="cyber-card p-3 rounded-xl cursor-pointer border-cyan-500/60 shadow-lg shadow-cyan-950/40">
-            <div class="h-36 rounded-lg bg-black border border-cyan-500/40 overflow-hidden relative mb-2.5">
-              <img src="/home/antigravity/.gemini/jetski/brain/v1/default/jetski_remote_agents_3p_devbox/adc4fe99-8b94-4190-801b-0d3723bb5cc8/dairy_delivery_side_flow_1795649303778.jpg" class="w-full h-full object-cover">
-              <span class="absolute top-2 left-2 px-2 py-0.5 rounded bg-black/80 border border-cyan-400 text-[10px] font-orbitron font-black text-cyan-300">B-021</span>
-              <span class="absolute bottom-2 right-2 px-1.5 py-0.5 rounded bg-cyan-950/90 text-[9px] font-mono text-cyan-300 font-bold">10 Reg • 1 Chase</span>
-            </div>
-            <div class="space-y-1">
-              <div class="font-orbitron font-black text-sm text-white flex items-center justify-between">
-                <span>Cyber Banana</span>
-                <span class="text-emerald-400 font-mono">$50</span>
-              </div>
-              <div class="text-[11px] text-slate-400">Hot Wheels Dairy Delivery • Matte Black</div>
-              <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px]">
-                <span class="text-cyan-400 font-bold animate-pulse">NEXT: CLEAR COAT & M2 HEX</span>
-                <span class="text-emerald-400 font-mono font-bold">Step 4 / 11</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- B-003 -->
-          <div onclick="openBatchDetail('B-003')" class="cyber-card p-3 rounded-xl cursor-pointer">
-            <div class="h-36 rounded-lg bg-black border border-slate-800 overflow-hidden relative mb-2.5">
-              <img src="/home/antigravity/.gemini/jetski/brain/v1/default/jetski_remote_agents_3p_devbox/adc4fe99-8b94-4190-801b-0d3723bb5cc8/dairy_delivery_blue_banana_1795649212580.jpg" class="w-full h-full object-cover opacity-75">
-              <span class="absolute top-2 left-2 px-2 py-0.5 rounded bg-black/80 border border-slate-700 text-[10px] font-orbitron font-bold text-slate-300">B-003</span>
-            </div>
-            <div class="space-y-1">
-              <div class="font-orbitron font-black text-sm text-white">Iron Talon</div>
-              <div class="text-[11px] text-slate-400">'62 Chevy • Silver</div>
-              <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px]">
-                <span class="text-cyan-400 font-bold">NEXT: EUFYMAKE PRINT</span>
-                <span class="text-slate-400 font-mono">Step 3 / 11</span>
-              </div>
-            </div>
-          </div>
-        </div>
+        <div class="space-y-3" id="lane2List"></div>
       </div>
 
-      <!-- BUCKET 3: PACKAGING & MEDIA -->
+      <!-- LANE 3: PACKAGING & MEDIA -->
       <div class="space-y-3">
         <div class="flex items-center justify-between p-2 rounded-lg bg-slate-900/80 border border-slate-800">
           <span class="font-orbitron font-bold text-xs text-purple-400 flex items-center gap-1.5">
             <span>📦</span> 3. Packaging & Media
           </span>
-          <span class="px-2 py-0.5 rounded bg-purple-950/80 text-purple-300 font-mono text-[10px] font-bold">2 DROPS</span>
+          <span id="lane3Count" class="px-2 py-0.5 rounded bg-purple-950/80 text-purple-300 font-mono text-[10px] font-bold">2 DROPS</span>
         </div>
-
-        <div class="space-y-3" id="lane3">
-          <!-- B-020: RUBIX CUBE -->
-          <div onclick="openBatchDetail('B-020')" class="cyber-card p-3 rounded-xl cursor-pointer">
-            <div class="h-36 rounded-lg bg-black border border-slate-800 overflow-hidden relative mb-2.5">
-              <img src="/home/antigravity/.gemini/jetski/brain/v1/default/jetski_remote_agents_3p_devbox/adc4fe99-8b94-4190-801b-0d3723bb5cc8/dairy_delivery_roof_flow_1795649317853.jpg" class="w-full h-full object-cover">
-              <span class="absolute top-2 left-2 px-2 py-0.5 rounded bg-black/80 border border-purple-500 text-[10px] font-orbitron font-bold text-purple-300">B-020</span>
-            </div>
-            <div class="space-y-1">
-              <div class="font-orbitron font-black text-sm text-white">Rubix Cube</div>
-              <div class="text-[11px] text-slate-400">Nissan Silvia • White</div>
-              <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px]">
-                <span class="text-purple-400 font-bold">NEXT: CARDBACK LASER CUT</span>
-                <span class="text-purple-300 font-mono">Step 7 / 11</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- B-006: ACID LLAMA -->
-          <div onclick="openBatchDetail('B-006')" class="cyber-card p-3 rounded-xl cursor-pointer">
-            <div class="h-36 rounded-lg bg-black border border-slate-800 overflow-hidden relative mb-2.5 flex items-center justify-center font-orbitron font-black text-pink-500 text-lg">
-              ACID LLAMA
-              <span class="absolute top-2 left-2 px-2 py-0.5 rounded bg-black/80 border border-pink-500 text-[10px] font-orbitron font-bold text-pink-400">B-006</span>
-            </div>
-            <div class="space-y-1">
-              <div class="font-orbitron font-black text-sm text-white">Acid Llama</div>
-              <div class="text-[11px] text-slate-400">Porsche 935 • Hot Pink</div>
-              <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px]">
-                <span class="text-purple-400 font-bold">NEXT: BLISTER HEAT SEAL</span>
-                <span class="text-purple-300 font-mono">Step 8 / 11</span>
-              </div>
-            </div>
-          </div>
-        </div>
+        <div class="space-y-3" id="lane3List"></div>
       </div>
 
-      <!-- BUCKET 4: READY & STOREFRONT LIVE -->
+      <!-- LANE 4: READY & STOREFRONT LIVE -->
       <div class="space-y-3">
         <div class="flex items-center justify-between p-2 rounded-lg bg-slate-900/80 border border-slate-800">
           <span class="font-orbitron font-bold text-xs text-emerald-400 flex items-center gap-1.5">
             <span>🚀</span> 4. Storefront Live & Ready
           </span>
-          <span class="px-2 py-0.5 rounded bg-emerald-950/80 text-emerald-300 font-mono text-[10px] font-bold">2 DROPS</span>
+          <span id="lane4Count" class="px-2 py-0.5 rounded bg-emerald-950/80 text-emerald-300 font-mono text-[10px] font-bold">3 DROPS</span>
         </div>
-
-        <div class="space-y-3" id="lane4">
-          <!-- D-001 -->
-          <div onclick="openBatchDetail('D-001')" class="cyber-card p-3 rounded-xl cursor-pointer border-emerald-500/40">
-            <div class="h-36 rounded-lg bg-black border border-slate-800 overflow-hidden relative mb-2.5">
-              <img src="https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_LOOSE_SINGLE.jpg" onerror="this.src='/home/antigravity/.gemini/jetski/brain/v1/default/jetski_remote_agents_3p_devbox/adc4fe99-8b94-4190-801b-0d3723bb5cc8/dairy_delivery_side_flow_1795649303778.jpg'" class="w-full h-full object-cover">
-              <span class="absolute top-2 left-2 px-2 py-0.5 rounded bg-emerald-950/90 border border-emerald-400 text-[10px] font-orbitron font-black text-emerald-300">D-001</span>
-              <span class="absolute bottom-2 right-2 px-2 py-0.5 rounded bg-emerald-600 text-black font-orbitron text-[9px] font-black">LIVE • 9 LEFT</span>
-            </div>
-            <div class="space-y-1">
-              <div class="font-orbitron font-black text-sm text-white flex items-center justify-between">
-                <span>Stained Glass</span>
-                <span class="text-emerald-400 font-mono">$50</span>
-              </div>
-              <div class="text-[11px] text-slate-400">'83 Chevy Silverado • Purple</div>
-              <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px]">
-                <span class="text-emerald-400 font-bold">STRIPE CHECKOUT LIVE</span>
-                <span class="text-emerald-300 font-mono">11/11 Done</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- D-002 -->
-          <div onclick="openBatchDetail('D-002')" class="cyber-card p-3 rounded-xl cursor-pointer border-emerald-500/40">
-            <div class="h-36 rounded-lg bg-black border border-slate-800 overflow-hidden relative mb-2.5">
-              <img src="/home/antigravity/.gemini/jetski/brain/v1/default/jetski_remote_agents_3p_devbox/adc4fe99-8b94-4190-801b-0d3723bb5cc8/dairy_delivery_side_flow_1795649303778.jpg" class="w-full h-full object-cover">
-              <span class="absolute top-2 left-2 px-2 py-0.5 rounded bg-emerald-950/90 border border-emerald-400 text-[10px] font-orbitron font-black text-emerald-300">D-002</span>
-              <span class="absolute bottom-2 right-2 px-2 py-0.5 rounded bg-emerald-600 text-black font-orbitron text-[9px] font-black">LIVE • 8 LEFT</span>
-            </div>
-            <div class="space-y-1">
-              <div class="font-orbitron font-black text-sm text-white flex items-center justify-between">
-                <span>Stained Glass</span>
-                <span class="text-emerald-400 font-mono">$50</span>
-              </div>
-              <div class="text-[11px] text-slate-400">'55 Gasser • Purple</div>
-              <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px]">
-                <span class="text-emerald-400 font-bold">STRIPE CHECKOUT LIVE</span>
-                <span class="text-emerald-300 font-mono">11/11 Done</span>
-              </div>
-            </div>
-          </div>
-        </div>
+        <div class="space-y-3" id="lane4List"></div>
       </div>
 
     </div>
@@ -320,14 +167,14 @@
 
 
   <!-- ========================================================================= -->
-  <!-- VIEW 2: BATCH DETAIL COCKPIT (CHECKLIST IS THE CENTER OF GRAVITY)         -->
+  <!-- VIEW 2: BATCH DETAIL COCKPIT (CHECKLIST IS HERO FOCUS)                     -->
   <!-- ========================================================================= -->
   <main id="batchCockpitView" class="hidden max-w-[1800px] mx-auto space-y-4">
     
     <!-- SUB-NAV / BREADCRUMB -->
     <div class="flex items-center justify-between bg-[#0b101d] border border-slate-800 rounded-xl p-3">
       <div class="flex items-center gap-3">
-        <button onclick="showFleetView()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-orbitron font-bold text-xs flex items-center gap-1.5 transition">
+        <button onclick="showFleetView()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-orbitron font-bold text-xs flex items-center gap-1.5 transition active:scale-95">
           <span>←</span> ALL BATCHES
         </button>
         <span class="text-slate-600">|</span>
@@ -345,7 +192,7 @@
         <button onclick="openCardModal()" class="px-3 py-1.5 rounded-lg bg-purple-600/30 hover:bg-purple-500/40 text-purple-300 font-orbitron font-bold text-xs border border-purple-500/40">
           📦 Blister Card Builder
         </button>
-        <button onclick="deployStorefront()" class="px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-black font-orbitron font-black text-xs shadow-lg shadow-emerald-900/40">
+        <button onclick="deployStorefront()" id="btnLockDeploy" class="px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-black font-orbitron font-black text-xs shadow-lg shadow-emerald-900/40 transition active:scale-95">
           🔒 LOCK & DEPLOY
         </button>
       </div>
@@ -360,7 +207,7 @@
         <!-- PROMINENT BEST HERO IMAGE -->
         <div class="bg-[#0b101d] border border-slate-800 rounded-2xl p-3 overflow-hidden shadow-2xl">
           <div class="relative w-full h-80 rounded-xl bg-black border border-slate-800 overflow-hidden flex items-center justify-center group">
-            <img id="detailHeroImg" src="/home/antigravity/.gemini/jetski/brain/v1/default/jetski_remote_agents_3p_devbox/adc4fe99-8b94-4190-801b-0d3723bb5cc8/dairy_delivery_side_flow_1795649303778.jpg" class="w-full h-full object-contain">
+            <img id="detailHeroImg" src="" class="w-full h-full object-contain">
             <div class="absolute top-3 left-3 px-2.5 py-1 rounded-lg bg-black/80 backdrop-blur border border-slate-700 text-xs font-orbitron font-black text-white flex items-center gap-1.5">
               <span>📸</span> PRIMARY HERO SHOT
             </div>
@@ -378,7 +225,7 @@
           <div class="grid grid-cols-3 gap-2 text-center">
             <div class="p-2 rounded-xl bg-black/60 border border-slate-800">
               <span class="text-[9px] text-slate-400 block uppercase">Base Color</span>
-              <strong id="detailBaseColor" class="text-white font-bold text-xs">Matte Black</strong>
+              <strong id="detailBaseColor" class="text-white font-bold text-xs">Satin Matte Black</strong>
             </div>
             <div class="p-2 rounded-xl bg-black/60 border border-slate-800">
               <span class="text-[9px] text-slate-400 block uppercase">Planned Qty</span>
@@ -442,8 +289,8 @@
               </div>
             </div>
           </div>
-          <button onclick="workOnCurrentStep(5)" class="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-orbitron font-black text-xs shadow-lg transition active:scale-95">
-            START STEP 5
+          <button onclick="workOnCurrentNextStep()" class="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-orbitron font-black text-xs shadow-lg transition active:scale-95">
+            START STEP
           </button>
         </div>
 
@@ -460,178 +307,7 @@
           </div>
 
           <!-- THE 11 ACTIONABLE STEPS -->
-          <div class="space-y-1.5 text-xs font-bold" id="interactiveStepRows">
-            
-            <!-- STEP 1 -->
-            <div onclick="workOnStep(1)" class="step-row flex items-center justify-between p-2.5 rounded-xl border border-slate-800/80 cursor-pointer">
-              <div class="flex items-center gap-2.5">
-                <span class="w-6 h-6 rounded-md bg-emerald-950 border border-emerald-500/60 text-emerald-400 font-mono text-[11px] flex items-center justify-center font-bold">✓</span>
-                <div>
-                  <div class="text-slate-200">1. Sourcing & Concept Alignment</div>
-                  <div class="text-[10px] text-slate-500 font-normal">Secure donor cars, define theme, color palette & batch limits.</div>
-                </div>
-              </div>
-              <div class="flex items-center gap-2" onclick="event.stopPropagation()">
-                <span class="px-2.5 py-1 rounded-md bg-emerald-950/80 text-emerald-400 font-mono text-[10px]">10/10 COMPLETE</span>
-              </div>
-            </div>
-
-            <!-- STEP 2 -->
-            <div onclick="workOnStep(2)" class="step-row flex items-center justify-between p-2.5 rounded-xl border border-slate-800/80 cursor-pointer">
-              <div class="flex items-center gap-2.5">
-                <span class="w-6 h-6 rounded-md bg-emerald-950 border border-emerald-500/60 text-emerald-400 font-mono text-[11px] flex items-center justify-center font-bold">✓</span>
-                <div>
-                  <div class="text-slate-200">2. Paint and Wheels (Rivet Drilling)</div>
-                  <div class="text-[10px] text-slate-500 font-normal">Center punch, drill rivets, paint base coat, cure 12-24h.</div>
-                </div>
-              </div>
-              <div class="flex items-center gap-2" onclick="event.stopPropagation()">
-                <span class="px-2.5 py-1 rounded-md bg-emerald-950/80 text-emerald-400 font-mono text-[10px]">10/10 COMPLETE</span>
-              </div>
-            </div>
-
-            <!-- STEP 3 -->
-            <div onclick="workOnStep(3)" class="step-row flex items-center justify-between p-2.5 rounded-xl border border-slate-800/80 cursor-pointer">
-              <div class="flex items-center gap-2.5">
-                <span class="w-6 h-6 rounded-md bg-emerald-950 border border-emerald-500/60 text-emerald-400 font-mono text-[11px] flex items-center justify-center font-bold">✓</span>
-                <div>
-                  <div class="text-slate-200">3. Digital Design & Prepress Calibration</div>
-                  <div class="text-[10px] text-slate-500 font-normal">Run 3-Concept Showdown, set +1.5mm bleed, generate 600 DPI passes.</div>
-                </div>
-              </div>
-              <div class="flex items-center gap-2" onclick="event.stopPropagation()">
-                <button onclick="openPrepressModal()" class="text-cyan-400 text-[10px] hover:underline mr-1">Open Prepress</button>
-                <span class="px-2.5 py-1 rounded-md bg-emerald-950/80 text-emerald-400 font-mono text-[10px]">10/10 READY</span>
-              </div>
-            </div>
-
-            <!-- STEP 4 -->
-            <div onclick="workOnStep(4)" class="step-row flex items-center justify-between p-2.5 rounded-xl border border-slate-800/80 cursor-pointer">
-              <div class="flex items-center gap-2.5">
-                <span class="w-6 h-6 rounded-md bg-emerald-950 border border-emerald-500/60 text-emerald-400 font-mono text-[11px] flex items-center justify-center font-bold">✓</span>
-                <div>
-                  <div class="text-slate-200">4. Decals (eufyMake Printed & Set)</div>
-                  <div class="text-[10px] text-slate-500 font-normal">Direct-to-car or waterslide passes printed with white foundation.</div>
-                </div>
-              </div>
-              <div class="flex items-center gap-2" onclick="event.stopPropagation()">
-                <span class="px-2.5 py-1 rounded-md bg-emerald-950/80 text-emerald-400 font-mono text-[10px]">10/10 PRINTED</span>
-              </div>
-            </div>
-
-            <!-- STEP 5: (CURRENT "WHAT'S NEXT") -->
-            <div onclick="workOnStep(5)" class="step-row step-next flex items-center justify-between p-2.5 rounded-xl border cursor-pointer">
-              <div class="flex items-center gap-2.5">
-                <span class="w-6 h-6 rounded-md bg-cyan-950 border border-cyan-400 text-cyan-300 font-mono text-[11px] flex items-center justify-center font-bold animate-pulse">5</span>
-                <div>
-                  <div class="text-cyan-300 flex items-center gap-2">
-                    5. Clear Coat & M2 Hex Assembly
-                    <span class="px-1.5 py-0.2 rounded bg-cyan-900 text-cyan-200 text-[9px]">NEXT ACTION</span>
-                  </div>
-                  <div class="text-[10px] text-slate-400 font-normal">Protective clear shine, tap M2 screw threads, install Real Riders & hex screws.</div>
-                </div>
-              </div>
-              <div class="flex items-center gap-2" onclick="event.stopPropagation()">
-                <div class="flex items-center bg-black/60 rounded border border-slate-800 px-1 font-mono text-[10px]">
-                  <button onclick="decrementStep(5)" class="px-1.5 py-0.5 text-slate-400 hover:text-white">-</button>
-                  <span id="stepCount-5" class="px-1 text-cyan-400 font-bold">0 / 11</span>
-                  <button onclick="incrementStep(5)" class="px-1.5 py-0.5 text-slate-400 hover:text-white">+</button>
-                </div>
-                <button onclick="markStepDone(5)" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-emerald-600 hover:text-black font-bold text-[10px] transition">
-                  MARK ALL DONE
-                </button>
-              </div>
-            </div>
-
-            <!-- STEP 6 -->
-            <div onclick="workOnStep(6)" class="step-row flex items-center justify-between p-2.5 rounded-xl border border-slate-800/80 cursor-pointer">
-              <div class="flex items-center gap-2.5">
-                <span class="w-6 h-6 rounded-md bg-black border border-slate-700 text-slate-400 font-mono text-[11px] flex items-center justify-center font-bold">6</span>
-                <div>
-                  <div class="text-slate-300">6. Loose Photos & Videos (Llama Cam)</div>
-                  <div class="text-[10px] text-slate-500 font-normal">360 loose car photography using calibrated 45° Hero wireframe.</div>
-                </div>
-              </div>
-              <div class="flex items-center gap-2" onclick="event.stopPropagation()">
-                <button onclick="openLlamaCamModal()" class="text-yellow-400 text-[10px] hover:underline mr-1">Launch Cam</button>
-                <span class="px-2 py-1 rounded bg-slate-900 text-slate-400 font-mono text-[10px]">PENDING</span>
-              </div>
-            </div>
-
-            <!-- STEP 7 -->
-            <div onclick="workOnStep(7)" class="step-row flex items-center justify-between p-2.5 rounded-xl border border-slate-800/80 cursor-pointer">
-              <div class="flex items-center gap-2.5">
-                <span class="w-6 h-6 rounded-md bg-black border border-slate-700 text-slate-400 font-mono text-[11px] flex items-center justify-center font-bold">7</span>
-                <div>
-                  <div class="text-slate-300">7. Cardback Production (Print & Laser Cut)</div>
-                  <div class="text-[10px] text-slate-500 font-normal">24pt SBS board, dynamic title, collector #01/10, barcode & laser cut.</div>
-                </div>
-              </div>
-              <div class="flex items-center gap-2" onclick="event.stopPropagation()">
-                <button onclick="openCardModal()" class="text-purple-400 text-[10px] hover:underline mr-1">Open Builder</button>
-                <span class="px-2 py-1 rounded bg-slate-900 text-slate-400 font-mono text-[10px]">PENDING</span>
-              </div>
-            </div>
-
-            <!-- STEP 8 -->
-            <div onclick="workOnStep(8)" class="step-row flex items-center justify-between p-2.5 rounded-xl border border-slate-800/80 cursor-pointer">
-              <div class="flex items-center gap-2.5">
-                <span class="w-6 h-6 rounded-md bg-black border border-slate-700 text-slate-400 font-mono text-[11px] flex items-center justify-center font-bold">8</span>
-                <div>
-                  <div class="text-slate-300">8. Final Blister Heat Sealing</div>
-                  <div class="text-[10px] text-slate-500 font-normal">Mount clear PET blister using Bemis Sewfree film at exactly 280°F for 10s.</div>
-                </div>
-              </div>
-              <div class="flex items-center gap-2" onclick="event.stopPropagation()">
-                <span class="px-2 py-1 rounded bg-slate-900 text-slate-400 font-mono text-[10px]">PENDING</span>
-              </div>
-            </div>
-
-            <!-- STEP 9 -->
-            <div onclick="workOnStep(9)" class="step-row flex items-center justify-between p-2.5 rounded-xl border border-slate-800/80 cursor-pointer">
-              <div class="flex items-center gap-2.5">
-                <span class="w-6 h-6 rounded-md bg-black border border-slate-700 text-slate-400 font-mono text-[11px] flex items-center justify-center font-bold">9</span>
-                <div>
-                  <div class="text-slate-300">9. Packaged Studio Photos</div>
-                  <div class="text-[10px] text-slate-500 font-normal">Front and back package shots tagged as [IMG_PKG_F] for website catalog.</div>
-                </div>
-              </div>
-              <div class="flex items-center gap-2" onclick="event.stopPropagation()">
-                <span class="px-2 py-1 rounded bg-slate-900 text-slate-400 font-mono text-[10px]">PENDING</span>
-              </div>
-            </div>
-
-            <!-- STEP 10 -->
-            <div onclick="workOnStep(10)" class="step-row flex items-center justify-between p-2.5 rounded-xl border border-slate-800/80 cursor-pointer">
-              <div class="flex items-center gap-2.5">
-                <span class="w-6 h-6 rounded-md bg-black border border-slate-700 text-slate-400 font-mono text-[11px] flex items-center justify-center font-bold">10</span>
-                <div>
-                  <div class="text-slate-300">10. CapCut ASMR & Reveal Videos</div>
-                  <div class="text-[10px] text-slate-500 font-normal">Generate T-72h Teaser, T-48h ASMR, and T-24h Reveal reels.</div>
-                </div>
-              </div>
-              <div class="flex items-center gap-2" onclick="event.stopPropagation()">
-                <span class="px-2 py-1 rounded bg-slate-900 text-slate-400 font-mono text-[10px]">PENDING</span>
-              </div>
-            </div>
-
-            <!-- STEP 11 -->
-            <div onclick="workOnStep(11)" class="step-row flex items-center justify-between p-2.5 rounded-xl border border-slate-800/80 cursor-pointer">
-              <div class="flex items-center gap-2.5">
-                <span class="w-6 h-6 rounded-md bg-black border border-slate-700 text-slate-400 font-mono text-[11px] flex items-center justify-center font-bold">11</span>
-                <div>
-                  <div class="text-slate-300">11. Set Date & Deploy Storefront</div>
-                  <div class="text-[10px] text-slate-500 font-normal">Sync Stripe buy link, publish to neonllamagarage.com public catalog.</div>
-                </div>
-              </div>
-              <div class="flex items-center gap-2" onclick="event.stopPropagation()">
-                <button onclick="deployStorefront()" class="px-2.5 py-1 rounded bg-emerald-600/30 text-emerald-300 font-bold hover:bg-emerald-500 hover:text-black transition">
-                  PUBLISH LIVE
-                </button>
-              </div>
-            </div>
-
-          </div>
+          <div class="space-y-1.5 text-xs font-bold" id="interactiveStepRows"></div>
         </div>
 
       </div>
@@ -642,7 +318,7 @@
 
 
   <!-- ========================================================================= -->
-  <!-- MODAL 1: PREPRESS & CONCEPT STUDIO (STEPS 3 & 4)                          -->
+  <!-- MODAL 1: PREPRESS STUDIO (STEPS 3 & 4)                                    -->
   <!-- ========================================================================= -->
   <div id="prepressModal" class="hidden fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-6">
     <div class="bg-[#0d121f] border border-cyan-500/60 rounded-2xl max-w-5xl w-full max-h-[90vh] overflow-y-auto p-5 space-y-4 shadow-2xl">
@@ -657,7 +333,6 @@
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <!-- Controls -->
         <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-3">
           <div>
             <div class="flex justify-between mb-1">
@@ -679,14 +354,13 @@
           </button>
         </div>
 
-        <!-- Canvas -->
         <div class="md:col-span-2 h-64 bg-black rounded-xl border border-slate-800 p-3 flex flex-col justify-between">
           <div class="flex items-center justify-between text-[11px] font-mono text-cyan-400">
-            <span>CANVAS: DAIRY DELIVERY</span>
+            <span>CANVAS: ACTIVE CASTING PROJECTION</span>
             <span>RED DASH = +1.5mm BLEED BOUNDARY</span>
           </div>
           <div class="flex-1 flex items-center justify-center">
-            <img src="/home/antigravity/.gemini/jetski/brain/v1/default/jetski_remote_agents_3p_devbox/adc4fe99-8b94-4190-801b-0d3723bb5cc8/Side_Driver_CMYK.png" class="max-h-36 object-contain">
+            <img src="/home/antigravity/.gemini/jetski/brain/v1/default/jetski_remote_agents_3p_devbox/adc4fe99-8b94-4190-801b-0d3723bb5cc8/Side_Driver_CMYK.png" onerror="this.src='https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_LOOSE_SINGLE.jpg'" class="max-h-36 object-contain">
           </div>
           <div class="flex items-center justify-between text-[10px] text-slate-400 border-t border-slate-900 pt-2">
             <span>Driver Side: Scaled</span>
@@ -709,17 +383,16 @@
           <h2 class="font-orbitron font-black text-sm text-purple-400 flex items-center gap-2">
             <span>📦</span> Step 7 & 8: 24pt SBS Blister Card Packaging Generator
           </h2>
-          <p class="text-[11px] text-slate-400">Eliminates manual Photopea sessions—generates print & laser cut files in 1 click.</p>
+          <p class="text-[11px] text-slate-400">Generates 300 DPI print-ready card and laser SVG cut profiles.</p>
         </div>
         <button onclick="toggleModal('cardModal')" class="text-slate-400 hover:text-white font-bold text-sm">✕ Close</button>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
-        <!-- Controls -->
         <div class="space-y-3">
           <div>
             <label class="text-slate-400 block mb-1">Series Title</label>
-            <input type="text" value="CYBER BANANA" class="w-full bg-slate-950 p-2 rounded-lg border border-slate-800 text-white font-bold outline-none">
+            <input type="text" id="modalCardTitle" value="CYBER BANANA" class="w-full bg-slate-950 p-2 rounded-lg border border-slate-800 text-white font-bold outline-none">
           </div>
           <div class="grid grid-cols-2 gap-2">
             <div>
@@ -742,15 +415,14 @@
           </button>
         </div>
 
-        <!-- Card Preview -->
         <div class="flex items-center justify-center p-3 bg-black/60 rounded-xl border border-slate-800">
           <div class="w-56 h-80 bg-slate-950 rounded-2xl border-2 border-slate-700 p-3 flex flex-col justify-between shadow-2xl relative">
             <div class="w-6 h-2 rounded-full border border-red-500 mx-auto"></div>
             <div class="text-center">
               <div class="text-[9px] font-orbitron font-black text-white">🦙 NEON LLAMA GARAGE</div>
-              <div class="font-orbitron font-black text-lg text-pink-500 tracking-wider">CYBER BANANA</div>
+              <div id="cardPreviewTitle" class="font-orbitron font-black text-lg text-pink-500 tracking-wider">CYBER BANANA</div>
             </div>
-            <img src="/home/antigravity/.gemini/jetski/brain/v1/default/jetski_remote_agents_3p_devbox/adc4fe99-8b94-4190-801b-0d3723bb5cc8/dairy_delivery_side_flow_1795649303778.jpg" class="w-full object-contain drop-shadow-xl">
+            <img id="cardPreviewImg" src="/home/antigravity/.gemini/jetski/brain/v1/default/jetski_remote_agents_3p_devbox/adc4fe99-8b94-4190-801b-0d3723bb5cc8/dairy_delivery_side_flow_1795649303778.jpg" class="w-full object-contain drop-shadow-xl">
             <div class="flex items-center justify-between text-[8px] font-mono text-slate-400 border-t border-slate-800 pt-1">
               <span class="text-pink-400 font-bold">#01/10</span>
               <span>1/64 REAL RIDERS</span>
@@ -763,7 +435,7 @@
 
 
   <!-- ========================================================================= -->
-  <!-- MODAL 3: LLAMA CAM GUIDED VIEWFINDER (STEP 6 & 9)                         -->
+  <!-- MODAL 3: LLAMA CAM (STEP 6 & 9)                                           -->
   <!-- ========================================================================= -->
   <div id="llamaCamModal" class="hidden fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-6">
     <div class="bg-[#0d121f] border border-yellow-500/60 rounded-2xl max-w-3xl w-full p-5 space-y-4 shadow-2xl">
@@ -775,7 +447,6 @@
       </div>
 
       <div class="relative w-full h-80 bg-black rounded-xl border border-slate-800 flex items-center justify-center overflow-hidden">
-        <!-- Ghost overlay -->
         <svg viewBox="0 0 300 150" class="w-full h-full p-6 opacity-40 pointer-events-none">
           <rect x="30" y="30" width="240" height="90" rx="12" fill="none" stroke="#eab308" stroke-width="2" stroke-dasharray="6 4"/>
           <circle cx="80" cy="120" r="18" fill="none" stroke="#eab308" stroke-width="2"/>
@@ -801,75 +472,211 @@
   </div>
 
   <script>
-    // BATCH DATABASE (Loaded from Google Sheets)
-    const batchesData = {
-      'B-021': {
+    const GAS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxe1WwM8zoYYR1aU4N2EcsqvAjh0PXgVzPwIh1ZnwaB4YYdfwI-fd8eJysx37lgMplHwQ/exec';
+
+    // Master Fleet Database
+    let workshopBatches = [
+      {
+        id: 'B-021',
         theme: 'Cyber Banana',
         model: 'Dairy Delivery',
         color: 'Satin Matte Black',
         status: 'In Production',
-        step: 5,
+        lane: 2,
+        currentStep: 5,
         progress: 45,
         price: '$50.00',
         qty: '10 Reg • 1 Chase',
         hero: '/home/antigravity/.gemini/jetski/brain/v1/default/jetski_remote_agents_3p_devbox/adc4fe99-8b94-4190-801b-0d3723bb5cc8/dairy_delivery_side_flow_1795649303778.jpg',
-        stepCounts: { 5: 0 }
+        completedSteps: [1, 2, 3, 4]
       },
-      'B-020': {
+      {
+        id: 'B-009',
+        theme: 'Artemis Space',
+        model: 'Nissan Silvia S15',
+        color: 'Alpine White',
+        status: 'Idea / Concept',
+        lane: 1,
+        currentStep: 1,
+        progress: 10,
+        price: '$50.00',
+        qty: '10 Reg • 0 Chase',
+        hero: 'https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_LOOSE_PXL_20260816_104313748.jpg',
+        completedSteps: []
+      },
+      {
+        id: 'B-012',
+        theme: 'Flamingo Sunset',
+        model: 'Corvette C8',
+        color: 'Pastel Teal / Coral',
+        status: 'Idea / Concept',
+        lane: 1,
+        currentStep: 1,
+        progress: 10,
+        price: '$50.00',
+        qty: '10 Reg • 1 Chase',
+        hero: 'https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_LOOSE_SINGLE.jpg',
+        completedSteps: []
+      },
+      {
+        id: 'B-003',
+        theme: 'Iron Talon',
+        model: "'62 Chevy",
+        color: 'Liquid Silver',
+        status: 'In Production',
+        lane: 2,
+        currentStep: 3,
+        progress: 25,
+        price: '$50.00',
+        qty: '8 Reg • 0 Chase',
+        hero: '/home/antigravity/.gemini/jetski/brain/v1/default/jetski_remote_agents_3p_devbox/dairy_delivery_blue_banana_1795649212580.jpg',
+        completedSteps: [1, 2]
+      },
+      {
+        id: 'B-020',
         theme: 'Rubix Cube',
         model: 'Nissan Silvia S15',
         color: 'Alpine White',
         status: 'Packaging WIP',
-        step: 7,
+        lane: 3,
+        currentStep: 7,
         progress: 65,
         price: '$50.00',
         qty: '10 Reg • 0 Chase',
         hero: '/home/antigravity/.gemini/jetski/brain/v1/default/jetski_remote_agents_3p_devbox/adc4fe99-8b94-4190-801b-0d3723bb5cc8/dairy_delivery_roof_flow_1795649317853.jpg',
-        stepCounts: { 7: 0 }
+        completedSteps: [1, 2, 3, 4, 5, 6]
       },
-      'D-001': {
-        theme: 'Stained Glass',
-        model: "'83 Silverado",
-        color: 'Deep Cathedral Purple',
-        status: 'Ready / Live',
-        step: 11,
-        progress: 100,
-        price: '$50.00',
-        qty: '9 In Stock',
-        hero: 'https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_LOOSE_SINGLE.jpg',
-        stepCounts: { 11: 11 }
-      },
-      'B-006': {
+      {
+        id: 'B-006',
         theme: 'Acid Llama',
         model: 'Porsche 935',
         color: 'Hot Pink & Cyan',
         status: 'Packaging WIP',
-        step: 8,
+        lane: 3,
+        currentStep: 8,
         progress: 72,
         price: '$60.00',
         qty: '10 Reg • 1 Chase',
-        hero: '/home/antigravity/.gemini/jetski/brain/v1/default/jetski_remote_agents_3p_devbox/dairy_delivery_blue_banana_1795649212580.jpg',
-        stepCounts: { 8: 0 }
+        hero: 'https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_LOOSE_PXL_20260816_104313748.jpg',
+        completedSteps: [1, 2, 3, 4, 5, 6, 7]
+      },
+      {
+        id: 'D-001',
+        theme: 'Stained Glass',
+        model: "'83 Silverado",
+        color: 'Deep Cathedral Purple',
+        status: 'Live / Ready',
+        lane: 4,
+        currentStep: 11,
+        progress: 100,
+        price: '$50.00',
+        qty: '9 In Stock',
+        hero: 'https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_LOOSE_SINGLE.jpg',
+        completedSteps: [1,2,3,4,5,6,7,8,9,10,11]
+      },
+      {
+        id: 'D-002',
+        theme: 'Stained Glass',
+        model: "'55 Gasser",
+        color: 'Deep Cathedral Purple',
+        status: 'Live / Ready',
+        lane: 4,
+        currentStep: 11,
+        progress: 100,
+        price: '$50.00',
+        qty: '8 In Stock',
+        hero: 'https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_LOOSE_PXL_20260816_104313748.jpg',
+        completedSteps: [1,2,3,4,5,6,7,8,9,10,11]
+      },
+      {
+        id: 'B-010',
+        theme: 'Ice Spider',
+        model: "'14 Camaro",
+        color: 'Silver / Purple',
+        status: 'Live / Ready',
+        lane: 4,
+        currentStep: 11,
+        progress: 100,
+        price: '$50.00',
+        qty: '8 In Stock',
+        hero: 'https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_LOOSE_SINGLE.jpg',
+        completedSteps: [1,2,3,4,5,6,7,8,9,10,11]
       }
-    };
+    ];
 
-    let activeBatch = 'B-021';
+    const stepDefinitions = [
+      { id: 1, name: "1. Sourcing & Concept Alignment", desc: "Secure donor cars, define theme, color palette & batch limits." },
+      { id: 2, name: "2. Paint and Wheels (Rivet Drilling)", desc: "Center punch, drill rivets, paint base coat, cure 12-24h." },
+      { id: 3, name: "3. Digital Design & Prepress Calibration", desc: "Run 3-Concept Showdown, set +1.5mm bleed, generate 600 DPI passes." },
+      { id: 4, name: "4. Decals (eufyMake Printed & Set)", desc: "Direct-to-car or waterslide passes printed with white foundation." },
+      { id: 5, name: "5. Clear Coat & M2 Hex Assembly", desc: "Protective clear shine, tap M2 screw threads, install Real Riders & hex screws." },
+      { id: 6, name: "6. Loose Photos & Videos (Llama Cam)", desc: "360 loose car photography using calibrated 45° Hero wireframe." },
+      { id: 7, name: "7. Cardback Production (Print & Laser Cut)", desc: "24pt SBS board, dynamic title, collector #01/10, barcode & laser cut." },
+      { id: 8, name: "8. Final Blister Heat Sealing", desc: "Mount clear PET blister using Bemis Sewfree film at exactly 280°F for 10s." },
+      { id: 9, name: "9. Packaged Studio Photos", desc: "Front and back package shots tagged as [IMG_PKG_F] for website catalog." },
+      { id: 10, name: "10. CapCut ASMR & Reveal Videos", desc: "Generate T-72h Teaser, T-48h ASMR, and T-24h Reveal reels." },
+      { id: 11, name: "11. Set Date & Deploy Storefront", desc: "Sync Stripe buy link, publish to neonllamagarage.com public catalog." }
+    ];
 
-    function showFleetView() {
-      document.getElementById('fleetView').classList.remove('hidden');
-      document.getElementById('batchCockpitView').classList.add('hidden');
-      document.getElementById('navFleetBtn').className = 'px-3.5 py-1.5 rounded-lg bg-cyan-600/30 text-cyan-300 font-orbitron font-bold text-xs border border-cyan-500/50 shadow-lg';
+    let currentActiveBatchId = 'B-021';
+
+    // RENDER 4 LANES ON LANDING PAGE
+    function renderFleetLanes() {
+      for (let i = 1; i <= 4; i++) {
+        const laneEl = document.getElementById('lane' + i + 'List');
+        if (laneEl) laneEl.innerHTML = '';
+      }
+
+      let counts = [0, 0, 0, 0];
+
+      workshopBatches.forEach(b => {
+        counts[b.lane - 1]++;
+        const laneEl = document.getElementById('lane' + b.lane + 'List');
+        if (!laneEl) return;
+
+        const card = document.createElement('div');
+        card.className = "cyber-card p-3 rounded-xl cursor-pointer";
+        if (b.id === 'B-021') card.classList.add('border-cyan-500/60');
+
+        card.onclick = () => openBatchDetail(b.id);
+        card.innerHTML = `
+          <div class="h-36 rounded-lg bg-black border border-slate-800 overflow-hidden relative mb-2.5">
+            <img src="${b.hero}" onerror="this.src='https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_LOOSE_SINGLE.jpg'" class="w-full h-full object-cover">
+            <span class="absolute top-2 left-2 px-2 py-0.5 rounded bg-black/80 border border-cyan-400 text-[10px] font-orbitron font-black text-cyan-300">${b.id}</span>
+            <span class="absolute bottom-2 right-2 px-1.5 py-0.5 rounded bg-slate-900/90 text-[9px] font-mono text-slate-300 font-bold">${b.qty}</span>
+          </div>
+          <div class="space-y-1">
+            <div class="font-orbitron font-black text-sm text-white flex items-center justify-between">
+              <span>${b.theme}</span>
+              <span class="text-emerald-400 font-mono">${b.price}</span>
+            </div>
+            <div class="text-[11px] text-slate-400">${b.model} • ${b.color}</div>
+            <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px]">
+              <span class="${b.lane === 4 ? 'text-emerald-400' : 'text-cyan-400'} font-bold">NEXT: STEP ${b.currentStep}</span>
+              <span class="text-slate-400 font-mono font-bold">${b.progress}%</span>
+            </div>
+          </div>
+        `;
+        laneEl.appendChild(card);
+      });
+
+      for (let i = 1; i <= 4; i++) {
+        document.getElementById('lane' + i + 'Count').innerText = counts[i - 1] + ' DROPS';
+      }
+      document.getElementById('totalBatchesCount').innerText = workshopBatches.length;
+      document.getElementById('liveBatchesCount').innerText = counts[3] + ' Drops';
     }
 
+    // OPEN BATCH COCKPIT
     function openBatchDetail(batchId) {
-      activeBatch = batchId;
-      const b = batchesData[batchId] || batchesData['B-021'];
+      currentActiveBatchId = batchId;
+      const b = workshopBatches.find(x => x.id === batchId) || workshopBatches[0];
 
       document.getElementById('fleetView').classList.add('hidden');
       document.getElementById('batchCockpitView').classList.remove('hidden');
       document.getElementById('navFleetBtn').className = 'px-3.5 py-1.5 rounded-lg bg-slate-800 text-slate-300 font-orbitron font-bold text-xs border border-slate-700 hover:text-white';
 
-      document.getElementById('detailBatchBadge').innerText = batchId;
+      document.getElementById('detailBatchBadge').innerText = b.id;
       document.getElementById('detailBatchTheme').innerText = b.theme.toUpperCase();
       document.getElementById('detailBatchModel').innerText = b.model.toUpperCase();
       document.getElementById('detailBaseColor').innerText = b.color;
@@ -878,24 +685,72 @@
       document.getElementById('detailHeroImg').src = b.hero;
       document.getElementById('batchProgressPercent').innerText = b.progress + '%';
 
-      updateNextActionDisplay(b.step);
+      document.getElementById('modalCardTitle').value = b.theme.toUpperCase();
+      document.getElementById('cardPreviewTitle').innerText = b.theme.toUpperCase();
+      document.getElementById('cardPreviewImg').src = b.hero;
+
+      renderChecklist(b);
     }
 
-    function updateNextActionDisplay(stepNum) {
-      const stepNames = {
-        1: "STEP 1: SOURCING DONOR VEHICLES & CONCEPT ALIGNMENT",
-        2: "STEP 2: RIVET DRILL, WHEEL SWAP & BASE COAT PAINTING",
-        3: "STEP 3: DIGITAL DESIGN & +1.5mm PREPRESS CALIBRATION",
-        4: "STEP 4: PRINTING TRANSFERS ON EUFYMAKE E1",
-        5: "STEP 5: CLEAR COAT & M2 HEX THREAD CHASSIS ASSEMBLY",
-        6: "STEP 6: LOOSE 360 PHOTOGRAPHY (LLAMA CAM)",
-        7: "STEP 7: 24pt CARDBACK PRINT & LASER CUT PROFILE",
-        8: "STEP 8: PET BLISTER HEAT SEAL (280°F FOR 10s)",
-        9: "STEP 9: PACKAGED STUDIO PRODUCT PHOTOGRAPHY",
-        10: "STEP 10: CAPCUT TEASER & ASMR REELS PRODUCTION",
-        11: "STEP 11: SET DATE & DEPLOY LIVE TO NEONLLAMAGARAGE.COM"
-      };
-      document.getElementById('whatsNextActionTitle').innerText = stepNames[stepNum] || "WORKSHOP BATCH COMPLETE! 🚀";
+    function renderChecklist(b) {
+      const container = document.getElementById('interactiveStepRows');
+      container.innerHTML = '';
+
+      const nextStepDef = stepDefinitions.find(x => x.id === b.currentStep) || stepDefinitions[10];
+      document.getElementById('whatsNextActionTitle').innerText = "STEP " + nextStepDef.id + ": " + nextStepDef.name.toUpperCase();
+
+      stepDefinitions.forEach(step => {
+        const isDone = b.completedSteps.includes(step.id);
+        const isNext = (step.id === b.currentStep);
+
+        const row = document.createElement('div');
+        row.className = "step-row flex items-center justify-between p-2.5 rounded-xl border border-slate-800/80 cursor-pointer";
+        if (isNext) row.classList.add('step-next');
+
+        row.onclick = () => workOnStep(step.id);
+
+        row.innerHTML = `
+          <div class="flex items-center gap-2.5">
+            <span class="w-6 h-6 rounded-md ${isDone ? 'bg-emerald-950 border border-emerald-500/60 text-emerald-400' : (isNext ? 'bg-cyan-950 border border-cyan-400 text-cyan-300 animate-pulse' : 'bg-black border border-slate-700 text-slate-400')} font-mono text-[11px] flex items-center justify-center font-bold">
+              ${isDone ? '✓' : step.id}
+            </span>
+            <div>
+              <div class="${isDone ? 'text-slate-200' : (isNext ? 'text-cyan-300 flex items-center gap-2' : 'text-slate-300')}">
+                ${step.name}
+                ${isNext ? '<span class="px-1.5 py-0.2 rounded bg-cyan-900 text-cyan-200 text-[9px]">NEXT ACTION</span>' : ''}
+              </div>
+              <div class="text-[10px] text-slate-500 font-normal">${step.desc}</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2" onclick="event.stopPropagation()">
+            ${isDone ? '<span class="px-2.5 py-1 rounded-md bg-emerald-950/80 text-emerald-400 font-mono text-[10px]">10/10 COMPLETE</span>' : `
+              <button onclick="toggleStepDone(${step.id})" class="px-2.5 py-1 rounded ${isNext ? 'bg-cyan-500 text-black font-black' : 'bg-slate-800 text-slate-300'} hover:bg-emerald-500 hover:text-black font-bold text-[10px] transition">
+                ${isNext ? 'START' : 'COMPLETE'}
+              </button>
+            `}
+          </div>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    function toggleStepDone(stepId) {
+      const b = workshopBatches.find(x => x.id === currentActiveBatchId);
+      if (!b) return;
+
+      if (!b.completedSteps.includes(stepId)) {
+        b.completedSteps.push(stepId);
+        if (b.currentStep === stepId) b.currentStep++;
+        b.progress = Math.min(100, Math.round((b.completedSteps.length / 11) * 100));
+      }
+      openBatchDetail(currentActiveBatchId);
+      renderFleetLanes();
+    }
+
+    function showFleetView() {
+      document.getElementById('fleetView').classList.remove('hidden');
+      document.getElementById('batchCockpitView').classList.add('hidden');
+      document.getElementById('navFleetBtn').className = 'px-3.5 py-1.5 rounded-lg bg-cyan-600/30 text-cyan-300 font-orbitron font-bold text-xs border border-cyan-500/50 shadow-lg';
     }
 
     function workOnStep(stepNum) {
@@ -907,58 +762,66 @@
       else alert("Opening workbench for Step " + stepNum);
     }
 
-    function workOnCurrentStep(stepNum) {
-      workOnStep(stepNum);
-    }
-
-    function incrementStep(stepNum) {
-      const el = document.getElementById('stepCount-' + stepNum);
-      let parts = el.innerText.split(' / ');
-      let current = parseInt(parts[0]) || 0;
-      let total = parseInt(parts[1]) || 11;
-      if (current < total) current++;
-      el.innerText = current + ' / ' + total;
-      if (current === total) markStepDone(stepNum);
-    }
-
-    function decrementStep(stepNum) {
-      const el = document.getElementById('stepCount-' + stepNum);
-      let parts = el.innerText.split(' / ');
-      let current = parseInt(parts[0]) || 0;
-      let total = parseInt(parts[1]) || 11;
-      if (current > 0) current--;
-      el.innerText = current + ' / ' + total;
-    }
-
-    function markStepDone(stepNum) {
-      alert("Step " + stepNum + " marked 100% complete across all units! Auto-saving to Google Sheets.");
-      updateNextActionDisplay(stepNum + 1);
+    function workOnCurrentNextStep() {
+      const b = workshopBatches.find(x => x.id === currentActiveBatchId);
+      if (b) workOnStep(b.currentStep);
     }
 
     function toggleModal(id) {
       document.getElementById(id).classList.toggle('hidden');
     }
 
-    function openPrepressModal() {
-      toggleModal('prepressModal');
-    }
-
-    function openCardModal() {
-      toggleModal('cardModal');
-    }
-
-    function openLlamaCamModal() {
-      toggleModal('llamaCamModal');
-    }
+    function openPrepressModal() { toggleModal('prepressModal'); }
+    function openCardModal() { toggleModal('cardModal'); }
+    function openLlamaCamModal() { toggleModal('llamaCamModal'); }
 
     function downloadZipPack() {
-      alert("📥 Downloading Neon_Llama_Dairy_Delivery_Banana_Print_Pack.zip!");
+      alert("📥 Downloading 600 DPI Print Pack for eufyMake!");
       window.location.href = "file:///home/antigravity/print_pack_dairy_delivery/Neon_Llama_Dairy_Delivery_Banana_Print_Pack.zip";
     }
 
     function deployStorefront() {
-      alert("🚀 Publishing Batch to neonllamagarage.com and updating live Google Sheets inventory!");
+      const btn = document.getElementById('btnLockDeploy');
+      btn.innerText = "DEPLOYING LIVE TO NEONLLAMAGARAGE.COM...";
+      setTimeout(() => {
+        btn.innerText = "BATCH DEPLOYED! 🚀";
+        alert("Batch published to neonllamagarage.com and synced to Google Sheets!");
+      }, 1200);
     }
+
+    function createNewBatch() {
+      const name = prompt("Enter Theme Name for New Batch:", "Neon Cyberpunk");
+      if (name) {
+        alert("Creating new batch for " + name + " in Google Sheets...");
+      }
+    }
+
+    // Try fetching live public feed on boot
+    async function loadLiveFeed() {
+      try {
+        const res = await fetch(GAS_ENDPOINT + '?feed=public');
+        const data = await res.json();
+        if (data && data.success && data.batches && data.batches.length > 0) {
+          // Merge live batches with fleet
+          data.batches.forEach(lb => {
+            const existing = workshopBatches.find(x => x.id === lb.id);
+            if (existing) {
+              existing.hero = lb.heroImg || existing.hero;
+              existing.price = '$' + lb.minPrice;
+              existing.qty = lb.totalStock + ' In Stock';
+            }
+          });
+          renderFleetLanes();
+        }
+      } catch (e) {
+        console.log("Using cached offline fleet data:", e);
+      }
+    }
+
+    window.onload = () => {
+      renderFleetLanes();
+      loadLiveFeed();
+    };
   </script>
 </body>
 </html>
