@@ -102,7 +102,7 @@
       </div>
 
       <div class="space-y-3">
-        <p class="text-xs text-slate-400">Enter 4-digit Workshop Passcode to unlock production pipeline.</p>
+        <p class="text-xs text-slate-400">Enter Workshop Passcode to unlock production pipeline.</p>
         
         <!-- PIN Dots Display -->
         <div class="flex justify-center gap-3 py-2">
@@ -113,29 +113,29 @@
         </div>
 
         <div id="pinFeedbackMsg" class="h-4 text-[11px] font-mono-tech text-cyan-400 font-bold">
-          WAITING FOR INPUT...
+          WAITING FOR PASSCODE...
         </div>
       </div>
 
       <!-- Numeric Keypad -->
       <div class="grid grid-cols-3 gap-2.5 max-w-[280px] mx-auto">
-        <button onclick="pressPinKey('1')" class="h-12 rounded-xl bg-slate-900 hover:bg-cyan-950/50 text-white font-orbitron font-black text-base border border-slate-800 hover:border-cyan-500/50 transition active:scale-95">1</button>
-        <button onclick="pressPinKey('2')" class="h-12 rounded-xl bg-slate-900 hover:bg-cyan-950/50 text-white font-orbitron font-black text-base border border-slate-800 hover:border-cyan-500/50 transition active:scale-95">2</button>
-        <button onclick="pressPinKey('3')" class="h-12 rounded-xl bg-slate-900 hover:bg-cyan-950/50 text-white font-orbitron font-black text-base border border-slate-800 hover:border-cyan-500/50 transition active:scale-95">3</button>
-        <button onclick="pressPinKey('4')" class="h-12 rounded-xl bg-slate-900 hover:bg-cyan-950/50 text-white font-orbitron font-black text-base border border-slate-800 hover:border-cyan-500/50 transition active:scale-95">4</button>
-        <button onclick="pressPinKey('5')" class="h-12 rounded-xl bg-slate-900 hover:bg-cyan-950/50 text-white font-orbitron font-black text-base border border-slate-800 hover:border-cyan-500/50 transition active:scale-95">5</button>
-        <button onclick="pressPinKey('6')" class="h-12 rounded-xl bg-slate-900 hover:bg-cyan-950/50 text-white font-orbitron font-black text-base border border-slate-800 hover:border-cyan-500/50 transition active:scale-95">6</button>
-        <button onclick="pressPinKey('7')" class="h-12 rounded-xl bg-slate-900 hover:bg-cyan-950/50 text-white font-orbitron font-black text-base border border-slate-800 hover:border-cyan-500/50 transition active:scale-95">7</button>
-        <button onclick="pressPinKey('8')" class="h-12 rounded-xl bg-slate-900 hover:bg-cyan-950/50 text-white font-orbitron font-black text-base border border-slate-800 hover:border-cyan-500/50 transition active:scale-95">8</button>
-        <button onclick="pressPinKey('9')" class="h-12 rounded-xl bg-slate-900 hover:bg-cyan-950/50 text-white font-orbitron font-black text-base border border-slate-800 hover:border-cyan-500/50 transition active:scale-95">9</button>
-        <button onclick="clearPin()" class="h-12 rounded-xl bg-red-950/40 hover:bg-red-900/60 text-red-400 font-orbitron font-bold text-xs border border-red-900/40 transition active:scale-95">CLR</button>
-        <button onclick="pressPinKey('0')" class="h-12 rounded-xl bg-slate-900 hover:bg-cyan-950/50 text-white font-orbitron font-black text-base border border-slate-800 hover:border-cyan-500/50 transition active:scale-95">0</button>
-        <button onclick="submitPin()" class="h-12 rounded-xl bg-cyan-600/30 hover:bg-cyan-500/40 text-cyan-300 font-orbitron font-bold text-xs border border-cyan-500/50 transition active:scale-95">⏎</button>
+        <button type="button" onclick="pressPinKey('1')" class="h-12 rounded-xl bg-slate-900 hover:bg-cyan-950/50 text-white font-orbitron font-black text-base border border-slate-800 hover:border-cyan-500/50 transition active:scale-95 cursor-pointer">1</button>
+        <button type="button" onclick="pressPinKey('2')" class="h-12 rounded-xl bg-slate-900 hover:bg-cyan-950/50 text-white font-orbitron font-black text-base border border-slate-800 hover:border-cyan-500/50 transition active:scale-95 cursor-pointer">2</button>
+        <button type="button" onclick="pressPinKey('3')" class="h-12 rounded-xl bg-slate-900 hover:bg-cyan-950/50 text-white font-orbitron font-black text-base border border-slate-800 hover:border-cyan-500/50 transition active:scale-95 cursor-pointer">3</button>
+        <button type="button" onclick="pressPinKey('4')" class="h-12 rounded-xl bg-slate-900 hover:bg-cyan-950/50 text-white font-orbitron font-black text-base border border-slate-800 hover:border-cyan-500/50 transition active:scale-95 cursor-pointer">4</button>
+        <button type="button" onclick="pressPinKey('5')" class="h-12 rounded-xl bg-slate-900 hover:bg-cyan-950/50 text-white font-orbitron font-black text-base border border-slate-800 hover:border-cyan-500/50 transition active:scale-95 cursor-pointer">5</button>
+        <button type="button" onclick="pressPinKey('6')" class="h-12 rounded-xl bg-slate-900 hover:bg-cyan-950/50 text-white font-orbitron font-black text-base border border-slate-800 hover:border-cyan-500/50 transition active:scale-95 cursor-pointer">6</button>
+        <button type="button" onclick="pressPinKey('7')" class="h-12 rounded-xl bg-slate-900 hover:bg-cyan-950/50 text-white font-orbitron font-black text-base border border-slate-800 hover:border-cyan-500/50 transition active:scale-95 cursor-pointer">7</button>
+        <button type="button" onclick="pressPinKey('8')" class="h-12 rounded-xl bg-slate-900 hover:bg-cyan-950/50 text-white font-orbitron font-black text-base border border-slate-800 hover:border-cyan-500/50 transition active:scale-95 cursor-pointer">8</button>
+        <button type="button" onclick="pressPinKey('9')" class="h-12 rounded-xl bg-slate-900 hover:bg-cyan-950/50 text-white font-orbitron font-black text-base border border-slate-800 hover:border-cyan-500/50 transition active:scale-95 cursor-pointer">9</button>
+        <button type="button" onclick="clearPin()" class="h-12 rounded-xl bg-red-950/40 hover:bg-red-900/60 text-red-400 font-orbitron font-bold text-xs border border-red-900/40 transition active:scale-95 cursor-pointer">CLR</button>
+        <button type="button" onclick="pressPinKey('0')" class="h-12 rounded-xl bg-slate-900 hover:bg-cyan-950/50 text-white font-orbitron font-black text-base border border-slate-800 hover:border-cyan-500/50 transition active:scale-95 cursor-pointer">0</button>
+        <button type="button" onclick="submitPin()" class="h-12 rounded-xl bg-cyan-600/30 hover:bg-cyan-500/40 text-cyan-300 font-orbitron font-bold text-xs border border-cyan-500/50 transition active:scale-95 cursor-pointer">UNLOCK ⏎</button>
       </div>
 
-      <div class="pt-2 border-t border-slate-800/80 text-[10px] text-slate-500 flex justify-between items-center">
-        <span>Pike's 13 Garage Security</span>
-        <span class="font-mono text-cyan-400">PIN: 1313</span>
+      <div class="pt-2 border-t border-slate-800/80 text-[10px] text-slate-500 flex justify-between items-center font-mono">
+        <span>Neon Llama Workshop v2.4</span>
+        <span class="text-slate-400">Encrypted Terminal</span>
       </div>
 
     </div>
@@ -561,36 +561,45 @@
   <!-- JAVASCRIPT ENGINE                                                         -->
   <!-- ========================================================================= -->
   <script>
-    // SECURITY CONSTANTS
-    // SHA-256 hash for default PIN '1313'
-    const WORKSHOP_PIN_HASH = '1cfafff6d51a03662b85b93dc3417f51687034ba9a46682f5328257eff7133ed';
+    // FAIL-SAFE CLEARANCE AUTHENTICATION
+    const MASTER_PIN = '1313';
     let enteredPin = '';
+    let inMemoryAuth = false;
 
-    // SHA-256 helper
-    async function sha256(message) {
-      const msgBuffer = new TextEncoder().encode(message);
-      const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    function setAuthToken(val) {
+      inMemoryAuth = (val === 'AUTHENTICATED');
+      try { sessionStorage.setItem('neon_llama_workshop_clearance', val); } catch(e){}
+    }
+
+    function getAuthToken() {
+      if (inMemoryAuth) return 'AUTHENTICATED';
+      try { return sessionStorage.getItem('neon_llama_workshop_clearance'); } catch(e){ return null; }
+    }
+
+    function clearAuthToken() {
+      inMemoryAuth = false;
+      try { sessionStorage.removeItem('neon_llama_workshop_clearance'); } catch(e){}
     }
 
     function updatePinDisplay() {
       for (let i = 1; i <= 4; i++) {
         const dot = document.getElementById('pinDot' + i);
-        if (i <= enteredPin.length) {
-          dot.classList.add('bg-cyan-400', 'shadow-[0_0_10px_#00f0ff]');
-        } else {
-          dot.classList.remove('bg-cyan-400', 'shadow-[0_0_10px_#00f0ff]');
+        if (dot) {
+          if (i <= enteredPin.length) {
+            dot.className = 'w-4 h-4 rounded-full border border-cyan-400 bg-cyan-400 shadow-[0_0_12px_#00f0ff] transition-all duration-150';
+          } else {
+            dot.className = 'w-4 h-4 rounded-full border border-cyan-500/60 bg-black transition-all duration-150';
+          }
         }
       }
     }
 
     function pressPinKey(num) {
       if (enteredPin.length < 4) {
-        enteredPin += num;
+        enteredPin += String(num);
         updatePinDisplay();
         if (enteredPin.length === 4) {
-          setTimeout(submitPin, 150);
+          setTimeout(submitPin, 100);
         }
       }
     }
@@ -598,54 +607,70 @@
     function clearPin() {
       enteredPin = '';
       updatePinDisplay();
-      document.getElementById('pinFeedbackMsg').innerText = 'WAITING FOR INPUT...';
-      document.getElementById('pinFeedbackMsg').className = 'h-4 text-[11px] font-mono-tech text-cyan-400 font-bold';
+      const msg = document.getElementById('pinFeedbackMsg');
+      if (msg) {
+        msg.innerText = 'WAITING FOR PASSCODE...';
+        msg.className = 'h-4 text-[11px] font-mono-tech text-cyan-400 font-bold';
+      }
     }
 
-    async function submitPin() {
+    function submitPin() {
       if (enteredPin.length === 0) return;
-      const hashed = await sha256(enteredPin);
-      if (hashed === WORKSHOP_PIN_HASH || enteredPin === '1313') {
-        sessionStorage.setItem('neon_llama_workshop_clearance', 'AUTHENTICATED');
-        document.getElementById('pinFeedbackMsg').innerText = 'ACCESS GRANTED // WELCOME PIKE';
-        document.getElementById('pinFeedbackMsg').className = 'h-4 text-[11px] font-mono-tech text-emerald-400 font-bold animate-pulse';
+      
+      if (enteredPin === MASTER_PIN) {
+        setAuthToken('AUTHENTICATED');
+        const msg = document.getElementById('pinFeedbackMsg');
+        if (msg) {
+          msg.innerText = 'ACCESS GRANTED // WELCOME PIKE';
+          msg.className = 'h-4 text-[11px] font-mono-tech text-emerald-400 font-bold animate-pulse';
+        }
         setTimeout(() => {
-          document.getElementById('securityGate').classList.add('hidden');
-          document.getElementById('authenticatedApp').classList.remove('hidden');
+          const gate = document.getElementById('securityGate');
+          const app = document.getElementById('authenticatedApp');
+          if (gate) gate.classList.add('hidden');
+          if (app) app.classList.remove('hidden');
           renderFleetLanes();
-          loadLiveFeed();
-        }, 400);
+          try { loadLiveFeed(); } catch(e){}
+        }, 300);
       } else {
         const box = document.getElementById('pinTerminalBox');
-        box.classList.add('animate-shake', 'border-red-500');
-        document.getElementById('pinFeedbackMsg').innerText = 'ACCESS DENIED // INVALID CLEARANCE';
-        document.getElementById('pinFeedbackMsg').className = 'h-4 text-[11px] font-mono-tech text-red-400 font-bold';
+        if (box) box.classList.add('animate-shake', 'border-red-500');
+        const msg = document.getElementById('pinFeedbackMsg');
+        if (msg) {
+          msg.innerText = 'ACCESS DENIED // INVALID CLEARANCE';
+          msg.className = 'h-4 text-[11px] font-mono-tech text-red-400 font-bold';
+        }
         setTimeout(() => {
-          box.classList.remove('animate-shake', 'border-red-500');
+          if (box) box.classList.remove('animate-shake', 'border-red-500');
           clearPin();
-        }, 700);
+        }, 600);
       }
     }
 
     function checkExistingAuth() {
-      if (sessionStorage.getItem('neon_llama_workshop_clearance') === 'AUTHENTICATED') {
-        document.getElementById('securityGate').classList.add('hidden');
-        document.getElementById('authenticatedApp').classList.remove('hidden');
+      if (getAuthToken() === 'AUTHENTICATED') {
+        const gate = document.getElementById('securityGate');
+        const app = document.getElementById('authenticatedApp');
+        if (gate) gate.classList.add('hidden');
+        if (app) app.classList.remove('hidden');
         renderFleetLanes();
-        loadLiveFeed();
+        try { loadLiveFeed(); } catch(e){}
       }
     }
 
     function lockWorkshop() {
-      sessionStorage.removeItem('neon_llama_workshop_clearance');
+      clearAuthToken();
       clearPin();
-      document.getElementById('authenticatedApp').classList.add('hidden');
-      document.getElementById('securityGate').classList.remove('hidden');
+      const gate = document.getElementById('securityGate');
+      const app = document.getElementById('authenticatedApp');
+      if (app) app.classList.add('hidden');
+      if (gate) gate.classList.remove('hidden');
     }
 
     // Keyboard support for PIN entry
     window.addEventListener('keydown', (e) => {
-      if (!document.getElementById('securityGate').classList.contains('hidden')) {
+      const gate = document.getElementById('securityGate');
+      if (gate && !gate.classList.contains('hidden')) {
         if (e.key >= '0' && e.key <= '9') {
           pressPinKey(e.key);
         } else if (e.key === 'Backspace') {
