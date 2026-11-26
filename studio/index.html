@@ -188,7 +188,7 @@
           <span>🖼️</span> ALBUMS <span id="albumsCountBadge" class="px-1.5 py-0.2 rounded bg-purple-950 text-purple-200 text-[10px] font-mono border border-purple-500/40">0</span>
         </button>
         <button onclick="openConceptGenModal(true)" class="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-orbitron font-black text-xs border border-pink-400/50 shadow-lg shadow-pink-900/40 transition active:scale-95 flex items-center gap-1.5">
-          <span>✨</span> + NEW CAR (v4.1.0)
+          <span>✨</span> + NEW CAR (v4.2.0)
         </button>
         <div class="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-[10px] font-mono text-cyan-400">
           STORE: <a href="https://neonllamagarage.com" target="_blank" class="hover:underline font-bold text-white">NEONLLAMAGARAGE.COM</a>
@@ -304,8 +304,8 @@
           <button onclick="openConceptGenModal()" class="px-3.5 py-1.5 rounded-lg bg-pink-600/30 hover:bg-pink-500/40 text-pink-300 font-orbitron font-bold text-xs border border-pink-500/50 shadow-lg shadow-pink-900/30 flex items-center gap-1.5 transition active:scale-95">
             <span>🎨</span> AI 8-TO-3 IDEA LAB
           </button>
-          <button onclick="openPrepressModal()" class="px-3 py-1.5 rounded-lg bg-cyan-600/30 hover:bg-cyan-500/40 text-cyan-300 font-orbitron font-bold text-xs border border-cyan-500/40">
-            📐 Prepress Studio
+          <button onclick="openDecalStudioForCurrentBatch()" class="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-emerald-600/80 to-cyan-600/80 hover:from-emerald-500 hover:to-cyan-500 text-white font-orbitron font-black text-xs border border-cyan-400/60 shadow-lg transition active:scale-95 flex items-center gap-1.5">
+            <span>🖨️</span> GENERATE PRINT-READY DECALS
           </button>
           <button onclick="openCardModal()" class="px-3 py-1.5 rounded-lg bg-purple-600/30 hover:bg-purple-500/40 text-purple-300 font-orbitron font-bold text-xs border border-purple-500/40">
             📦 Blister Card Builder
@@ -628,7 +628,7 @@
           <div>
             <h2 class="font-orbitron font-black text-base text-pink-400 flex items-center gap-2 tracking-wide flex-wrap">
               <span>UNIVERSAL DIECAST WIZARD</span>
-              <span class="px-2.5 py-0.5 rounded bg-cyan-950 text-cyan-300 text-[10px] font-mono border border-cyan-400 font-black shadow-[0_0_10px_rgba(6,182,212,0.5)]">v4.1.0 LIVE</span>
+              <span class="px-2.5 py-0.5 rounded bg-cyan-950 text-cyan-300 text-[10px] font-mono border border-cyan-400 font-black shadow-[0_0_10px_rgba(6,182,212,0.5)]">v4.2.0 LIVE</span>
               <span class="px-2 py-0.5 rounded bg-purple-950 text-purple-300 text-[10px] font-mono border border-purple-400/50">💎 GEMINI 3.1 • AUTO-ALBUMS</span>
             </h2>
             <p class="text-xs text-slate-400">1. Car & Printable Panels → 2. Photos → 3. 8-to-3 Concepts (+Feedback) → 4. Pure Flat Print-Ready Decals (+Tweak & Export)</p>
@@ -3336,6 +3336,7 @@ ABSOLUTE ZERO-VEHICLE RULES (CRITICAL):
                     <div class="text-[9px] font-mono text-slate-500">${new Date(item.createdAt).toLocaleString()}</div>
                   </div>
                   <div class="flex items-center gap-1 shrink-0">
+                    <button type="button" onclick="openDecalStudioFromAlbum(${item.id})" class="px-2 py-1 rounded bg-cyan-950/80 hover:bg-cyan-700 text-cyan-300 text-[10px] border border-cyan-500/40" title="Generate Print-Ready Decals from this Image">🖨️</button>
                     <a href="${item.image}" download="${(item.casting + '_' + item.title).toLowerCase().replace(/[^a-z0-9]+/g, '_')}.png" class="px-2 py-1 rounded bg-emerald-950/80 hover:bg-emerald-800 text-emerald-300 text-[10px] border border-emerald-500/40" title="Download PNG">⬇</a>
                     <button type="button" onclick="deleteAlbumItem(${item.id})" class="px-2 py-1 rounded bg-red-950/80 hover:bg-red-800 text-red-300 text-[10px] border border-red-500/40" title="Delete">✕</button>
                   </div>
@@ -3345,6 +3346,94 @@ ABSOLUTE ZERO-VEHICLE RULES (CRITICAL):
           </div>
         </div>
       `).join('');
+    }
+
+    async function launchDecalStudioWithData({ casting, paint, title, story, img, printZones }) {
+      const donorInput = document.getElementById('donorCastingInput');
+      const paintInput = document.getElementById('donorBodyPaintInput');
+      if (donorInput) donorInput.value = casting || 'Hot Wheels Custom';
+      if (paintInput) paintInput.value = paint || 'Gloss White';
+
+      if (printZones) {
+        activePrintZones = { ...activePrintZones, ...printZones };
+      }
+
+      // Ensure hero image is base64 if it's a relative URL
+      const resolvedImg = img ? (await urlOrDataToBase64(img)) : null;
+
+      currentWinningVariation = {
+        title: title || 'Custom Design',
+        story: story || `Custom livery for ${casting || 'Hot Wheels Custom'}.`,
+        img: resolvedImg || img || null
+      };
+      generatedFinalDecals = [];
+
+      const modal = document.getElementById('conceptGenModal');
+      if (modal) modal.classList.remove('hidden');
+      goToWizardStep(4);
+
+      const subEl = document.getElementById('decalStudioSubtitle');
+      if (subEl) subEl.innerText = `${casting} • ${title} • Pure flat 2D graphics ONLY (no car, no wheels, no seams, transparent PNG + Solid White Underbase)`;
+
+      const previewBox = document.getElementById('decalWinnerPreviewBox');
+      if (previewBox) {
+        if (currentWinningVariation.img) {
+          previewBox.onclick = () => openImageLightbox(currentWinningVariation.img, title);
+          previewBox.innerHTML = `<img src="${currentWinningVariation.img}" alt="${title}" class="w-full h-full object-contain">`;
+        } else {
+          previewBox.innerHTML = `<span class="text-xs font-orbitron font-bold text-slate-600">${title}</span>`;
+        }
+      }
+
+      const fb = document.getElementById('decalFeedbackInput');
+      if (fb) {
+        fb.value = '';
+        fb.focus();
+      }
+
+      const grid = document.getElementById('finalDecalsGrid');
+      if (grid) {
+        grid.innerHTML = `
+          <div class="col-span-full bg-slate-950/80 border border-slate-800 rounded-2xl p-8 text-center space-y-2.5">
+            <div class="text-3xl">🖨️</div>
+            <div class="font-orbitron font-bold text-sm text-white">READY TO EXTRACT PURE FLAT PRINT-READY DECALS FOR "${(title || '').toUpperCase()}"</div>
+            <p class="text-xs text-slate-400 max-w-xl mx-auto">
+              Add any tweaks above (or leave blank), then click <strong class="text-cyan-300">🖨️ GENERATE PRINT-READY DECALS →</strong>.
+            </p>
+          </div>
+        `;
+      }
+    }
+
+    async function openDecalStudioForCurrentBatch() {
+      const b = workshopBatches.find(x => x.id === currentActiveBatchId);
+      if (!b) {
+        showToast('Open a car batch first!', '⚠️');
+        return;
+      }
+      await launchDecalStudioWithData({
+        casting: b.model || 'Hot Wheels Custom',
+        paint: b.color || 'Gloss White',
+        title: b.theme || b.model,
+        story: (b.conceptData && b.conceptData.story) || `Custom ${b.theme} livery for ${b.model}.`,
+        img: b.hero || (b.conceptData && b.conceptData.img) || null,
+        printZones: b.printZones || null
+      });
+    }
+
+    async function openDecalStudioFromAlbum(itemId) {
+      const items = await getAllAlbumItems();
+      const item = items.find(x => x.id === itemId);
+      if (!item) return;
+      toggleModal('castingAlbumsModal');
+      await launchDecalStudioWithData({
+        casting: item.casting,
+        paint: 'Base Paint',
+        title: item.title,
+        story: `Custom ${item.title} livery for ${item.casting}.`,
+        img: item.image,
+        printZones: null
+      });
     }
 
     // Initialize album count badge on page load
