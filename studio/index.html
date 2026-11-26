@@ -188,7 +188,7 @@
           <span>🖼️</span> ALBUMS <span id="albumsCountBadge" class="px-1.5 py-0.2 rounded bg-purple-950 text-purple-200 text-[10px] font-mono border border-purple-500/40">0</span>
         </button>
         <button onclick="openConceptGenModal(true)" class="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-orbitron font-black text-xs border border-pink-400/50 shadow-lg shadow-pink-900/40 transition active:scale-95 flex items-center gap-1.5">
-          <span>✨</span> + NEW CAR (v5.0.5)
+          <span>✨</span> + NEW CAR (v5.0.6)
         </button>
         <div class="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-[10px] font-mono text-cyan-400">
           STORE: <a href="https://neonllamagarage.com" target="_blank" class="hover:underline font-bold text-white">NEONLLAMAGARAGE.COM</a>
@@ -317,7 +317,7 @@
       </div>
 
       <!-- ===================================================================== -->
-      <!-- v5.0.5 GUIDED 5-STEP VERIFIED PRODUCTION PIPELINE BAR                 -->
+      <!-- v5.0.6 GUIDED 5-STEP VERIFIED PRODUCTION PIPELINE BAR                 -->
       <!-- ===================================================================== -->
       <div id="nlgPipelineBar" class="bg-gradient-to-r from-[#0b1020] via-[#10162b] to-[#0b1020] border border-cyan-500/40 rounded-2xl p-3.5 shadow-xl space-y-3">
         <div class="flex items-center justify-between flex-wrap gap-2">
@@ -649,7 +649,7 @@
           <div>
             <h2 class="font-orbitron font-black text-base text-pink-400 flex items-center gap-2 tracking-wide flex-wrap">
               <span>UNIVERSAL DIECAST WIZARD</span>
-              <span class="px-2.5 py-0.5 rounded bg-cyan-950 text-cyan-300 text-[10px] font-mono border border-cyan-400 font-black shadow-[0_0_10px_rgba(6,182,212,0.5)]">v5.0.5 LIVE</span>
+              <span class="px-2.5 py-0.5 rounded bg-cyan-950 text-cyan-300 text-[10px] font-mono border border-cyan-400 font-black shadow-[0_0_10px_rgba(6,182,212,0.5)]">v5.0.6 LIVE</span>
               <span class="px-2 py-0.5 rounded bg-purple-950 text-purple-300 text-[10px] font-mono border border-purple-400/50">💎 GEMINI 3.1 • AUTO-ALBUMS</span>
             </h2>
             <p class="text-xs text-slate-400">1. Car & Printable Panels → 2. Photos → 3. 8-to-3 Concepts (+Feedback) → 4. Pure Flat Print-Ready Decals (+Tweak & Export)</p>
@@ -3312,6 +3312,9 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
 
       const remaining = generatedFinalDecals.filter(x => x.key !== 'side_driver');
       await Promise.all(remaining.map(p => renderSingleDecalPanel(p, casting, winVar, feedback, anchoredRefs)));
+      if (typeof nlgSaveCarState === 'function') {
+        await nlgSaveCarState({ savedDecals: generatedFinalDecals.filter(d => d && d.cmykPng), steps: { decalsGenerated: true } });
+      }
     }
 
     async function renderSingleDecalPanel(p, casting, winVar, feedback, refImgs) {
@@ -3652,15 +3655,16 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
       if (grid) {
         let restored = [];
         try {
-          // 1. Check per-car saved decals in NeonLlamaPipelineDB
+          const byPanel = new Map();
+          // 1. Load any per-car saved decals from NeonLlamaPipelineDB
           if (typeof nlgLoadCarState === 'function' && currentActiveBatchId) {
             const st = await nlgLoadCarState(currentActiveBatchId);
-            if (st && Array.isArray(st.savedDecals) && st.savedDecals.length > 0) {
-              restored = st.savedDecals.filter(d => d && d.cmykPng);
+            if (st && Array.isArray(st.savedDecals)) {
+              st.savedDecals.filter(d => d && d.cmykPng).forEach(d => byPanel.set(d.key, d));
             }
           }
-          // 2. Fallback: find previously saved 'Final Decal' items in Casting Albums matching this theme or casting!
-          if (restored.length === 0 && typeof getAllAlbumItems === 'function') {
+          // 2. ALWAYS merge any missing panels (Passenger Side, Roof, etc.) from Casting Albums Final Decals!
+          if (typeof getAllAlbumItems === 'function') {
             const albumItems = await getAllAlbumItems();
             const normTheme = String(title || '').split('//')[0].trim().toLowerCase();
             const normCast = String(casting || '').replace(/^hot\s+wheels\s+/i, '').trim().toLowerCase();
@@ -3670,8 +3674,6 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
               const itCast = String(it.casting || '').replace(/^hot\s+wheels\s+/i, '').trim().toLowerCase();
               return (normTheme && itTitle.includes(normTheme)) || (normCast && itCast.includes(normCast));
             });
-            // Deduplicate by panel label (keep newest per panel)
-            const byPanel = new Map();
             matches.forEach(m => {
               const parts = String(m.title || '').split('—');
               const pLabel = (parts[parts.length - 1] || 'DECAL PANEL').trim().toUpperCase();
@@ -3685,8 +3687,12 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
                 byPanel.set(pKey, { key: pKey, label: pLabel, mode: 'direct', rawImg: m.image, cmykPng: m.image, underbasePng: null });
               }
             });
-            restored = Array.from(byPanel.values());
           }
+          const order = ['side_driver', 'side_passenger', 'roof', 'hood', 'trunk'];
+          restored = Array.from(byPanel.values()).sort((a, b) => {
+            const ia = order.indexOf(a.key), ib = order.indexOf(b.key);
+            return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+          });
         } catch (e) { console.warn('Decal restore check error:', e); }
 
         if (restored.length > 0) {
@@ -4227,7 +4233,7 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
     };
 
     // =========================================================================
-    // v5.0.5 BLISTER CARD RULES ENGINE (FRONT + MIRRORED BACK • REAL QR • ALBUMS)
+    // v5.0.6 BLISTER CARD RULES ENGINE (FRONT + MIRRORED BACK • REAL QR • ALBUMS)
     // =========================================================================
     let nlgCardFormat = 'premium';
     let nlgCardSide = 'front';
@@ -5152,7 +5158,7 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
     };
 
     // =========================================================================
-    // v5.0.5 PER-CAR PERSISTENT MEMORY + SERIES WORDMARK LIBRARY + 5-STEP FLOW
+    // v5.0.6 PER-CAR PERSISTENT MEMORY + SERIES WORDMARK LIBRARY + 5-STEP FLOW
     // =========================================================================
     const NLG_STATE_DB_NAME = 'NeonLlamaPipelineDB';
     let _nlgStateDbPromise = null;
