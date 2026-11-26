@@ -630,47 +630,184 @@
         </div>
       </div>
 
-      <!-- DONOR CANVAS INPUT CONTROLS -->
-      <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-4 space-y-3">
+      <!-- ===================================================================== -->
+      <!-- UNIVERSAL CASTING & CALIBRATION WIZARD (STEPS 1 & 2)                  -->
+      <!-- ===================================================================== -->
+      <div class="bg-slate-950/95 border border-slate-800 rounded-2xl p-4 sm:p-5 space-y-4 shadow-xl">
+        
+        <!-- ROW 1: STEP 1 - CASTING SELECTOR & COLORWAYS -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
-          <div>
-            <label class="text-[11px] text-slate-400 font-bold block mb-1">CASTING ON HAND</label>
-            <input type="text" id="donorCastingInput" value="Hot Wheels Dairy Delivery" placeholder="e.g. Dairy Delivery, '55 Gasser" class="w-full bg-slate-900 p-2.5 rounded-lg border border-slate-700 text-white font-bold text-xs outline-none focus:border-pink-500">
+          
+          <!-- CASTING SELECTION -->
+          <div class="space-y-1">
+            <div class="flex items-center justify-between">
+              <label class="text-[11px] text-cyan-400 font-orbitron font-bold flex items-center gap-1.5">
+                <span>1️⃣</span> DONOR CASTING
+              </label>
+              <span id="castingBadgeStatus" class="text-[9px] font-mono text-emerald-400 bg-emerald-950/80 px-1.5 py-0.5 rounded border border-emerald-500/40">
+                ✓ BLUEPRINT ON FILE
+              </span>
+            </div>
+            <select id="castingLibrarySelect" onchange="onCastingLibraryChange(this.value)" class="w-full bg-slate-900 p-2.5 rounded-lg border border-slate-700 text-white font-bold text-xs outline-none focus:border-cyan-400 transition">
+              <option value="dairy-delivery" selected>Hot Wheels Dairy Delivery (Phil Riehlman 1998)</option>
+              <option value="camaro-67">'67 Chevy Camaro (Custom Muscle)</option>
+              <option value="gasser-55">'55 Chevy Gasser (Blown Dragster)</option>
+              <option value="silverado-83">'83 Chevy Silverado Pickup</option>
+              <option value="skyline-r34">Nissan Skyline GT-R R34 (JDM Spec)</option>
+              <option value="porsche-935">Porsche 935 (Group 5 Racer)</option>
+              <option value="chevy-62">'62 Chevy Fleetside Pickup</option>
+              <option value="custom-new">➕ ADD NEW / CUSTOM CASTING...</option>
+            </select>
+            <input type="hidden" id="donorCastingInput" value="Hot Wheels Dairy Delivery">
           </div>
-          <div>
-            <label class="text-[11px] text-slate-400 font-bold block mb-1">BASE COAT / BODY COLOR</label>
-            <input type="text" id="donorBodyPaintInput" value="Gloss Alpine White" placeholder="e.g. Gloss White, Satin Black" class="w-full bg-slate-900 p-2.5 rounded-lg border border-slate-700 text-white font-bold text-xs outline-none focus:border-pink-500">
+
+          <!-- BASE COAT PAINT -->
+          <div class="space-y-1">
+            <label class="text-[11px] text-slate-300 font-orbitron font-bold flex items-center gap-1.5">
+              <span>🎨</span> BASE BODY PAINT
+            </label>
+            <input type="text" id="donorBodyPaintInput" value="Gloss Alpine White" placeholder="e.g. Gloss Alpine White, Satin Black" class="w-full bg-slate-900 p-2.5 rounded-lg border border-slate-700 text-white font-bold text-xs outline-none focus:border-pink-500 transition">
           </div>
-          <div>
-            <label class="text-[11px] text-slate-400 font-bold block mb-1">WHEELS & CREATIVE NOTES</label>
-            <input type="text" id="donorWheelInput" value="Purple Deep Dish Real Riders" placeholder="e.g. Purple Wheels, Synthwave vibe" class="w-full bg-slate-900 p-2.5 rounded-lg border border-slate-700 text-white font-bold text-xs outline-none focus:border-pink-500">
+
+          <!-- WHEEL SPEC & NOTES -->
+          <div class="space-y-1">
+            <label class="text-[11px] text-slate-300 font-orbitron font-bold flex items-center gap-1.5">
+              <span>🛞</span> WHEELS & CREATIVE NOTES
+            </label>
+            <input type="text" id="donorWheelInput" value="Purple Deep Dish Real Riders" placeholder="e.g. Purple Wheels, Synthwave vibe" class="w-full bg-slate-900 p-2.5 rounded-lg border border-slate-700 text-white font-bold text-xs outline-none focus:border-pink-500 transition">
           </div>
+
+          <!-- GENERATE ACTION BUTTON -->
           <div class="flex items-end">
-            <button onclick="runRealtimeDynamicGenerator()" class="w-full py-2.5 rounded-lg bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-orbitron font-black text-xs shadow-lg transition flex items-center justify-center gap-1.5">
-              <span>⚡</span> CALL AI: GENERATE 8 & SHOWCASE
+            <button onclick="runRealtimeDynamicGenerator()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-pink-600 via-purple-600 to-cyan-600 hover:from-pink-500 hover:to-cyan-500 text-white font-orbitron font-black text-xs shadow-lg shadow-pink-950/50 transition active:scale-95 flex items-center justify-center gap-2">
+              <span>⚡</span> CALL AI: GENERATE 8
             </button>
           </div>
         </div>
 
+        <!-- ROW 2: STEP 2 - PRINT SURFACE TOGGLES (DIRECT PRINT / DECAL PRINT / OFF) -->
+        <div class="bg-black/70 rounded-xl p-3 border border-slate-800/80 space-y-2.5">
+          <div class="flex items-center justify-between flex-wrap gap-2">
+            <span class="text-[11px] font-orbitron font-bold text-slate-300 flex items-center gap-2">
+              <span>2️⃣</span> PRINT SURFACE CONFIGURATION:
+              <span class="text-[10px] font-mono text-slate-400 font-normal">(Select mode per panel for eufyMake UV Prepress)</span>
+            </span>
+            <button onclick="toggleCalibrationDrawer()" id="btnToggleCalibration" class="text-[11px] font-mono text-cyan-400 hover:text-cyan-300 flex items-center gap-1 transition">
+              <span>📷</span> <span id="calibrationToggleLabel">View / Upload Casting Reference Photos ▾</span>
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 text-xs">
+            
+            <!-- TOGGLE 1: SIDES -->
+            <div class="p-2.5 rounded-lg bg-slate-900/90 border border-slate-800 flex flex-col justify-between space-y-1.5">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-slate-200 text-[11px]">🚗 SIDES (DOORS & QTR)</span>
+                <span class="text-[9px] font-mono text-emerald-400">PRIMARY</span>
+              </div>
+              <div class="grid grid-cols-2 gap-1 text-[10px] font-mono">
+                <button type="button" onclick="setZoneMode('side', 'direct')" id="btn_side_direct" class="py-1 px-1.5 rounded font-bold transition bg-cyan-600 text-white shadow">DIRECT UV</button>
+                <button type="button" onclick="setZoneMode('side', 'decal')" id="btn_side_decal" class="py-1 px-1.5 rounded font-bold transition bg-slate-800 text-slate-400 hover:text-white">WATERSLIDE</button>
+              </div>
+            </div>
+
+            <!-- TOGGLE 2: ROOF -->
+            <div class="p-2.5 rounded-lg bg-slate-900/90 border border-slate-800 flex flex-col justify-between space-y-1.5">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-slate-200 text-[11px]">🔝 ROOF PANEL</span>
+                <span id="label_roof_mode" class="text-[9px] font-mono text-cyan-400">DIRECT</span>
+              </div>
+              <div class="grid grid-cols-3 gap-1 text-[10px] font-mono">
+                <button type="button" onclick="setZoneMode('roof', 'off')" id="btn_roof_off" class="py-1 px-1 rounded font-bold transition bg-slate-800 text-slate-400 hover:text-white">OFF</button>
+                <button type="button" onclick="setZoneMode('roof', 'direct')" id="btn_roof_direct" class="py-1 px-1 rounded font-bold transition bg-cyan-600 text-white shadow">DIRECT</button>
+                <button type="button" onclick="setZoneMode('roof', 'decal')" id="btn_roof_decal" class="py-1 px-1 rounded font-bold transition bg-slate-800 text-slate-400 hover:text-white">DECAL</button>
+              </div>
+            </div>
+
+            <!-- TOGGLE 3: HOOD (3-STATE: OFF / DIRECT / DECAL) -->
+            <div class="p-2.5 rounded-lg bg-slate-900/90 border border-slate-800 flex flex-col justify-between space-y-1.5">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-slate-200 text-[11px]">🏎️ HOOD / BONNET</span>
+                <span id="label_hood_mode" class="text-[9px] font-mono text-slate-400">OFF</span>
+              </div>
+              <div class="grid grid-cols-3 gap-1 text-[10px] font-mono">
+                <button type="button" onclick="setZoneMode('hood', 'off')" id="btn_hood_off" class="py-1 px-1 rounded font-bold transition bg-pink-950 border border-pink-500 text-pink-300 shadow">OFF</button>
+                <button type="button" onclick="setZoneMode('hood', 'direct')" id="btn_hood_direct" class="py-1 px-1 rounded font-bold transition bg-slate-800 text-slate-400 hover:text-white">DIRECT</button>
+                <button type="button" onclick="setZoneMode('hood', 'decal')" id="btn_hood_decal" class="py-1 px-1 rounded font-bold transition bg-slate-800 text-slate-400 hover:text-white">DECAL</button>
+              </div>
+            </div>
+
+            <!-- TOGGLE 4: TRUNK / SPOILER (3-STATE: OFF / DIRECT / DECAL) -->
+            <div class="p-2.5 rounded-lg bg-slate-900/90 border border-slate-800 flex flex-col justify-between space-y-1.5">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-slate-200 text-[11px]">🏁 TRUNK / SPOILER</span>
+                <span id="label_trunk_mode" class="text-[9px] font-mono text-slate-400">OFF</span>
+              </div>
+              <div class="grid grid-cols-3 gap-1 text-[10px] font-mono">
+                <button type="button" onclick="setZoneMode('trunk', 'off')" id="btn_trunk_off" class="py-1 px-1 rounded font-bold transition bg-pink-950 border border-pink-500 text-pink-300 shadow">OFF</button>
+                <button type="button" onclick="setZoneMode('trunk', 'direct')" id="btn_trunk_direct" class="py-1 px-1 rounded font-bold transition bg-slate-800 text-slate-400 hover:text-white">DIRECT</button>
+                <button type="button" onclick="setZoneMode('trunk', 'decal')" id="btn_trunk_decal" class="py-1 px-1 rounded font-bold transition bg-slate-800 text-slate-400 hover:text-white">DECAL</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- COLLAPSIBLE REFERENCE PHOTO CALIBRATION DRAWER -->
+        <div id="calibrationDrawer" class="hidden bg-slate-900/80 rounded-xl p-3 border border-cyan-500/30 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-orbitron font-bold text-cyan-300 flex items-center gap-2">
+              <span>📷</span> CASTING REFERENCE PHOTOS & CALIBRATION:
+            </span>
+            <span class="text-[10px] font-mono text-slate-400">Snap flat top & side shots once; saved to your casting library forever</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <!-- SIDE PHOTO DROPZONE -->
+            <div class="p-3 rounded-lg bg-black/60 border border-slate-800 flex flex-col items-center justify-center space-y-2 text-center relative group min-h-32">
+              <div id="sidePhotoPreviewContainer" class="w-full flex items-center justify-center">
+                <div class="text-[11px] text-slate-400">
+                  <div class="text-xl mb-1">📸</div>
+                  <strong class="text-slate-300">Side Elevation Photo</strong>
+                  <div class="text-[10px] text-slate-500 mt-0.5">Camera straight-on at door level (1:64 side profile)</div>
+                </div>
+              </div>
+              <input type="file" id="sidePhotoInput" accept="image/*" onchange="handlePhotoUpload('side', this)" class="absolute inset-0 opacity-0 cursor-pointer">
+              <span class="text-[9px] font-mono text-cyan-400 bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-500/40">Drop or Click to Upload Side Photo</span>
+            </div>
+
+            <!-- TOP PHOTO DROPZONE -->
+            <div class="p-3 rounded-lg bg-black/60 border border-slate-800 flex flex-col items-center justify-center space-y-2 text-center relative group min-h-32">
+              <div id="topPhotoPreviewContainer" class="w-full flex items-center justify-center">
+                <div class="text-[11px] text-slate-400">
+                  <div class="text-xl mb-1">📸</div>
+                  <strong class="text-slate-300">Top-Down Photo (Roof / Hood)</strong>
+                  <div class="text-[10px] text-slate-500 mt-0.5">Camera directly overhead (flat roof and hood)</div>
+                </div>
+              </div>
+              <input type="file" id="topPhotoInput" accept="image/*" onchange="handlePhotoUpload('top', this)" class="absolute inset-0 opacity-0 cursor-pointer">
+              <span class="text-[9px] font-mono text-cyan-400 bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-500/40">Drop or Click to Upload Top Photo</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- QUICK PRESET PILLS -->
         <div class="flex items-center justify-between text-[11px] pt-1 border-t border-slate-900 flex-wrap gap-2">
-          <div class="flex items-center gap-2 flex-wrap">
-            <span class="text-slate-500 font-mono">QUICK PRESETS:</span>
-            <button onclick="setDonorCanvas('Hot Wheels Dairy Delivery', 'Gloss Alpine White', 'Purple Deep Dish Real Riders')" class="px-2.5 py-1 rounded-md bg-purple-950/80 border border-purple-500/40 text-purple-300 font-bold">🟣 White Dairy + Purple Wheels</button>
-            <button onclick="setDonorCanvas('Porsche 935', 'Satin Matte Black', 'Neon Cyan Wheels')" class="px-2.5 py-1 rounded-md bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 font-bold">🔵 Black Porsche + Cyan Wheels</button>
-            <button onclick="setDonorCanvas(''55 Chevy Gasser', 'Raw Zamac Polished Metal', '24K Gold Real Riders')" class="px-2.5 py-1 rounded-md bg-amber-950/80 border border-amber-500/40 text-amber-300 font-bold">🟡 Raw Zamac Gasser + Gold Wheels</button>
-            <button onclick="setDonorCanvas(''83 Chevy Silverado', 'Deep Metallic Violet', 'Chrome Real Riders')" class="px-2.5 py-1 rounded-md bg-fuchsia-950/80 border border-fuchsia-500/40 text-fuchsia-300 font-bold">🟣 Violet Silverado + Chrome</button>
+          <div class="flex items-center gap-1.5 flex-wrap">
+            <span class="text-slate-500 font-mono text-[10px]">PRESETS:</span>
+            <button type="button" onclick="quickApplyPreset('dairy-delivery', 'Gloss Alpine White', 'Purple Deep Dish Real Riders')" class="px-2 py-0.5 rounded bg-purple-950/80 border border-purple-500/40 text-purple-300 font-bold text-[10px]">🟣 Dairy (White + Purple)</button>
+            <button type="button" onclick="quickApplyPreset('camaro-67', 'Candy Lime Green', 'Chrome 5-Spoke Mag Wheels')" class="px-2 py-0.5 rounded bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 font-bold text-[10px]">🟢 '67 Camaro (Green + Chrome)</button>
+            <button type="button" onclick="quickApplyPreset('skyline-r34', 'Gloss Bayside Blue', 'White 6-Spoke TE37 Wheels')" class="px-2 py-0.5 rounded bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 font-bold text-[10px]">🔵 R34 Skyline (Blue + TE37)</button>
+            <button type="button" onclick="quickApplyPreset('gasser-55', 'Hot Neon Orange', 'Gold 10-Spoke Drag Wheels')" class="px-2 py-0.5 rounded bg-amber-950/80 border border-amber-500/40 text-amber-300 font-bold text-[10px]">🟠 '55 Gasser (Orange + Gold)</button>
           </div>
           <div class="flex items-center gap-3">
-            <button onclick="configureApiKey()" class="text-xs text-slate-400 hover:text-white font-mono flex items-center gap-1">
-              <span>⚙️</span> Gemini API Key
-            </button>
-            <button onclick="copyCurrentShowcasePrompt()" class="text-slate-400 hover:text-cyan-300 font-bold flex items-center gap-1 font-mono">
-              <span>📋</span> Copy AI Prompt
+            <button type="button" onclick="copyCurrentShowcasePrompt()" class="text-slate-400 hover:text-cyan-300 font-bold flex items-center gap-1 font-mono text-[10px]">
+              <span>📋</span> Copy Active Prompt
             </button>
           </div>
         </div>
-      </div>
 
+      </div>
       <!-- ===================================================================== -->
       <!-- VIEW 1: 8 LIVE VISUAL CONCEPTS (POWERED BY CLOUDFLARE FLUX.1)         -->
       <!-- ===================================================================== -->
@@ -1659,6 +1796,201 @@
                 // LIVE CLOUDFLARE WORKERS AI PIPELINE (FLUX.1-SCHNELL + LLAMA 3)
     const AI_API_BASE = "https://neonllamagarage.com/api";
 
+    // -------------------------------------------------------------
+    // UNIVERSAL CASTING DATABASE & 3-STATE PRINT ZONE ENGINE
+    // -------------------------------------------------------------
+    const castingLibrary = {
+      'dairy-delivery': {
+        name: 'Hot Wheels Dairy Delivery',
+        hasBlueprints: true,
+        defaultRoof: 'direct',
+        defaultHood: 'off',
+        defaultTrunk: 'off'
+      },
+      'camaro-67': {
+        name: "'67 Chevy Camaro",
+        hasBlueprints: true,
+        defaultRoof: 'direct',
+        defaultHood: 'decal',
+        defaultTrunk: 'decal'
+      },
+      'gasser-55': {
+        name: "'55 Chevy Gasser",
+        hasBlueprints: true,
+        defaultRoof: 'direct',
+        defaultHood: 'off',
+        defaultTrunk: 'decal'
+      },
+      'silverado-83': {
+        name: "'83 Chevy Silverado",
+        hasBlueprints: true,
+        defaultRoof: 'direct',
+        defaultHood: 'direct',
+        defaultTrunk: 'off'
+      },
+      'skyline-r34': {
+        name: 'Nissan Skyline GT-R R34',
+        hasBlueprints: true,
+        defaultRoof: 'direct',
+        defaultHood: 'decal',
+        defaultTrunk: 'decal'
+      },
+      'porsche-935': {
+        name: 'Porsche 935',
+        hasBlueprints: true,
+        defaultRoof: 'direct',
+        defaultHood: 'direct',
+        defaultTrunk: 'decal'
+      },
+      'chevy-62': {
+        name: "'62 Chevy Fleetside Pickup",
+        hasBlueprints: true,
+        defaultRoof: 'direct',
+        defaultHood: 'decal',
+        defaultTrunk: 'off'
+      },
+      'custom-new': {
+        name: 'Custom New Casting',
+        hasBlueprints: false,
+        defaultRoof: 'direct',
+        defaultHood: 'off',
+        defaultTrunk: 'off'
+      }
+    };
+
+    let activePrintZones = {
+      side: 'direct',
+      roof: 'direct',
+      hood: 'off',
+      trunk: 'off'
+    };
+
+    let userCastingPhotos = {
+      side: null,
+      top: null
+    };
+
+    function setZoneMode(zone, mode) {
+      activePrintZones[zone] = mode;
+      
+      const modes = ['off', 'direct', 'decal'];
+      modes.forEach(m => {
+        const btn = document.getElementById(`btn_${zone}_${m}`);
+        if (!btn) return;
+        if (m === mode) {
+          if (m === 'direct') {
+            btn.className = 'py-1 px-1 rounded font-bold transition bg-cyan-600 text-white shadow';
+          } else if (m === 'decal') {
+            btn.className = 'py-1 px-1 rounded font-bold transition bg-pink-600 text-white shadow';
+          } else {
+            btn.className = 'py-1 px-1 rounded font-bold transition bg-pink-950 border border-pink-500 text-pink-300 shadow';
+          }
+        } else {
+          btn.className = 'py-1 px-1 rounded font-bold transition bg-slate-800 text-slate-400 hover:text-white';
+        }
+      });
+
+      const labelEl = document.getElementById(`label_${zone}_mode`);
+      if (labelEl) {
+        labelEl.innerText = mode.toUpperCase();
+        if (mode === 'direct') labelEl.className = 'text-[9px] font-mono text-cyan-400';
+        else if (mode === 'decal') labelEl.className = 'text-[9px] font-mono text-pink-400';
+        else labelEl.className = 'text-[9px] font-mono text-slate-500';
+      }
+
+      showToast(`Set ${zone.toUpperCase()} to ${mode.toUpperCase()} print mode`, '🖨️');
+    }
+
+    function toggleCalibrationDrawer() {
+      const drawer = document.getElementById('calibrationDrawer');
+      const label = document.getElementById('calibrationToggleLabel');
+      if (!drawer) return;
+      if (drawer.classList.contains('hidden')) {
+        drawer.classList.remove('hidden');
+        if (label) label.innerText = 'Hide Reference Photos ▲';
+      } else {
+        drawer.classList.add('hidden');
+        if (label) label.innerText = 'View / Upload Casting Reference Photos ▾';
+      }
+    }
+
+    function handlePhotoUpload(type, input) {
+      if (!input.files || !input.files[0]) return;
+      const file = input.files[0];
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        userCastingPhotos[type] = e.target.result;
+        const container = document.getElementById(type === 'side' ? 'sidePhotoPreviewContainer' : 'topPhotoPreviewContainer');
+        if (container) {
+          container.innerHTML = `
+            <div class="relative w-full h-24 flex items-center justify-center bg-black/90 rounded border border-cyan-500/50 overflow-hidden">
+              <img src="${e.target.result}" class="max-h-full object-contain">
+              <span class="absolute top-1 right-1 bg-emerald-950 text-emerald-300 border border-emerald-500 text-[8px] font-mono px-1 rounded">✓ UPLOADED</span>
+            </div>
+          `;
+        }
+        showToast(`Loaded ${type.toUpperCase()} reference photo!`, '📸');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function onCastingLibraryChange(val) {
+      const info = castingLibrary[val];
+      const donorInput = document.getElementById('donorCastingInput');
+      const badge = document.getElementById('castingBadgeStatus');
+
+      if (val === 'custom-new') {
+        const customName = prompt('Enter custom casting name:', 'Hot Wheels Custom');
+        if (customName) {
+          donorInput.value = customName;
+          if (badge) {
+            badge.innerText = '⚠️ UPLOAD PHOTOS TO CALIBRATE';
+            badge.className = 'text-[9px] font-mono text-amber-400 bg-amber-950/80 px-1.5 py-0.5 rounded border border-amber-500/40';
+          }
+          const drawer = document.getElementById('calibrationDrawer');
+          if (drawer) drawer.classList.remove('hidden');
+        }
+        return;
+      }
+
+      if (info) {
+        donorInput.value = info.name;
+        if (badge) {
+          badge.innerText = '✓ BLUEPRINT ON FILE';
+          badge.className = 'text-[9px] font-mono text-emerald-400 bg-emerald-950/80 px-1.5 py-0.5 rounded border border-emerald-500/40';
+        }
+        setZoneMode('roof', info.defaultRoof || 'direct');
+        setZoneMode('hood', info.defaultHood || 'off');
+        setZoneMode('trunk', info.defaultTrunk || 'off');
+      }
+    }
+
+    function quickApplyPreset(castingKey, paint, wheels) {
+      const select = document.getElementById('castingLibrarySelect');
+      if (select) select.value = castingKey;
+      onCastingLibraryChange(castingKey);
+
+      const paintInput = document.getElementById('donorBodyPaintInput');
+      if (paintInput) paintInput.value = paint;
+
+      const wheelInput = document.getElementById('donorWheelInput');
+      if (wheelInput) wheelInput.value = wheels;
+
+      showToast(`Loaded preset for ${castingLibrary[castingKey]?.name || castingKey}!`, '✨');
+    }
+
+    function buildDualViewLiveryPrompt(casting, paint, wheels, themeTitle, themeDetails) {
+      let activeZones = [];
+      if (activePrintZones.side !== 'off') activeZones.push(`flat side profile elevation (${activePrintZones.side === 'direct' ? 'direct UV' : 'waterslide decal'})`);
+      if (activePrintZones.roof !== 'off') activeZones.push(`flat top-down roof (${activePrintZones.roof === 'direct' ? 'direct UV' : 'waterslide decal'})`);
+      if (activePrintZones.hood !== 'off') activeZones.push(`flat hood (${activePrintZones.hood === 'direct' ? 'direct UV' : 'waterslide decal'})`);
+      if (activePrintZones.trunk !== 'off') activeZones.push(`flat trunk/spoiler (${activePrintZones.trunk === 'direct' ? 'direct UV' : 'waterslide decal'})`);
+      
+      const zonesDesc = activeZones.join(' and ');
+
+      return `Solid pure white background, commercial diecast catalog layout. 1:64 scale custom Hot Wheels ${casting}. Dual presentation showing two flat views: top half shows the flat top-down roof and hood view, bottom half shows the flat side profile elevation view. Painted in ${paint}, ${wheels}. ${themeTitle} custom livery graphics on ${zonesDesc}. Isolated on pure plain white background, crisp flat technical diecast catalog illustration, zero add-ons, smooth body panels, 8k`;
+    }
+
     async function generateAiImage(prompt) {
       try {
         const resp = await fetch(`${AI_API_BASE}/generate-image`, {
@@ -1688,8 +2020,8 @@
 
       const subtitleEl = document.getElementById("conceptsCastingSubtitle");
       const countLabel = document.getElementById("starterCountLabel");
-      if (subtitleEl) subtitleEl.innerText = `Synthesizing 8 distinct 1:64 liveries for ${casting.toUpperCase()} (${paint.toUpperCase()}) with ${wheels}...`;
-      if (countLabel) countLabel.innerText = "⚡ SYNTHESIZING CONCEPTS...";
+      if (subtitleEl) subtitleEl.innerText = `Synthesizing 8 dual-view liveries for ${casting.toUpperCase()} (${paint.toUpperCase()}) with ${wheels}...`;
+      if (countLabel) countLabel.innerText = "⚡ SYNTHESIZING DUAL-VIEW CONCEPTS...";
 
       showAiProcessing(casting, async () => {
         currentDynamicStarters = [];
@@ -1722,7 +2054,7 @@
           ];
         }
 
-        // Build 8 dynamic starters with tailored FLUX prompts
+        // Build 8 dynamic starters with dual-view prompts
         concepts.slice(0, 8).forEach((c, idx) => {
           const variations = [
             {
@@ -1743,7 +2075,7 @@
               cardback: `Checkered raceway blister card with metallic silver foil badge.`,
               chaseIdea: `1-of-10 Chase: Raw Zamac unpainted body with tinted clearcoat.`,
               img: null,
-              prompt: `Solid pure white background, isolated studio catalog product photography. A standard 1:64 scale custom Hot Wheels ${casting} diecast toy car. Camera positioned at three-quarter front angle, car facing forward and angled toward the right, showing front bumper, grille, and passenger side wheels. Painted in ${paint}, ${wheels}. Completely stock flat smooth roof, no roof rack, no accessories, no spoilers. Aggressive motorsport track racing livery with bold #13 roundel tampo. Isolated on pure plain white background with soft floor shadow only, 8k`
+              prompt: buildDualViewLiveryPrompt(casting, paint, wheels, `${c.title} Track Spec with #13 roundel and sponsor graphics`, c.desc)
             },
             {
               title: c.title + " // NEO-TUNER",
@@ -1763,7 +2095,7 @@
               cardback: `Tokyo midnight highway neon card with holographic serial number.`,
               chaseIdea: `1-of-10 Chase: Glow-in-the-dark base paint with high-voltage circuits.`,
               img: null,
-              prompt: `Solid pure white background, isolated studio catalog product photography. A standard 1:64 scale custom Hot Wheels ${casting} diecast toy car. Camera positioned at three-quarter front angle, car facing forward and angled toward the right, showing front bumper, grille, and passenger side wheels. Painted in ${paint}, ${wheels}. Completely stock flat smooth roof, no roof rack, no accessories, no spoilers. Modern street tuner geometric graphics tampo. Isolated on pure plain white background with soft floor shadow only, 8k`
+              prompt: buildDualViewLiveryPrompt(casting, paint, wheels, `${c.title} Neo-Tuner with modern geometric slash graphics`, c.desc)
             },
             {
               title: c.title + " // SHOW CAR",
@@ -1783,7 +2115,7 @@
               cardback: `Luxury matte black velvet-touch blister card with gold foil seal.`,
               chaseIdea: `1-of-10 Chase: 24K gold-plated wheels with deep-dish chrome lips.`,
               img: null,
-              prompt: `Solid pure white background, isolated studio catalog product photography. A standard 1:64 scale custom Hot Wheels ${casting} diecast toy car. Camera positioned at three-quarter front angle, car facing forward and angled toward the right, showing front bumper, grille, and passenger side wheels. Painted in ${paint}, ${wheels}. Completely stock flat smooth roof, no roof rack, no accessories, no spoilers. Luxury show car with subtle ghost pearlescent pinstripe tampos and chrome accents. Isolated on pure plain white background with soft floor shadow only, 8k`
+              prompt: buildDualViewLiveryPrompt(casting, paint, wheels, `${c.title} Concourse Show Car with ghost pearlescent stripes`, c.desc)
             }
           ];
 
@@ -1796,16 +2128,16 @@
             primary: c.primary || "#00f0ff",
             accent: c.accent || "#ff007f",
             img: null,
-            prompt: `Solid pure white background, isolated studio catalog product photography. A standard 1:64 scale custom Hot Wheels ${casting} diecast toy car. Camera positioned at three-quarter front angle, car facing forward and angled toward the right, showing front bumper, grille, and passenger side wheels. Painted in ${paint}, ${wheels}. Completely stock flat smooth roof, no roof rack, no accessories, no spoilers. Clean ${c.title} custom livery tampo graphic on side panels. Isolated on pure plain white background with soft floor shadow only, 8k`,
+            prompt: buildDualViewLiveryPrompt(casting, paint, wheels, c.title, c.desc),
             desc: c.desc || `Custom ${c.title} livery calibrated for ${casting}.`,
             variations: variations
           });
         });
 
-        if (countLabel) countLabel.innerText = "8 CONCEPTS READY • GENERATING LIVE FLUX PREVIEWS";
+        if (countLabel) countLabel.innerText = "8 DUAL-VIEW CONCEPTS READY • GENERATING LIVE FLUX PREVIEWS";
         renderStarterCards();
         backToStarterShowcase();
-        showToast(`AI synthesized 8 concepts for ${casting}!`, "🧠");
+        showToast(`AI synthesized 8 dual-view concepts for ${casting}!`, "🧠");
       });
     }
 
@@ -1819,13 +2151,19 @@
         const card = document.createElement("div");
         card.className = "bg-slate-950/95 rounded-2xl border border-slate-800 hover:border-pink-500/70 p-3.5 flex flex-col justify-between space-y-3 shadow-xl transition group";
 
+        // Active print zones tags
+        let zonesBadges = `<span class="px-1.5 py-0.5 rounded text-[8px] font-mono bg-cyan-950 text-cyan-300 border border-cyan-500/40">SIDE: ${activePrintZones.side.toUpperCase()}</span>`;
+        if (activePrintZones.roof !== 'off') zonesBadges += ` <span class="px-1.5 py-0.5 rounded text-[8px] font-mono bg-cyan-950 text-cyan-300 border border-cyan-500/40">ROOF: ${activePrintZones.roof.toUpperCase()}</span>`;
+        if (activePrintZones.hood !== 'off') zonesBadges += ` <span class="px-1.5 py-0.5 rounded text-[8px] font-mono bg-pink-950 text-pink-300 border border-pink-500/40">HOOD: ${activePrintZones.hood.toUpperCase()}</span>`;
+        if (activePrintZones.trunk !== 'off') zonesBadges += ` <span class="px-1.5 py-0.5 rounded text-[8px] font-mono bg-purple-950 text-purple-300 border border-purple-500/40">TRUNK: ${activePrintZones.trunk.toUpperCase()}</span>`;
+
         card.innerHTML = `
           <div class="space-y-2.5">
-            <div id="${imgBoxId}" class="w-full h-44 rounded-xl bg-slate-900 border border-slate-800 flex flex-col items-center justify-center relative overflow-hidden p-2 text-center">
+            <div id="${imgBoxId}" class="w-full h-48 rounded-xl bg-slate-900 border border-slate-800 flex flex-col items-center justify-center relative overflow-hidden p-2 text-center">
               <div class="flex flex-col items-center justify-center space-y-2 animate-pulse">
                 <div class="w-8 h-8 rounded-full border-2 border-cyan-400 border-t-pink-500 animate-spin"></div>
-                <span class="text-[10px] font-mono text-cyan-300">GENERATING FLUX RENDER...</span>
-                <span class="text-[9px] font-mono text-slate-500">Cloudflare Workers AI</span>
+                <span class="text-[10px] font-mono text-cyan-300">GENERATING DUAL-VIEW FLUX...</span>
+                <span class="text-[9px] font-mono text-slate-500">Top-Down Roof + Side Elevation</span>
               </div>
               <span class="absolute top-1.5 left-1.5 px-2 py-0.5 rounded text-[9px] font-orbitron font-bold border ${dir.badgeColor} backdrop-blur-sm">
                 ${dir.badge}
@@ -1840,7 +2178,12 @@
               <p class="text-[11px] text-slate-400 leading-snug mt-1">${dir.desc}</p>
             </div>
 
-            <div class="flex items-center gap-2 pt-1 border-t border-slate-900 text-[10px] font-mono text-slate-400">
+            <!-- PRINT ZONES BADGES -->
+            <div class="flex items-center gap-1 flex-wrap pt-1 border-t border-slate-900">
+              ${zonesBadges}
+            </div>
+
+            <div class="flex items-center gap-2 text-[10px] font-mono text-slate-400">
               <span>COLORWAY:</span>
               <span class="w-3.5 h-3.5 rounded border border-white/20" style="background-color: ${dir.primary}"></span>
               <span class="w-3.5 h-3.5 rounded border border-white/20" style="background-color: ${dir.accent}"></span>
@@ -1848,7 +2191,7 @@
           </div>
 
           <button onclick="pickDynamicStarter(${idx})" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-pink-600 via-purple-600 to-cyan-600 hover:from-pink-500 hover:to-cyan-500 text-white font-orbitron font-black text-xs shadow-md transition active:scale-95 flex items-center justify-center gap-1.5">
-            <span>👉</span> SELECT & CREATE 3 SUB-IDEAS
+            <span>👉</span> SELECT & VIEW 3 SUB-IDEAS
           </button>
         `;
         container.appendChild(card);
@@ -1860,20 +2203,20 @@
 
           if (res && res.ok && res.image) {
             dir.img = res.image;
-            imgBox.className = "w-full h-44 rounded-xl bg-black border border-slate-800 flex items-center justify-center relative overflow-hidden group";
+            imgBox.className = "w-full h-48 rounded-xl bg-white border border-slate-800 flex items-center justify-center relative overflow-hidden group";
             imgBox.innerHTML = `
-              <img src="${res.image}" class="w-full h-full object-cover rounded-lg drop-shadow-xl transition duration-300 group-hover:scale-105">
+              <img src="${res.image}" class="w-full h-full object-contain drop-shadow-xl transition duration-300 group-hover:scale-105">
               <span class="absolute top-1.5 left-1.5 px-2 py-0.5 rounded text-[9px] font-orbitron font-bold border ${dir.badgeColor} backdrop-blur-sm">
                 ${dir.badge}
               </span>
               <span class="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 rounded text-[8px] font-mono bg-black/80 border border-emerald-500/60 text-emerald-300 backdrop-blur-sm">
-                ● LIVE FLUX
+                ● DUAL-VIEW FLUX
               </span>
             `;
           } else {
             // ZERO FALLBACK IMAGES - EXACT ERROR DISPLAY
             const errMsg = (res && res.error) ? res.error : "Unknown generation failure";
-            imgBox.className = "w-full h-44 rounded-xl bg-red-950/40 border border-red-500/80 flex flex-col items-center justify-center p-3 text-center space-y-1.5";
+            imgBox.className = "w-full h-48 rounded-xl bg-red-950/40 border border-red-500/80 flex flex-col items-center justify-center p-3 text-center space-y-1.5";
             imgBox.innerHTML = `
               <span class="text-xs font-orbitron font-bold text-red-400">⚠️ FLUX RENDER ERROR</span>
               <span class="text-[10px] text-red-300 font-mono line-clamp-3">${errMsg}</span>
@@ -1892,11 +2235,11 @@
       const imgBoxId = `starterImgBox_${idx}`;
       const imgBox = document.getElementById(imgBoxId);
       if (imgBox) {
-        imgBox.className = "w-full h-44 rounded-xl bg-slate-900 border border-slate-800 flex flex-col items-center justify-center relative overflow-hidden p-2 text-center";
+        imgBox.className = "w-full h-48 rounded-xl bg-slate-900 border border-slate-800 flex flex-col items-center justify-center relative overflow-hidden p-2 text-center";
         imgBox.innerHTML = `
           <div class="flex flex-col items-center justify-center space-y-2 animate-pulse">
             <div class="w-8 h-8 rounded-full border-2 border-cyan-400 border-t-pink-500 animate-spin"></div>
-            <span class="text-[10px] font-mono text-cyan-300">RETRYING FLUX RENDER...</span>
+            <span class="text-[10px] font-mono text-cyan-300">RETRYING DUAL-VIEW FLUX...</span>
           </div>
         `;
       }
@@ -1904,19 +2247,19 @@
         if (!imgBox) return;
         if (res && res.ok && res.image) {
           dir.img = res.image;
-          imgBox.className = "w-full h-44 rounded-xl bg-black border border-slate-800 flex items-center justify-center relative overflow-hidden group";
+          imgBox.className = "w-full h-48 rounded-xl bg-white border border-slate-800 flex items-center justify-center relative overflow-hidden group";
           imgBox.innerHTML = `
-            <img src="${res.image}" class="w-full h-full object-cover rounded-lg drop-shadow-xl transition duration-300 group-hover:scale-105">
+            <img src="${res.image}" class="w-full h-full object-contain drop-shadow-xl transition duration-300 group-hover:scale-105">
             <span class="absolute top-1.5 left-1.5 px-2 py-0.5 rounded text-[9px] font-orbitron font-bold border ${dir.badgeColor} backdrop-blur-sm">
               ${dir.badge}
             </span>
             <span class="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 rounded text-[8px] font-mono bg-black/80 border border-emerald-500/60 text-emerald-300 backdrop-blur-sm">
-              ● LIVE FLUX
+              ● DUAL-VIEW FLUX
             </span>
           `;
         } else {
           const errMsg = (res && res.error) ? res.error : "Unknown generation failure";
-          imgBox.className = "w-full h-44 rounded-xl bg-red-950/40 border border-red-500/80 flex flex-col items-center justify-center p-3 text-center space-y-1.5";
+          imgBox.className = "w-full h-48 rounded-xl bg-red-950/40 border border-red-500/80 flex flex-col items-center justify-center p-3 text-center space-y-1.5";
           imgBox.innerHTML = `
             <span class="text-xs font-orbitron font-bold text-red-400">⚠️ FLUX RENDER ERROR</span>
             <span class="text-[10px] text-red-300 font-mono line-clamp-3">${errMsg}</span>
@@ -1941,11 +2284,11 @@
         if (titleEl) titleEl.innerText = (dir.title || dir.name).toUpperCase();
 
         renderThreeSubIdeas(dir);
-        showToast(`AI generating 3 sub-idea images for ${dir.title}!`, "🎨");
+        showToast(`AI generating 3 dual-view sub-ideas for ${dir.title}!`, "🎨");
       });
     }
 
-    // Dynamic 3 Sub-Ideas Renderer with Live FLUX Generation (Zero Fallback Images)
+    // Dynamic 3 Sub-Ideas Renderer with Dual-View FLUX Generation
     function renderThreeSubIdeas(dir) {
       const container = document.getElementById("threeVariationsContainer");
       if (!container) return;
@@ -1970,12 +2313,12 @@
               </span>
             </div>
 
-            <!-- LIVE FLUX IMAGE CONTAINER -->
-            <div id="${imgContainerId}" class="w-full h-48 rounded-xl bg-slate-900 border border-slate-800/80 flex flex-col items-center justify-center relative overflow-hidden group p-2 text-center">
+            <!-- LIVE DUAL-VIEW IMAGE CONTAINER -->
+            <div id="${imgContainerId}" class="w-full h-52 rounded-xl bg-slate-900 border border-slate-800/80 flex flex-col items-center justify-center relative overflow-hidden group p-2 text-center">
               <div class="flex flex-col items-center justify-center space-y-2 animate-pulse">
                 <div class="w-8 h-8 rounded-full border-2 border-cyan-400 border-t-pink-500 animate-spin"></div>
-                <span class="text-[10px] font-mono text-cyan-300">RENDERING WITH FLUX.1 LIVE...</span>
-                <span class="text-[9px] font-mono text-slate-500">Cloudflare Workers AI</span>
+                <span class="text-[10px] font-mono text-cyan-300">RENDERING DUAL-VIEW WITH FLUX...</span>
+                <span class="text-[9px] font-mono text-slate-500">Top-Down Roof + Side Elevation</span>
               </div>
             </div>
 
@@ -2001,23 +2344,23 @@
         `;
         container.appendChild(card);
 
-        // TRIGGER LIVE FLUX IMAGE GENERATION FOR THIS SUB-IDEA
+        // TRIGGER LIVE FLUX DUAL-VIEW GENERATION FOR THIS SUB-IDEA
         generateAiImage(v.prompt).then(res => {
           const imgBox = document.getElementById(imgContainerId);
           if (!imgBox) return;
 
           if (res && res.ok && res.image) {
             v.img = res.image;
-            imgBox.className = "w-full h-48 rounded-xl bg-black border border-slate-800/80 flex items-center justify-center relative overflow-hidden group";
+            imgBox.className = "w-full h-52 rounded-xl bg-white border border-slate-800/80 flex items-center justify-center relative overflow-hidden group";
             imgBox.innerHTML = `
-              <img src="${res.image}" alt="${v.title}" class="w-full h-full object-cover rounded-lg drop-shadow-2xl transition duration-300 group-hover:scale-105">
+              <img src="${res.image}" alt="${v.title}" class="w-full h-full object-contain drop-shadow-2xl transition duration-300 group-hover:scale-105">
               <div class="absolute bottom-2 left-2 text-[9px] font-mono text-emerald-300 bg-black/80 px-2 py-0.5 rounded border border-emerald-500/50 backdrop-blur-sm">
-                ● LIVE FLUX RENDER
+                ● DUAL-VIEW FLUX RENDER
               </div>
             `;
           } else {
             const errMsg = (res && res.error) ? res.error : "Unknown generation failure";
-            imgBox.className = "w-full h-48 rounded-xl bg-red-950/40 border border-red-500/80 flex flex-col items-center justify-center p-3 text-center space-y-1.5";
+            imgBox.className = "w-full h-52 rounded-xl bg-red-950/40 border border-red-500/80 flex flex-col items-center justify-center p-3 text-center space-y-1.5";
             imgBox.innerHTML = `
               <span class="text-xs font-orbitron font-bold text-red-400">⚠️ FLUX RENDER ERROR</span>
               <span class="text-[10px] text-red-300 font-mono line-clamp-3">${errMsg}</span>
@@ -2038,11 +2381,11 @@
       const imgContainerId = `subIdeaImg_${idx}`;
       const imgBox = document.getElementById(imgContainerId);
       if (imgBox) {
-        imgBox.className = "w-full h-48 rounded-xl bg-slate-900 border border-slate-800/80 flex flex-col items-center justify-center relative overflow-hidden group p-2 text-center";
+        imgBox.className = "w-full h-52 rounded-xl bg-slate-900 border border-slate-800/80 flex flex-col items-center justify-center relative overflow-hidden group p-2 text-center";
         imgBox.innerHTML = `
           <div class="flex flex-col items-center justify-center space-y-2 animate-pulse">
             <div class="w-8 h-8 rounded-full border-2 border-cyan-400 border-t-pink-500 animate-spin"></div>
-            <span class="text-[10px] font-mono text-cyan-300">RETRYING FLUX RENDER...</span>
+            <span class="text-[10px] font-mono text-cyan-300">RETRYING DUAL-VIEW FLUX...</span>
           </div>
         `;
       }
@@ -2050,16 +2393,16 @@
         if (!imgBox) return;
         if (res && res.ok && res.image) {
           v.img = res.image;
-          imgBox.className = "w-full h-48 rounded-xl bg-black border border-slate-800/80 flex items-center justify-center relative overflow-hidden group";
+          imgBox.className = "w-full h-52 rounded-xl bg-white border border-slate-800/80 flex items-center justify-center relative overflow-hidden group";
           imgBox.innerHTML = `
-            <img src="${res.image}" alt="${v.title}" class="w-full h-full object-cover rounded-lg drop-shadow-2xl transition duration-300 group-hover:scale-105">
+            <img src="${res.image}" alt="${v.title}" class="w-full h-full object-contain drop-shadow-2xl transition duration-300 group-hover:scale-105">
             <div class="absolute bottom-2 left-2 text-[9px] font-mono text-emerald-300 bg-black/80 px-2 py-0.5 rounded border border-emerald-500/50 backdrop-blur-sm">
-              ● LIVE FLUX RENDER
+              ● DUAL-VIEW FLUX RENDER
             </div>
           `;
         } else {
           const errMsg = (res && res.error) ? res.error : "Unknown generation failure";
-          imgBox.className = "w-full h-48 rounded-xl bg-red-950/40 border border-red-500/80 flex flex-col items-center justify-center p-3 text-center space-y-1.5";
+          imgBox.className = "w-full h-52 rounded-xl bg-red-950/40 border border-red-500/80 flex flex-col items-center justify-center p-3 text-center space-y-1.5";
           imgBox.innerHTML = `
             <span class="text-xs font-orbitron font-bold text-red-400">⚠️ FLUX RENDER ERROR</span>
             <span class="text-[10px] text-red-300 font-mono line-clamp-3">${errMsg}</span>
@@ -2098,7 +2441,8 @@
           ovhCost: 2.00,
           hero: v.img || null,
           completedSteps: [1, 2],
-          conceptData: v
+          conceptData: v,
+          printZones: { ...activePrintZones }
         };
         workshopBatches.unshift(targetBatch);
         currentActiveBatchId = targetBatch.id;
@@ -2123,7 +2467,8 @@
             ovhCost: 2.00,
             hero: v.img || null,
             completedSteps: [1, 2],
-            conceptData: v
+            conceptData: v,
+            printZones: { ...activePrintZones }
           };
           workshopBatches.unshift(targetBatch);
           currentActiveBatchId = targetBatch.id;
@@ -2136,6 +2481,7 @@
           targetBatch.currentStep = 3;
           targetBatch.status = "Step 3: Prepress Decals";
           targetBatch.section = "wip";
+          targetBatch.printZones = { ...activePrintZones };
           if (!targetBatch.completedSteps.includes(1)) targetBatch.completedSteps.push(1);
           if (!targetBatch.completedSteps.includes(2)) targetBatch.completedSteps.push(2);
         }
