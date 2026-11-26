@@ -188,7 +188,7 @@
           <span>🖼️</span> ALBUMS <span id="albumsCountBadge" class="px-1.5 py-0.2 rounded bg-purple-950 text-purple-200 text-[10px] font-mono border border-purple-500/40">0</span>
         </button>
         <button onclick="openConceptGenModal(true)" class="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-orbitron font-black text-xs border border-pink-400/50 shadow-lg shadow-pink-900/40 transition active:scale-95 flex items-center gap-1.5">
-          <span>✨</span> + NEW CAR (v5.0.2)
+          <span>✨</span> + NEW CAR (v5.0.3)
         </button>
         <div class="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-[10px] font-mono text-cyan-400">
           STORE: <a href="https://neonllamagarage.com" target="_blank" class="hover:underline font-bold text-white">NEONLLAMAGARAGE.COM</a>
@@ -317,7 +317,7 @@
       </div>
 
       <!-- ===================================================================== -->
-      <!-- v5.0.2 GUIDED 5-STEP VERIFIED PRODUCTION PIPELINE BAR                 -->
+      <!-- v5.0.3 GUIDED 5-STEP VERIFIED PRODUCTION PIPELINE BAR                 -->
       <!-- ===================================================================== -->
       <div id="nlgPipelineBar" class="bg-gradient-to-r from-[#0b1020] via-[#10162b] to-[#0b1020] border border-cyan-500/40 rounded-2xl p-3.5 shadow-xl space-y-3">
         <div class="flex items-center justify-between flex-wrap gap-2">
@@ -649,7 +649,7 @@
           <div>
             <h2 class="font-orbitron font-black text-base text-pink-400 flex items-center gap-2 tracking-wide flex-wrap">
               <span>UNIVERSAL DIECAST WIZARD</span>
-              <span class="px-2.5 py-0.5 rounded bg-cyan-950 text-cyan-300 text-[10px] font-mono border border-cyan-400 font-black shadow-[0_0_10px_rgba(6,182,212,0.5)]">v5.0.2 LIVE</span>
+              <span class="px-2.5 py-0.5 rounded bg-cyan-950 text-cyan-300 text-[10px] font-mono border border-cyan-400 font-black shadow-[0_0_10px_rgba(6,182,212,0.5)]">v5.0.3 LIVE</span>
               <span class="px-2 py-0.5 rounded bg-purple-950 text-purple-300 text-[10px] font-mono border border-purple-400/50">💎 GEMINI 3.1 • AUTO-ALBUMS</span>
             </h2>
             <p class="text-xs text-slate-400">1. Car & Printable Panels → 2. Photos → 3. 8-to-3 Concepts (+Feedback) → 4. Pure Flat Print-Ready Decals (+Tweak & Export)</p>
@@ -3139,6 +3139,38 @@
             if (y < h - 1) enqueue(x, y + 1);
           }
 
+          // Auto-erase tiny disconnected floating specks / stray captions (e.g. tire text, footer labels < 1.5% of main decal area)
+          const compId = new Int32Array(w * h);
+          const compSizes = [0];
+          let nextComp = 1;
+          const q2 = new Int32Array(w * h);
+          for (let pos = 0; pos < w * h; pos++) {
+            if (compId[pos] === 0 && data[pos * 4 + 3] > 20) {
+              const cid = nextComp++;
+              let h2 = 0, t2 = 0;
+              compId[pos] = cid;
+              q2[t2++] = pos;
+              while (h2 < t2) {
+                const cur = q2[h2++];
+                const cx = cur % w, cy = (cur - cx) / w;
+                if (cx > 0 && compId[cur - 1] === 0 && data[(cur - 1) * 4 + 3] > 20) { compId[cur - 1] = cid; q2[t2++] = cur - 1; }
+                if (cx < w - 1 && compId[cur + 1] === 0 && data[(cur + 1) * 4 + 3] > 20) { compId[cur + 1] = cid; q2[t2++] = cur + 1; }
+                if (cy > 0 && compId[cur - w] === 0 && data[(cur - w) * 4 + 3] > 20) { compId[cur - w] = cid; q2[t2++] = cur - w; }
+                if (cy < h - 1 && compId[cur + w] === 0 && data[(cur + w) * 4 + 3] > 20) { compId[cur + w] = cid; q2[t2++] = cur + w; }
+              }
+              compSizes.push(t2);
+            }
+          }
+          let maxComp = 0;
+          for (let cIdx = 1; cIdx < compSizes.length; cIdx++) if (compSizes[cIdx] > maxComp) maxComp = compSizes[cIdx];
+          const minKeep = Math.max(120, Math.floor(maxComp * 0.015));
+          for (let pos = 0; pos < w * h; pos++) {
+            const cid = compId[pos];
+            if (cid > 0 && compSizes[cid] < minKeep) {
+              data[pos * 4 + 3] = 0;
+            }
+          }
+
           ctx.putImageData(imgData, 0, 0);
           const transparentPng = c.toDataURL('image/png');
 
@@ -3175,7 +3207,7 @@
       if (panelKey === 'side_driver') {
         layoutSpec = `UNWRAP AND FLATTEN ONLY THE EXACT 2D ARTWORK PAINTED ON THE FLAT SIDE PANEL of the attached vehicle image. Match the EXACT shapes, colors, gradients, icons, and layout — DO NOT invent ANY new text, words, letters, titles, icons, or extra front-fender graphic tails that are NOT painted on the side panel of the attached car! Front edge of the side panel is on the LEFT, rear edge is on the RIGHT. Compact 3:2 landscape composition centered cleanly.`;
       } else if (panelKey === 'side_passenger') {
-        layoutSpec = `UNWRAP AND FLATTEN ONLY THE EXACT 2D ARTWORK PAINTED ON THE FLAT SIDE PANEL for the PASSENGER (RIGHT) SIDE. Match the EXACT color palette, ink style, and graphics of the attached Driver Side decal, reversing the graphic flow direction (front edge on RIGHT, rear edge on LEFT). If there is any lettering already present on the car, keep it 100% legible LEFT-TO-RIGHT (NEVER mirrored backwards), and DO NOT invent any new words or titles!`;
+        layoutSpec = `UNWRAP AND FLATTEN ONLY THE EXACT 2D ARTWORK PAINTED ON THE FLAT SIDE PANEL for the PASSENGER (RIGHT) SIDE — STRICTLY MIRRORED HORIZONTALLY compared to the Driver Side! The FRONT nose/fender/cab edge MUST be on the FAR RIGHT and the flat REAR edge MUST be on the FAR LEFT (opposite direction of Driver Side!). Match the EXACT color palette, ink style, and graphics of the attached Driver Side decal. Only if lettering already exists on the car, keep letters legible left-to-right; otherwise mirror the graphic cleanly left-to-right and DO NOT invent any words!`;
       } else if (panelKey === 'roof') {
         layoutSpec = `UNWRAP AND FLATTEN ONLY THE EXACT 2D ROOF GRAPHIC from the attached vehicle image as a flat top-down rectangular panel decal matching the EXACT color palette and ink style of the attached Driver Side decal. DO NOT invent extra text or titles.`;
       } else {
@@ -3186,8 +3218,8 @@
 ${layoutSpec}
 ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
 - Extract ONLY the pure flat 2D graphic artwork painted on the panel — NO car body, NO metal, NO paint reflection, NO headlights, NO grille, NO front fender tail, NO door seams, NO wheel wells, NO wheels, NO tires, NO windows, NO 3D shading, NO dark perimeter sticker outline.
-- DO NOT add any title text, series name, watermark, or invented words that are not literally painted on the car's panel!
-- Centered with clean white margin on a 100% SOLID PURE FLAT WHITE (#FFFFFF) background, crisp vector-sharp edges ready for 600 DPI eufyMake UV printing.`;
+- ABSOLUTELY ZERO TIRE TEXT, ZERO GOODYEAR/BRAND LOGOS, ZERO PRINT-SHEET LABELS, ZERO CAPTIONS, ZERO FOOTER TEXT, ZERO WATERMARKS OR INVENTED WORDS anywhere on the image!
+- Centered with generous clean blank white margin on a 100% SOLID PURE FLAT WHITE (#FFFFFF) background with crisp vector-sharp edges.`;
     }
 
     async function generatePureFlatDecals() {
@@ -3297,6 +3329,21 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
       await renderSingleDecalPanel(p, casting, winVar, feedback, refImgs);
     }
 
+
+    async function flipSingleDecalHorizontal(panelKey) {
+      const p = generatedFinalDecals.find(x => x.key === panelKey);
+      if (!p || !p.cmykPng) return;
+      const casting = (document.getElementById("donorCastingInput")?.value || "Hot Wheels Custom").trim();
+      const processed = await processPureFlatDecalImage(p.cmykPng, true);
+      p.cmykPng = processed.transparentPng;
+      p.underbasePng = processed.underbasePng;
+      p.rawImg = processed.transparentPng;
+      if (typeof nlgSaveCarState === 'function') {
+        nlgSaveCarState({ savedDecals: generatedFinalDecals.filter(d => d && d.cmykPng), steps: { decalsGenerated: true } });
+      }
+      updateDecalCardUI(p, casting);
+    }
+
     function updateDecalCardUI(p, casting) {
       const previewEl = document.getElementById(`decalPreview_${p.key}`);
       const actionsEl = document.getElementById(`decalActions_${p.key}`);
@@ -3322,6 +3369,9 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
           </a>
           <button type="button" onclick="openImageLightbox('${p.underbasePng}', '${p.label} — 100% Solid White Underbase')" class="px-2 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 text-[10px]" title="Inspect White Underbase">
             👁️
+          </button>
+          <button type="button" onclick="flipSingleDecalHorizontal('${p.key}')" class="px-2 py-2 rounded-lg bg-cyan-950/80 hover:bg-cyan-700 border border-cyan-500/50 text-cyan-200 text-[10px]" title="Mirror / Flip Horizontally (0¢ — Instant Opposite Side!)">
+            ↔
           </button>
           <button type="button" onclick="regenerateSingleDecal('${p.key}')" class="px-2 py-2 rounded-lg bg-pink-950/80 hover:bg-pink-800 border border-pink-500/50 text-pink-200 text-[10px]" title="Regenerate Just This Panel">
             🔄
@@ -4126,7 +4176,7 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
     };
 
     // =========================================================================
-    // v5.0.2 BLISTER CARD RULES ENGINE (FRONT + MIRRORED BACK • REAL QR • ALBUMS)
+    // v5.0.3 BLISTER CARD RULES ENGINE (FRONT + MIRRORED BACK • REAL QR • ALBUMS)
     // =========================================================================
     let nlgCardFormat = 'premium';
     let nlgCardSide = 'front';
@@ -5051,7 +5101,7 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
     };
 
     // =========================================================================
-    // v5.0.2 PER-CAR PERSISTENT MEMORY + SERIES WORDMARK LIBRARY + 5-STEP FLOW
+    // v5.0.3 PER-CAR PERSISTENT MEMORY + SERIES WORDMARK LIBRARY + 5-STEP FLOW
     // =========================================================================
     const NLG_STATE_DB_NAME = 'NeonLlamaPipelineDB';
     let _nlgStateDbPromise = null;
