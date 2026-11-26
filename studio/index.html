@@ -188,7 +188,7 @@
           <span>🖼️</span> ALBUMS <span id="albumsCountBadge" class="px-1.5 py-0.2 rounded bg-purple-950 text-purple-200 text-[10px] font-mono border border-purple-500/40">0</span>
         </button>
         <button onclick="openConceptGenModal(true)" class="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-orbitron font-black text-xs border border-pink-400/50 shadow-lg shadow-pink-900/40 transition active:scale-95 flex items-center gap-1.5">
-          <span>✨</span> + NEW CAR (v4.3.3)
+          <span>✨</span> + NEW CAR (v5.0.0)
         </button>
         <div class="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-[10px] font-mono text-cyan-400">
           STORE: <a href="https://neonllamagarage.com" target="_blank" class="hover:underline font-bold text-white">NEONLLAMAGARAGE.COM</a>
@@ -313,6 +313,27 @@
           <button onclick="deployStorefront()" id="btnLockDeploy" class="px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-black font-orbitron font-black text-xs shadow-lg shadow-emerald-900/40 transition active:scale-95">
             🔒 DEPLOY STOREFRONT
           </button>
+        </div>
+      </div>
+
+      <!-- ===================================================================== -->
+      <!-- v5.0.0 GUIDED 5-STEP VERIFIED PRODUCTION PIPELINE BAR                 -->
+      <!-- ===================================================================== -->
+      <div id="nlgPipelineBar" class="bg-gradient-to-r from-[#0b1020] via-[#10162b] to-[#0b1020] border border-cyan-500/40 rounded-2xl p-3.5 shadow-xl space-y-3">
+        <div class="flex items-center justify-between flex-wrap gap-2">
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 rounded bg-cyan-950 border border-cyan-400/50 text-[10px] font-mono text-cyan-300 font-black">PRODUCTION PIPELINE</span>
+            <span id="nlgPipelineSummary" class="text-xs font-bold text-slate-200">Step-by-step verified workflow — everything auto-saved per car</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <input type="file" id="nlgQuickLooseHeroInput" accept="image/*" class="hidden" onchange="nlgHandleQuickLooseHero(this)" />
+            <button type="button" id="nlgBtnPipelineNext" onclick="nlgRunNextPipelineStep()" class="px-4 py-1.5 rounded-xl bg-gradient-to-r from-pink-600 to-cyan-500 hover:from-pink-500 hover:to-cyan-400 text-white font-orbitron font-black text-xs shadow-lg transition active:scale-95">
+              NEXT STEP →
+            </button>
+          </div>
+        </div>
+        <div id="nlgPipelineStepsGrid" class="grid grid-cols-2 sm:grid-cols-5 gap-2">
+          <!-- Dynamically rendered per active car batch -->
         </div>
       </div>
 
@@ -628,7 +649,7 @@
           <div>
             <h2 class="font-orbitron font-black text-base text-pink-400 flex items-center gap-2 tracking-wide flex-wrap">
               <span>UNIVERSAL DIECAST WIZARD</span>
-              <span class="px-2.5 py-0.5 rounded bg-cyan-950 text-cyan-300 text-[10px] font-mono border border-cyan-400 font-black shadow-[0_0_10px_rgba(6,182,212,0.5)]">v4.3.3 LIVE</span>
+              <span class="px-2.5 py-0.5 rounded bg-cyan-950 text-cyan-300 text-[10px] font-mono border border-cyan-400 font-black shadow-[0_0_10px_rgba(6,182,212,0.5)]">v5.0.0 LIVE</span>
               <span class="px-2 py-0.5 rounded bg-purple-950 text-purple-300 text-[10px] font-mono border border-purple-400/50">💎 GEMINI 3.1 • AUTO-ALBUMS</span>
             </h2>
             <p class="text-xs text-slate-400">1. Car & Printable Panels → 2. Photos → 3. 8-to-3 Concepts (+Feedback) → 4. Pure Flat Print-Ready Decals (+Tweak & Export)</p>
@@ -1002,6 +1023,10 @@
           </div>
         </div>
         <div class="flex items-center gap-2">
+          <input type="file" id="nlgAlbumCardArtUpload" accept="image/*" class="hidden" onchange="nlgUploadExistingCardArtToAlbum(this)" />
+          <button type="button" onclick="document.getElementById('nlgAlbumCardArtUpload').click()" class="px-3 py-1.5 rounded-lg bg-pink-600/80 hover:bg-pink-500 text-white font-orbitron font-black text-[11px] border border-pink-400/60 transition">
+            + Add Old Card Art
+          </button>
           <select id="albumCastingFilter" onchange="renderCastingAlbumsGrid()" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white font-bold outline-none">
             <option value="ALL">All Castings</option>
           </select>
@@ -1184,6 +1209,13 @@
                 </button>
               </div>
               <div id="nlgAiCardStatus" class="hidden text-[11px] font-mono text-cyan-300 bg-slate-950 border border-cyan-500/40 rounded-lg p-2"></div>
+              <div id="nlgSavedWordmarksRow" class="hidden pt-1 border-t border-slate-800 space-y-1.5">
+                <div class="flex items-center justify-between text-[10px] font-mono text-cyan-300">
+                  <span>✨ REUSABLE SERIES WORDMARKS (0¢ REUSE):</span>
+                  <span id="nlgWordmarkCount" class="text-slate-400">0 saved</span>
+                </div>
+                <div id="nlgSavedWordmarksList" class="flex items-center gap-2 overflow-x-auto pb-1"></div>
+              </div>
             </div>
 
             <div class="grid grid-cols-2 gap-3 pt-1">
@@ -4020,7 +4052,7 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
     };
 
     // =========================================================================
-    // v4.3.3 BLISTER CARD RULES ENGINE (FRONT + MIRRORED BACK • REAL QR • ALBUMS)
+    // v5.0.0 BLISTER CARD RULES ENGINE (FRONT + MIRRORED BACK • REAL QR • ALBUMS)
     // =========================================================================
     let nlgCardFormat = 'premium';
     let nlgCardSide = 'front';
@@ -4928,6 +4960,412 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
           if (!nlgHeroPhotoDataUrl && activeHero) {
             nlgSetHeroReference(activeHero, `✓ Active Car Mock (${(activeTheme || activeCasting || '').slice(0, 14)})`);
           }
+          nlgShuffleGarageDrops();
+          nlgDrawCard();
+        }
+      }
+    };
+
+    // =========================================================================
+    // v5.0.0 PER-CAR PERSISTENT MEMORY + SERIES WORDMARK LIBRARY + 5-STEP FLOW
+    // =========================================================================
+    const NLG_STATE_DB_NAME = 'NeonLlamaPipelineDB';
+    let _nlgStateDbPromise = null;
+    let currentCarPipelineState = null;
+
+    function nlgOpenStateDB() {
+      if (_nlgStateDbPromise) return _nlgStateDbPromise;
+      _nlgStateDbPromise = new Promise((resolve, reject) => {
+        const req = indexedDB.open(NLG_STATE_DB_NAME, 1);
+        req.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains('carStates')) db.createObjectStore('carStates', { keyPath: 'batchId' });
+          if (!db.objectStoreNames.contains('wordmarks')) db.createObjectStore('wordmarks', { keyPath: 'key' });
+        };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+      return _nlgStateDbPromise;
+    }
+
+    function nlgNormSeriesKey(str) {
+      return String(str || '').toLowerCase().replace(/[^a-z0-9]+/g, '').trim();
+    }
+
+    async function nlgLoadCarState(batchId) {
+      if (!batchId) return null;
+      try {
+        const db = await nlgOpenStateDB();
+        return await new Promise((resolve) => {
+          const req = db.transaction('carStates', 'readonly').objectStore('carStates').get(batchId);
+          req.onsuccess = () => resolve(req.result || null);
+          req.onerror = () => resolve(null);
+        });
+      } catch (e) { return null; }
+    }
+
+    async function nlgSaveCarState(patch = {}) {
+      const batchId = currentActiveBatchId;
+      if (!batchId) return;
+      try {
+        const existing = (await nlgLoadCarState(batchId)) || {
+          batchId,
+          steps: { conceptDone: true, decalsGenerated: false, decalsPrinted: false, heroVerified: false, cardArtLocked: false, cardsExported: false }
+        };
+        const merged = {
+          ...existing,
+          ...patch,
+          steps: { ...(existing.steps || {}), ...(patch.steps || {}) },
+          updatedAt: Date.now()
+        };
+        currentCarPipelineState = merged;
+        const db = await nlgOpenStateDB();
+        await new Promise((resolve) => {
+          const tx = db.transaction('carStates', 'readwrite');
+          tx.objectStore('carStates').put(merged);
+          tx.oncomplete = () => resolve(true);
+          tx.onerror = () => resolve(false);
+        });
+        nlgRenderPipelineBar();
+      } catch (e) { console.warn('Save car state error:', e); }
+    }
+
+    async function nlgSaveSeriesWordmark(themeName, dataUrl) {
+      const key = nlgNormSeriesKey(themeName);
+      if (!key || !dataUrl) return;
+      try {
+        const db = await nlgOpenStateDB();
+        await new Promise((resolve) => {
+          const tx = db.transaction('wordmarks', 'readwrite');
+          tx.objectStore('wordmarks').put({ key, label: String(themeName).toUpperCase().trim(), image: dataUrl, updatedAt: Date.now() });
+          tx.oncomplete = () => resolve(true);
+          tx.onerror = () => resolve(false);
+        });
+        nlgRenderSavedWordmarksShelf();
+      } catch (e) {}
+    }
+
+    async function nlgGetAllSeriesWordmarks() {
+      try {
+        const db = await nlgOpenStateDB();
+        return await new Promise((resolve) => {
+          const req = db.transaction('wordmarks', 'readonly').objectStore('wordmarks').getAll();
+          req.onsuccess = () => resolve((req.result || []).sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0)));
+          req.onerror = () => resolve([]);
+        });
+      } catch (e) { return []; }
+    }
+
+    async function nlgTryAutoLoadSeriesWordmark(themeName) {
+      const key = nlgNormSeriesKey(themeName);
+      if (!key) return false;
+      const all = await nlgGetAllSeriesWordmarks();
+      const match = all.find(w => w.key === key);
+      if (match && match.image) {
+        return new Promise((resolve) => {
+          const im = new Image();
+          im.onload = () => {
+            nlgTitleLogoImg = im;
+            const chk = document.getElementById('nlgChkAiLogo');
+            if (chk) chk.checked = true;
+            const st = document.getElementById('nlgAiCardStatus');
+            if (st) { st.classList.remove('hidden'); st.innerText = `✨ Auto-loaded saved "${match.label}" series wordmark (0¢)!`; }
+            nlgDrawCard();
+            resolve(true);
+          };
+          im.onerror = () => resolve(false);
+          im.src = match.image;
+        });
+      }
+      return false;
+    }
+
+    async function nlgRenderSavedWordmarksShelf() {
+      const row = document.getElementById('nlgSavedWordmarksRow');
+      const list = document.getElementById('nlgSavedWordmarksList');
+      const cnt = document.getElementById('nlgWordmarkCount');
+      if (!row || !list) return;
+      const all = await nlgGetAllSeriesWordmarks();
+      if (all.length === 0) { row.classList.add('hidden'); return; }
+      row.classList.remove('hidden');
+      if (cnt) cnt.innerText = `${all.length} saved`;
+      list.innerHTML = '';
+      all.forEach(w => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'shrink-0 bg-slate-950 hover:bg-slate-800 border border-slate-700 hover:border-cyan-400 rounded-lg p-1.5 flex flex-col items-center gap-1 transition';
+        btn.innerHTML = `<img src="${w.image}" class="h-8 w-auto max-w-[110px] object-contain"><span class="text-[8px] font-mono text-cyan-300">${w.label}</span>`;
+        btn.onclick = () => {
+          const im = new Image();
+          im.onload = () => {
+            nlgTitleLogoImg = im;
+            const chk = document.getElementById('nlgChkAiLogo'); if (chk) chk.checked = true;
+            nlgSaveCarState({ wordmarkDataUrl: w.image, useAiLogo: true, steps: { cardArtLocked: Boolean(nlgCardArtImg) } });
+            nlgDrawCard();
+          };
+          im.src = w.image;
+        };
+        list.appendChild(btn);
+      });
+    }
+
+    // Upload existing finished Card Art directly into Casting Albums so it appears on Back of Card!
+    async function nlgUploadExistingCardArtToAlbum(input) {
+      if (!input.files || !input.files[0]) return;
+      const file = input.files[0];
+      const defaultName = file.name.replace(/\.[^.]+$/, '').replace(/[_-]+/g, ' ').toUpperCase();
+      const casting = (prompt('Casting Name for this Card Art (e.g. DAIRY DELIVERY, SKYLINE):', defaultName) || defaultName).trim();
+      const theme = (prompt('Theme / Drop Name (e.g. NEON FREEZE):', defaultName) || defaultName).trim();
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        if (typeof saveToCastingAlbum === 'function') {
+          await saveToCastingAlbum(casting, 'Blister Card Art', theme, e.target.result);
+          if (typeof renderCastingAlbumsGrid === 'function') renderCastingAlbumsGrid();
+          nlgShuffleGarageDrops();
+          if (typeof showToast === 'function') showToast(`Added "${theme}" Card Art to Gallery!`, '✅');
+        }
+        input.value = '';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // 5-Step Verified Production Pipeline Renderer
+    function nlgRenderPipelineBar() {
+      const grid = document.getElementById('nlgPipelineStepsGrid');
+      const nextBtn = document.getElementById('nlgBtnPipelineNext');
+      const summary = document.getElementById('nlgPipelineSummary');
+      if (!grid) return;
+
+      const b = (typeof workshopBatches !== 'undefined') ? workshopBatches.find(x => x.id === currentActiveBatchId) : null;
+      const st = (currentCarPipelineState && currentCarPipelineState.batchId === currentActiveBatchId) ? currentCarPipelineState : null;
+      const steps = st?.steps || {};
+
+      const s1 = Boolean(b && (b.hero || b.conceptData?.img));
+      const s2 = Boolean(steps.decalsPrinted);
+      const s2Started = Boolean(steps.decalsGenerated);
+      const s3 = Boolean(steps.heroVerified || st?.heroPhotoDataUrl);
+      const s4 = Boolean(steps.cardArtLocked || (st?.cardArtDataUrl && st?.wordmarkDataUrl));
+      const s5 = Boolean(steps.cardsExported);
+
+      const defs = [
+        { num: 1, title: '1. Concept & Hero', done: s1, sub: s1 ? 'Design locked' : 'Generate 8→3 ideas', action: () => openConceptGenModal(), cta: '🎨 Open 8→3 Idea Lab →' },
+        { num: 2, title: '2. Print Decals', done: s2, sub: s2 ? 'Printed & applied' : (s2Started ? 'Extracted — click to mark printed' : 'Extract 3:2 UV decals'), action: () => openDecalStudioForCurrentBatch(), extraToggle: !s2, cta: s2Started ? '✅ Mark Decals Printed' : '🖨️ Generate Print Decals →' },
+        { num: 3, title: '3. Loose Hero Photo', done: s3, sub: s3 ? 'Hero photo verified' : 'Upload physical car photo', action: () => document.getElementById('nlgQuickLooseHeroInput')?.click(), cta: '📸 Upload Loose Hero Photo →' },
+        { num: 4, title: '4. Card Art & Logo', done: s4, sub: s4 ? 'Art & wordmark saved' : 'Generate 3:4 art + logo', action: () => openCardModal(), cta: '📦 Build Card Art & Wordmark →' },
+        { num: 5, title: '5. Export 300 DPI Cards', done: s5, sub: s5 ? 'Front & Back exported' : 'Verify Front/Back & export', action: () => openCardModal(), cta: '⬇ Export 300 DPI Front & Back →' }
+      ];
+
+      const firstIncomplete = defs.find(d => !d.done) || null;
+      const doneCount = defs.filter(d => d.done).length;
+      if (summary) summary.innerText = doneCount === 5 ? '🎉 ALL 5 STEPS VERIFIED — READY FOR DROP!' : `${doneCount}/5 steps verified • Next: ${firstIncomplete.title}`;
+      if (nextBtn) {
+        if (!firstIncomplete) {
+          nextBtn.innerText = '✅ DROP COMPLETE — OPEN CARD';
+          nextBtn.onclick = () => openCardModal();
+        } else {
+          nextBtn.innerText = firstIncomplete.cta;
+          nextBtn.onclick = () => {
+            if (firstIncomplete.num === 2 && s2Started && !s2) {
+              nlgSaveCarState({ steps: { decalsPrinted: true } });
+            } else {
+              firstIncomplete.action();
+            }
+          };
+        }
+      }
+
+      grid.innerHTML = '';
+      defs.forEach(d => {
+        const isCurrent = firstIncomplete && firstIncomplete.num === d.num;
+        const card = document.createElement('div');
+        card.className = `rounded-xl p-2.5 border transition cursor-pointer flex flex-col justify-between gap-1.5 ${
+          d.done ? 'bg-emerald-950/35 border-emerald-500/50 hover:border-emerald-400'
+          : isCurrent ? 'bg-cyan-950/45 border-cyan-400 shadow-[0_0_14px_rgba(34,211,238,0.22)]'
+          : 'bg-slate-950/70 border-slate-800 hover:border-slate-600'
+        }`;
+        card.onclick = d.action;
+        card.innerHTML = `
+          <div class="flex items-center justify-between gap-1">
+            <span class="font-orbitron font-black text-[10px] ${d.done ? 'text-emerald-300' : isCurrent ? 'text-cyan-300' : 'text-slate-300'}">${d.title}</span>
+            <span class="text-xs">${d.done ? '✅' : isCurrent ? '🟡' : '⬜'}</span>
+          </div>
+          <div class="text-[10px] font-mono ${d.done ? 'text-emerald-200/80' : 'text-slate-400'} truncate">${d.sub}</div>
+        `;
+        if (d.num === 2 && !d.done) {
+          const chkBtn = document.createElement('button');
+          chkBtn.type = 'button';
+          chkBtn.className = 'mt-0.5 text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-900/60 hover:bg-emerald-700 text-emerald-200 border border-emerald-500/40 self-start';
+          chkBtn.innerText = '✓ Mark Printed';
+          chkBtn.onclick = (ev) => { ev.stopPropagation(); nlgSaveCarState({ steps: { decalsGenerated: true, decalsPrinted: true } }); };
+          card.appendChild(chkBtn);
+        }
+        if (d.num === 3 && !d.done && s1) {
+          const useMockBtn = document.createElement('button');
+          useMockBtn.type = 'button';
+          useMockBtn.className = 'mt-0.5 text-[9px] font-mono px-1.5 py-0.5 rounded bg-purple-900/60 hover:bg-purple-700 text-purple-200 border border-purple-500/40 self-start';
+          useMockBtn.innerText = 'Use Mock for Now';
+          useMockBtn.onclick = (ev) => {
+            ev.stopPropagation();
+            const hero = b.hero || b.conceptData?.img;
+            nlgSaveCarState({ heroPhotoDataUrl: hero, steps: { heroVerified: true } });
+          };
+          card.appendChild(useMockBtn);
+        }
+        grid.appendChild(card);
+      });
+    }
+
+    function nlgRunNextPipelineStep() {
+      const btn = document.getElementById('nlgBtnPipelineNext');
+      if (btn && btn.onclick) btn.onclick();
+    }
+
+    function nlgHandleQuickLooseHero(input) {
+      if (!input.files || !input.files[0]) return;
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const dataUrl = e.target.result;
+        const b = workshopBatches.find(x => x.id === currentActiveBatchId);
+        if (b) {
+          b.hero = dataUrl;
+          const imgEl = document.getElementById('detailHeroImg');
+          if (imgEl) imgEl.src = dataUrl;
+          try { localStorage.setItem('neonLlamaWorkshopBatches_v2', JSON.stringify(workshopBatches)); } catch (err) {}
+        }
+        await nlgSaveCarState({ heroPhotoDataUrl: dataUrl, steps: { heroVerified: true } });
+        nlgSetHeroReference(dataUrl, '✓ Loose Hero Photo Saved');
+        if (typeof showToast === 'function') showToast('Loose Hero Photo verified & saved!', '📸');
+        input.value = '';
+      };
+      reader.readAsDataURL(input.files[0]);
+    }
+
+    // Hook into openBatchDetail so switching cars loads that car's saved pipeline state!
+    const _origOpenBatchDetailV5 = openBatchDetail;
+    openBatchDetail = async function(batchId) {
+      _origOpenBatchDetailV5(batchId);
+      currentCarPipelineState = await nlgLoadCarState(batchId);
+      nlgRenderPipelineBar();
+    };
+
+    // Persist Card Art, Wordmark, Settings & Exports automatically!
+    const _origNlgGenerateAiCardArtV5 = nlgGenerateAiCardArt;
+    nlgGenerateAiCardArt = async function() {
+      await _origNlgGenerateAiCardArtV5();
+      if (nlgCardArtImg?.src) {
+        await nlgSaveCarState({
+          heroPhotoDataUrl: nlgHeroPhotoDataUrl,
+          cardArtDataUrl: nlgCardArtImg.src,
+          steps: { heroVerified: true, cardArtLocked: Boolean(nlgTitleLogoImg) }
+        });
+      }
+    };
+
+    const _origNlgGenerateAiWordmarkV5 = nlgGenerateAiWordmark;
+    nlgGenerateAiWordmark = async function() {
+      await _origNlgGenerateAiWordmarkV5();
+      if (nlgTitleLogoImg?.src) {
+        const theme = (document.getElementById('nlgInpTheme')?.value || '').trim();
+        await nlgSaveSeriesWordmark(theme, nlgTitleLogoImg.src);
+        await nlgSaveCarState({
+          wordmarkDataUrl: nlgTitleLogoImg.src,
+          useAiLogo: true,
+          steps: { cardArtLocked: Boolean(nlgCardArtImg) }
+        });
+      }
+    };
+
+    const _origNlgExportCardPngV5 = nlgExportCardPng;
+    nlgExportCardPng = function(side, includeGuides) {
+      _origNlgExportCardPngV5(side, includeGuides);
+      if (!includeGuides) {
+        nlgSaveCarState({ steps: { cardsExported: true } });
+      }
+    };
+
+    // Persist slider/format/color tweaks automatically on draw!
+    let _nlgSaveDebounce = null;
+    const _origNlgDrawCardV5 = nlgDrawCard;
+    nlgDrawCard = function() {
+      _origNlgDrawCardV5();
+      if (!currentActiveBatchId) return;
+      clearTimeout(_nlgSaveDebounce);
+      _nlgSaveDebounce = setTimeout(() => {
+        nlgSaveCarState({
+          format: nlgCardFormat,
+          zoom: Number(document.getElementById('nlgArtZoom')?.value || 100),
+          offsetY: Number(document.getElementById('nlgArtOffsetY')?.value || -120),
+          color1: document.getElementById('nlgInpColor1')?.value || '#ff0099',
+          color2: document.getElementById('nlgInpColor2')?.value || '#00f0ff',
+          series: document.getElementById('nlgInpSeries')?.value || '',
+          serial: document.getElementById('nlgInpSerial')?.value || '01 / 10',
+          useAiLogo: !!document.getElementById('nlgChkAiLogo')?.checked,
+          showFrontLogo: !!document.getElementById('nlgChkFrontLogo')?.checked,
+          showSerial: !!document.getElementById('nlgChkShowSerial')?.checked,
+          lightBack: !!document.getElementById('nlgChkLightBack')?.checked
+        });
+      }, 450);
+    };
+
+    // Mark decals generated when Stage 4 runs!
+    if (typeof generatePureFlatDecals === 'function') {
+      const _origGenDecalsV5 = generatePureFlatDecals;
+      generatePureFlatDecals = async function() {
+        await _origGenDecalsV5();
+        nlgSaveCarState({ steps: { decalsGenerated: true } });
+      };
+    }
+
+    // Override toggleModal for cardModal to AUTO-RESTORE saved per-car Card Art + Wordmark + Settings (0¢ reload!)
+    const _prevToggleModalV5 = toggleModal;
+    toggleModal = async function(id) {
+      _prevToggleModalV5(id);
+      if (id === 'cardModal') {
+        const modal = document.getElementById('cardModal');
+        if (modal && !modal.classList.contains('hidden')) {
+          nlgLoadBrandLogoOnce();
+          const st = await nlgLoadCarState(currentActiveBatchId);
+          currentCarPipelineState = st;
+
+          // Restore saved settings
+          if (st) {
+            if (st.format) nlgSetCardFormat(st.format);
+            if (st.zoom && document.getElementById('nlgArtZoom')) document.getElementById('nlgArtZoom').value = st.zoom;
+            if (typeof st.offsetY === 'number' && document.getElementById('nlgArtOffsetY')) document.getElementById('nlgArtOffsetY').value = st.offsetY;
+            if (st.color1 && document.getElementById('nlgInpColor1')) document.getElementById('nlgInpColor1').value = st.color1;
+            if (st.color2 && document.getElementById('nlgInpColor2')) document.getElementById('nlgInpColor2').value = st.color2;
+            if (st.series && document.getElementById('nlgInpSeries')) document.getElementById('nlgInpSeries').value = st.series;
+            if (st.serial && document.getElementById('nlgInpSerial')) document.getElementById('nlgInpSerial').value = st.serial;
+            if (typeof st.useAiLogo === 'boolean' && document.getElementById('nlgChkAiLogo')) document.getElementById('nlgChkAiLogo').checked = st.useAiLogo;
+            if (typeof st.showFrontLogo === 'boolean' && document.getElementById('nlgChkFrontLogo')) document.getElementById('nlgChkFrontLogo').checked = st.showFrontLogo;
+            if (typeof st.showSerial === 'boolean' && document.getElementById('nlgChkShowSerial')) document.getElementById('nlgChkShowSerial').checked = st.showSerial;
+            if (typeof st.lightBack === 'boolean' && document.getElementById('nlgChkLightBack')) document.getElementById('nlgChkLightBack').checked = st.lightBack;
+          }
+
+          // Restore saved Hero Photo, Card Art, and Wordmark (or auto-match Series Wordmark!)
+          if (st?.heroPhotoDataUrl) {
+            nlgHeroPhotoDataUrl = st.heroPhotoDataUrl;
+            const tb = document.getElementById('nlgHeroThumbBox');
+            if (tb) tb.innerHTML = `<img src="${st.heroPhotoDataUrl}" class="w-full h-full object-contain">`;
+            const hs = document.getElementById('nlgHeroStatus');
+            if (hs) { hs.className = 'text-[10px] font-mono text-emerald-400'; hs.innerText = '✓ Saved Hero Restored'; }
+          }
+          if (st?.cardArtDataUrl) {
+            const im = new Image();
+            im.onload = () => { nlgCardArtImg = im; nlgDrawCard(); };
+            im.src = st.cardArtDataUrl;
+          }
+          if (st?.wordmarkDataUrl) {
+            const wm = new Image();
+            wm.onload = () => { nlgTitleLogoImg = wm; nlgDrawCard(); };
+            wm.src = st.wordmarkDataUrl;
+          } else {
+            // Auto-reuse existing Series Wordmark if another car in this series already generated one!
+            const themeNow = document.getElementById('nlgInpTheme')?.value || '';
+            await nlgTryAutoLoadSeriesWordmark(themeNow);
+          }
+
+          nlgRenderSavedWordmarksShelf();
           nlgShuffleGarageDrops();
           nlgDrawCard();
         }
