@@ -188,7 +188,7 @@
           <span>🖼️</span> ALBUMS <span id="albumsCountBadge" class="px-1.5 py-0.2 rounded bg-purple-950 text-purple-200 text-[10px] font-mono border border-purple-500/40">0</span>
         </button>
         <button onclick="openConceptGenModal(true)" class="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-orbitron font-black text-xs border border-pink-400/50 shadow-lg shadow-pink-900/40 transition active:scale-95 flex items-center gap-1.5">
-          <span>✨</span> + NEW CAR (v5.0.0)
+          <span>✨</span> + NEW CAR (v5.0.1)
         </button>
         <div class="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-[10px] font-mono text-cyan-400">
           STORE: <a href="https://neonllamagarage.com" target="_blank" class="hover:underline font-bold text-white">NEONLLAMAGARAGE.COM</a>
@@ -317,7 +317,7 @@
       </div>
 
       <!-- ===================================================================== -->
-      <!-- v5.0.0 GUIDED 5-STEP VERIFIED PRODUCTION PIPELINE BAR                 -->
+      <!-- v5.0.1 GUIDED 5-STEP VERIFIED PRODUCTION PIPELINE BAR                 -->
       <!-- ===================================================================== -->
       <div id="nlgPipelineBar" class="bg-gradient-to-r from-[#0b1020] via-[#10162b] to-[#0b1020] border border-cyan-500/40 rounded-2xl p-3.5 shadow-xl space-y-3">
         <div class="flex items-center justify-between flex-wrap gap-2">
@@ -649,7 +649,7 @@
           <div>
             <h2 class="font-orbitron font-black text-base text-pink-400 flex items-center gap-2 tracking-wide flex-wrap">
               <span>UNIVERSAL DIECAST WIZARD</span>
-              <span class="px-2.5 py-0.5 rounded bg-cyan-950 text-cyan-300 text-[10px] font-mono border border-cyan-400 font-black shadow-[0_0_10px_rgba(6,182,212,0.5)]">v5.0.0 LIVE</span>
+              <span class="px-2.5 py-0.5 rounded bg-cyan-950 text-cyan-300 text-[10px] font-mono border border-cyan-400 font-black shadow-[0_0_10px_rgba(6,182,212,0.5)]">v5.0.1 LIVE</span>
               <span class="px-2 py-0.5 rounded bg-purple-950 text-purple-300 text-[10px] font-mono border border-purple-400/50">💎 GEMINI 3.1 • AUTO-ALBUMS</span>
             </h2>
             <p class="text-xs text-slate-400">1. Car & Printable Panels → 2. Photos → 3. 8-to-3 Concepts (+Feedback) → 4. Pure Flat Print-Ready Decals (+Tweak & Export)</p>
@@ -3278,6 +3278,9 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
       p.cmykPng = processed.transparentPng;
       p.underbasePng = processed.underbasePng;
       saveToCastingAlbum(casting, 'Final Decal', `${winVar.title} — ${p.label}`, p.cmykPng);
+      if (typeof nlgSaveCarState === 'function') {
+        nlgSaveCarState({ savedDecals: generatedFinalDecals.filter(d => d && d.cmykPng), steps: { decalsGenerated: true } });
+      }
       updateDecalCardUI(p, casting);
     }
 
@@ -3547,15 +3550,86 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
 
       const grid = document.getElementById('finalDecalsGrid');
       if (grid) {
-        grid.innerHTML = `
-          <div class="col-span-full bg-slate-950/80 border border-slate-800 rounded-2xl p-8 text-center space-y-2.5">
-            <div class="text-3xl">🖨️</div>
-            <div class="font-orbitron font-bold text-sm text-white">READY TO EXTRACT PURE FLAT PRINT-READY DECALS FOR "${(title || '').toUpperCase()}"</div>
-            <p class="text-xs text-slate-400 max-w-xl mx-auto">
-              Add any tweaks above (or leave blank), then click <strong class="text-cyan-300">🖨️ GENERATE PRINT-READY DECALS →</strong>.
-            </p>
-          </div>
-        `;
+        let restored = [];
+        try {
+          // 1. Check per-car saved decals in NeonLlamaPipelineDB
+          if (typeof nlgLoadCarState === 'function' && currentActiveBatchId) {
+            const st = await nlgLoadCarState(currentActiveBatchId);
+            if (st && Array.isArray(st.savedDecals) && st.savedDecals.length > 0) {
+              restored = st.savedDecals.filter(d => d && d.cmykPng);
+            }
+          }
+          // 2. Fallback: find previously saved 'Final Decal' items in Casting Albums matching this theme or casting!
+          if (restored.length === 0 && typeof getAllAlbumItems === 'function') {
+            const albumItems = await getAllAlbumItems();
+            const normTheme = String(title || '').split('//')[0].trim().toLowerCase();
+            const normCast = String(casting || '').replace(/^hot\s+wheels\s+/i, '').trim().toLowerCase();
+            const matches = albumItems.filter(it => {
+              if (String(it.stage || '').toLowerCase() !== 'final decal' || !it.image) return false;
+              const itTitle = String(it.title || '').toLowerCase();
+              const itCast = String(it.casting || '').replace(/^hot\s+wheels\s+/i, '').trim().toLowerCase();
+              return (normTheme && itTitle.includes(normTheme)) || (normCast && itCast.includes(normCast));
+            });
+            // Deduplicate by panel label (keep newest per panel)
+            const byPanel = new Map();
+            matches.forEach(m => {
+              const parts = String(m.title || '').split('—');
+              const pLabel = (parts[parts.length - 1] || 'DECAL PANEL').trim().toUpperCase();
+              const pKey = pLabel.includes('DRIVER') ? 'side_driver'
+                : pLabel.includes('PASSENGER') ? 'side_passenger'
+                : pLabel.includes('ROOF') ? 'roof'
+                : pLabel.includes('HOOD') ? 'hood'
+                : pLabel.includes('TRUNK') ? 'trunk'
+                : 'panel_' + m.id;
+              if (!byPanel.has(pKey)) {
+                byPanel.set(pKey, { key: pKey, label: pLabel, mode: 'direct', rawImg: m.image, cmykPng: m.image, underbasePng: null });
+              }
+            });
+            restored = Array.from(byPanel.values());
+          }
+        } catch (e) { console.warn('Decal restore check error:', e); }
+
+        if (restored.length > 0) {
+          generatedFinalDecals = restored;
+          grid.innerHTML = '';
+          for (const p of generatedFinalDecals) {
+            // Re-generate solid white underbase from transparent CMYK PNG if not stored yet (0¢ canvas pass!)
+            if (!p.underbasePng && p.cmykPng && typeof processPureFlatDecalImage === 'function') {
+              try {
+                const re = await processPureFlatDecalImage(p.cmykPng, false);
+                p.underbasePng = re.underbasePng;
+              } catch (e) {}
+            }
+            const card = document.createElement('div');
+            card.id = `decalCard_${p.key}`;
+            card.className = "bg-slate-950 rounded-2xl border border-emerald-500/40 p-4 space-y-3 shadow-xl flex flex-col justify-between";
+            card.innerHTML = `
+              <div class="space-y-2.5">
+                <div class="flex items-center justify-between">
+                  <span class="font-orbitron font-black text-xs text-white">${p.label}</span>
+                  <span class="px-2 py-0.5 rounded text-[9px] font-mono bg-emerald-950 text-emerald-300 border border-emerald-500/40">✓ RESTORED (0¢)</span>
+                </div>
+                <div id="decalPreview_${p.key}" class="w-full h-52 rounded-xl border border-slate-700 flex flex-col items-center justify-center p-3 text-center space-y-2" style="background-image: linear-gradient(45deg, #1e293b 25%, transparent 25%), linear-gradient(-45deg, #1e293b 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #1e293b 75%), linear-gradient(-45deg, transparent 75%, #1e293b 75%); background-size: 16px 16px; background-position: 0 0, 0 8px, 8px -8px, -8px 0px; background-color: #0f172a;"></div>
+              </div>
+              <div id="decalActions_${p.key}" class="flex items-center gap-2 text-[10px] font-mono text-slate-500"></div>
+            `;
+            grid.appendChild(card);
+            updateDecalCardUI(p, casting);
+          }
+          if (typeof nlgSaveCarState === 'function') {
+            nlgSaveCarState({ savedDecals: generatedFinalDecals, steps: { decalsGenerated: true } });
+          }
+        } else {
+          grid.innerHTML = `
+            <div class="col-span-full bg-slate-950/80 border border-slate-800 rounded-2xl p-8 text-center space-y-2.5">
+              <div class="text-3xl">🖨️</div>
+              <div class="font-orbitron font-bold text-sm text-white">READY TO EXTRACT PURE FLAT PRINT-READY DECALS FOR "${(title || '').toUpperCase()}"</div>
+              <p class="text-xs text-slate-400 max-w-xl mx-auto">
+                Add any tweaks above (or leave blank), then click <strong class="text-cyan-300">🖨️ GENERATE PRINT-READY DECALS →</strong>.
+              </p>
+            </div>
+          `;
+        }
       }
     }
 
@@ -4052,7 +4126,7 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
     };
 
     // =========================================================================
-    // v5.0.0 BLISTER CARD RULES ENGINE (FRONT + MIRRORED BACK • REAL QR • ALBUMS)
+    // v5.0.1 BLISTER CARD RULES ENGINE (FRONT + MIRRORED BACK • REAL QR • ALBUMS)
     // =========================================================================
     let nlgCardFormat = 'premium';
     let nlgCardSide = 'front';
@@ -4967,7 +5041,7 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
     };
 
     // =========================================================================
-    // v5.0.0 PER-CAR PERSISTENT MEMORY + SERIES WORDMARK LIBRARY + 5-STEP FLOW
+    // v5.0.1 PER-CAR PERSISTENT MEMORY + SERIES WORDMARK LIBRARY + 5-STEP FLOW
     // =========================================================================
     const NLG_STATE_DB_NAME = 'NeonLlamaPipelineDB';
     let _nlgStateDbPromise = null;
