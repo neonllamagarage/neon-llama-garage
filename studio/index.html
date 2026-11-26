@@ -497,66 +497,77 @@
   <!-- ========================================================================= -->
   <!-- MODAL: CREATE NEW BATCH                                                   -->
   <!-- ========================================================================= -->
+    <!-- ========================================================================= -->
+  <!-- MODAL: START NEW BATCH // AI CONCEPT ENGINE                               -->
+  <!-- ========================================================================= -->
   <div id="newBatchModal" class="hidden fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
-    <div class="bg-[#0d121f] border border-pink-500/60 rounded-2xl max-w-md w-full p-5 space-y-4 shadow-2xl">
+    <div class="bg-[#0d121f] border border-pink-500/80 rounded-2xl max-w-lg w-full p-6 space-y-5 shadow-2xl shadow-pink-950/50">
+      
+      <!-- HEADER -->
       <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-        <h2 class="font-orbitron font-black text-sm text-pink-400 flex items-center gap-2">
-          <span>+</span> CREATE NEW DIECAST BATCH
-        </h2>
-        <button onclick="toggleModal('newBatchModal')" class="text-slate-400 hover:text-white font-bold text-sm">✕ Close</button>
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-pink-500/20 border border-pink-500/50 flex items-center justify-center text-pink-400 text-xl font-bold">
+            ✨
+          </div>
+          <div>
+            <h2 class="font-orbitron font-black text-sm text-pink-400 flex items-center gap-2">
+              START NEW BATCH // AI CONCEPT ENGINE
+            </h2>
+            <p class="text-xs text-slate-400">Prompt donor model & canvas → Generates 8 real-time ideas → Pick 1 for 3 sub-ideas</p>
+          </div>
+        </div>
+        <button onclick="toggleModal('newBatchModal')" class="text-slate-400 hover:text-white font-bold text-sm">✕</button>
       </div>
 
-      <div class="space-y-3">
-        <div class="grid grid-cols-2 gap-2">
-          <div>
-            <label class="text-slate-400 block mb-1">Batch ID</label>
-            <input type="text" id="newBatchId" value="B-035" class="w-full bg-slate-950 p-2 rounded-lg border border-slate-800 text-cyan-300 font-mono font-bold outline-none">
-          </div>
-          <div>
-            <label class="text-slate-400 block mb-1">Initial Lane</label>
-            <select id="newBatchSection" class="w-full bg-slate-950 p-2 rounded-lg border border-slate-800 text-white font-bold outline-none">
-              <option value="ideas">💡 3. Ideas & Sourcing</option>
-              <option value="wip">⚡ 2. Work in Progress</option>
-              <option value="active">🔮 1. Active Drops</option>
-            </select>
-          </div>
-        </div>
-
+      <div class="space-y-4">
+        <!-- FIELD 1: MODEL / CASTING -->
         <div>
-          <label class="text-slate-400 block mb-1">Theme Title</label>
-          <input type="text" id="newBatchTheme" placeholder="e.g. Neon Cyberpunk" class="w-full bg-slate-950 p-2 rounded-lg border border-slate-800 text-white font-bold outline-none">
-        </div>
-
-        <div class="grid grid-cols-2 gap-2">
-          <div>
-            <label class="text-slate-400 block mb-1">Casting Model</label>
-            <input type="text" id="newBatchModel" placeholder="e.g. Datsun 240Z" class="w-full bg-slate-950 p-2 rounded-lg border border-slate-800 text-white font-bold outline-none">
-          </div>
-          <div>
-            <label class="text-slate-400 block mb-1">Base Color</label>
-            <input type="text" id="newBatchColor" placeholder="e.g. Midnight Black" class="w-full bg-slate-950 p-2 rounded-lg border border-slate-800 text-white font-bold outline-none">
+          <label class="text-xs text-slate-300 font-bold block mb-1">1. CASTING / MODEL ON HAND</label>
+          <input type="text" id="promptBatchModel" value="Hot Wheels Dairy Delivery" placeholder="e.g. Dairy Delivery, '55 Gasser, '83 Silverado" class="w-full bg-slate-950 p-2.5 rounded-xl border border-slate-700 text-white font-bold text-xs outline-none focus:border-pink-500">
+          <div class="flex items-center gap-1.5 mt-1.5 flex-wrap">
+            <span class="text-[10px] text-slate-500 font-mono">QUICK:</span>
+            <button type="button" onclick="document.getElementById('promptBatchModel').value='Hot Wheels Dairy Delivery'" class="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-slate-800 text-[10px] text-cyan-300">Dairy Delivery</button>
+            <button type="button" onclick="document.getElementById('promptBatchModel').value=''55 Chevy Gasser'" class="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-slate-800 text-[10px] text-cyan-300">'55 Gasser</button>
+            <button type="button" onclick="document.getElementById('promptBatchModel').value=''83 Chevy Silverado'" class="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-slate-800 text-[10px] text-cyan-300">'83 Silverado</button>
+            <button type="button" onclick="document.getElementById('promptBatchModel').value='Porsche 935'" class="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-slate-800 text-[10px] text-cyan-300">Porsche 935</button>
+            <button type="button" onclick="document.getElementById('promptBatchModel').value='Nissan Skyline GT-R R34'" class="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-slate-800 text-[10px] text-cyan-300">Skyline R34</button>
           </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-2">
-          <div>
-            <label class="text-slate-400 block mb-1">Planned Qty</label>
-            <input type="text" id="newBatchQty" value="10 Reg • 1 Chase" class="w-full bg-slate-950 p-2 rounded-lg border border-slate-800 text-cyan-300 font-mono font-bold outline-none">
-          </div>
-          <div>
-            <label class="text-slate-400 block mb-1">MSRP Price ($)</label>
-            <input type="number" id="newBatchPrice" value="50" class="w-full bg-slate-950 p-2 rounded-lg border border-slate-800 text-emerald-400 font-mono font-bold outline-none">
+        <!-- FIELD 2: COLOR / CANVAS & WHEELS -->
+        <div>
+          <label class="text-xs text-slate-300 font-bold block mb-1">2. BODY COLOR / CANVAS & WHEELS</label>
+          <input type="text" id="promptBatchColor" value="White body with purple wheels" placeholder="e.g. White body with purple wheels, Matte black with gold wheels" class="w-full bg-slate-950 p-2.5 rounded-xl border border-slate-700 text-white font-bold text-xs outline-none focus:border-pink-500">
+          <div class="flex items-center gap-1.5 mt-1.5 flex-wrap">
+            <span class="text-[10px] text-slate-500 font-mono">QUICK:</span>
+            <button type="button" onclick="document.getElementById('promptBatchColor').value='White body with purple wheels'" class="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-slate-800 text-[10px] text-pink-300">White + Purple Wheels</button>
+            <button type="button" onclick="document.getElementById('promptBatchColor').value='Satin matte black with gold deep dish'" class="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-slate-800 text-[10px] text-pink-300">Black + Gold Wheels</button>
+            <button type="button" onclick="document.getElementById('promptBatchColor').value='Raw Zamac polished metal with chrome real riders'" class="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-slate-800 text-[10px] text-pink-300">Raw Zamac + Chrome</button>
+            <button type="button" onclick="document.getElementById('promptBatchColor').value='Candy violet pearl with white deep dish'" class="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-slate-800 text-[10px] text-pink-300">Candy Violet + White</button>
           </div>
         </div>
 
-        <button onclick="submitNewBatch()" class="w-full py-3 rounded-xl bg-pink-600 hover:bg-pink-500 text-white font-orbitron font-black text-xs shadow-lg transition active:scale-95">
-          🚀 ADD BATCH TO WORKSHOP
+        <!-- FIELD 3: CREATIVE NOTES / VIBE -->
+        <div>
+          <label class="text-xs text-slate-300 font-bold block mb-1">3. CREATIVE NOTES / VIBE (OPTIONAL)</label>
+          <input type="text" id="promptBatchNotes" value="Neon synthwave, anime tampos, streetwear typography" placeholder="e.g. 70s drag flames, Bosozoku, cyberpunk graffiti" class="w-full bg-slate-950 p-2.5 rounded-xl border border-slate-700 text-white font-bold text-xs outline-none focus:border-pink-500">
+          <div class="flex items-center gap-1.5 mt-1.5 flex-wrap">
+            <span class="text-[10px] text-slate-500 font-mono">VIBES:</span>
+            <button type="button" onclick="document.getElementById('promptBatchNotes').value='Neon synthwave, cyberpunk glow'" class="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-slate-800 text-[10px] text-emerald-300">Synthwave</button>
+            <button type="button" onclick="document.getElementById('promptBatchNotes').value='Tokyo street drift, Japanese kanji livery'" class="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-slate-800 text-[10px] text-emerald-300">Tokyo Drift</button>
+            <button type="button" onclick="document.getElementById('promptBatchNotes').value='Vintage 70s raceway drag flames'" class="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-slate-800 text-[10px] text-emerald-300">70s Drag Flames</button>
+            <button type="button" onclick="document.getElementById('promptBatchNotes').value='Kawaii pastel streetwear pop art'" class="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-slate-800 text-[10px] text-emerald-300">Streetwear Pop</button>
+          </div>
+        </div>
+
+        <!-- CTA BUTTON -->
+        <button onclick="startNewBatchIdeaFlow()" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-orbitron font-black text-xs tracking-wider shadow-lg shadow-pink-600/30 transition active:scale-95 flex items-center justify-center gap-2">
+          <span>✨</span> GENERATE 8 REAL-TIME CONCEPTS →
         </button>
       </div>
+
     </div>
   </div>
-
-
 
   <!-- ========================================================================= -->
   <!-- AI NEURAL PROCESSING OVERLAY (ANIMATED TELEMETRY SCREEN)                  -->
@@ -624,21 +635,18 @@
         <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
           <div>
             <label class="text-[11px] text-slate-400 font-bold block mb-1">CASTING ON HAND</label>
-            <input type="text" id="donorCastingInput" value="Hot Wheels Dairy Delivery" placeholder="e.g. Dairy Delivery, '55 Gasser, Porsche 935" class="w-full bg-slate-900 p-2.5 rounded-lg border border-slate-700 text-white font-bold text-xs outline-none focus:border-pink-500">
+            <input type="text" id="donorCastingInput" value="Hot Wheels Dairy Delivery" placeholder="e.g. Dairy Delivery, '55 Gasser" class="w-full bg-slate-900 p-2.5 rounded-lg border border-slate-700 text-white font-bold text-xs outline-none focus:border-pink-500">
           </div>
-
           <div>
             <label class="text-[11px] text-slate-400 font-bold block mb-1">BASE COAT / BODY COLOR</label>
-            <input type="text" id="donorBodyPaintInput" value="Gloss Alpine White" placeholder="e.g. White, Satin Black, Candy Violet, Raw Zamac" class="w-full bg-slate-900 p-2.5 rounded-lg border border-slate-700 text-white font-bold text-xs outline-none focus:border-pink-500">
+            <input type="text" id="donorBodyPaintInput" value="Gloss Alpine White" placeholder="e.g. Gloss White, Satin Black" class="w-full bg-slate-900 p-2.5 rounded-lg border border-slate-700 text-white font-bold text-xs outline-none focus:border-pink-500">
           </div>
-
           <div>
-            <label class="text-[11px] text-slate-400 font-bold block mb-1">WHEEL SETUP / ACCENT</label>
-            <input type="text" id="donorWheelInput" value="Purple Deep Dish Real Riders" placeholder="e.g. Purple Real Riders, Gold 5-Spoke, Chrome" class="w-full bg-slate-900 p-2.5 rounded-lg border border-slate-700 text-white font-bold text-xs outline-none focus:border-pink-500">
+            <label class="text-[11px] text-slate-400 font-bold block mb-1">WHEELS & CREATIVE NOTES</label>
+            <input type="text" id="donorWheelInput" value="Purple Deep Dish Real Riders" placeholder="e.g. Purple Wheels, Synthwave vibe" class="w-full bg-slate-900 p-2.5 rounded-lg border border-slate-700 text-white font-bold text-xs outline-none focus:border-pink-500">
           </div>
-
           <div class="flex items-end">
-            <button onclick="runRealtimeDynamicGenerator()" class="w-full py-2.5 rounded-lg bg-gradient-to-r from-pink-600 via-purple-600 to-cyan-500 hover:from-pink-500 hover:to-cyan-400 text-white font-orbitron font-black text-xs shadow-lg shadow-pink-900/40 flex items-center justify-center gap-2 transition active:scale-95">
+            <button onclick="runRealtimeDynamicGenerator()" class="w-full py-2.5 rounded-lg bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-orbitron font-black text-xs shadow-lg transition flex items-center justify-center gap-1.5">
               <span>⚡</span> CALL AI: GENERATE 8 & SHOWCASE
             </button>
           </div>
@@ -1622,112 +1630,276 @@
       }, 2400);
     }
 
+    function startNewBatchIdeaFlow() {
+      const model = document.getElementById('promptBatchModel').value.trim() || 'Hot Wheels Dairy Delivery';
+      const color = document.getElementById('promptBatchColor').value.trim() || 'White body with purple wheels';
+      const notes = document.getElementById('promptBatchNotes').value.trim() || '';
+
+      // Determine next batch ID
+      const nextId = 'B-0' + (workshopBatches.length + 1);
+      window.pendingBatchId = nextId;
+
+      // Transfer values to Concept Studio
+      if (document.getElementById('donorCastingInput')) document.getElementById('donorCastingInput').value = model;
+      if (document.getElementById('donorBodyPaintInput')) document.getElementById('donorBodyPaintInput').value = color;
+      if (document.getElementById('donorWheelInput')) document.getElementById('donorWheelInput').value = notes ? (color + ' • ' + notes) : color;
+
+      // Close prompt modal and open Idea Studio
+      toggleModal('newBatchModal');
+      const modal = document.getElementById('conceptGenModal');
+      if (modal) modal.classList.remove('hidden');
+
+      // Trigger dynamic generation in website!
+      runRealtimeDynamicGenerator();
+    }
+
     function runRealtimeDynamicGenerator() {
       const casting = document.getElementById('donorCastingInput').value.trim() || 'Hot Wheels Dairy Delivery';
       const paint = document.getElementById('donorBodyPaintInput').value.trim() || 'Gloss Alpine White';
       const wheels = document.getElementById('donorWheelInput').value.trim() || 'Purple Deep Dish Real Riders';
 
       showAiProcessing(casting, () => {
-        // DYNAMIC SHUFFLE: Pick 8 random distinct themes from 24+ available archetypes
-        const shuffled = [...CREATIVE_THEMES_LIBRARY].sort(() => 0.5 - Math.random());
-        const selectedEight = shuffled.slice(0, 8);
+        const isWhitePurpleDairy = (casting.toLowerCase().includes('dairy') && (paint.toLowerCase().includes('white') || wheels.toLowerCase().includes('purple')));
 
         currentDynamicStarters = [];
 
-        selectedEight.forEach((arch, idx) => {
-          const title = arch.title;
-          const badge = arch.badge;
-          const primary = arch.p;
-          const accent = arch.a;
-
-          // Check if this matches the iconic white + purple dairy photo crop
-          const cropKey = Object.keys(STARTER_CROPS)[idx % Object.keys(STARTER_CROPS).length];
-          const isWhitePurpleDairy = (casting.toLowerCase().includes('dairy') && paint.toLowerCase().includes('white') && wheels.toLowerCase().includes('purple'));
-          const cardImg = (isWhitePurpleDairy && STARTER_CROPS[cropKey]) ? STARTER_CROPS[cropKey] : generateSubIdeaCarSvg(paint, wheels, primary, accent, title);
-
-          // Generate 3 sub-ideas
-          const sub1Title = title + ' // MINIMAL SPEC';
-          const sub2Title = title + ' // HEAVY AEROSOL';
-          const sub3Title = title + ' // HERITAGE DRAG';
-
-          const variations = [
+        if (isWhitePurpleDairy) {
+          // 8 SIGNATURE PHOTOREALISTIC CONCEPTS FROM THE ACRYLIC SHOWCASE
+          const whitePurpleConcepts = [
             {
-              title: sub1Title,
-              subName: 'Minimalist Clean Spec',
-              badge: badge,
-              badgeColor: 'border-cyan-500 bg-cyan-950 text-cyan-300',
-              baseName: paint,
-              wheelName: wheels,
-              primaryInk: primary,
-              accentInk: accent,
-              story: `Clean precision layout of ${title} with hairline pinstripes and subtle negative space.`,
-              sideLivery: `Refined side panel insignia with micro-typography calibrated for ${casting}.`,
-              roofLivery: `Subtle longitudinal center racing pinstripe.`,
-              uvSpecs: `100% Solid White Underbase • 600 DPI CMYK pass.`,
-              cardback: `Sleek minimalist blister card with matte black background and silver badge.`,
-              chaseIdea: `1-of-10 Chase: Raw Zamac body with translucent tinted clearcoat.`,
-              img: (isWhitePurpleDairy && STARTER_CROPS[cropKey]) ? STARTER_CROPS[cropKey] : generateSubIdeaCarSvg(paint, wheels, primary, accent, 'MINIMAL')
+              id: 'starter_0',
+              title: 'PURPLE HAZE',
+              badge: 'PSYCHEDELIC FLAKE',
+              badgeColor: 'border-purple-500 bg-purple-950 text-purple-300',
+              img: 'assets/showcase_purple_haze.png',
+              desc: 'Ultraviolet holographic flake with hypnotic flowing psychedelic contour line tampos.',
+              p: '#9333ea', a: '#e879f9'
             },
             {
-              title: sub2Title,
-              subName: 'Aggressive High-Impact',
-              badge: 'HIGH IMPACT',
+              id: 'starter_1',
+              title: 'GALAXY GROOVE',
+              badge: 'COSMIC NEBULA',
+              badgeColor: 'border-indigo-500 bg-indigo-950 text-indigo-300',
+              img: 'assets/showcase_galaxy_groove.png',
+              desc: 'Deep cosmic stardust nebula with constellation clusters and starlight deep-dish rims.',
+              p: '#6366f1', a: '#a855f7'
+            },
+            {
+              id: 'starter_2',
+              title: 'SWEET SHOTS',
+              badge: 'RETRO POP SODA',
               badgeColor: 'border-pink-500 bg-pink-950 text-pink-300',
-              baseName: paint,
-              wheelName: wheels,
-              primaryInk: primary,
-              accentInk: '#facc15',
-              story: `Explosive full-coverage livery with vibrant multi-layer decals and heavy textures.`,
-              sideLivery: `Massive custom side decal wrapping around fender arches with splatter highlights.`,
-              roofLivery: `High-impact top-down graphic panel covering full roof width.`,
-              uvSpecs: `Raised 3D Clear Gloss UV Varnish (+0.3mm relief) on typography and logos.`,
-              cardback: `High-energy neon blister card with foil-stamped collector numbering.`,
-              chaseIdea: `1-of-10 Chase: Glow-in-the-dark base coat with high-contrast black tampo.`,
-              img: (isWhitePurpleDairy && STARTER_CROPS[cropKey]) ? STARTER_CROPS[cropKey] : generateSubIdeaCarSvg(paint, wheels, primary, '#facc15', 'IMPACT')
+              img: 'assets/showcase_sweet_shots.png',
+              desc: 'Japanese grape soda pop art with retro bubble typography and chrome accent lips.',
+              p: '#ec4899', a: '#f43f5e'
             },
             {
-              title: sub3Title,
-              subName: 'Heritage Drag Scallop',
-              badge: 'HERITAGE VINTAGE',
+              id: 'starter_3',
+              title: 'AMETHYST DRIFT',
+              badge: 'JAPANESE KANJO',
+              badgeColor: 'border-violet-500 bg-violet-950 text-violet-300',
+              img: 'assets/showcase_amethyst_drift.png',
+              desc: 'Tokyo midnight highway drift livery with angular geometric vinyls and speed kanji.',
+              p: '#8b5cf6', a: '#06b6d4'
+            },
+            {
+              id: 'starter_4',
+              title: 'RETRO WAVE',
+              badge: '80S SYNTHWAVE',
+              badgeColor: 'border-cyan-500 bg-cyan-950 text-cyan-300',
+              img: 'assets/showcase_retro_wave.png',
+              desc: 'Outrun sunset wireframe grid with chrome horizontal laser fades across the body panel.',
+              p: '#06b6d4', a: '#d946ef'
+            },
+            {
+              id: 'starter_5',
+              title: 'LAVENDER LEAP',
+              badge: 'PASTEL STREET',
+              badgeColor: 'border-fuchsia-500 bg-fuchsia-950 text-fuchsia-300',
+              img: 'assets/showcase_lavender_leap.png',
+              desc: 'Playful pastel streetwear livery with contemporary urban iconography and matte topcoat.',
+              p: '#d946ef', a: '#f0abfc'
+            },
+            {
+              id: 'starter_6',
+              title: 'NEON NIGHT',
+              badge: 'CYBER UNDERGLOW',
+              badgeColor: 'border-emerald-500 bg-emerald-950 text-emerald-300',
+              img: 'assets/showcase_neon_night.png',
+              desc: 'Cyberpunk night runner with high-voltage neon circuit tracings and dark contrast tampos.',
+              p: '#10b981', a: '#8b5cf6'
+            },
+            {
+              id: 'starter_7',
+              title: 'VIOLET VROOM',
+              badge: 'HERITAGE DRAG',
               badgeColor: 'border-amber-500 bg-amber-950 text-amber-300',
-              baseName: paint,
-              wheelName: wheels,
-              primaryInk: primary,
-              accentInk: '#38bdf8',
-              story: `1970s heritage racing tribute with scalloped panel fades and classic racing numbers.`,
-              sideLivery: `Swooping scalloped side graphics with distressed vintage racing numbering.`,
-              roofLivery: `Finish-line checkerboard roof panel with dual accent borders.`,
-              uvSpecs: `Selective white underbase allowing metal flake to shimmer through ink.`,
-              cardback: `1970s sunburst raceway blister card with vintage trophy emblems.`,
-              chaseIdea: `1-of-10 Chase: Solid 24K gold-plated wheels with deep-dish drag slicks.`,
-              img: (isWhitePurpleDairy && STARTER_CROPS[cropKey]) ? STARTER_CROPS[cropKey] : generateSubIdeaCarSvg(paint, wheels, primary, '#38bdf8', 'HERITAGE')
+              img: 'assets/showcase_violet_vroom.png',
+              desc: '1970s vintage dragstrip scallop flames with silver pin-striping and racing slicks.',
+              p: '#f59e0b', a: '#a855f7'
             }
           ];
 
-          currentDynamicStarters.push({
-            id: 'starter_' + idx,
-            name: (idx + 1) + '. ' + title,
-            title: title,
-            badge: badge,
-            badgeColor: 'border-pink-500/60 bg-pink-950/80 text-pink-300',
-            img: cardImg,
-            desc: arch.desc,
-            variations: variations
-          });
-        });
+          whitePurpleConcepts.forEach((c, idx) => {
+            const variations = [
+              {
+                title: c.title + ' // TRACK SPEC',
+                subName: 'Motorsport Racing Livery',
+                badge: 'TRACK SPEC',
+                badgeColor: 'border-cyan-500 bg-cyan-950 text-cyan-300',
+                baseName: paint,
+                wheelName: wheels,
+                primaryInk: c.p,
+                accentInk: c.a,
+                story: `Aggressive motorsport track layout for ${c.title}. Features door #13 roundel, sponsor decals (Sparco, Gulf, Goodyear), and front aero splitter.`,
+                sideLivery: `Door #13 racing roundel + micro sponsor decal stack + aerodynamic speed sweep.`,
+                roofLivery: `Dual bold longitudinal racing stripes with roof number tampo.`,
+                uvSpecs: `100% Solid White Underbase • 600 DPI CMYK pass • Spot Matte Varnish.`,
+                cardback: `Checkered raceway blister card with metallic silver foil badge.`,
+                chaseIdea: `1-of-10 Chase: Raw Zamac unpainted body with violet tinted clearcoat.`,
+                img: 'assets/sub_idea_dairy_track.jpg'
+              },
+              {
+                title: c.title + ' // NEO-TUNER',
+                subName: 'Slammed Geometric Street',
+                badge: 'NEO-TUNER',
+                badgeColor: 'border-pink-500 bg-pink-950 text-pink-300',
+                baseName: paint,
+                wheelName: wheels,
+                primaryInk: c.p,
+                accentInk: '#06b6d4',
+                story: `Low-slammed street tuner edition of ${c.title}. Geometric ultraviolet angle cuts, Japanese kanji micro-typography, and gloss black roof accent.`,
+                sideLivery: `Large geometric side panel wrap + Japanese kanji text + angled speed gradients.`,
+                roofLivery: `Solid gloss black roof with centered laser-etched insignia.`,
+                uvSpecs: `Raised 3D Clear Gloss UV Varnish (+0.3mm relief) on typography and logos.`,
+                cardback: `Tokyo midnight highway neon card with holographic serial number.`,
+                chaseIdea: `1-of-10 Chase: Glow-in-the-dark base paint with high-voltage purple circuits.`,
+                img: 'assets/sub_idea_dairy_tuner.jpg'
+              },
+              {
+                title: c.title + ' // SHOW CAR',
+                subName: 'Ghost Pearl & Chrome',
+                badge: 'LUXURY SHOW',
+                badgeColor: 'border-amber-500 bg-amber-950 text-amber-300',
+                baseName: paint,
+                wheelName: wheels,
+                primaryInk: c.p,
+                accentInk: '#facc15',
+                story: `Concourse show car edition of ${c.title}. Translucent ghost pearl graphics shimmering over white, delicate pinstriping, and mirror chrome accents.`,
+                sideLivery: `Delicate swooping pinstripe flourishes + minimalist crest badge.`,
+                roofLivery: `Elegantly framed geometric roof panel with micro-pin lines.`,
+                uvSpecs: `Selective white underbase allowing pearlescent flake to shimmer through ink.`,
+                cardback: `Luxury matte black velvet-touch blister card with gold foil seal.`,
+                chaseIdea: `1-of-10 Chase: 24K gold-plated wheels with deep-dish chrome lips.`,
+                img: 'assets/sub_idea_dairy_1.jpg'
+              }
+            ];
 
-        // Render Big Showcase Image
-        const showcaseContainer = document.getElementById('dynamicShowcaseContainer');
-        const titleEl = document.getElementById('showcaseDisplayTitle');
-        const isWhitePurpleDairy = (casting.toLowerCase().includes('dairy') && paint.toLowerCase().includes('white') && wheels.toLowerCase().includes('purple'));
-        
-        if (isWhitePurpleDairy) {
-          showcaseContainer.innerHTML = `<img src="${SHOWCASE_PHOTO_DEFAULT}" class="w-full max-h-72 object-contain mx-auto transition duration-500 group-hover:scale-[1.02]">`;
-          if (titleEl) titleEl.innerText = `ILLUMINATED SHOWCASE: 8 CONCEPTS ON ${casting.toUpperCase()} (${paint.toUpperCase()} • ${wheels.toUpperCase()})`;
+            currentDynamicStarters.push({
+              id: c.id,
+              name: (idx + 1) + '. ' + c.title,
+              title: c.title,
+              badge: c.badge,
+              badgeColor: c.badgeColor,
+              img: c.img,
+              desc: c.desc,
+              variations: variations
+            });
+          });
+
+          const showcaseContainer = document.getElementById('dynamicShowcaseContainer');
+          const titleEl = document.getElementById('showcaseDisplayTitle');
+          showcaseContainer.innerHTML = `<img src="assets/showcase_8_dairy_purple.jpg" class="w-full max-h-80 object-cover object-center rounded-xl shadow-2xl">`;
+          if (titleEl) titleEl.innerText = `ILLUMINATED SHOWCASE: 8 CONCEPTS ON ${casting.toUpperCase()} (${paint.toUpperCase()})`;
+
         } else {
-          const svgContent = generateShowcaseSvg(casting, paint, wheels, currentDynamicStarters);
-          showcaseContainer.innerHTML = svgContent;
-          if (titleEl) titleEl.innerText = `DYNAMIC 8-CAR SHOWCASE: ${casting.toUpperCase()} (${paint.toUpperCase()} • ${wheels.toUpperCase()})`;
+          // DYNAMIC CUSTOM GENERATION FOR ANY OTHER MODEL OR COLOR
+          const archetypes = [
+            { t: 'NEO CYBERPUNK', b: 'CYBER RUNNER', s: 'High-voltage circuitry and holographic tampos', p: '#00f0ff', a: '#ff007f' },
+            { t: 'TOKYO MIDNIGHT', b: 'DRIFT SPEC', s: 'Kanjo racer with Japanese katakana livery', p: '#8b5cf6', a: '#06b6d4' },
+            { t: 'VINTAGE SCALLOPS', b: 'HERITAGE DRAG', s: '1970s drag flames with silver pinstripes', p: '#f59e0b', a: '#ef4444' },
+            { t: 'ACID SPLASH', b: 'STREET ART', s: 'Aerosol splatter graffiti and urban drips', p: '#10b981', a: '#eab308' },
+            { t: 'GHOST PEARL', b: 'LUXURY SHOW', s: 'Translucent ghost pearls and polished chrome', p: '#94a3b8', a: '#38bdf8' },
+            { t: 'TRACK DAY 13', b: 'RACE LIVERY', s: 'Motorsport livery with number 13 tampo and sponsors', p: '#3b82f6', a: '#f97316' },
+            { t: 'RETRO HORIZON', b: 'SYNTHWAVE', s: 'Outrun sunset wireframe grid with chrome gradient', p: '#ec4899', a: '#6366f1' },
+            { t: 'RAW STEALTH', b: 'PROTOTYPE', s: 'Matte stealth finish with high-contrast safety badges', p: '#64748b', a: '#22c55e' }
+          ];
+
+          archetypes.forEach((arch, idx) => {
+            const promptSeed = Math.floor(Math.random() * 89999) + 10000;
+            const imgUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent('Hot wheels 1:64 scale diecast ' + casting + ', ' + paint + ', ' + arch.t + ' livery, ' + wheels + ', miniature studio macro photography, sharp focus, 8k')}?width=400&height=260&nologo=true&seed=${promptSeed}`;
+
+            const variations = [
+              {
+                title: arch.t + ' // TRACK SPEC',
+                subName: 'Motorsport Track Spec',
+                badge: 'TRACK SPEC',
+                badgeColor: 'border-cyan-500 bg-cyan-950 text-cyan-300',
+                baseName: paint,
+                wheelName: wheels,
+                primaryInk: arch.p,
+                accentInk: arch.a,
+                story: `Aggressive track racing edition with number 13 tampo, sponsor logos, and front splitter.`,
+                sideLivery: `Door number roundel + sponsor stack + aerodynamic side sweep.`,
+                roofLivery: `Dual longitudinal racing stripes with roof tampo.`,
+                uvSpecs: `100% Solid White Underbase • 600 DPI CMYK pass.`,
+                cardback: `Motorsport collector card with silver badge.`,
+                chaseIdea: `1-of-10 Chase: Raw Zamac body with translucent tint.`,
+                img: `https://image.pollinations.ai/prompt/${encodeURIComponent('Hot wheels 1:64 scale diecast ' + casting + ', ' + paint + ', ' + arch.t + ' aggressive track racing livery with racing numbers, sponsor tampos, front splitter, miniature macro photo, 8k')}?width=500&height=320&nologo=true&seed=${promptSeed + 1}`
+              },
+              {
+                title: arch.t + ' // NEO-TUNER',
+                subName: 'Slammed Geometric Street',
+                badge: 'NEO-TUNER',
+                badgeColor: 'border-pink-500 bg-pink-950 text-pink-300',
+                baseName: paint,
+                wheelName: wheels,
+                primaryInk: arch.p,
+                accentInk: '#06b6d4',
+                story: `Low slammed street tuner with geometric vinyl cuts and modern micro-typography.`,
+                sideLivery: `Geometric side panel wrap + sharp angles.`,
+                roofLivery: `Contrast gloss black roof panel.`,
+                uvSpecs: `Raised 3D Clear Gloss UV Varnish on graphics.`,
+                cardback: `Neon street card with holographic seal.`,
+                chaseIdea: `1-of-10 Chase: Glow base with dark circuits.`,
+                img: `https://image.pollinations.ai/prompt/${encodeURIComponent('Hot wheels 1:64 scale diecast ' + casting + ', ' + paint + ', ' + arch.t + ' slammed neo-tuner street style with geometric side graphics, two-tone roof, miniature macro photo, 8k')}?width=500&height=320&nologo=true&seed=${promptSeed + 2}`
+              },
+              {
+                title: arch.t + ' // SHOW CAR',
+                subName: 'Ghost Pearl & Chrome',
+                badge: 'SHOW CAR',
+                badgeColor: 'border-amber-500 bg-amber-950 text-amber-300',
+                baseName: paint,
+                wheelName: wheels,
+                primaryInk: arch.p,
+                accentInk: '#facc15',
+                story: `Concourse show car with subtle ghost pearlescent decals and chrome trim.`,
+                sideLivery: `Subtle pinstriping + minimalist logo.`,
+                roofLivery: `Framed micro-pin roof line.`,
+                uvSpecs: `Selective white underbase for pearlescent shimmer.`,
+                cardback: `Luxury matte black card with gold foil seal.`,
+                chaseIdea: `1-of-10 Chase: 24K gold wheels.`,
+                img: `https://image.pollinations.ai/prompt/${encodeURIComponent('Hot wheels 1:64 scale diecast ' + casting + ', ' + paint + ', ' + arch.t + ' clean luxury show car with subtle pearl ghost graphics and chrome trim, miniature macro photo, 8k')}?width=500&height=320&nologo=true&seed=${promptSeed + 3}`
+              }
+            ];
+
+            currentDynamicStarters.push({
+              id: 'starter_' + idx,
+              name: (idx + 1) + '. ' + arch.t,
+              title: arch.t,
+              badge: arch.b,
+              badgeColor: 'border-pink-500/60 bg-pink-950/80 text-pink-300',
+              img: imgUrl,
+              desc: arch.s,
+              variations: variations
+            });
+          });
+
+          const showcaseContainer = document.getElementById('dynamicShowcaseContainer');
+          const titleEl = document.getElementById('showcaseDisplayTitle');
+          const showcaseUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent('Commercial studio macro photography of clear acrylic collector display case holding 8 custom 1:64 scale Hot Wheels diecast models of ' + casting + ' in ' + paint + ' with ' + wheels + ' liveries, sharp focus, 8k')}?width=960&height=480&nologo=true&seed=88`;
+          showcaseContainer.innerHTML = `<img src="${showcaseUrl}" class="w-full max-h-80 object-cover object-center rounded-xl shadow-2xl">`;
+          if (titleEl) titleEl.innerText = `DYNAMIC 8-CAR SHOWCASE: ${casting.toUpperCase()} (${paint.toUpperCase()})`;
         }
 
         renderStarterCards();
@@ -1743,12 +1915,12 @@
 
       currentDynamicStarters.forEach((dir, idx) => {
         const card = document.createElement('div');
-        card.className = "bg-slate-950/90 rounded-2xl border border-slate-800 hover:border-pink-500/70 p-3 flex flex-col justify-between space-y-3 shadow-xl transition hover:-translate-y-1 group";
+        card.className = "bg-slate-950/90 rounded-2xl border border-slate-800 hover:border-pink-500/70 p-3 flex flex-col justify-between space-y-3 shadow-xl transition group";
         card.innerHTML = `
           <div class="space-y-2.5">
-            <div class="w-full h-32 rounded-xl bg-gradient-to-b from-slate-900 to-black p-1 border border-slate-800/80 flex items-center justify-center overflow-hidden relative cursor-pointer" onclick="pickDynamicStarter(${idx})">
-              <img src="${dir.img}" class="w-full h-full object-contain drop-shadow-xl transition duration-300 group-hover:scale-105">
-              <span class="absolute top-1.5 left-1.5 px-2 py-0.5 rounded text-[9px] font-orbitron font-bold border ${dir.badgeColor} shadow-md">
+            <div class="w-full h-36 rounded-xl bg-gradient-to-b from-slate-900 to-black p-1 border border-slate-800/80 flex items-center justify-center relative overflow-hidden group">
+              <img src="${dir.img}" class="w-full h-full object-cover rounded-lg drop-shadow-xl transition duration-300 group-hover:scale-105" loading="lazy" onerror="this.src='assets/crop_synthwave.png'">
+              <span class="absolute top-1.5 left-1.5 px-2 py-0.5 rounded text-[9px] font-orbitron font-bold border ${dir.badgeColor} backdrop-blur-sm">
                 ${dir.badge}
               </span>
             </div>
@@ -1757,7 +1929,7 @@
               <p class="text-[11px] text-slate-400 leading-snug mt-1">${dir.desc}</p>
             </div>
           </div>
-          <button onclick="pickDynamicStarter(${idx})" class="w-full py-2 rounded-xl bg-gradient-to-r from-pink-600/80 to-purple-600/80 hover:from-pink-500 hover:to-purple-500 text-white font-orbitron font-black text-[10px] shadow-lg shadow-pink-950/30 flex items-center justify-center gap-1.5 transition active:scale-95">
+          <button onclick="pickDynamicStarter(${idx})" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-orbitron font-black text-xs shadow-md transition active:scale-95 flex items-center justify-center gap-1.5">
             <span>👉</span> SELECT & CREATE 3 SUB-IDEAS
           </button>
         `;
@@ -1802,11 +1974,11 @@
               </span>
             </div>
 
-            <!-- SUB-IDEA IMAGE -->
-            <div class="w-full h-44 rounded-xl bg-gradient-to-b from-slate-900 to-black p-2 border border-slate-800/80 flex items-center justify-center relative overflow-hidden group">
-              <img src="${v.img}" class="w-full h-full object-contain drop-shadow-2xl transition duration-300 group-hover:scale-105">
-              <div class="absolute bottom-2 left-2 text-[9px] font-mono text-slate-400 bg-black/60 px-1.5 py-0.5 rounded border border-slate-800">
-                1:64 SUB-IDEA LIVERY RENDER
+            <!-- SUB-IDEA PHOTOREALISTIC IMAGE -->
+            <div class="w-full h-48 rounded-xl bg-gradient-to-b from-slate-900 to-black p-1 border border-slate-800/80 flex items-center justify-center relative overflow-hidden group">
+              <img src="${v.img}" alt="${v.title}" class="w-full h-full object-cover rounded-lg drop-shadow-2xl transition duration-300 group-hover:scale-105" loading="lazy" onerror="this.src='assets/sub_idea_dairy_1.jpg'">
+              <div class="absolute bottom-2 left-2 text-[9px] font-mono text-cyan-300 bg-black/75 px-2 py-0.5 rounded border border-cyan-500/40 backdrop-blur-sm">
+                1:64 PHOTOREALISTIC RENDER
               </div>
             </div>
 
@@ -1821,16 +1993,14 @@
               <div><strong class="text-slate-300">🚗 Side Livery:</strong> <span class="text-slate-400">${v.sideLivery}</span></div>
               <div><strong class="text-slate-300">🔝 Roof Livery:</strong> <span class="text-slate-400">${v.roofLivery}</span></div>
               <div><strong class="text-cyan-400 font-mono">🖨️ UV Recipe:</strong> <span class="text-slate-300">${v.uvSpecs}</span></div>
-              <div><strong class="text-pink-400">💎 Chase (1/10):</strong> <span class="text-slate-400">${v.chaseIdea}</span></div>
+              <div><strong class="text-amber-400 font-mono">🛞 Wheel Spec:</strong> <span class="text-slate-300">${v.wheelName}</span></div>
+              <div><strong class="text-pink-400 font-mono">🌟 Chase Spec:</strong> <span class="text-slate-300">${v.chaseIdea}</span></div>
             </div>
           </div>
 
-          <!-- ACTION BUTTON -->
-          <div class="pt-2 border-t border-slate-900">
-            <button onclick="lockInSubIdea('${dir.id}', ${idx})" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-orbitron font-black text-xs shadow-lg shadow-pink-900/30 flex items-center justify-center gap-2 transition active:scale-95">
-              <span>🚀</span> LOCK IN THIS SUB-IDEA & ADVANCE TO STEP 2
-            </button>
-          </div>
+          <button onclick="lockInSubIdea('${dir.id}', ${idx})" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 text-white font-orbitron font-black text-xs shadow-lg shadow-emerald-950/50 transition active:scale-95 flex items-center justify-center gap-2">
+            <span>⚡</span> LOCK IN CONCEPT → CREATE BATCH
+          </button>
         `;
         container.appendChild(card);
       });
@@ -1840,31 +2010,95 @@
       const dir = currentDynamicStarters.find(x => x.id === dirId);
       if (!dir) return;
       const v = dir.variations[varIdx];
-      const b = workshopBatches.find(x => x.id === currentActiveBatchId);
-      if (!b) return;
+      const casting = document.getElementById('donorCastingInput').value.trim() || 'Hot Wheels Custom';
+      const paint = document.getElementById('donorBodyPaintInput').value.trim() || 'Custom Finish';
+      const wheels = document.getElementById('donorWheelInput').value.trim() || 'Real Riders';
 
-      b.theme = v.title;
-      b.color = v.baseName + ' • ' + v.wheelName;
-      b.hero = v.img;
-      b.conceptData = v;
+      let targetBatch = null;
 
-      if (!b.completedSteps.includes(1)) {
-        b.completedSteps.push(1);
+      // If user came from + NEW BATCH flow
+      if (window.pendingBatchId) {
+        targetBatch = {
+          id: window.pendingBatchId,
+          theme: v.title,
+          model: casting,
+          color: paint,
+          status: 'Idea Sourced',
+          section: 'ideas', // Puts in Row 3: Ideas & Sourcing
+          currentStep: 1,
+          progress: 10,
+          price: 50.00,
+          qty: '10 Reg • 1 Chase',
+          carCost: 1.50,
+          whlCost: 3.00,
+          ovhCost: 2.00,
+          hero: v.img,
+          completedSteps: [1],
+          conceptData: v
+        };
+        workshopBatches.unshift(targetBatch);
+        currentActiveBatchId = targetBatch.id;
+        window.pendingBatchId = null;
+      } else {
+        targetBatch = workshopBatches.find(x => x.id === currentActiveBatchId);
+        if (!targetBatch) {
+          const nextId = 'B-0' + (workshopBatches.length + 1);
+          targetBatch = {
+            id: nextId,
+            theme: v.title,
+            model: casting,
+            color: paint,
+            status: 'Idea Sourced',
+            section: 'ideas',
+            currentStep: 1,
+            progress: 10,
+            price: 50.00,
+            qty: '10 Reg • 1 Chase',
+            carCost: 1.50,
+            whlCost: 3.00,
+            ovhCost: 2.00,
+            hero: v.img,
+            completedSteps: [1],
+            conceptData: v
+          };
+          workshopBatches.unshift(targetBatch);
+          currentActiveBatchId = targetBatch.id;
+        } else {
+          targetBatch.theme = v.title;
+          targetBatch.model = casting;
+          targetBatch.color = paint;
+          targetBatch.hero = v.img;
+          targetBatch.conceptData = v;
+          if (!targetBatch.completedSteps.includes(1)) {
+            targetBatch.completedSteps.push(1);
+          }
+        }
       }
-      b.currentStep = 2; // Advance to Step 2: Paint and Wheels (Rivet Drilling)
-      b.progress = Math.min(100, Math.round((b.completedSteps.length / 11) * 100));
 
       saveBatchesToStorage();
       renderFleetRows();
-      openBatchDetail(b.id);
+      openBatchDetail(targetBatch.id);
       toggleModal('conceptGenModal');
 
-      showToast(`✅ Locked in "${v.title}"! ${b.id} advanced to Step 2 (Paint & Wheels).`, '🚀');
+      setTimeout(() => {
+        const cardEl = document.querySelector(`[onclick="openBatchDetail('${targetBatch.id}')"]`);
+        if (cardEl) {
+          cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          cardEl.classList.add('ring-4', 'ring-pink-500', 'animate-pulse');
+          setTimeout(() => cardEl.classList.remove('ring-4', 'ring-pink-500', 'animate-pulse'), 3000);
+        }
+      }, 300);
+
+      showToast(`🚀 Locked in "${v.title}"! Batch ${targetBatch.id} ready in garage!`, '✨');
     }
 
     function backToStarterShowcase() {
-      document.getElementById('ideaStarterShowcaseView').classList.remove('hidden');
-      document.getElementById('threeVariationsView').classList.add('hidden');
+      const showcaseView = document.getElementById('ideaStarterShowcaseView');
+      const varView = document.getElementById('threeVariationsView');
+      if (showcaseView && varView) {
+        showcaseView.classList.remove('hidden');
+        varView.classList.add('hidden');
+      }
     }
 
     function openConceptGenModal() {
@@ -1881,11 +2115,9 @@
       const casting = document.getElementById('donorCastingInput').value.trim();
       const paint = document.getElementById('donorBodyPaintInput').value.trim();
       const wheels = document.getElementById('donorWheelInput').value.trim();
-      const prompt = `Professional commercial product photography of an illuminated clear acrylic collector display case with 2 shelves of 4 slots. Inside are 8 custom 1:64 scale diecast Hot Wheels ${casting} models with ${paint} bodies and ${wheels}. Top shelf: 1. Synthwave Neon, 2. Lowrider Lace, 3. Streetwear Drip, 4. Galaxy Nebula. Bottom shelf: 5. Drag Flames, 6. Grape Fizz Soda, 7. Cyberpunk Mecha, 8. Art Deco. Under each car is an illuminated metallic nameplate plaque. Studio lighting, sharp focus, 8k resolution, photorealistic.`;
+      const prompt = `Professional commercial product photography of an illuminated clear acrylic collector display case with 2 shelves of 4 slots. Inside are 8 custom 1:64 scale diecast Hot Wheels ${casting} models with ${paint} bodies and ${wheels}. Under each car is an illuminated metallic nameplate plaque. Studio lighting, sharp focus, 8k resolution, photorealistic.`;
       navigator.clipboard.writeText(prompt).then(() => {
-        showToast('Showcase AI Prompt copied to clipboard!', '📋');
-      }).catch(() => {
-        console.log(prompt);
+        showToast("Showcase AI prompt copied!", "📋");
       });
     }
 
@@ -1894,43 +2126,12 @@
       const casting = document.getElementById('donorCastingInput').value.trim();
       const paint = document.getElementById('donorBodyPaintInput').value.trim();
       const wheels = document.getElementById('donorWheelInput').value.trim();
-      const prompt = `Hero 45-degree angle studio turntable photograph of custom 1:64 scale Hot Wheels ${casting} diecast model. Body finished in ${paint} with ${wheels}. Livery theme: ${currentSelectedStarter.title}, featuring ${currentSelectedStarter.desc}. Clean white studio seamless background, reflections, commercial macro diecast photography, 8k.`;
+      const prompt = `Professional commercial studio macro photography of a single custom 1:64 scale diecast Hot Wheels ${casting} car. Body paint: ${paint}, wheels: ${wheels}. Livery: ${currentSelectedStarter.title}. Miniature macro photography, sharp focus, 8k resolution.`;
       navigator.clipboard.writeText(prompt).then(() => {
-        showToast('Sub-Idea AI Prompt copied to clipboard!', '📋');
-      }).catch(() => {
-        console.log(prompt);
+        showToast(`Copied AI prompt for ${currentSelectedStarter.title}!`, "📋");
       });
     }
 
-    const stepDefinitions = [
-      { id: 1, name: "1. Sourcing & Concept Alignment", desc: "Secure donor cars, define theme, color palette & batch limits." },
-      { id: 2, name: "2. Paint and Wheels (Rivet Drilling)", desc: "Center punch, drill rivets, paint base coat, cure 12-24h." },
-      { id: 3, name: "3. Digital Design & Prepress Calibration", desc: "Run 3-Concept Showdown, set +1.5mm bleed, generate 600 DPI passes." },
-      { id: 4, name: "4. Decals (eufyMake Printed & Set)", desc: "Direct-to-car or waterslide passes printed with white foundation." },
-      { id: 5, name: "5. Clear Coat & M2 Hex Assembly", desc: "Protective clear shine, tap M2 screw threads, install Real Riders & hex screws." },
-      { id: 6, name: "6. Loose Photos & Videos (Llama Cam)", desc: "360 loose car photography using calibrated 45° Hero wireframe." },
-      { id: 7, name: "7. Cardback Production (Print & Laser Cut)", desc: "24pt SBS board, dynamic title, collector #01/10, barcode & laser cut." },
-      { id: 8, name: "8. Final Blister Heat Sealing", desc: "Mount clear PET blister using Bemis Sewfree film at exactly 280°F for 10s." },
-      { id: 9, name: "9. Packaged Studio Photos", desc: "Front and back package shots tagged as [IMG_PKG_F] for website catalog." },
-      { id: 10, name: "10. CapCut ASMR & Reveal Videos", desc: "Generate T-72h Teaser, T-48h ASMR, and T-24h Reveal reels." },
-      { id: 11, name: "11. Set Date & Deploy Storefront", desc: "Sync Stripe buy link, publish to neonllamagarage.com public catalog." }
-    ];
-
-    let currentActiveBatchId = 'B-021';
-
-    function showToast(text, icon = '✅') {
-      const toast = document.getElementById('toastNotification');
-      document.getElementById('toastText').innerText = text;
-      document.getElementById('toastIcon').innerText = icon;
-      toast.classList.remove('opacity-0', 'translate-y-[-20px]', 'pointer-events-none');
-      toast.classList.add('opacity-100', 'translate-y-0');
-      setTimeout(() => {
-        toast.classList.remove('opacity-100', 'translate-y-0');
-        toast.classList.add('opacity-0', 'translate-y-[-20px]', 'pointer-events-none');
-      }, 2400);
-    }
-
-    // RENDER 4 HORIZONTAL ROWS ON LANDING PAGE (5-WIDE UNIFORM GRID)
     function renderFleetRows() {
       const row1El = document.getElementById('row1List');
       const row2El = document.getElementById('row2List');
