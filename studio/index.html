@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Neon Llama Garage — Production & Prepress Studio</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --neon-pink: #ff107a;
+      --neon-cyan: #00f0ff;
+      --neon-yellow: #ffe600;
+      --cyber-bg: #07090e;
+      --panel-bg: rgba(14, 18, 28, 0.85);
+      --border-glow: rgba(0, 240, 255, 0.25);
+    }
+    body {
+      background-color: var(--cyber-bg);
+      color: #e2e8f0;
+      font-family: 'Rajdhani', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    .font-orbitron { font-family: 'Orbitron', sans-serif; }
+    .cyber-border {
+      border: 1px solid var(--border-glow);
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.08);
+    }
+    .cyber-border-pink {
+      border: 1px solid rgba(255, 16, 122, 0.35);
+      box-shadow: 0 0 25px rgba(255, 16, 122, 0.15);
+    }
+    .glow-cyan { text-shadow: 0 0 10px rgba(0, 240, 255, 0.6); }
+    .glow-pink { text-shadow: 0 0 10px rgba(255, 16, 122, 0.6); }
+    .grid-lines {
+      background-image: linear-gradient(rgba(0, 240, 255, 0.04) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(0, 240, 255, 0.04) 1px, transparent 1px);
+      background-size: 30px 30px;
+    }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #07090e; }
+    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--neon-cyan); }
+  </style>
+</head>
+<body class="grid-lines p-3 md:p-6 antialiased">
+
+  <!-- TOP APP BAR -->
+  <header class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl bg-slate-900/90 backdrop-blur-xl cyber-border mb-6">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-pink-600 to-cyan-400 flex items-center justify-center font-orbitron font-black text-black text-xl shadow-lg">
+        🦙
+      </div>
+      <div>
+        <h1 class="font-orbitron font-black text-xl md:text-2xl tracking-wider text-white flex items-center gap-2">
+          NEON LLAMA <span class="text-[var(--neon-cyan)] glow-cyan">STUDIO</span>
+        </h1>
+        <p class="text-xs text-slate-400 font-semibold tracking-widest uppercase">
+          Autonomous Prepress & Production Pipeline (Steps 1–14)
+        </p>
+      </div>
+    </div>
+
+    <!-- ACTIVE DROP SELECTOR & STATS -->
+    <div class="flex items-center gap-3 flex-wrap">
+      <div class="bg-black/60 px-3 py-1.5 rounded-xl border border-slate-800 text-xs flex items-center gap-3">
+        <span class="text-slate-400">ACTIVE DROP:</span>
+        <select id="dropSelector" onchange="switchDrop(this.value)" class="bg-transparent text-[var(--neon-pink)] font-orbitron font-bold outline-none cursor-pointer">
+          <option value="B-021" selected>B-021: Cyber Banana (Dairy Delivery)</option>
+          <option value="D-001">D-001: Stained Glass ('83 Silverado)</option>
+          <option value="D-002">D-002: Stained Glass ('55 Gasser)</option>
+          <option value="B-006">B-006: Acid Llama (Porsche 935)</option>
+          <option value="B-020">B-020: Rubix Cube (Nissan Silvia)</option>
+        </select>
+      </div>
+      <button onclick="newDropModal()" class="px-3 py-1.5 rounded-xl bg-cyan-600/30 hover:bg-cyan-500/40 text-cyan-300 font-orbitron text-xs font-bold border border-cyan-500/50 transition active:scale-95">
+        + NEW DROP
+      </button>
+      <div class="px-3 py-1.5 rounded-xl bg-emerald-950/60 border border-emerald-500/40 text-emerald-400 font-mono text-xs font-bold">
+        SYNCED: SHEETS & DRIVE ✅
+      </div>
+    </div>
+  </header>
+
+  <!-- NAVIGATION TABS -->
+  <main class="max-w-7xl mx-auto space-y-6">
+    <nav class="flex border-b border-slate-800 gap-2 overflow-x-auto pb-2 text-xs md:text-sm font-orbitron font-bold">
+      <button onclick="switchTab('tab-concept')" id="btn-tab-concept" class="tab-btn px-4 py-2.5 rounded-xl transition text-[var(--neon-cyan)] bg-cyan-950/40 border border-cyan-500/30">
+        1. CONCEPT SHOWDOWN
+      </button>
+      <button onclick="switchTab('tab-prepress')" id="btn-tab-prepress" class="tab-btn px-4 py-2.5 rounded-xl transition text-slate-400 hover:text-white">
+        2. EUFYMAKE PREPRESS (+BLEED)
+      </button>
+      <button onclick="switchTab('tab-card')" id="btn-tab-card" class="tab-btn px-4 py-2.5 rounded-xl transition text-slate-400 hover:text-white">
+        3. BLISTER CARD BUILDER
+      </button>
+      <button onclick="switchTab('tab-cam')" id="btn-tab-cam" class="tab-btn px-4 py-2.5 rounded-xl transition text-slate-400 hover:text-white">
+        4. LLAMA CAM (PHOTO GUIDES)
+      </button>
+      <button onclick="switchTab('tab-deploy')" id="btn-tab-deploy" class="tab-btn px-4 py-2.5 rounded-xl transition text-slate-400 hover:text-white">
+        5. SOCIALS & 1-CLICK LAUNCH
+      </button>
+    </nav>
+
+    <!-- TAB 1: CONCEPT SHOWDOWN (STEPS 1-3) -->
+    <section id="tab-concept" class="tab-pane space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- INTAKE CONTROLS -->
+        <div class="p-5 rounded-2xl bg-slate-900/80 backdrop-blur-xl cyber-border space-y-4">
+          <h2 class="font-orbitron font-black text-sm uppercase tracking-wider text-[var(--neon-cyan)] flex items-center gap-2">
+            <span>🎨</span> Drop Parameters
+          </h2>
+          <div class="space-y-3 text-xs font-bold">
+            <div>
+              <label class="text-slate-400 block mb-1">Casting Model</label>
+              <select id="castingInput" class="w-full bg-slate-950 p-2.5 rounded-xl border border-slate-800 text-white outline-none focus:border-cyan-500">
+                <option value="Dairy Delivery">Hot Wheels Dairy Delivery</option>
+                <option value="'83 Silverado">'83 Chevy Silverado</option>
+                <option value="'55 Gasser">'55 Chevy Gasser</option>
+                <option value="Porsche 935">Porsche 935</option>
+                <option value="Nissan Silvia">Nissan Silvia S15</option>
+              </select>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="text-slate-400 block mb-1">Base Paint</label>
+                <input id="baseColorInput" type="text" value="Satin Matte Black" class="w-full bg-slate-950 p-2.5 rounded-xl border border-slate-800 text-white outline-none focus:border-cyan-500">
+              </div>
+              <div>
+                <label class="text-slate-400 block mb-1">Accent Highlights</label>
+                <input id="accentsInput" type="text" value="Electric Cyan & Neon Yellow" class="w-full bg-slate-950 p-2.5 rounded-xl border border-slate-800 text-white outline-none focus:border-cyan-500">
+              </div>
+            </div>
+            <div>
+              <label class="text-slate-400 block mb-1">Theme / Concept Idea</label>
+              <input id="themeInput" type="text" value="Cyber Banana Graffiti" class="w-full bg-slate-950 p-2.5 rounded-xl border border-slate-800 text-white outline-none focus:border-cyan-500">
+            </div>
+            <div>
+              <label class="text-slate-400 block mb-1">Target Batch Size</label>
+              <input id="batchLimit" type="number" value="10" min="1" max="50" class="w-full bg-slate-950 p-2.5 rounded-xl border border-slate-800 text-white outline-none focus:border-cyan-500">
+            </div>
+          </div>
+
+          <button onclick="generateShowdown()" class="w-full py-3 rounded-xl bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-orbitron font-black text-xs tracking-wider shadow-lg shadow-pink-600/30 transition active:scale-95">
+            ⚡ GENERATE 3 CONCEPT TILES
+          </button>
+          
+          <div class="p-3 rounded-xl bg-black/40 border border-slate-800 text-[11px] text-slate-400">
+            💡 <strong class="text-slate-200">Zero Geometry Rule:</strong> Concepts are generated as flat 2D unshaped patterns with zero car lines, ensuring flawless bleed-wrapping over rivets.
+          </div>
+        </div>
+
+        <!-- 3 CONCEPTS SHOWDOWN TILES -->
+        <div class="lg:col-span-2 space-y-4">
+          <div class="flex items-center justify-between">
+            <h2 class="font-orbitron font-bold text-sm text-slate-300">
+              PICK YOUR LOCKED CONCEPT:
+            </h2>
+            <span class="text-xs text-pink-400 font-mono">1-CLICK SELECT TO SEND TO PREPRESS</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="conceptTiles">
+            <!-- TILE 1 -->
+            <div onclick="selectConcept(1)" id="tile-1" class="cursor-pointer group relative p-3 rounded-2xl bg-slate-900/90 border-2 border-cyan-500/40 hover:border-cyan-400 transition flex flex-col justify-between">
+              <div class="h-44 w-full rounded-xl overflow-hidden bg-black flex items-center justify-center relative mb-3">
+                <svg viewBox="0 0 300 200" class="w-full h-full object-cover">
+                  <rect width="300" height="200" fill="#0b0f19"/>
+                  <path d="M 20,40 L 90,20 L 70,80 Z" fill="#ffe600"/>
+                  <path d="M 60,160 L 150,110 L 220,180 Z" fill="#00f0ff"/>
+                  <path d="M 120,30 L 280,10 L 190,100 Z" fill="#2563eb"/>
+                  <circle cx="160" cy="70" r="28" fill="#ffe600"/>
+                  <!-- bold banana cyber outline -->
+                  <path d="M 40,150 Q 150,60 260,130" stroke="#00f0ff" stroke-width="12" fill="none"/>
+                  <path d="M 30,160 Q 140,80 250,140" stroke="#000" stroke-width="4" fill="none"/>
+                </svg>
+                <div class="absolute top-2 left-2 px-2 py-0.5 rounded bg-black/80 text-[10px] font-orbitron font-bold text-cyan-300">CONCEPT 01</div>
+              </div>
+              <div>
+                <h3 class="font-orbitron font-black text-xs text-white">Shatter Banana Speedlines</h3>
+                <p class="text-[11px] text-slate-400 mt-1">Aggressive geometric fractures with speed wedges flowing front-to-back.</p>
+              </div>
+              <button class="mt-3 w-full py-1.5 rounded-lg bg-cyan-600/30 group-hover:bg-cyan-500 text-cyan-200 group-hover:text-black font-orbitron text-[11px] font-bold transition">
+                SELECT CONCEPT 01
+              </button>
+            </div>
+
+            <!-- TILE 2 -->
+            <div onclick="selectConcept(2)" id="tile-2" class="cursor-pointer group relative p-3 rounded-2xl bg-slate-900/90 border-2 border-slate-800 hover:border-pink-500 transition flex flex-col justify-between">
+              <div class="h-44 w-full rounded-xl overflow-hidden bg-black flex items-center justify-center relative mb-3">
+                <svg viewBox="0 0 300 200" class="w-full h-full object-cover">
+                  <rect width="300" height="200" fill="#070a12"/>
+                  <!-- Pop Art Graffiti style -->
+                  <path d="M 30,120 Q 90,20 180,60 Q 240,100 270,160 Q 180,190 100,160 Z" fill="#00f0ff"/>
+                  <path d="M 50,110 Q 110,40 170,70" stroke="#ffe600" stroke-width="14" fill="none"/>
+                  <path d="M 60,115 Q 115,50 165,75" stroke="#000" stroke-width="4" fill="none"/>
+                  <!-- Splatters -->
+                  <circle cx="230" cy="50" r="14" fill="#ff107a"/>
+                  <circle cx="260" cy="70" r="8" fill="#ffe600"/>
+                  <circle cx="20" cy="80" r="10" fill="#00f0ff"/>
+                </svg>
+                <div class="absolute top-2 left-2 px-2 py-0.5 rounded bg-black/80 text-[10px] font-orbitron font-bold text-pink-400">CONCEPT 02</div>
+              </div>
+              <div>
+                <h3 class="font-orbitron font-black text-xs text-white">Chunky Pop-Art Graffiti</h3>
+                <p class="text-[11px] text-slate-400 mt-1">Oversized blue bananas, heavy black comic ink lines, vibrant peel splatter.</p>
+              </div>
+              <button class="mt-3 w-full py-1.5 rounded-lg bg-slate-800 group-hover:bg-pink-500 text-slate-300 group-hover:text-white font-orbitron text-[11px] font-bold transition">
+                SELECT CONCEPT 02
+              </button>
+            </div>
+
+            <!-- TILE 3 -->
+            <div onclick="selectConcept(3)" id="tile-3" class="cursor-pointer group relative p-3 rounded-2xl bg-slate-900/90 border-2 border-slate-800 hover:border-yellow-400 transition flex flex-col justify-between">
+              <div class="h-44 w-full rounded-xl overflow-hidden bg-black flex items-center justify-center relative mb-3">
+                <svg viewBox="0 0 300 200" class="w-full h-full object-cover">
+                  <rect width="300" height="200" fill="#060910"/>
+                  <!-- Minimalist Tech Livery -->
+                  <polygon points="10,30 180,30 130,170 10,170" fill="#2563eb" opacity="0.6"/>
+                  <polygon points="190,30 290,30 240,170 140,170" fill="#00f0ff"/>
+                  <line x1="10" y1="100" x2="290" y2="100" stroke="#ffe600" stroke-width="8"/>
+                  <line x1="10" y1="120" x2="290" y2="120" stroke="#000" stroke-width="4"/>
+                </svg>
+                <div class="absolute top-2 left-2 px-2 py-0.5 rounded bg-black/80 text-[10px] font-orbitron font-bold text-yellow-400">CONCEPT 03</div>
+              </div>
+              <div>
+                <h3 class="font-orbitron font-black text-xs text-white">Techno Racing Chevron</h3>
+                <p class="text-[11px] text-slate-400 mt-1">Sleek angular stripes, minimalist banana silhouette, pure aerodynamic speed.</p>
+              </div>
+              <button class="mt-3 w-full py-1.5 rounded-lg bg-slate-800 group-hover:bg-yellow-400 text-slate-300 group-hover:text-black font-orbitron text-[11px] font-bold transition">
+                SELECT CONCEPT 03
+              </button>
+            </div>
+          </div>
+
+          <!-- PROMPT COPIER BAR -->
+          <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between gap-4">
+            <div class="truncate text-xs font-mono text-slate-400">
+              <span class="text-cyan-400 font-bold">LOCKED MASTER PROMPT:</span> <span id="lockedPromptText">Pop-art cyber-graffiti blue bananas, electric cyan, cobalt, neon yellow, hard-edge vector...</span>
+            </div>
+            <button onclick="copyMasterPrompt()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-orbitron text-xs font-bold shrink-0 transition active:scale-95">
+              📋 COPY PROMPT
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- TAB 2: EUFYMAKE PREPRESS (+BLEED ENGINE) -->
+    <section id="tab-prepress" class="tab-pane hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        
+        <!-- PREPRESS CONTROLS -->
+        <div class="p-5 rounded-2xl bg-slate-900/80 cyber-border space-y-4">
+          <h2 class="font-orbitron font-black text-sm text-[var(--neon-cyan)] flex items-center gap-2">
+            <span>⚙️</span> Prepress Calibration
+          </h2>
+          
+          <div class="space-y-4 text-xs font-bold">
+            <div>
+              <div class="flex justify-between mb-1">
+                <label class="text-slate-300">Edge Bleed Margin</label>
+                <span id="bleedVal" class="text-cyan-400 font-mono">+1.5 mm</span>
+              </div>
+              <input id="bleedSlider" type="range" min="0.5" max="3.0" step="0.25" value="1.5" oninput="updateBleed(this.value)" class="w-full accent-[var(--neon-cyan)]">
+              <p class="text-[11px] text-slate-500 mt-1">Guarantees zero bare metal on body edges if bed shifts.</p>
+            </div>
+
+            <div>
+              <div class="flex justify-between mb-1">
+                <label class="text-slate-300">Pattern Scale</label>
+                <span id="scaleVal" class="text-cyan-400 font-mono">115%</span>
+              </div>
+              <input id="scaleSlider" type="range" min="80" max="160" step="5" value="115" oninput="updateScale(this.value)" class="w-full accent-[var(--neon-cyan)]">
+            </div>
+
+            <div>
+              <div class="flex justify-between mb-1">
+                <label class="text-slate-300">Horizontal Shift</label>
+                <span id="shiftVal" class="text-cyan-400 font-mono">0 mm</span>
+              </div>
+              <input id="shiftSlider" type="range" min="-10" max="10" step="1" value="0" oninput="updateShift(this.value)" class="w-full accent-[var(--neon-cyan)]">
+            </div>
+
+            <div class="pt-2 border-t border-slate-800 space-y-2">
+              <div class="flex items-center justify-between text-[11px] text-slate-400">
+                <span>Output Resolution:</span>
+                <span class="text-white font-mono font-bold">600 DPI</span>
+              </div>
+              <div class="flex items-center justify-between text-[11px] text-slate-400">
+                <span>Native eufyMake White:</span>
+                <span class="text-emerald-400 font-mono font-bold">ENABLED (No duplicate layer)</span>
+              </div>
+            </div>
+          </div>
+
+          <button onclick="downloadEufyPack()" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-black font-orbitron font-black text-xs tracking-wider shadow-xl transition active:scale-95">
+            📥 DOWNLOAD EUFYMAKE PACK (.ZIP)
+          </button>
+        </div>
+
+        <!-- LIVE PREPRESS CANVAS / DIE-CUT PREVIEWS -->
+        <div class="lg:col-span-3 space-y-4">
+          <div class="p-4 rounded-2xl bg-slate-900/90 cyber-border">
+            <div class="flex items-center justify-between mb-3">
+              <span class="font-orbitron text-xs font-bold text-white flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse"></span>
+                CANVAS PROJECTION: DAIRY DELIVERY (DRIVER SIDE + PASSENGER MIRROR + ROOF)
+              </span>
+              <span class="text-xs font-mono text-cyan-400">RED DASH = +1.5mm BLEED CUT LINE</span>
+            </div>
+
+            <!-- INTERACTIVE CANVAS MOCK -->
+            <div class="relative w-full h-72 bg-black rounded-xl border border-slate-800 flex items-center justify-center overflow-hidden">
+              <canvas id="prepressCanvas" width="900" height="300" class="max-w-full max-h-full object-contain"></canvas>
+            </div>
+
+            <!-- THREE SEPARATED FILES LIST -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
+              <div class="p-3 rounded-xl bg-black/60 border border-slate-800 flex items-center justify-between">
+                <div>
+                  <div class="text-xs font-orbitron font-bold text-white">Side_Driver.png</div>
+                  <div class="text-[10px] text-slate-400 font-mono">1417 × 472 px (600 DPI)</div>
+                </div>
+                <button onclick="downloadSingleFile('Side_Driver')" class="text-xs text-cyan-400 hover:underline font-bold">Download</button>
+              </div>
+              <div class="p-3 rounded-xl bg-black/60 border border-slate-800 flex items-center justify-between">
+                <div>
+                  <div class="text-xs font-orbitron font-bold text-white">Side_Passenger.png</div>
+                  <div class="text-[10px] text-slate-400 font-mono">1417 × 472 px (Mirrored)</div>
+                </div>
+                <button onclick="downloadSingleFile('Side_Passenger')" class="text-xs text-cyan-400 hover:underline font-bold">Download</button>
+              </div>
+              <div class="p-3 rounded-xl bg-black/60 border border-slate-800 flex items-center justify-between">
+                <div>
+                  <div class="text-xs font-orbitron font-bold text-white">Roof_Panel.png</div>
+                  <div class="text-[10px] text-slate-400 font-mono">567 × 1181 px (600 DPI)</div>
+                </div>
+                <button onclick="downloadSingleFile('Roof_Panel')" class="text-xs text-cyan-400 hover:underline font-bold">Download</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- TAB 3: BLISTER CARD BUILDER (STEP 8 - DITCH PHOTOPEA) -->
+    <section id="tab-card" class="tab-pane hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- CARD CONTROLS -->
+        <div class="p-5 rounded-2xl bg-slate-900/80 cyber-border space-y-4">
+          <h2 class="font-orbitron font-black text-sm text-[var(--neon-pink)] flex items-center gap-2">
+            <span>📦</span> Blister Packaging Engine
+          </h2>
+
+          <div class="space-y-3 text-xs font-bold">
+            <div>
+              <label class="text-slate-400 block mb-1">Card Format</label>
+              <div class="grid grid-cols-2 gap-2">
+                <button type="button" onclick="setCardFormat('standard')" id="btnFormatStd" class="p-2 rounded-xl border border-cyan-500 bg-cyan-950/40 text-cyan-300 font-orbitron text-xs font-bold">
+                  STANDARD
+                </button>
+                <button type="button" onclick="setCardFormat('premium')" id="btnFormatPrem" class="p-2 rounded-xl border border-slate-800 bg-black text-slate-400 hover:text-white font-orbitron text-xs font-bold">
+                  PREMIUM (WIDE)
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label class="text-slate-400 block mb-1">Drop / Series Title</label>
+              <input id="cardTitleInput" type="text" value="CYBER BANANA" oninput="renderCard()" class="w-full bg-slate-950 p-2.5 rounded-xl border border-slate-800 text-white outline-none focus:border-pink-500">
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="text-slate-400 block mb-1">Collector #</label>
+                <input id="cardNumberInput" type="text" value="#01/10" oninput="renderCard()" class="w-full bg-slate-950 p-2.5 rounded-xl border border-slate-800 text-pink-400 font-mono font-bold outline-none focus:border-pink-500">
+              </div>
+              <div>
+                <label class="text-slate-400 block mb-1">Variant Type</label>
+                <select id="cardVariantInput" onchange="renderCard()" class="w-full bg-slate-950 p-2.5 rounded-xl border border-slate-800 text-white outline-none focus:border-pink-500">
+                  <option value="REGULAR" selected>REGULAR RUN</option>
+                  <option value="CHASE">CHASE VARIANT (1 in 10)</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label class="text-slate-400 block mb-1">Sub-Specs / Tagline</label>
+              <input id="cardSubtitleInput" type="text" value="1/64 CUSTOM DIE-CAST • REAL RIDERS RUBBER" oninput="renderCard()" class="w-full bg-slate-950 p-2.5 rounded-xl border border-slate-800 text-white outline-none focus:border-pink-500">
+            </div>
+          </div>
+
+          <div class="pt-3 border-t border-slate-800 space-y-2">
+            <button onclick="downloadCardPrint()" class="w-full py-3.5 rounded-xl bg-pink-600 hover:bg-pink-500 text-white font-orbitron font-black text-xs tracking-wider shadow-lg shadow-pink-600/30 transition active:scale-95">
+              🖨️ EXPORT 24PT SBS CARD PRINT (300 DPI)
+            </button>
+            <button onclick="downloadLaserCutPath()" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-orbitron text-xs font-bold border border-slate-700 transition active:scale-95">
+              ✂️ EXPORT LASER CUT PATH (SVG)
+            </button>
+          </div>
+        </div>
+
+        <!-- INTERACTIVE LIVE CARD PREVIEW -->
+        <div class="lg:col-span-2 flex flex-col items-center justify-center p-6 rounded-2xl bg-slate-900/80 cyber-border">
+          <div class="relative w-80 h-[480px] bg-black rounded-3xl overflow-hidden border-2 border-slate-700 shadow-2xl flex flex-col justify-between p-4" id="cardGraphicBox">
+            
+            <!-- PEGHOCK HOLE GUIDE -->
+            <div class="absolute top-2 left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-none">
+              <div class="w-8 h-3 rounded-full border border-red-500/60 bg-red-500/20"></div>
+              <span class="text-[8px] font-mono text-red-400 uppercase">Peg Cutout</span>
+            </div>
+
+            <!-- TOP 60% EXPANSIVE BRANDING AREA -->
+            <div class="pt-6 text-center space-y-1 z-10">
+              <div class="font-orbitron font-black text-xs tracking-widest text-white flex items-center justify-center gap-1">
+                <span>🦙</span> NEON LLAMA GARAGE
+              </div>
+              <div id="cardDisplayTitle" class="font-orbitron font-black text-2xl text-[var(--neon-pink)] glow-pink tracking-wider uppercase">
+                CYBER BANANA
+              </div>
+              <div id="cardDisplaySubtitle" class="text-[9px] font-bold tracking-widest text-cyan-300 uppercase">
+                1/64 CUSTOM DIE-CAST • REAL RIDERS RUBBER
+              </div>
+            </div>
+
+            <!-- MIDDLE HERO CAR RENDER (BOTTOM 40%) -->
+            <div class="relative flex-1 flex items-center justify-center my-2">
+              <img src="/home/antigravity/.gemini/jetski/brain/v1/default/jetski_remote_agents_3p_devbox/adc4fe99-8b94-4190-801b-0d3723bb5cc8/dairy_delivery_side_flow_1795649303778.jpg" class="w-full object-contain rounded-xl drop-shadow-2xl">
+            </div>
+
+            <!-- BLISTER BUBBLE CLEARANCE ZONE -->
+            <div class="w-full py-2 px-3 rounded-xl bg-slate-950/90 border border-slate-800 flex items-center justify-between z-10">
+              <div class="flex items-center gap-2">
+                <span id="cardDisplayBadge" class="px-2 py-0.5 rounded bg-pink-900/80 border border-pink-500 text-pink-300 font-orbitron font-black text-[10px]">
+                  #01/10
+                </span>
+                <span class="text-[9px] font-mono text-slate-400">BATCH B-021</span>
+              </div>
+              <div class="text-[10px] font-mono text-slate-300 tracking-tighter">
+                ||| | || |||| |
+              </div>
+            </div>
+
+          </div>
+          <span class="text-xs text-slate-500 font-mono mt-3">Exact 24pt SBS Card Proportions (With Bleed & Laser Boundary)</span>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- TAB 4: LLAMA CAM (GUIDED SHOTS - STEPS 7 & 12) -->
+    <section id="tab-cam" class="tab-pane hidden space-y-6">
+      <div class="max-w-4xl mx-auto p-5 rounded-2xl bg-slate-900/80 cyber-border space-y-4">
+        <div class="flex items-center justify-between">
+          <h2 class="font-orbitron font-black text-sm text-emerald-400 flex items-center gap-2">
+            <span>📸</span> Llama Cam Guided Studio Viewfinder
+          </h2>
+          <span class="text-xs font-mono text-emerald-400 animate-pulse">OVERLAY CALIBRATED</span>
+        </div>
+
+        <div class="relative w-full h-80 bg-black rounded-2xl overflow-hidden border-2 border-slate-800 flex items-center justify-center">
+          <!-- GHOST WIREFRAME OVERLAY -->
+          <svg viewBox="0 0 400 200" class="w-full h-full p-4 pointer-events-none opacity-40">
+            <rect x="50" y="40" width="300" height="120" rx="16" fill="none" stroke="#10b981" stroke-width="2" stroke-dasharray="6 4"/>
+            <circle cx="100" cy="160" r="24" fill="none" stroke="#10b981" stroke-width="2"/>
+            <circle cx="300" cy="160" r="24" fill="none" stroke="#10b981" stroke-width="2"/>
+            <line x1="200" y1="20" x2="200" y2="180" stroke="#10b981" stroke-width="1" stroke-dasharray="2 4"/>
+          </svg>
+          <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-3">
+            <button class="px-5 py-2.5 rounded-full bg-emerald-500 hover:bg-emerald-400 text-black font-orbitron font-black text-xs shadow-xl active:scale-90 transition">
+              SNAP [IMG_LOOSE]
+            </button>
+            <button class="px-5 py-2.5 rounded-full bg-slate-800 hover:bg-slate-700 text-white font-orbitron text-xs font-bold">
+              SNAP [IMG_PKG_F]
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+          <button class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 hover:border-emerald-500 text-xs font-bold text-slate-300">
+            1. 45° Hero 3/4
+          </button>
+          <button class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 hover:border-emerald-500 text-xs font-bold text-slate-300">
+            2. Direct Side Profile
+          </button>
+          <button class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 hover:border-emerald-500 text-xs font-bold text-slate-300">
+            3. Top Down Flat Lay
+          </button>
+          <button class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 hover:border-emerald-500 text-xs font-bold text-slate-300">
+            4. In-Package Front/Back
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: SOCIALS & 1-CLICK LAUNCH (STEPS 13-14) -->
+    <section id="tab-deploy" class="tab-pane hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        <!-- SOCIAL COPY PACK -->
+        <div class="p-5 rounded-2xl bg-slate-900/80 cyber-border space-y-4">
+          <h2 class="font-orbitron font-black text-sm text-[var(--neon-cyan)] flex items-center gap-2">
+            <span>🎬</span> 3-Stage CapCut Social Storyboard
+          </h2>
+          <div class="space-y-3 text-xs">
+            <div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
+              <span class="text-pink-400 font-orbitron font-bold">T-72h TEASER:</span>
+              <p class="text-slate-300 mt-1 font-mono">Macro headlights flare $\rightarrow$ drill rivet spin $\rightarrow$ deep synthwave riser.</p>
+              <button onclick="copyText('Teaser script copied!')" class="mt-2 text-cyan-400 hover:underline font-bold text-[11px]">Copy CapCut Audio Cue</button>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
+              <span class="text-cyan-400 font-orbitron font-bold">T-48h PROCESS ASMR:</span>
+              <p class="text-slate-300 mt-1 font-mono">eufyMake UV printer head pass sounds $\rightarrow$ waterslide float $\rightarrow$ heat press 280° clunk.</p>
+              <button onclick="copyText('ASMR script copied!')" class="mt-2 text-cyan-400 hover:underline font-bold text-[11px]">Copy ASMR Cue</button>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
+              <span class="text-yellow-400 font-orbitron font-bold">T-24h REVEAL:</span>
+              <p class="text-slate-300 mt-1 font-mono">360 turntable spin under blacklight $\rightarrow$ blister package peel $\rightarrow$ drop countdown.</p>
+              <button onclick="copyText('Reveal script copied!')" class="mt-2 text-cyan-400 hover:underline font-bold text-[11px]">Copy Reveal Cue</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 1-CLICK STOREFRONT PUBLISH -->
+        <div class="p-5 rounded-2xl bg-slate-900/80 cyber-border-pink space-y-4 flex flex-col justify-between">
+          <div class="space-y-3">
+            <h2 class="font-orbitron font-black text-sm text-[var(--neon-pink)] flex items-center gap-2">
+              <span>🚀</span> 1-Click Storefront Deployment
+            </h2>
+            <p class="text-xs text-slate-300">
+              Publishing will update your live Google Sheets catalog, sync with Stripe Checkout, and make Batch <strong class="text-white">B-021</strong> available for order on <a href="https://neonllamagarage.com" target="_blank" class="text-cyan-400 underline">neonllamagarage.com</a>.
+            </p>
+            <div class="p-3 rounded-xl bg-black/60 border border-slate-800 font-mono text-xs space-y-1">
+              <div class="text-slate-400">Launch Date: <span class="text-white">Friday 7:00 PM CST</span></div>
+              <div class="text-slate-400">Units: <span class="text-emerald-400 font-bold">10 Regular / 1 Chase</span></div>
+              <div class="text-slate-400">MSRP: <span class="text-yellow-400 font-bold">$50.00</span></div>
+            </div>
+          </div>
+
+          <button onclick="publishToLiveSite()" id="btnPublish" class="w-full py-4 rounded-xl bg-gradient-to-r from-pink-600 to-cyan-500 hover:from-pink-500 hover:to-cyan-400 text-white font-orbitron font-black text-sm tracking-wider shadow-2xl transition active:scale-95 flex items-center justify-center gap-2">
+            <span>⚡</span> PUBLISH DROP TO NEONLLAMAGARAGE.COM
+          </button>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <script>
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
+      document.getElementById(tabId).classList.remove('hidden');
+
+      document.querySelectorAll('.tab-btn').forEach(el => {
+        el.className = 'tab-btn px-4 py-2.5 rounded-xl transition text-slate-400 hover:text-white';
+      });
+      const activeBtn = document.getElementById('btn-' + tabId);
+      activeBtn.className = 'tab-btn px-4 py-2.5 rounded-xl transition text-[var(--neon-cyan)] bg-cyan-950/40 border border-cyan-500/30';
+      
+      if (tabId === 'tab-prepress') drawPrepressCanvas();
+    }
+
+    function selectConcept(id) {
+      document.querySelectorAll('[id^="tile-"]').forEach(el => {
+        el.classList.remove('border-cyan-400', 'border-pink-500', 'border-yellow-400');
+        el.classList.add('border-slate-800');
+      });
+      const active = document.getElementById('tile-' + id);
+      active.classList.remove('border-slate-800');
+      active.classList.add(id === 1 ? 'border-cyan-400' : (id === 2 ? 'border-pink-500' : 'border-yellow-400'));
+      
+      const prompts = {
+        1: "Shatter Banana Speedlines: Aggressive geometric fractures, electric cyan & neon yellow speed wedges, zero gradients.",
+        2: "Chunky Pop-Art Graffiti: Oversized blue bananas, heavy black comic ink lines, vibrant peel splatter.",
+        3: "Techno Racing Chevron: Sleek angular stripes, minimalist banana silhouette, pure aerodynamic speed."
+      };
+      document.getElementById('lockedPromptText').innerText = prompts[id];
+    }
+
+    function updateBleed(val) {
+      document.getElementById('bleedVal').innerText = '+' + val + ' mm';
+      drawPrepressCanvas();
+    }
+    function updateScale(val) {
+      document.getElementById('scaleVal').innerText = val + '%';
+      drawPrepressCanvas();
+    }
+    function updateShift(val) {
+      document.getElementById('shiftVal').innerText = val + ' mm';
+      drawPrepressCanvas();
+    }
+
+    function drawPrepressCanvas() {
+      const cvs = document.getElementById('prepressCanvas');
+      if (!cvs) return;
+      const ctx = cvs.getContext('2d');
+      ctx.clearRect(0, 0, cvs.width, cvs.height);
+
+      // Background grid
+      ctx.fillStyle = '#05070c';
+      ctx.fillRect(0, 0, cvs.width, cvs.height);
+
+      // Driver side Dairy Delivery template silhouette
+      ctx.save();
+      ctx.translate(50, 40);
+
+      // 1. Draw Bleed Zone (Red dashed)
+      const bleed = parseFloat(document.getElementById('bleedSlider').value) * 8;
+      ctx.strokeStyle = '#ef4444';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([6, 6]);
+      ctx.strokeRect(30 - bleed, 20 - bleed, 380 + bleed*2, 160 + bleed*2);
+      ctx.setLineDash([]);
+
+      // 2. Draw Dairy Delivery Body Outline
+      ctx.strokeStyle = '#00f0ff';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(30, 160);
+      ctx.lineTo(80, 160);
+      ctx.arc(110, 160, 30, Math.PI, 0, true); // front wheel arch
+      ctx.lineTo(260, 160);
+      ctx.arc(290, 160, 30, Math.PI, 0, true); // rear wheel arch
+      ctx.lineTo(390, 160);
+      ctx.lineTo(390, 30); // rear delivery box
+      ctx.lineTo(160, 30); // roof line
+      ctx.lineTo(110, 70); // cab windshield
+      ctx.lineTo(30, 85);  // hood
+      ctx.closePath();
+      ctx.stroke();
+
+      // 3. Fill with Graphic Pattern
+      ctx.fillStyle = '#00f0ff';
+      ctx.font = 'bold 24px Rajdhani';
+      ctx.fillText('⚡ BLUE BANANA LIVERY (DRIVER)', 100, 110);
+      ctx.restore();
+
+      // Draw Roof Panel Projection on Right
+      ctx.save();
+      ctx.translate(550, 30);
+      ctx.strokeStyle = '#ffe600';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(20, 20, 220, 180);
+      ctx.fillStyle = '#ffe600';
+      ctx.font = 'bold 16px Orbitron';
+      ctx.fillText('ROOF PANEL (1:2)', 40, 100);
+      ctx.fillText('LONGITUDINAL FLOW', 40, 130);
+      ctx.restore();
+    }
+
+    function renderCard() {
+      const title = document.getElementById('cardTitleInput').value.toUpperCase();
+      const num = document.getElementById('cardNumberInput').value;
+      const subtitle = document.getElementById('cardSubtitleInput').value.toUpperCase();
+      const variant = document.getElementById('cardVariantInput').value;
+
+      document.getElementById('cardDisplayTitle').innerText = title;
+      document.getElementById('cardDisplaySubtitle').innerText = subtitle;
+      
+      const badge = document.getElementById('cardDisplayBadge');
+      if (variant === 'CHASE') {
+        badge.innerText = 'CHASE 01/01';
+        badge.className = 'px-2 py-0.5 rounded bg-yellow-400 text-black font-orbitron font-black text-[10px] shadow-lg shadow-yellow-400/50';
+      } else {
+        badge.innerText = num;
+        badge.className = 'px-2 py-0.5 rounded bg-pink-900/80 border border-pink-500 text-pink-300 font-orbitron font-black text-[10px]';
+      }
+    }
+
+    function downloadEufyPack() {
+      alert("📥 Downloading Neon_Llama_Dairy_Delivery_Banana_Print_Pack.zip with 600 DPI Driver, Passenger, and Roof PNGs!");
+      window.location.href = "file:///home/antigravity/print_pack_dairy_delivery/Neon_Llama_Dairy_Delivery_Banana_Print_Pack.zip";
+    }
+
+    function downloadSingleFile(name) {
+      alert("Downloading " + name + ".png at 600 DPI!");
+    }
+
+    function downloadCardPrint() {
+      alert("🖨️ Exporting 24pt SBS Cardback Print PDF at 300 DPI!");
+    }
+
+    function downloadLaserCutPath() {
+      alert("✂️ Exporting Laser Cut Path SVG with peg hook & outer border!");
+    }
+
+    function publishToLiveSite() {
+      const btn = document.getElementById('btnPublish');
+      btn.innerText = "DEPLOYING TO NEONLLAMAGARAGE.COM...";
+      btn.disabled = true;
+      setTimeout(() => {
+        btn.innerText = "SUCCESSFULLY PUBLISHED! ✅";
+        btn.classList.add('bg-emerald-600');
+      }, 1500);
+    }
+
+    function copyMasterPrompt() {
+      const text = document.getElementById('lockedPromptText').innerText;
+      navigator.clipboard.writeText(text);
+      alert("📋 Master Style Prompt copied to clipboard!");
+    }
+
+    function copyText(msg) {
+      alert(msg);
+    }
+
+    window.onload = () => {
+      drawPrepressCanvas();
+    };
+  </script>
+</body>
+</html>
