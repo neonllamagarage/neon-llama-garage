@@ -185,7 +185,7 @@
           📸 LLAMA CAM
         </button>
         <button onclick="openConceptGenModal(true)" class="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-orbitron font-black text-xs border border-pink-400/50 shadow-lg shadow-pink-900/40 transition active:scale-95 flex items-center gap-1.5">
-          <span>✨</span> + NEW CAR (v3.8.0)
+          <span>✨</span> + NEW CAR (v3.9.0)
         </button>
         <div class="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-[10px] font-mono text-cyan-400">
           STORE: <a href="https://neonllamagarage.com" target="_blank" class="hover:underline font-bold text-white">NEONLLAMAGARAGE.COM</a>
@@ -625,7 +625,7 @@
           <div>
             <h2 class="font-orbitron font-black text-base text-pink-400 flex items-center gap-2 tracking-wide flex-wrap">
               <span>UNIVERSAL DIECAST WIZARD</span>
-              <span class="px-2.5 py-0.5 rounded bg-cyan-950 text-cyan-300 text-[10px] font-mono border border-cyan-400 font-black shadow-[0_0_10px_rgba(6,182,212,0.5)]">v3.8.0 LIVE</span>
+              <span class="px-2.5 py-0.5 rounded bg-cyan-950 text-cyan-300 text-[10px] font-mono border border-cyan-400 font-black shadow-[0_0_10px_rgba(6,182,212,0.5)]">v3.9.0 LIVE</span>
               <span class="px-2 py-0.5 rounded bg-purple-950 text-purple-300 text-[10px] font-mono border border-purple-400/50">💎 GEMINI 3.1 FLASH IMAGE</span>
             </h2>
             <p class="text-xs text-slate-400">Step 1: Pick or Type ANY Car/Truck → Step 2: Reference Photos (Auto-Skips if on File) → Step 3: Gemini 3.1 Renders 1-Shot 8-Car Showcase</p>
@@ -874,30 +874,61 @@
         <div class="flex items-center justify-between bg-slate-950 border border-slate-800 p-3 rounded-xl flex-wrap gap-2">
           <div class="flex items-center gap-3">
             <button onclick="backToStarterShowcase()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-orbitron font-bold text-xs flex items-center gap-1.5 transition active:scale-95">
-              <span>←</span> BACK TO 8 STARTERS
+              <span>←</span> BACK TO 8 CONCEPTS
             </button>
             <span class="text-slate-600">|</span>
             <div class="text-xs font-orbitron font-black text-pink-400 flex items-center gap-2">
-              <span>SELECTED CONCEPT:</span>
-              <span id="activeDirectionHeaderTitle" class="text-white px-2 py-0.5 rounded bg-pink-950 border border-pink-500/50">SYNTHWAVE NEON</span>
+              <span>SELECTED:</span>
+              <span id="activeDirectionHeaderTitle" class="text-white px-2 py-0.5 rounded bg-pink-950 border border-pink-500/50">CONCEPT</span>
             </div>
           </div>
           <div class="flex items-center gap-2">
-            <button onclick="copySubIdeaPrompt()" class="text-slate-400 hover:text-cyan-300 font-bold text-xs flex items-center gap-1 font-mono">
-              <span>📋</span> Copy Sub-Idea AI Prompt
-            </button>
-            <span class="text-[11px] text-slate-400 font-mono">3 SUB-IDEA IMAGES GENERATED</span>
+            <span class="text-[11px] text-purple-300 font-mono" id="subIdeaStatusLabel">ADD FEEDBACK OR GENERATE 3 COHESIVE VARIATIONS</span>
           </div>
         </div>
 
-        <!-- 3 VARIATIONS DECK (WITH 3 DYNAMIC SUB-IDEA IMAGES) -->
+        <!-- CREATIVE DIRECTION / FEEDBACK BAR (BETWEEN THE 8 AND THE 3!) -->
+        <div class="bg-slate-950/95 border border-cyan-500/50 rounded-2xl p-4 space-y-3 shadow-xl">
+          <div class="flex items-center justify-between flex-wrap gap-2">
+            <label for="subIdeaFeedbackInput" class="text-xs font-orbitron font-bold text-cyan-300 flex items-center gap-1.5">
+              <span>💬</span> CREATIVE DIRECTION / FEEDBACK BEFORE GENERATING THE 3 (OPTIONAL):
+            </label>
+            <span class="text-[10px] font-mono text-slate-400">Steer Gemini 3.1 to stay true to your selected slot + your exact tweak</span>
+          </div>
+          <div class="flex flex-col sm:flex-row gap-2.5">
+            <input type="text" id="subIdeaFeedbackInput" placeholder='e.g. "lean more into melting ice cream drip", "keep the purple drip cleaner on the roof", "add neon sprinkles"...' class="flex-1 bg-black px-3.5 py-2.5 rounded-xl border border-slate-700 focus:border-cyan-400 text-white text-xs font-medium outline-none">
+            <button type="button" onclick="generateDirectedSubIdeas()" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-pink-600 via-purple-600 to-cyan-600 hover:from-pink-500 hover:to-cyan-500 text-white font-orbitron font-black text-xs tracking-wide shadow-lg transition active:scale-95 whitespace-nowrap">
+              ✨ GENERATE 3 SUB-IDEAS →
+            </button>
+          </div>
+        </div>
+
+        <!-- 3 VARIATIONS DECK (3 COHESIVE VARIATIONS OF YOUR SELECTED CONCEPT) -->
         <div id="threeVariationsContainer" class="grid grid-cols-1 lg:grid-cols-3 gap-5">
-          <!-- Populated dynamically in real time by JS -->
+          <!-- Populated when user clicks Generate 3 Sub-Ideas -->
         </div>
 
       </div>
 
     </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- FULL-SCREEN IMAGE LIGHTBOX MODAL (CLICK ANY IMAGE TO EXPAND FULL SCREEN)  -->
+  <!-- ========================================================================= -->
+  <div id="imageLightboxModal" onclick="closeImageLightbox()" class="hidden fixed inset-0 bg-black/95 backdrop-blur-xl z-[90] flex flex-col items-center justify-center p-4 sm:p-8 cursor-zoom-out">
+    <div class="w-full max-w-6xl flex items-center justify-between mb-3" onclick="event.stopPropagation()">
+      <span id="lightboxCaption" class="font-orbitron font-bold text-xs sm:text-sm text-cyan-300 tracking-wide">IMAGE PREVIEW</span>
+      <div class="flex items-center gap-2">
+        <a id="lightboxDownloadBtn" href="#" download="neon_llama_render.png" class="px-3 py-1.5 rounded-lg bg-emerald-600/30 hover:bg-emerald-500/40 border border-emerald-400/50 text-emerald-200 font-orbitron font-bold text-xs transition">
+          ⬇ Download PNG
+        </a>
+        <button type="button" onclick="closeImageLightbox()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs border border-slate-600">
+          ✕ Close (Esc)
+        </button>
+      </div>
+    </div>
+    <img id="lightboxImg" src="" alt="Full screen preview" onclick="event.stopPropagation()" class="max-w-full max-h-[84vh] object-contain rounded-xl shadow-2xl border border-slate-700/80 cursor-default">
   </div>
 
   <!-- ========================================================================= -->
@@ -2354,9 +2385,14 @@
           window.latestMasterShowcaseImg = res.image;
           masterBox.innerHTML = `
             <div class="relative w-full flex flex-col items-center space-y-2">
-              <img src="${res.image}" alt="${casting} 8-Car Showcase" class="w-full max-h-[580px] object-contain rounded-xl shadow-2xl">
+              <div class="relative group cursor-zoom-in w-full flex justify-center" onclick="openImageLightbox(window.latestMasterShowcaseImg, '${casting.replace(/'/g, "\\'")} — 8-Car Collector Showcase')">
+                <img src="${res.image}" alt="${casting} 8-Car Showcase" class="w-full max-h-[580px] object-contain rounded-xl shadow-2xl transition duration-300 group-hover:brightness-110">
+                <span class="absolute top-3 right-3 px-2.5 py-1 rounded-lg bg-black/80 border border-cyan-500/60 text-cyan-300 font-mono text-[10px] opacity-85 group-hover:opacity-100 transition">
+                  🔍 Click to Expand Full Screen
+                </span>
+              </div>
               <div class="text-[11px] font-mono text-emerald-300">
-                ✓ Rendered via Gemini 3.1 Flash Image ${refImages.length > 0 ? `(${refImages.length} donor reference photo${refImages.length > 1 ? 's' : ''} matched)` : ''} • Pick any slot below to develop 3 sub-ideas
+                ✓ Rendered via Gemini 3.1 Flash Image ${refImages.length > 0 ? `(${refImages.length} donor reference photo${refImages.length > 1 ? 's' : ''} matched)` : ''} • Click image to zoom or pick any slot below
               </div>
             </div>
           `;
@@ -2375,6 +2411,30 @@
         }
       }
     }
+
+    function openImageLightbox(src, caption = 'IMAGE PREVIEW') {
+      if (!src) return;
+      const modal = document.getElementById('imageLightboxModal');
+      const img = document.getElementById('lightboxImg');
+      const cap = document.getElementById('lightboxCaption');
+      const dl = document.getElementById('lightboxDownloadBtn');
+      if (img) img.src = src;
+      if (cap) cap.innerText = caption;
+      if (dl) {
+        dl.href = src;
+        dl.download = (caption.toLowerCase().replace(/[^a-z0-9]+/g, '_') || 'neon_llama_render') + '.png';
+      }
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeImageLightbox() {
+      const modal = document.getElementById('imageLightboxModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeImageLightbox();
+    });
 
     function renderStarterCards() {
       const container = document.getElementById("starterCardsGrid");
@@ -2420,51 +2480,127 @@
           </div>
 
           <button onclick="pickDynamicStarter(${idx})" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-pink-600 via-purple-600 to-cyan-600 hover:from-pink-500 hover:to-cyan-500 text-white font-orbitron font-black text-xs shadow-md transition active:scale-95 flex items-center justify-center gap-1.5">
-            <span>👉</span> DEVELOP 3 SUB-IDEAS (~3¢)
+            <span>👉</span> PICK & DIRECT 3 SUB-IDEAS →
           </button>
         `;
         container.appendChild(card);
       });
     }
 
-    function retryStarterCard(idx) {
-      const dir = currentDynamicStarters[idx];
-      if (!dir) return;
-      const imgBox = document.getElementById(`starterImgBox_${idx}`);
-      if (imgBox) {
-        imgBox.className = "w-full h-48 rounded-xl bg-slate-900 border border-slate-800 flex flex-col items-center justify-center relative overflow-hidden p-2 text-center";
-        imgBox.innerHTML = `<div class="w-8 h-8 rounded-full border-2 border-cyan-400 border-t-pink-500 animate-spin"></div>`;
-      }
-      generateAiImage(dir.prompt).then(res => {
-        if (!imgBox) return;
-        if (res && res.ok && res.image) {
-          dir.img = res.image;
-          imgBox.className = "w-full h-48 rounded-xl bg-white border border-slate-800 flex items-center justify-center relative overflow-hidden group";
-          imgBox.innerHTML = `
-            <img src="${res.image}" alt="${dir.title}" class="w-full h-full object-contain drop-shadow-xl">
-            <span class="absolute top-1.5 left-1.5 px-2 py-0.5 rounded text-[9px] font-orbitron font-bold border ${dir.badgeColor}">${dir.badge}</span>
-            <span class="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 rounded text-[8px] font-mono bg-black/80 border border-emerald-500/60 text-emerald-300">● LIVE AI</span>
-          `;
-        } else {
-          imgBox.className = "w-full h-48 rounded-xl bg-red-950/40 border border-red-500/80 flex flex-col items-center justify-center p-3 text-center space-y-1.5";
-          imgBox.innerHTML = `<span class="text-xs font-orbitron font-bold text-red-400">⚠️ RENDER ERROR</span><button onclick="retryStarterCard(${idx})" class="mt-1 px-2.5 py-1 bg-red-900/80 text-white rounded text-[10px] font-bold">🔄 Retry</button>`;
-        }
-      });
-    }
-
     function pickDynamicStarter(idx) {
       const dir = currentDynamicStarters[idx];
       if (!dir) return;
+      dir.slotIndex = idx;
       currentSelectedStarter = dir;
 
       document.getElementById("ideaStarterShowcaseView").classList.add("hidden");
       document.getElementById("threeVariationsView").classList.remove("hidden");
 
       const titleEl = document.getElementById("activeDirectionHeaderTitle");
-      if (titleEl) titleEl.innerText = (dir.title || dir.name).toUpperCase();
+      if (titleEl) titleEl.innerText = `#0${idx + 1} ${(dir.title || dir.name).toUpperCase()}`;
 
-      renderThreeSubIdeas(dir);
-      showToast(`Rendering 3 live sub-ideas for ${dir.title}!`, "🎨");
+      const feedbackInput = document.getElementById("subIdeaFeedbackInput");
+      if (feedbackInput) {
+        feedbackInput.value = "";
+        feedbackInput.focus();
+      }
+
+      const statusEl = document.getElementById("subIdeaStatusLabel");
+      if (statusEl) statusEl.innerText = "ADD OPTIONAL FEEDBACK ABOVE, THEN CLICK GENERATE";
+
+      const container = document.getElementById("threeVariationsContainer");
+      if (container) {
+        container.innerHTML = `
+          <div class="col-span-full bg-slate-950/80 border border-slate-800 rounded-2xl p-8 text-center space-y-3">
+            <div class="text-3xl">🎨</div>
+            <div class="font-orbitron font-bold text-sm text-white">READY TO DEVELOP 3 COHESIVE VARIATIONS OF "${(dir.title || dir.name).toUpperCase()}"</div>
+            <p class="text-xs text-slate-400 max-w-xl mx-auto">
+              Add any creative tweak in the box above (e.g. <em>"lean more into melting ice cream drip"</em> or <em>"make the purple accents pop more"</em>), or leave it blank and click <strong class="text-cyan-300">✨ GENERATE 3 SUB-IDEAS</strong> to refine Slot #0${idx + 1} directly.
+            </p>
+          </div>
+        `;
+      }
+    }
+
+    async function generateDirectedSubIdeas() {
+      const dir = currentSelectedStarter;
+      if (!dir) return;
+
+      const casting = (document.getElementById("donorCastingInput")?.value || "").trim() || "Hot Wheels Custom";
+      const paint = (document.getElementById("donorBodyPaintInput")?.value || "").trim() || "Gloss White";
+      const wheels = (document.getElementById("donorWheelInput")?.value || "").trim() || "Real Riders";
+      const feedback = (document.getElementById("subIdeaFeedbackInput")?.value || "").trim();
+      const slotNum = (dir.slotIndex ?? 0) + 1;
+      const shelfLabel = slotNum <= 4 ? `Top Shelf Slot ${slotNum}` : `Bottom Shelf Slot ${slotNum - 4}`;
+
+      const feedbackClause = feedback
+        ? `CRITICAL USER CREATIVE DIRECTION: "${feedback}". Follow this direction closely while keeping the core identity of ${dir.title}.`
+        : `Stay tightly faithful to the exact "${dir.title}" graphic motif and aesthetic shown in ${shelfLabel} of the display case.`;
+
+      const baseVisualDesc = `${dir.title} (${dir.desc})`;
+
+      // Build 3 COHESIVE variations of the EXACT selected design + user feedback (NOT unrelated Track/Show cars!)
+      dir.variations = [
+        {
+          title: `${dir.title} // V1: FAITHFUL EVOLUTION`,
+          badge: "FAITHFUL REMIX",
+          badgeColor: "border-cyan-500/60 bg-cyan-950/80 text-cyan-300",
+          baseName: paint,
+          wheelName: wheels,
+          primaryInk: dir.primary,
+          accentInk: dir.accent,
+          story: feedback
+            ? `Direct evolution of ${dir.title} incorporating your note: "${feedback}" with balanced side & roof coverage.`
+            : `Close, high-detail studio refinement of ${dir.title} (${shelfLabel}) with crisp collector-grade tampo edges.`,
+          sideLivery: `Refined ${dir.title} hero graphic across the full side panel${feedback ? ` (${feedback})` : ''}.`,
+          roofLivery: `Matching ${dir.title} accent flow across the roof panel.`,
+          uvSpecs: `100% Solid White Underbase • 600 DPI CMYK • Spot Gloss UV Varnish.`,
+          chaseIdea: `1-of-10 Chase: Metallic chrome accent highlight pass.`,
+          img: null,
+          prompt: `Commercial macro studio product photography of a SINGLE 1:64 scale custom Hot Wheels ${casting} on a pure seamless white background, three-quarter front-side profile view. Keep the EXACT physical casting shape, ${paint} base paint, and ${wheels} from the reference donor photos. Start directly from the "${dir.title}" livery in ${shelfLabel} of the attached display case image (${baseVisualDesc}). ${feedbackClause} Variation 1 (Faithful Evolution): refined, balanced, ultra-crisp execution of this exact graphic motif on the side and roof panels. Authentic 1:64 Hot Wheels diecast photography, sharp focus, 8k.`
+        },
+        {
+          title: `${dir.title} // V2: BOLD GRAPHIC PUSH`,
+          badge: "BOLD & HEAVY",
+          badgeColor: "border-pink-500/60 bg-pink-950/80 text-pink-300",
+          baseName: paint,
+          wheelName: wheels,
+          primaryInk: dir.accent,
+          accentInk: dir.primary,
+          story: feedback
+            ? `High-impact, heavier graphic push of ${dir.title} leaning hard into "${feedback}" with richer layering and contrast.`
+            : `Bolder, higher-coverage interpretation of ${dir.title} with oversized hero graphics, richer color depth, and dynamic flow.`,
+          sideLivery: `Oversized high-contrast ${dir.title} graphic wrap${feedback ? ` leaning heavily into ${feedback}` : ''}.`,
+          roofLivery: `Full-coverage matching roof graphic tying both sides together.`,
+          uvSpecs: `100% Solid White Underbase • 600 DPI CMYK • +0.3mm Raised 3D Clear Gloss Relief.`,
+          chaseIdea: `1-of-10 Chase: Glow-in-the-dark / neon accent outline pass.`,
+          img: null,
+          prompt: `Commercial macro studio product photography of a SINGLE 1:64 scale custom Hot Wheels ${casting} on a pure seamless white background, three-quarter front-side profile view. Keep the EXACT physical casting shape, ${paint} base paint, and ${wheels} from the reference donor photos. Start directly from the "${dir.title}" livery in ${shelfLabel} of the attached display case image (${baseVisualDesc}). ${feedbackClause} Variation 2 (Bold Graphic Push): push the exact same graphic theme bolder and more dramatic with larger hero elements, richer layered colors, and fuller side/roof wrap coverage. Authentic 1:64 Hot Wheels diecast photography, sharp focus, 8k.`
+        },
+        {
+          title: `${dir.title} // V3: CLEAN COLLECTOR`,
+          badge: "CLEAN & CRISP",
+          badgeColor: "border-purple-500/60 bg-purple-950/80 text-purple-300",
+          baseName: paint,
+          wheelName: wheels,
+          primaryInk: dir.primary,
+          accentInk: "#ffffff",
+          story: feedback
+            ? `Cleaner, sharper collector layout of ${dir.title} + "${feedback}" that lets more of the ${paint} base coat breathe.`
+            : `Ultra-clean, crisp collector-grade interpretation of ${dir.title} with negative space showcasing the ${paint} paint.`,
+          sideLivery: `Crisp, minimal-clutter ${dir.title} graphic${feedback ? ` featuring ${feedback}` : ''} with clean negative space.`,
+          roofLivery: `Subtle coordinated roof accent stripe / emblem.`,
+          uvSpecs: `Selective White Underbase • 600 DPI CMYK • Satin-to-Gloss Contrast Varnish.`,
+          chaseIdea: `1-of-10 Chase: Raw Zamac or pearl clearcoat base with same graphics.`,
+          img: null,
+          prompt: `Commercial macro studio product photography of a SINGLE 1:64 scale custom Hot Wheels ${casting} on a pure seamless white background, three-quarter front-side profile view. Keep the EXACT physical casting shape, ${paint} base paint, and ${wheels} from the reference donor photos. Start directly from the "${dir.title}" livery in ${shelfLabel} of the attached display case image (${baseVisualDesc}). ${feedbackClause} Variation 3 (Clean Collector Edition): sleeker, cleaner, ultra-sharp collector composition of the exact same graphic theme with intentional breathing room so the ${paint} base coat shines. Authentic 1:64 Hot Wheels diecast photography, sharp focus, 8k.`
+        }
+      ];
+
+      const statusEl = document.getElementById("subIdeaStatusLabel");
+      if (statusEl) statusEl.innerText = feedback ? `💎 RENDERING 3 VARIATIONS WITH FEEDBACK: "${feedback.toUpperCase()}"` : `💎 RENDERING 3 COHESIVE VARIATIONS OF ${dir.title}`;
+
+      await renderThreeSubIdeas(dir);
     }
 
     async function renderThreeSubIdeas(dir) {
@@ -2473,6 +2609,9 @@
       container.innerHTML = "";
 
       const refImages = await getActiveReferenceBase64List();
+      if (window.latestMasterShowcaseImg && window.latestMasterShowcaseImg.startsWith('data:image/')) {
+        refImages.unshift(window.latestMasterShowcaseImg);
+      }
 
       dir.variations.forEach((v, idx) => {
         const cardId = `subIdeaCard_${idx}`;
@@ -2486,14 +2625,14 @@
             <div class="flex items-center justify-between">
               <span class="font-orbitron font-black text-xs text-white flex items-center gap-1.5">
                 <span class="w-2 h-2 rounded-full bg-pink-500 animate-pulse"></span>
-                SUB-IDEA 0${idx + 1}
+                VARIATION 0${idx + 1}
               </span>
               <span class="px-2 py-0.5 rounded text-[10px] font-orbitron font-bold border ${v.badgeColor}">
                 ${v.badge}
               </span>
             </div>
 
-            <div id="${imgContainerId}" class="w-full h-52 rounded-xl bg-slate-900 border border-slate-800/80 flex flex-col items-center justify-center relative overflow-hidden group p-2 text-center">
+            <div id="${imgContainerId}" class="w-full h-56 rounded-xl bg-slate-900 border border-slate-800/80 flex flex-col items-center justify-center relative overflow-hidden group p-2 text-center">
               <div class="flex flex-col items-center justify-center space-y-2 animate-pulse">
                 <div class="w-8 h-8 rounded-full border-2 border-purple-400 border-t-pink-500 animate-spin"></div>
                 <span class="text-[10px] font-mono text-purple-300">RENDERING VIA GEMINI 3.1...</span>
@@ -2520,26 +2659,26 @@
         `;
         container.appendChild(card);
 
-        const groundedPrompt = refImages.length > 0
-          ? `MATCH THE EXACT PHYSICAL 1:64 DIECAST CASTING SHAPE, PROPORTIONS, PAINT, AND WHEELS SHOWN IN THE ATTACHED REFERENCE PHOTO(S). ` + v.prompt
-          : v.prompt;
-
-        generateAiImage(groundedPrompt, refImages).then(res => {
+        generateAiImage(v.prompt, refImages).then(res => {
           const imgBox = document.getElementById(imgContainerId);
           if (!imgBox) return;
 
           if (res && res.ok && res.image) {
             v.img = res.image;
-            imgBox.className = "w-full h-52 rounded-xl bg-white border border-slate-800/80 flex items-center justify-center relative overflow-hidden group";
+            imgBox.className = "w-full h-56 rounded-xl bg-white border border-slate-800/80 flex items-center justify-center relative overflow-hidden group cursor-zoom-in";
+            imgBox.onclick = () => openImageLightbox(v.img, v.title);
             imgBox.innerHTML = `
               <img src="${res.image}" alt="${v.title}" class="w-full h-full object-contain drop-shadow-2xl transition duration-300 group-hover:scale-105">
               <div class="absolute bottom-2 left-2 text-[9px] font-mono text-purple-300 bg-black/80 px-2 py-0.5 rounded border border-purple-500/50 backdrop-blur-sm">
                 💎 GEMINI 3.1
               </div>
+              <div class="absolute top-2 right-2 text-[9px] font-mono text-cyan-300 bg-black/80 px-2 py-0.5 rounded border border-cyan-500/50 opacity-80 group-hover:opacity-100">
+                🔍 Zoom
+              </div>
             `;
           } else {
             const errMsg = (res && res.error) ? res.error : "Render failed";
-            imgBox.className = "w-full h-52 rounded-xl bg-red-950/40 border border-red-500/80 flex flex-col items-center justify-center p-3 text-center space-y-1.5";
+            imgBox.className = "w-full h-56 rounded-xl bg-red-950/40 border border-red-500/80 flex flex-col items-center justify-center p-3 text-center space-y-1.5";
             imgBox.innerHTML = `
               <span class="text-xs font-orbitron font-bold text-red-400">⚠️ GEMINI RENDER ERROR</span>
               <span class="text-[10px] text-red-300 font-mono line-clamp-3">${errMsg}</span>
