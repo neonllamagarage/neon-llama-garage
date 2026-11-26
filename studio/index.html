@@ -188,7 +188,7 @@
           <span>🖼️</span> ALBUMS <span id="albumsCountBadge" class="px-1.5 py-0.2 rounded bg-purple-950 text-purple-200 text-[10px] font-mono border border-purple-500/40">0</span>
         </button>
         <button onclick="openConceptGenModal(true)" class="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-orbitron font-black text-xs border border-pink-400/50 shadow-lg shadow-pink-900/40 transition active:scale-95 flex items-center gap-1.5">
-          <span>✨</span> + NEW CAR (v4.2.0)
+          <span>✨</span> + NEW CAR (v4.3.0)
         </button>
         <div class="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-[10px] font-mono text-cyan-400">
           STORE: <a href="https://neonllamagarage.com" target="_blank" class="hover:underline font-bold text-white">NEONLLAMAGARAGE.COM</a>
@@ -628,7 +628,7 @@
           <div>
             <h2 class="font-orbitron font-black text-base text-pink-400 flex items-center gap-2 tracking-wide flex-wrap">
               <span>UNIVERSAL DIECAST WIZARD</span>
-              <span class="px-2.5 py-0.5 rounded bg-cyan-950 text-cyan-300 text-[10px] font-mono border border-cyan-400 font-black shadow-[0_0_10px_rgba(6,182,212,0.5)]">v4.2.0 LIVE</span>
+              <span class="px-2.5 py-0.5 rounded bg-cyan-950 text-cyan-300 text-[10px] font-mono border border-cyan-400 font-black shadow-[0_0_10px_rgba(6,182,212,0.5)]">v4.3.0 LIVE</span>
               <span class="px-2 py-0.5 rounded bg-purple-950 text-purple-300 text-[10px] font-mono border border-purple-400/50">💎 GEMINI 3.1 • AUTO-ALBUMS</span>
             </h2>
             <p class="text-xs text-slate-400">1. Car & Printable Panels → 2. Photos → 3. 8-to-3 Concepts (+Feedback) → 4. Pure Flat Print-Ready Decals (+Tweak & Export)</p>
@@ -1073,58 +1073,159 @@
 
 
   <!-- ========================================================================= -->
-  <!-- MODAL 2: BLISTER CARDBACK BUILDER (STEP 7 & 8)                            -->
+  <!-- MODAL 2: BLISTER CARD RULES ENGINE STUDIO (FRONT + MIRRORED BACK • 300 DPI) -->
   <!-- ========================================================================= -->
-  <div id="cardModal" class="hidden fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-6">
-    <div class="bg-[#0d121f] border border-purple-500/60 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto p-5 space-y-4 shadow-2xl">
-      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+  <div id="cardModal" class="hidden fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-2 sm:p-4">
+    <div class="bg-[#0b0f1a] border border-purple-500/60 rounded-2xl max-w-6xl w-full max-h-[94vh] overflow-y-auto p-4 sm:p-6 space-y-4 shadow-2xl">
+      <!-- Top Header -->
+      <div class="flex items-center justify-between flex-wrap gap-3 border-b border-slate-800 pb-3">
         <div>
-          <h2 class="font-orbitron font-black text-sm text-purple-400 flex items-center gap-2">
-            <span>📦</span> Step 7 & 8: 24pt SBS Blister Card Packaging Generator
+          <h2 class="font-orbitron font-black text-sm sm:text-base text-purple-300 flex items-center gap-2">
+            <span>📦</span> BLISTER CARD RULES ENGINE <span class="px-2 py-0.5 rounded bg-purple-950 border border-purple-500/50 text-[10px] font-mono text-purple-200">FRONT + MIRRORED BACK • 300 DPI</span>
           </h2>
-          <p class="text-[11px] text-slate-400">Generates 300 DPI print-ready card and laser SVG cut profiles.</p>
+          <p class="text-[11px] text-slate-400 mt-0.5">AI paints text-free card art & bespoke wordmark → Deterministic factory rules apply exact Mattel Premium/Mainline J-hook die-cuts, Neon Llama Garage back & live QR code.</p>
         </div>
-        <button onclick="toggleModal('cardModal')" class="text-slate-400 hover:text-white font-bold text-sm">✕ Close</button>
+        <div class="flex items-center gap-2 flex-wrap">
+          <button type="button" onclick="nlgExportCardPng('front', false)" class="px-3.5 py-2 rounded-lg bg-pink-600 hover:bg-pink-500 text-white font-orbitron font-black text-[11px] shadow-lg transition">
+            ⬇ Export Front 300 DPI
+          </button>
+          <button type="button" onclick="nlgExportCardPng('back', false)" class="px-3.5 py-2 rounded-lg bg-cyan-700 hover:bg-cyan-600 text-white font-orbitron font-black text-[11px] shadow-lg transition">
+            ⬇ Export Back 300 DPI
+          </button>
+          <button type="button" onclick="nlgExportCardPng(nlgCardSide, true)" class="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-[11px] border border-slate-700">
+            📐 w/ Cutlines
+          </button>
+          <button type="button" onclick="toggleModal('cardModal')" class="ml-1 px-2.5 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white font-bold text-xs border border-slate-800">✕ Close</button>
+        </div>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
-        <div class="space-y-3">
-          <div>
-            <label class="text-slate-400 block mb-1">Series Title</label>
-            <input type="text" id="modalCardTitle" value="CYBER BANANA" class="w-full bg-slate-950 p-2 rounded-lg border border-slate-800 text-white font-bold outline-none">
-          </div>
-          <div class="grid grid-cols-2 gap-2">
-            <div>
-              <label class="text-slate-400 block mb-1">Collector #</label>
-              <input type="text" value="#01/10" class="w-full bg-slate-950 p-2 rounded-lg border border-slate-800 text-pink-400 font-mono font-bold outline-none">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+        <!-- LEFT: LIVE 300 DPI CANVAS PREVIEW -->
+        <div class="lg:col-span-6 flex flex-col items-center space-y-3 bg-slate-950/80 border border-slate-800 rounded-2xl p-4">
+          <div class="w-full flex items-center justify-between gap-2 flex-wrap text-xs">
+            <div class="flex items-center gap-1.5">
+              <button type="button" id="nlgBtnSideFront" onclick="nlgSetCardSide('front')" class="px-3 py-1.5 rounded-lg bg-pink-600 text-white font-orbitron font-black text-[11px]">
+                🎴 FRONT
+              </button>
+              <button type="button" id="nlgBtnSideBack" onclick="nlgSetCardSide('back')" class="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 font-orbitron font-black text-[11px]">
+                🔄 BACK (MIRRORED J-HOOK)
+              </button>
             </div>
-            <div>
-              <label class="text-slate-400 block mb-1">Format</label>
-              <select class="w-full bg-slate-950 p-2 rounded-lg border border-slate-800 text-white font-bold">
-                <option>Standard (3.5" x 5.25")</option>
-                <option>Premium Wide (4.25" x 6")</option>
-              </select>
-            </div>
+            <span id="nlgDimReadout" class="font-mono text-[11px] text-slate-400">5.25" × 6.50" (1575 × 1950 px)</span>
           </div>
-          <button onclick="alert('Exporting 24pt SBS Cardback Print PDF at 300 DPI!')" class="w-full py-3 rounded-xl bg-pink-600 hover:bg-pink-500 text-white font-orbitron font-black text-xs shadow-lg transition active:scale-95">
-            🖨️ EXPORT CARDBACK PRINT (300 DPI)
-          </button>
-          <button onclick="alert('Exporting Laser Cut Path SVG with peg hole guide!')" class="w-full py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-orbitron text-xs font-bold border border-slate-700">
-            ✂️ EXPORT LASER CUT PATH (SVG)
-          </button>
+
+          <div class="w-full flex justify-center py-1">
+            <canvas id="nlgCardCanvas" class="max-h-[580px] w-auto cursor-zoom-in" onclick="nlgZoomCardPreview()" style="filter: drop-shadow(0 18px 28px rgba(0,0,0,0.7));"></canvas>
+          </div>
+
+          <div class="flex items-center gap-4 text-[11px] text-slate-300 flex-wrap justify-center">
+            <label class="flex items-center gap-1.5 cursor-pointer">
+              <input type="checkbox" id="nlgChkGuides" checked onchange="nlgDrawCard()" class="accent-pink-500" />
+              <span>Die-Cut & J-Hook Guides</span>
+            </label>
+            <label class="flex items-center gap-1.5 cursor-pointer">
+              <input type="checkbox" id="nlgChkBlister" checked onchange="nlgDrawCard()" class="accent-cyan-400" />
+              <span>Blister Safe-Zone</span>
+            </label>
+            <button type="button" onclick="nlgShuffleGarageDrops()" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 text-[10px] font-mono text-cyan-300">
+              🔀 Shuffle Back Drops (<span id="nlgAlbumDropCount">0</span>)
+            </button>
+          </div>
         </div>
 
-        <div class="flex items-center justify-center p-3 bg-black/60 rounded-xl border border-slate-800">
-          <div class="w-56 h-80 bg-slate-950 rounded-2xl border-2 border-slate-700 p-3 flex flex-col justify-between shadow-2xl relative">
-            <div class="w-6 h-2 rounded-full border border-red-500 mx-auto"></div>
-            <div class="text-center">
-              <div class="text-[9px] font-orbitron font-black text-white">🦙 NEON LLAMA GARAGE</div>
-              <div id="cardPreviewTitle" class="font-orbitron font-black text-lg text-pink-500 tracking-wider">CYBER BANANA</div>
+        <!-- RIGHT: AI GENERATORS & DETERMINISTIC RULES -->
+        <div class="lg:col-span-6 space-y-3.5">
+          <!-- 1. FORMAT & LOOSE HERO PHOTO -> AI CARD ART + AI WORDMARK -->
+          <div class="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 space-y-3">
+            <h3 class="text-[11px] font-orbitron font-black tracking-wider text-purple-300">1. DIE-CUT FORMAT & AI ART STUDIO</h3>
+            <div class="grid grid-cols-2 gap-2">
+              <button type="button" id="nlgBtnFmtPremium" onclick="nlgSetCardFormat('premium')" class="py-2 px-3 rounded-lg bg-purple-600 text-white font-bold text-xs">
+                Premium Car Culture (5.25" × 6.5")
+              </button>
+              <button type="button" id="nlgBtnFmtMainline" onclick="nlgSetCardFormat('mainline')" class="py-2 px-3 rounded-lg bg-slate-900 text-slate-300 border border-slate-700 font-bold text-xs">
+                Mainline Standard (4.25" × 6.5")
+              </button>
             </div>
-            <img id="cardPreviewImg" src="data:image/jpeg;base64,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UbB6VJRQBGUFJ5YqWigCHyxR5YqbFGKVyiHy+KPLFTYpMUxEPlil8upcUYFAiLy6PK9qmxRigCHyval8sVLiigCLyxSeXU2KKAIvLo8selS4oxQBH5YpjRZqekIoGVjCMUnkD0qzilAoEVhbj0pwgHpVjFGKB2IBAvpR5C+gqfFGKQyDyF9KURAVNilxTAh8selHlj0qWjFAiLyx6UvlipKKAI/LFKIxT8UtAxoUUuKWikAop1IBTqAExS0UUAFJilooAKKKKACiiigAooooAKKKKAFoNJS0gCiiigAooopgFFFFACUlLSUANIpKdSGgBKKKWgAooooASilooASjFFFABiiiimIKKKKBBiiiigAooooAKKKKACiiikUJS0UUAFJS0UyRKKWigLBRRRQMKSlooEJRS0lMBaKKKQwooooGFFLiigBKKKKQBRRRQAUUUUxXCiiigQUUCloKQlLRQKQDhS0lLQAUtJS0AFJS0lAC0lFFABRRRSAKKKKAAUUUUAFFFFABRRRQAtFJRQAtJRRQAUhpaQ0wCkoooAKSlpKACiiigAooooASilooASgiilpiYlFLRQISilpKBhRRRQIKSlxSUALRSUuaBoKKKKBiUtFFAgooooEFJRRTAWigUUgCijNJmgBaKTNFAxaKKWgYUlLSUgClpKWgBDRQaKACiiimIKKKKBBRRRQMKUUlOpDFpaSlFABRRRSAKKKKACiiigAooooAKKKKACiiigAooopgFFFFABRRRSAKKKKYBTTSmkoAKKKKACkoopAFFFFMBKKKKAFopKWgBKWiimAUmaWkoJEpRSUuaADFLRRQAUhpaSgAxRRRQNBRRRSGFFFFMAxRRRQISilooASiiigQUUUUAFLSUUDFooooGFFFFABRRRSAKKKKYBRRRQIKKKKACiiigYtFJS0gFpRSUUAOooopAFFFFMApKWkpAFLSUtABRSUUwP/Z" class="w-full object-contain drop-shadow-xl max-h-36">
-            <div class="flex items-center justify-between text-[8px] font-mono text-slate-400 border-t border-slate-800 pt-1">
-              <span class="text-pink-400 font-bold">#01/10</span>
-              <span>1/64 REAL RIDERS</span>
+
+            <!-- Loose Hero Photo Upload + 1-Click AI Buttons -->
+            <div class="p-3 rounded-xl bg-slate-900/70 border border-slate-800 space-y-2.5">
+              <div class="flex items-center justify-between gap-2">
+                <label class="text-[11px] font-bold text-slate-200">📸 Upload Loose Hero Photo (or Drop Finished Card Art)</label>
+                <span id="nlgHeroStatus" class="text-[10px] font-mono text-slate-400">No photo loaded</span>
+              </div>
+              <input type="file" id="nlgHeroUpload" accept="image/*" onchange="nlgHandleHeroUpload(this)" class="w-full text-[11px] text-slate-300 bg-slate-950 border border-slate-800 rounded-lg p-1.5" />
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <button type="button" id="nlgBtnGenCardArt" onclick="nlgGenerateAiCardArt()" class="py-2.5 px-3 rounded-xl bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-orbitron font-black text-[11px] shadow-lg transition">
+                  ✨ Generate Text-Free Card Art (~3¢)
+                </button>
+                <button type="button" id="nlgBtnGenWordmark" onclick="nlgGenerateAiWordmark()" class="py-2.5 px-3 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-orbitron font-black text-[11px] shadow-lg transition">
+                  ✨ Generate Bespoke Wordmark (~3¢)
+                </button>
+              </div>
+              <div id="nlgAiCardStatus" class="hidden text-[11px] font-mono text-cyan-300 bg-slate-950 border border-cyan-500/40 rounded-lg p-2"></div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 pt-1">
+              <label class="text-[11px] text-slate-400">
+                Art Zoom: <span id="nlgZoomVal" class="font-mono text-white">100%</span>
+                <input type="range" id="nlgArtZoom" min="60" max="180" value="100" oninput="nlgDrawCard()" class="w-full accent-pink-500" />
+              </label>
+              <label class="text-[11px] text-slate-400">
+                Art Vertical Offset: <span id="nlgOffsetVal" class="font-mono text-white">-120px</span>
+                <input type="range" id="nlgArtOffsetY" min="-320" max="320" value="-120" oninput="nlgDrawCard()" class="w-full accent-pink-500" />
+              </label>
+            </div>
+          </div>
+
+          <!-- 2. LOCKED TYPOGRAPHY & BACK SPECS -->
+          <div class="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 space-y-3">
+            <h3 class="text-[11px] font-orbitron font-black tracking-wider text-purple-300">2. CARD METADATA & LAYOUT RULES</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <div>
+                <label class="text-[10px] font-bold text-slate-400 block mb-1">Theme / Wordmark Title</label>
+                <input id="nlgInpTheme" type="text" value="NEON FREEZE" oninput="nlgDrawCard()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs font-bold text-white outline-none focus:border-pink-500" />
+              </div>
+              <div>
+                <label class="text-[10px] font-bold text-slate-400 block mb-1">Casting Name (Footer)</label>
+                <input id="nlgInpCasting" type="text" value="'98 DAIRY DELIVERY" oninput="nlgDrawCard()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs font-bold text-white outline-none focus:border-pink-500" />
+              </div>
+              <div>
+                <label class="text-[10px] font-bold text-slate-400 block mb-1">Series / Collection (Back Spec)</label>
+                <input id="nlgInpSeries" type="text" value="PIKE'S 13 // CUSTOM UV SERIES" oninput="nlgDrawCard()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs font-bold text-white outline-none focus:border-pink-500" />
+              </div>
+              <div>
+                <label class="text-[10px] font-bold text-slate-400 block mb-1">Edition / Run</label>
+                <input id="nlgInpSerial" type="text" value="01 / 10" oninput="nlgDrawCard()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs font-bold text-white outline-none focus:border-pink-500" />
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between flex-wrap gap-2 pt-1">
+              <div class="flex items-center gap-3 text-[11px] text-slate-300">
+                <label class="flex items-center gap-1.5">
+                  Primary <input type="color" id="nlgInpColor1" value="#ff0099" oninput="nlgDrawCard()" class="w-6 h-6 rounded cursor-pointer border-0 bg-transparent" />
+                </label>
+                <label class="flex items-center gap-1.5">
+                  Accent <input type="color" id="nlgInpColor2" value="#00f0ff" oninput="nlgDrawCard()" class="w-6 h-6 rounded cursor-pointer border-0 bg-transparent" />
+                </label>
+              </div>
+              <div class="flex items-center gap-2 flex-wrap">
+                <label class="flex items-center gap-1 text-[11px] font-bold text-slate-200 cursor-pointer px-2 py-1 rounded-lg bg-slate-900 border border-slate-700">
+                  <input type="checkbox" id="nlgChkAiLogo" checked onchange="nlgDrawCard()" class="accent-pink-500" />
+                  <span>✨ AI Wordmark</span>
+                </label>
+                <label class="flex items-center gap-1 text-[11px] font-bold text-slate-200 cursor-pointer px-2 py-1 rounded-lg bg-slate-900 border border-slate-700">
+                  <input type="checkbox" id="nlgChkFrontLogo" onchange="nlgDrawCard()" class="accent-pink-500" />
+                  <span>🦙 Front Logo</span>
+                </label>
+                <label class="flex items-center gap-1 text-[11px] font-bold text-slate-200 cursor-pointer px-2 py-1 rounded-lg bg-slate-900 border border-slate-700">
+                  <input type="checkbox" id="nlgChkShowSerial" checked onchange="nlgDrawCard()" class="accent-pink-500" />
+                  <span>#️⃣ Edition</span>
+                </label>
+                <label class="flex items-center gap-1 text-[11px] font-bold text-slate-200 cursor-pointer px-2 py-1 rounded-lg bg-slate-900 border border-slate-700">
+                  <input type="checkbox" id="nlgChkLightBack" onchange="nlgDrawCard()" class="accent-pink-500" />
+                  <span>☀️ Light Back</span>
+                </label>
+              </div>
             </div>
           </div>
         </div>
@@ -1132,8 +1233,6 @@
     </div>
   </div>
 
-
-  <!-- ========================================================================= -->
   <!-- MODAL 3: LLAMA CAM (STEP 6 & 9)                                           -->
   <!-- ========================================================================= -->
   <div id="llamaCamModal" class="hidden fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-6">
@@ -3019,22 +3118,21 @@
       const fbText = feedback ? `USER TWEAK INSTRUCTION: "${feedback}".` : '';
       let layoutSpec = '';
       if (panelKey === 'side_driver') {
-        layoutSpec = `SHAPE & ORIENTATION: Wide horizontal landscape sticker/decal banner (~2.5:1 wide horizontal strip) designed to sit on the flat left side panel. Front of car is on the LEFT, rear is on the RIGHT. Any lettering MUST read cleanly LEFT-TO-RIGHT.`;
+        layoutSpec = `UNWRAP AND FLATTEN ONLY THE EXACT 2D ARTWORK PAINTED ON THE FLAT SIDE PANEL of the attached vehicle image. Match the EXACT shapes, colors, gradients, icons, and layout — DO NOT invent ANY new text, words, letters, titles, icons, or extra front-fender graphic tails that are NOT painted on the side panel of the attached car! Front edge of the side panel is on the LEFT, rear edge is on the RIGHT. Compact 3:2 landscape composition centered cleanly.`;
       } else if (panelKey === 'side_passenger') {
-        layoutSpec = `SHAPE & ORIENTATION: Wide horizontal landscape sticker/decal banner (~2.5:1 wide horizontal strip) designed to sit on the flat right side panel. Match the EXACT color palette, ink style, and graphics of the attached Driver Side decal, EXCEPT reverse the graphic flow direction (front on RIGHT, rear on LEFT) while keeping EVERY SINGLE WORD AND LETTER 100% LEGIBLE LEFT-TO-RIGHT (NEVER BACKWARDS OR MIRRORED TEXT!).`;
+        layoutSpec = `UNWRAP AND FLATTEN ONLY THE EXACT 2D ARTWORK PAINTED ON THE FLAT SIDE PANEL for the PASSENGER (RIGHT) SIDE. Match the EXACT color palette, ink style, and graphics of the attached Driver Side decal, reversing the graphic flow direction (front edge on RIGHT, rear edge on LEFT). If there is any lettering already present on the car, keep it 100% legible LEFT-TO-RIGHT (NEVER mirrored backwards), and DO NOT invent any new words or titles!`;
       } else if (panelKey === 'roof') {
-        layoutSpec = `SHAPE & ORIENTATION: Clean flat 2D rectangular top-down roof graphic strip. Match the EXACT same color palette, ink tones, and art style of the attached Driver Side decal so the roof and sides look like one unified set!`;
+        layoutSpec = `UNWRAP AND FLATTEN ONLY THE EXACT 2D ROOF GRAPHIC from the attached vehicle image as a flat top-down rectangular panel decal matching the EXACT color palette and ink style of the attached Driver Side decal. DO NOT invent extra text or titles.`;
       } else {
-        layoutSpec = `SHAPE & ORIENTATION: Clean flat 2D rectangular top-down graphic decal for the ${panelLabel}. Match the EXACT same color palette and art style of the attached Driver Side decal!`;
+        layoutSpec = `UNWRAP AND FLATTEN ONLY THE EXACT 2D GRAPHIC for the ${panelLabel} matching the EXACT color palette and art style of the attached Driver Side decal. DO NOT invent extra text or titles.`;
       }
 
-      return `PURE FLAT 2D DIE-CUT STICKER / DECAL ARTWORK ONLY for the ${panelLabel} of "${winVar.title}" (${winVar.story}). ${fbText}
+      return `STRICT 1:1 UNWRAPPED FLAT 2D UV-PRINT DECAL EXTRACTION ONLY for the ${panelLabel}. ${fbText}
 ${layoutSpec}
-ABSOLUTE ZERO-VEHICLE RULES (CRITICAL):
-- Draw ONLY the pure flat 2D graphic illustration / sticker artwork itself.
-- DO NOT draw a van or car silhouette! DO NOT draw wheel arch cutouts! DO NOT draw window holes! DO NOT draw headlights, bumpers, door seams, tires, wheels, roof racks, or any vehicle shape!
-- Completely flat 2D graphic design centered with clean white margin on a 100% SOLID PURE FLAT WHITE (#FFFFFF) background.
-- Crisp vector-sharp ink edges, zero shadows, zero 3D perspective, ready for 600 DPI eufyMake UV flatbed decal printing.`;
+ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
+- Extract ONLY the pure flat 2D graphic artwork painted on the panel — NO car body, NO metal, NO paint reflection, NO headlights, NO grille, NO front fender tail, NO door seams, NO wheel wells, NO wheels, NO tires, NO windows, NO 3D shading, NO dark perimeter sticker outline.
+- DO NOT add any title text, series name, watermark, or invented words that are not literally painted on the car's panel!
+- Centered with clean white margin on a 100% SOLID PURE FLAT WHITE (#FFFFFF) background, crisp vector-sharp edges ready for 600 DPI eufyMake UV printing.`;
     }
 
     async function generatePureFlatDecals() {
@@ -3895,6 +3993,758 @@ ABSOLUTE ZERO-VEHICLE RULES (CRITICAL):
 
     window.onload = () => {
       checkExistingAuth();
+    };
+
+    // =========================================================================
+    // v4.3.0 BLISTER CARD RULES ENGINE (FRONT + MIRRORED BACK • REAL QR • ALBUMS)
+    // =========================================================================
+    let nlgCardFormat = 'premium';
+    let nlgCardSide = 'front';
+    let nlgHeroPhotoDataUrl = null;
+    let nlgCardArtImg = null;
+    let nlgBrandLogoImg = null;
+    let nlgTitleLogoImg = null;
+    let nlgGarageDrops = []; // Auto-pulled from saved Casting Albums!
+
+    const NLG_FORMATS = {
+      premium: { w: 1575, h: 1950, label: '5.25" × 6.50" (1575 × 1950 px)', blisterW: 1120, blisterH: 640 },
+      mainline: { w: 1275, h: 1950, label: '4.25" × 6.50" (1275 × 1950 px)', blisterW: 1020, blisterH: 620 }
+    };
+
+    // Real ISO-18004 Level-M QR Code Matrix for https://neonllamagarage.com (29x29)
+    const NLG_QR_MATRIX = [
+      "11111110011010100011001111111","10000010011110001110101000001","10111010011010110101101011101",
+      "10111010000101001001001011101","10111010011100000110001011101","10000010110010011111001000001",
+      "11111110101010101010101111111","00000000011011011100000000000","10010110100000101000010100000",
+      "11011001111111011100111001001","10101010111111110111111001110","11111000000101001010110110110",
+      "10101111011000110100011001011","10000000100001111001110000000","11101011110101100000110001111",
+      "00000100011110010111010011010","10000110010101000101110000010","01100101010001111100011101001",
+      "10111110011010111000001110011","00011101110010100111101000011","10110111101010010110111110100",
+      "00000000111110110001100010111","11111110001100001100101010010","10000010111110110100100011101",
+      "10111010011010001000111110000","10111010110100010101001111101","10111010010110111110000011101",
+      "10000010001001001111101110010","11111110100101011010110101010"
+    ];
+
+    function nlgLoadBrandLogoOnce() {
+      if (nlgBrandLogoImg) return;
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => { nlgBrandLogoImg = img; nlgDrawCard(); };
+      img.src = 'assets/neon-llama-logo-clean.png';
+    }
+
+    async function nlgShuffleGarageDrops() {
+      try {
+        const items = (typeof getAllAlbumItems === 'function') ? await getAllAlbumItems() : [];
+        const currentCasting = (document.getElementById('nlgInpCasting')?.value || '').toUpperCase().trim();
+        // Prefer concept / sub-idea / card art images (not raw decals) from OTHER builds!
+        const candidates = items.filter(it => it.dataUrl && !String(it.stage || '').toLowerCase().includes('decal'));
+        const others = candidates.filter(it => String(it.casting || '').toUpperCase().trim() !== currentCasting);
+        const pool = others.length >= 2 ? others : candidates;
+
+        // Shuffle pool
+        const shuffled = [...pool].sort(() => Math.random() - 0.5).slice(0, 2);
+        const countEl = document.getElementById('nlgAlbumDropCount');
+        if (countEl) countEl.innerText = pool.length;
+
+        nlgGarageDrops = await Promise.all(shuffled.map(it => new Promise((resolve) => {
+          const im = new Image();
+          im.onload = () => resolve({ img: im, label: (it.casting || 'CUSTOM DROP').toUpperCase(), sub: (it.title || 'NEON LLAMA ARCHIVE').toUpperCase().slice(0, 24) });
+          im.onerror = () => resolve(null);
+          im.src = it.dataUrl;
+        })));
+        nlgGarageDrops = nlgGarageDrops.filter(Boolean);
+        nlgDrawCard();
+      } catch (e) {
+        console.warn('Could not load garage drops:', e);
+      }
+    }
+
+    function nlgSetCardFormat(fmt) {
+      nlgCardFormat = fmt;
+      const p = document.getElementById('nlgBtnFmtPremium');
+      const m = document.getElementById('nlgBtnFmtMainline');
+      if (p && m) {
+        p.className = fmt === 'premium' ? 'py-2 px-3 rounded-lg bg-purple-600 text-white font-bold text-xs' : 'py-2 px-3 rounded-lg bg-slate-900 text-slate-300 border border-slate-700 font-bold text-xs';
+        m.className = fmt === 'mainline' ? 'py-2 px-3 rounded-lg bg-purple-600 text-white font-bold text-xs' : 'py-2 px-3 rounded-lg bg-slate-900 text-slate-300 border border-slate-700 font-bold text-xs';
+      }
+      nlgDrawCard();
+    }
+
+    function nlgSetCardSide(side) {
+      nlgCardSide = side;
+      const f = document.getElementById('nlgBtnSideFront');
+      const b = document.getElementById('nlgBtnSideBack');
+      if (f && b) {
+        f.className = side === 'front' ? 'px-3 py-1.5 rounded-lg bg-pink-600 text-white font-orbitron font-black text-[11px]' : 'px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 font-orbitron font-black text-[11px]';
+        b.className = side === 'back' ? 'px-3 py-1.5 rounded-lg bg-pink-600 text-white font-orbitron font-black text-[11px]' : 'px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 font-orbitron font-black text-[11px]';
+      }
+      nlgDrawCard();
+    }
+
+    function nlgHandleHeroUpload(input) {
+      if (!input.files || !input.files[0]) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        nlgHeroPhotoDataUrl = e.target.result;
+        const status = document.getElementById('nlgHeroStatus');
+        if (status) status.innerText = '✓ Photo loaded';
+        const img = new Image();
+        img.onload = () => { nlgCardArtImg = img; nlgDrawCard(); };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(input.files[0]);
+    }
+
+    // Flood-fill black background knockout for bespoke AI wordmark logos (keeps interior shadows 100% opaque!)
+    function nlgKnockoutBlackToTransparent(dataUrl) {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+          const c = document.createElement('canvas');
+          c.width = img.width; c.height = img.height;
+          const ctx = c.getContext('2d');
+          ctx.drawImage(img, 0, 0);
+          const id = ctx.getImageData(0, 0, c.width, c.height);
+          const d = id.data;
+          const w = c.width, h = c.height;
+          const ext = new Uint8Array(w * h);
+          const q = [];
+          const isDark = (idx) => Math.max(d[idx], d[idx+1], d[idx+2]) < 80;
+
+          for (let x = 0; x < w; x++) {
+            if (isDark(x * 4)) { ext[x] = 1; q.push(x); }
+            const b = (h - 1) * w + x;
+            if (isDark(b * 4)) { ext[b] = 1; q.push(b); }
+          }
+          for (let y = 0; y < h; y++) {
+            const l = y * w;
+            if (isDark(l * 4)) { ext[l] = 1; q.push(l); }
+            const r = y * w + (w - 1);
+            if (isDark(r * 4)) { ext[r] = 1; q.push(r); }
+          }
+          let head = 0;
+          while (head < q.length) {
+            const cur = q[head++];
+            const cx = cur % w, cy = (cur / w) | 0;
+            const nbrs = [];
+            if (cx > 0) nbrs.push(cur - 1);
+            if (cx < w - 1) nbrs.push(cur + 1);
+            if (cy > 0) nbrs.push(cur - w);
+            if (cy < h - 1) nbrs.push(cur + w);
+            for (const n of nbrs) {
+              if (!ext[n] && isDark(n * 4)) { ext[n] = 1; q.push(n); }
+            }
+          }
+
+          let minX = w, minY = h, maxX = 0, maxY = 0;
+          for (let i = 0; i < w * h; i++) {
+            const o = i * 4;
+            if (ext[i]) {
+              const mc = Math.max(d[o], d[o+1], d[o+2]);
+              const a = Math.max(0, Math.min(1, (mc - 10) / 70));
+              d[o+3] = Math.round(a * 255);
+              if (a > 0.02) {
+                const boost = 1 / Math.max(a, 0.25);
+                d[o] = Math.min(255, d[o] * boost);
+                d[o+1] = Math.min(255, d[o+1] * boost);
+                d[o+2] = Math.min(255, d[o+2] * boost);
+              }
+            }
+            if (d[o+3] > 18) {
+              const x = i % w, y = (i / w) | 0;
+              if (x < minX) minX = x; if (x > maxX) maxX = x;
+              if (y < minY) minY = y; if (y > maxY) maxY = y;
+            }
+          }
+          ctx.putImageData(id, 0, 0);
+
+          // Crop tightly around non-transparent wordmark
+          const pad = 12;
+          const sx = Math.max(0, minX - pad), sy = Math.max(0, minY - pad);
+          const sw = Math.min(w - sx, maxX - minX + pad * 2);
+          const sh = Math.min(h - sy, maxY - minY + pad * 2);
+          const out = document.createElement('canvas');
+          out.width = Math.max(1, sw); out.height = Math.max(1, sh);
+          out.getContext('2d').drawImage(c, sx, sy, sw, sh, 0, 0, sw, sh);
+          const finalImg = new Image();
+          finalImg.onload = () => resolve(finalImg);
+          finalImg.src = out.toDataURL('image/png');
+        };
+        img.src = dataUrl;
+      });
+    }
+
+    async function nlgGenerateAiCardArt() {
+      const status = document.getElementById('nlgAiCardStatus');
+      const casting = (document.getElementById('nlgInpCasting')?.value || 'Custom 1:64 Hot Wheels').trim();
+      const theme = (document.getElementById('nlgInpTheme')?.value || 'NEON FREEZE').trim();
+      const refs = nlgHeroPhotoDataUrl ? [nlgHeroPhotoDataUrl] : (currentWinningVariation?.img ? [currentWinningVariation.img] : []);
+      if (status) {
+        status.classList.remove('hidden');
+        status.innerText = '⏳ Generating text-free full-bleed collector card illustration via Gemini 3.1...';
+      }
+      const prompt = `High-end Mattel Hot Wheels Car Culture / RLC collector blister-card background illustration featuring the EXACT custom 1:64 ${casting} ("${theme}") from the attached hero photo. Keep the EXACT car paint, side livery, and wheels from the photo, placed dynamically in the upper-middle action zone on a vibrant themed neon/cyber background matching the car's vibe. Leave the bottom 35% darker and uncluttered asphalt/reflections for the physical blister bubble. CRITICAL: ABSOLUTELY ZERO TEXT, ZERO LETTERS, ZERO LOGOS, ZERO BORDERS, ZERO CARD OUTLINE — pure edge-to-edge full-bleed illustration only.`;
+      const res = await generateAiImage(prompt, refs);
+      if (!res.ok || !res.image) {
+        if (status) status.innerText = '⚠️ ' + (res.error || 'Card art generation failed');
+        return;
+      }
+      const img = new Image();
+      img.onload = () => {
+        nlgCardArtImg = img;
+        if (status) status.innerText = '✓ Text-free card art generated & locked onto canvas!';
+        if (typeof saveToCastingAlbum === 'function') saveToCastingAlbum(casting, 'Blister Card Art', theme, res.image);
+        nlgDrawCard();
+      };
+      img.src = res.image;
+    }
+
+    async function nlgGenerateAiWordmark() {
+      const status = document.getElementById('nlgAiCardStatus');
+      const theme = (document.getElementById('nlgInpTheme')?.value || 'NEON FREEZE').trim().toUpperCase();
+      const refs = [];
+      if (nlgCardArtImg && nlgCardArtImg.src.startsWith('data:image/')) refs.push(nlgCardArtImg.src);
+      else if (nlgHeroPhotoDataUrl) refs.push(nlgHeroPhotoDataUrl);
+
+      if (status) {
+        status.classList.remove('hidden');
+        status.innerText = `⏳ Generating bespoke collector wordmark for "${theme}" & extracting transparency...`;
+      }
+      const prompt = `Bespoke collector diecast blister-card title wordmark logo reading ONLY the exact text "${theme}" in bold, dynamic, slanted custom hand-lettered automotive racing / retro-futuristic typography designed to match the exact color palette and vibe of the attached artwork. Brushed chrome metallic bevels, electric neon trim, crisp Mattel Hot Wheels Car Culture / RLC factory series logo quality. Centered horizontally with generous padding on a 100% pure flat solid pitch-black (#000000) background with ZERO cars, ZERO scenery, ZERO extra text, ZERO subtitles, ZERO borders, ZERO watermarks. ONLY the isolated graphic wordmark "${theme}" on pure black.`;
+      const res = await generateAiImage(prompt, refs);
+      if (!res.ok || !res.image) {
+        if (status) status.innerText = '⚠️ ' + (res.error || 'Wordmark generation failed');
+        return;
+      }
+      nlgTitleLogoImg = await nlgKnockoutBlackToTransparent(res.image);
+      const chk = document.getElementById('nlgChkAiLogo');
+      if (chk) chk.checked = true;
+      if (status) status.innerText = `✓ Bespoke "${theme}" wordmark extracted to 100% transparent PNG!`;
+      nlgDrawCard();
+    }
+
+    function nlgRoundRectPath(ctx, x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y);
+      ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+      ctx.lineTo(x + w, y + h - r);
+      ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+      ctx.lineTo(x + r, y + h);
+      ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+      ctx.lineTo(x, y + r);
+      ctx.quadraticCurveTo(x, y, x + r, y);
+      ctx.closePath();
+    }
+
+    function nlgHotWheelsPremiumPath(ctx, w, h) {
+      const px = (nx) => nx * w, py = (ny) => ny * h;
+      const rOut = 0.036 * w, rHookTop = 0.028 * w, rHookBot = 0.022 * w;
+      const rLip = 0.018 * w, rNotch = 0.0272 * w, rPocket = 0.024 * w, rShoulder = 0.028 * w;
+      ctx.beginPath();
+      ctx.arc(rOut, rOut, rOut, Math.PI, 1.5 * Math.PI, false);
+      ctx.lineTo(px(0.651) - rHookTop, 0);
+      ctx.arc(px(0.651) - rHookTop, rHookTop, rHookTop, -Math.PI / 2, 0, false);
+      ctx.lineTo(px(0.651), py(0.083) - rHookBot);
+      ctx.arc(px(0.651) - rHookBot, py(0.083) - rHookBot, rHookBot, 0, Math.PI / 2, false);
+      ctx.lineTo(px(0.5272) + rLip, py(0.083));
+      ctx.arc(px(0.5272) + rLip, py(0.083) - rLip, rLip, Math.PI / 2, Math.PI, false);
+      ctx.lineTo(px(0.500) + rNotch, py(0.072));
+      ctx.arc(px(0.500), py(0.072), rNotch, 0, -Math.PI, true);
+      ctx.lineTo(px(0.4728), py(0.138) - rPocket);
+      ctx.arc(px(0.4728) + rPocket, py(0.138) - rPocket, rPocket, Math.PI, Math.PI / 2, true);
+      ctx.lineTo(px(0.708) - rPocket, py(0.138));
+      ctx.arc(px(0.708) - rPocket, py(0.138) - rPocket, rPocket, Math.PI / 2, 0, true);
+      ctx.lineTo(px(0.708), rShoulder);
+      ctx.arc(px(0.708) + rShoulder, rShoulder, rShoulder, Math.PI, 1.5 * Math.PI, false);
+      ctx.lineTo(w - rOut, 0);
+      ctx.arc(w - rOut, rOut, rOut, -Math.PI / 2, 0, false);
+      ctx.lineTo(w, h - rOut);
+      ctx.arc(w - rOut, h - rOut, rOut, 0, Math.PI / 2, false);
+      ctx.lineTo(rOut, h);
+      ctx.arc(rOut, h - rOut, rOut, Math.PI / 2, Math.PI, false);
+      ctx.closePath();
+    }
+
+    function nlgHotWheelsMainlinePath(ctx, w, h) {
+      const px = (nx) => nx * w, py = (ny) => ny * h;
+      const r1 = 0.020 * w, r2 = 0.020 * w, rNotch = 0.0315 * w, r3 = 0.022 * w, rBot = 0.025 * w, rEar = 0.010 * w;
+      ctx.beginPath();
+      ctx.moveTo(0, py(0.118));
+      ctx.lineTo(px(0.175), 0);
+      ctx.lineTo(px(0.696) - r1, 0);
+      ctx.arc(px(0.696) - r1, r1, r1, -Math.PI / 2, 0, false);
+      ctx.lineTo(px(0.696), py(0.103) - r1);
+      ctx.arc(px(0.696) - r1, py(0.103) - r1, r1, 0, Math.PI / 2, false);
+      ctx.lineTo(px(0.530) + r2, py(0.103));
+      ctx.arc(px(0.530) + r2, py(0.103) - r2, r2, Math.PI / 2, Math.PI, false);
+      ctx.lineTo(px(0.4985) + rNotch, py(0.082));
+      ctx.arc(px(0.4985), py(0.082), rNotch, 0, -Math.PI, true);
+      ctx.lineTo(px(0.467), py(0.151) - r3);
+      ctx.arc(px(0.467) + r3, py(0.151) - r3, r3, Math.PI, Math.PI / 2, true);
+      ctx.lineTo(px(0.848), py(0.151));
+      ctx.lineTo(px(0.908), py(0.112));
+      ctx.lineTo(w - rEar, py(0.112));
+      ctx.arc(w - rEar, py(0.112) + rEar, rEar, -Math.PI / 2, 0, false);
+      ctx.lineTo(w, h - rBot);
+      ctx.arc(w - rBot, h - rBot, rBot, 0, Math.PI / 2, false);
+      ctx.lineTo(rBot, h);
+      ctx.arc(rBot, h - rBot, rBot, Math.PI / 2, Math.PI, false);
+      ctx.closePath();
+    }
+
+    function nlgCardPath(ctx, w, h, fmt, mirrored) {
+      ctx.save();
+      if (mirrored) { ctx.translate(w, 0); ctx.scale(-1, 1); }
+      if (fmt === 'mainline') nlgHotWheelsMainlinePath(ctx, w, h);
+      else nlgHotWheelsPremiumPath(ctx, w, h);
+      ctx.restore();
+    }
+
+    function nlgDrawRealQRCode(ctx, x, y, totalH) {
+      ctx.save();
+      const n = NLG_QR_MATRIX.length;
+      const boxW = totalH - 22;
+      const quiet = 14;
+      nlgRoundRectPath(ctx, x, y, boxW, totalH, 20);
+      ctx.fillStyle = '#ffffff';
+      ctx.fill();
+      const qrDrawSize = boxW - quiet * 2;
+      const cell = qrDrawSize / n;
+      ctx.fillStyle = '#090b10';
+      for (let r = 0; r < n; r++) {
+        const row = NLG_QR_MATRIX[r];
+        for (let c = 0; c < n; c++) {
+          if (row[c] === '1') {
+            ctx.fillRect(Math.floor(x + quiet + c * cell), Math.floor(y + quiet + r * cell), Math.ceil(cell), Math.ceil(cell));
+          }
+        }
+      }
+      ctx.fillStyle = '#0f172a';
+      ctx.font = '900 17px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('SCAN FOR DROPS', x + boxW / 2, y + totalH - 12);
+      ctx.restore();
+    }
+
+    function nlgDrawSilhouetteCar(ctx, x, y, w, h, accent, isLight, styleIdx) {
+      ctx.save();
+      ctx.translate(x, y);
+      const glow = ctx.createRadialGradient(w * 0.5, h * 0.80, 10, w * 0.5, h * 0.80, w * 0.48);
+      glow.addColorStop(0, accent + (isLight ? '33' : '44'));
+      glow.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = glow;
+      ctx.fillRect(0, h * 0.58, w, h * 0.36);
+
+      const bodyGrad = ctx.createLinearGradient(0, h * 0.15, 0, h * 0.78);
+      bodyGrad.addColorStop(0, isLight ? '#334155' : '#1e293b');
+      bodyGrad.addColorStop(1, isLight ? '#0f172a' : '#090d16');
+      ctx.fillStyle = bodyGrad;
+      ctx.strokeStyle = accent;
+      ctx.lineWidth = 3.5;
+      ctx.lineJoin = 'round';
+      ctx.beginPath();
+      if (styleIdx === 1) {
+        ctx.moveTo(w * 0.06, h * 0.74); ctx.lineTo(w * 0.07, h * 0.56);
+        ctx.quadraticCurveTo(w * 0.12, h * 0.44, w * 0.28, h * 0.43);
+        ctx.quadraticCurveTo(w * 0.42, h * 0.24, w * 0.58, h * 0.24);
+        ctx.quadraticCurveTo(w * 0.72, h * 0.24, w * 0.82, h * 0.41);
+        ctx.lineTo(w * 0.90, h * 0.37); ctx.lineTo(w * 0.94, h * 0.43); ctx.lineTo(w * 0.93, h * 0.74);
+      } else {
+        ctx.moveTo(w * 0.07, h * 0.74); ctx.lineTo(w * 0.08, h * 0.50);
+        ctx.quadraticCurveTo(w * 0.14, h * 0.42, w * 0.30, h * 0.42);
+        ctx.lineTo(w * 0.42, h * 0.23); ctx.lineTo(w * 0.78, h * 0.23);
+        ctx.quadraticCurveTo(w * 0.89, h * 0.25, w * 0.92, h * 0.48); ctx.lineTo(w * 0.93, h * 0.74);
+      }
+      ctx.closePath(); ctx.fill(); ctx.stroke();
+
+      ctx.fillStyle = accent + '26';
+      ctx.beginPath();
+      ctx.moveTo(w * 0.34, h * 0.43); ctx.lineTo(w * 0.46, h * 0.29);
+      ctx.lineTo(w * 0.70, h * 0.29); ctx.lineTo(w * 0.79, h * 0.43);
+      ctx.closePath(); ctx.fill();
+
+      [0.25, 0.76].forEach((wx) => {
+        const r = h * 0.16;
+        ctx.beginPath(); ctx.arc(w * wx, h * 0.74, r, 0, Math.PI * 2);
+        ctx.fillStyle = '#05070c'; ctx.fill();
+        ctx.strokeStyle = accent; ctx.lineWidth = 3.5; ctx.stroke();
+        ctx.beginPath(); ctx.arc(w * wx, h * 0.74, r * 0.52, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(255,255,255,0.45)'; ctx.lineWidth = 2; ctx.stroke();
+      });
+
+      ctx.fillStyle = accent;
+      ctx.font = 'italic 900 32px "Arial Black", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.shadowColor = accent; ctx.shadowBlur = 12;
+      ctx.fillText('?', w * 0.52, h * 0.62);
+      ctx.restore();
+    }
+
+    function nlgRenderCardToCanvas(canvas, showGuides, showBlister, sideOverride) {
+      const side = sideOverride || nlgCardSide;
+      const spec = NLG_FORMATS[nlgCardFormat];
+      canvas.width = spec.w; canvas.height = spec.h;
+      const ctx = canvas.getContext('2d');
+
+      const theme = (document.getElementById('nlgInpTheme')?.value || 'NEON FREEZE').toUpperCase();
+      const casting = (document.getElementById('nlgInpCasting')?.value || "'98 DAIRY DELIVERY").toUpperCase();
+      const series = (document.getElementById('nlgInpSeries')?.value || "PIKE'S 13 // CUSTOM UV SERIES").toUpperCase();
+      const serial = (document.getElementById('nlgInpSerial')?.value || '01 / 10').toUpperCase();
+      const c1 = document.getElementById('nlgInpColor1')?.value || '#ff0099';
+      const c2 = document.getElementById('nlgInpColor2')?.value || '#00f0ff';
+      const zoom = Number(document.getElementById('nlgArtZoom')?.value || 100) / 100;
+      const offsetY = Number(document.getElementById('nlgArtOffsetY')?.value || -120);
+      const isMainline = nlgCardFormat === 'mainline';
+      const useAiLogo = document.getElementById('nlgChkAiLogo')?.checked && nlgTitleLogoImg;
+
+      const zEl = document.getElementById('nlgZoomVal'); if (zEl) zEl.innerText = Math.round(zoom * 100) + '%';
+      const oEl = document.getElementById('nlgOffsetVal'); if (oEl) oEl.innerText = offsetY + 'px';
+      const dEl = document.getElementById('nlgDimReadout'); if (dEl) dEl.innerText = spec.label;
+
+      if (side === 'back') {
+        const isLight = document.getElementById('nlgChkLightBack')?.checked;
+        const pad = isMainline ? 64 : 84;
+        ctx.clearRect(0, 0, spec.w, spec.h);
+        ctx.save();
+        nlgCardPath(ctx, spec.w, spec.h, nlgCardFormat, true);
+        ctx.clip();
+
+        const bg = ctx.createLinearGradient(0, 0, 0, spec.h);
+        bg.addColorStop(0, isLight ? '#f1f3f7' : '#090c14');
+        bg.addColorStop(0.5, isLight ? '#e8ecf3' : '#101524');
+        bg.addColorStop(1, isLight ? '#e2e6ee' : '#070a11');
+        ctx.fillStyle = bg; ctx.fillRect(0, 0, spec.w, spec.h);
+
+        ctx.save();
+        ctx.strokeStyle = isLight ? 'rgba(15,23,42,0.03)' : 'rgba(255,255,255,0.022)';
+        ctx.lineWidth = 2;
+        for (let i = -spec.h; i < spec.w + spec.h; i += 44) {
+          ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i + spec.h * 0.35, spec.h); ctx.stroke();
+        }
+        ctx.restore();
+
+        const ink = isLight ? '#111827' : '#f8fafc';
+        const muted = isLight ? '#475569' : '#94a3b8';
+        const cardPanel = isLight ? 'rgba(15,23,42,0.05)' : 'rgba(255,255,255,0.04)';
+        const borderCol = isLight ? 'rgba(15,23,42,0.14)' : 'rgba(255,255,255,0.12)';
+        const accentGrad = ctx.createLinearGradient(pad, 0, spec.w - pad, 0);
+        accentGrad.addColorStop(0, c1); accentGrad.addColorStop(1, c2);
+
+        // Big Neon Llama Garage Centerpiece
+        if (nlgBrandLogoImg) {
+          ctx.save();
+          const logoH = isMainline ? 345 : 405;
+          const logoW = logoH * (nlgBrandLogoImg.width / nlgBrandLogoImg.height);
+          const lx = (spec.w - logoW) / 2;
+          const ly = isMainline ? 305 : 272;
+          if (isLight) {
+            nlgRoundRectPath(ctx, lx - 40, ly - 20, logoW + 80, logoH + 40, 36);
+            ctx.fillStyle = '#0b0f19'; ctx.fill();
+          } else {
+            const aura = ctx.createRadialGradient(spec.w / 2, ly + logoH * 0.45, 20, spec.w / 2, ly + logoH * 0.45, logoW * 0.75);
+            aura.addColorStop(0, c1 + '28'); aura.addColorStop(0.6, c2 + '12'); aura.addColorStop(1, 'rgba(0,0,0,0)');
+            ctx.fillStyle = aura; ctx.fillRect(0, ly - 60, spec.w, logoH + 120);
+          }
+          ctx.drawImage(nlgBrandLogoImg, lx, ly, logoW, logoH);
+          ctx.restore();
+        }
+
+        // LARGER, PUNCHIER TOP-LEFT & TOP-RIGHT HEADER METADATA!
+        ctx.save();
+        if (!isMainline) {
+          ctx.fillStyle = c1; ctx.fillRect(pad, 62, 7, 118);
+          ctx.fillStyle = ink; ctx.font = '900 56px "Arial Black", Impact, sans-serif'; ctx.textAlign = 'left';
+          ctx.fillText('14+', pad + 22, 112);
+          ctx.fillStyle = muted; ctx.font = 'bold 24px sans-serif';
+          ctx.fillText('ADULT COLLECTOR', pad + 22, 146);
+          ctx.fillText('CUSTOM 1:64 SCALE', pad + 22, 176);
+        }
+        const trY = isMainline ? 228 : 96;
+        ctx.fillStyle = c2; ctx.fillRect(spec.w - pad - 7, trY - 30, 7, 108);
+        ctx.textAlign = 'right';
+        ctx.fillStyle = ink; ctx.font = `900 ${isMainline ? 24 : 26}px sans-serif`;
+        ctx.fillText('FOR THE CUSTOM DIECAST COLLECTOR.', spec.w - pad - 22, trY);
+        ctx.fillStyle = muted; ctx.font = `bold ${isMainline ? 20 : 22}px sans-serif`;
+        ctx.fillText('DESIGNED & UV-PRINTED IN SMALL BATCHES.', spec.w - pad - 22, trY + 34);
+        ctx.fillStyle = c2; ctx.font = `bold ${isMainline ? 21 : 23}px monospace`;
+        ctx.fillText('NEONLLAMAGARAGE.COM', spec.w - pad - 22, trY + 68);
+        ctx.restore();
+
+        const divY = isMainline ? 682 : 698;
+        ctx.fillStyle = accentGrad; ctx.fillRect(pad, divY, spec.w - pad * 2, 6);
+
+        // Collector Spec Card
+        const specY = divY + 34, specH = 236;
+        nlgRoundRectPath(ctx, pad, specY, spec.w - pad * 2, specH, 24);
+        ctx.fillStyle = cardPanel; ctx.fill();
+        ctx.strokeStyle = borderCol; ctx.lineWidth = 3; ctx.stroke();
+
+        if (useAiLogo) {
+          const lw = isMainline ? 455 : 570;
+          const lh = lw * (nlgTitleLogoImg.height / nlgTitleLogoImg.width);
+          const ly = specY + (specH - lh) / 2;
+          ctx.save();
+          if (isLight) { nlgRoundRectPath(ctx, pad + 24, specY + 18, lw + 32, specH - 36, 16); ctx.fillStyle = '#0b0f19'; ctx.fill(); }
+          ctx.drawImage(nlgTitleLogoImg, pad + 40, ly, lw, lh);
+          ctx.restore();
+        } else {
+          ctx.fillStyle = ink; ctx.font = 'italic 900 54px "Arial Black", Impact, sans-serif'; ctx.textAlign = 'left';
+          ctx.fillText(theme, pad + 36, specY + 132);
+        }
+
+        ctx.save(); ctx.textAlign = 'right';
+        const rx = spec.w - pad - 38;
+        ctx.fillStyle = c2; ctx.font = '900 22px monospace'; ctx.fillText('CUSTOM EDITION SPEC', rx, specY + 56);
+        ctx.fillStyle = ink; ctx.font = `italic 900 ${isMainline ? 36 : 44}px "Arial Black", Impact, sans-serif`; ctx.fillText(casting, rx, specY + 112);
+        ctx.fillStyle = muted; ctx.font = 'bold 23px monospace'; ctx.fillText(`RUN: ${serial.replace(/\s+/g, '')}  •  UV DIRECT PRINT`, rx, specY + 158);
+        ctx.fillStyle = c1; ctx.font = 'bold 21px monospace'; ctx.fillText(series, rx, specY + 198);
+        ctx.restore();
+
+        // COLLECT THE GARAGE! Row (Auto-pulls 2 other drops from Casting Albums!)
+        const rowY = specY + specH + 62;
+        ctx.save(); ctx.fillStyle = ink; ctx.font = `italic 900 ${isMainline ? 29 : 34}px "Arial Black", Impact, sans-serif`; ctx.textAlign = 'left';
+        ctx.fillText('COLLECT THE GARAGE!  •  SMALL-BATCH CUSTOM DROPS', pad, rowY); ctx.restore();
+
+        const slotY = rowY + 26, slotGap = 24, slotW = (spec.w - pad * 2 - slotGap * 2) / 3, slotH = 310;
+        const drop1 = nlgGarageDrops[0] || null;
+        const drop2 = nlgGarageDrops[1] || null;
+        const slots = [
+          { img: nlgCardArtImg, label: casting, sub: 'FEATURED RELEASE', featured: true },
+          { img: drop1?.img || null, label: drop1?.label || 'MYSTERY DROP', sub: drop1?.sub || 'NEON LLAMA ARCHIVE', featured: false },
+          { img: drop2?.img || null, label: drop2?.label || 'LIMITED CUSTOM', sub: drop2?.sub || 'COMING SOON', featured: false }
+        ];
+
+        slots.forEach((slot, idx) => {
+          const sx = pad + idx * (slotW + slotGap);
+          nlgRoundRectPath(ctx, sx, slotY, slotW, slotH, 20);
+          ctx.fillStyle = cardPanel; ctx.fill();
+          ctx.strokeStyle = slot.featured ? c1 + '99' : borderCol;
+          ctx.lineWidth = slot.featured ? 4 : 2.5; ctx.stroke();
+
+          if (slot.img) {
+            ctx.save();
+            nlgRoundRectPath(ctx, sx + 14, slotY + 14, slotW - 28, slotH - 96, 14);
+            ctx.clip();
+            const sc = Math.max((slotW - 28) / slot.img.width, (slotH - 96) / slot.img.height) * 1.08;
+            const dw = slot.img.width * sc, dh = slot.img.height * sc;
+            ctx.drawImage(slot.img, sx + 14 + (slotW - 28 - dw) / 2, slotY + 14 + (slotH - 96 - dh) / 2, dw, dh);
+            ctx.restore();
+          } else {
+            nlgDrawSilhouetteCar(ctx, sx + 22, slotY + 26, slotW - 44, slotH - 118, idx === 1 ? c2 : c1, isLight, idx);
+          }
+
+          ctx.fillStyle = ink; ctx.font = `900 ${isMainline ? 19 : 22}px "Arial Black", sans-serif`; ctx.textAlign = 'center';
+          ctx.fillText(slot.label.slice(0, 20), sx + slotW / 2, slotY + slotH - 46);
+          ctx.fillStyle = slot.featured ? c2 : muted; ctx.font = 'bold 17px monospace';
+          ctx.fillText(slot.sub.slice(0, 22), sx + slotW / 2, slotY + slotH - 20);
+        });
+
+        // Official Fine Print
+        const botDivY = spec.h - 318;
+        const legalY = slotY + slotH + 46;
+        ctx.save(); ctx.fillStyle = muted; ctx.font = `600 ${isMainline ? 18.5 : 21}px sans-serif`; ctx.textAlign = 'left';
+        [
+          'Each custom diecast is individually hand-finished and UV-printed in strictly limited runs.',
+          'Colors, wheels, and custom graphics may vary slightly between hand-built pieces.',
+          'WARNING: CHOKING HAZARD — Small parts. Adult collector custom (Ages 14+). Not a toy.',
+          'Custom modified collectible by Neon Llama Garage. Independent custom studio artwork;',
+          'not affiliated with, sponsored by, or endorsed by Mattel, Inc. or vehicle manufacturers.'
+        ].forEach((ln, i) => ctx.fillText(ln, pad, legalY + i * 32));
+        ctx.restore();
+
+        // Bottom Compliance Footer (Exact Aligned Heights + Real QR Code!)
+        ctx.strokeStyle = borderCol; ctx.lineWidth = 2.5;
+        ctx.beginPath(); ctx.moveTo(pad, botDivY); ctx.lineTo(spec.w - pad, botDivY); ctx.stroke();
+
+        const botY = botDivY + 28, footerBoxH = 224, qrBoxW = footerBoxH - 22;
+        const skuClean = ('NLG-' + theme.replace(/[^A-Z0-9]/g, '').slice(0, 4) + '-' + serial.replace(/[^0-9]/g, '').slice(0, 4)).toUpperCase();
+
+        ctx.save();
+        const sealW = isMainline ? 515 : 630;
+        nlgRoundRectPath(ctx, pad, botY, sealW, footerBoxH, 20);
+        ctx.fillStyle = isLight ? '#0b0f19' : 'rgba(255,255,255,0.05)'; ctx.fill();
+        ctx.fillStyle = accentGrad; ctx.fillRect(pad, botY, 14, footerBoxH);
+        ctx.fillStyle = '#ffffff'; ctx.font = `italic 900 ${isMainline ? 34 : 40}px "Arial Black", Impact, sans-serif`; ctx.textAlign = 'left';
+        ctx.fillText('NEON LLAMA GARAGE', pad + 36, botY + 66);
+        ctx.fillStyle = c2; ctx.font = 'bold 24px monospace'; ctx.fillText('NEONLLAMAGARAGE.COM', pad + 36, botY + 110);
+        ctx.fillStyle = '#94a3b8'; ctx.font = 'bold 20px monospace'; ctx.fillText('HAND-CRAFTED 1:64 CUSTOMS', pad + 36, botY + 150);
+        ctx.fillStyle = c1; ctx.font = 'bold 20px monospace'; ctx.fillText(`SKU: ${skuClean}`, pad + 36, botY + 190);
+        ctx.restore();
+
+        const qrX = spec.w - pad - qrBoxW;
+        const midCenterX = (pad + sealW + qrX) / 2;
+        ctx.save();
+        ctx.beginPath(); ctx.arc(midCenterX, botY + 94, 52, 0, Math.PI * 2);
+        ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 8; ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(midCenterX - 34, botY + 60); ctx.lineTo(midCenterX + 34, botY + 128); ctx.stroke();
+        ctx.fillStyle = ink; ctx.font = '900 28px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('0-3', midCenterX, botY + 104);
+        ctx.fillStyle = muted; ctx.font = 'bold 20px monospace'; ctx.fillText('AGES 14+', midCenterX, botY + 188);
+        ctx.restore();
+
+        nlgDrawRealQRCode(ctx, qrX, botY, footerBoxH);
+        ctx.restore();
+
+        ctx.save();
+        nlgCardPath(ctx, spec.w, spec.h, nlgCardFormat, true);
+        if (showGuides) {
+          ctx.strokeStyle = '#ff0055'; ctx.lineWidth = 7; ctx.setLineDash([22, 14]); ctx.stroke(); ctx.setLineDash([]);
+        } else {
+          ctx.strokeStyle = isLight ? 'rgba(0,0,0,0.12)' : 'rgba(255,255,255,0.16)'; ctx.lineWidth = 3; ctx.stroke();
+        }
+        ctx.restore();
+        return;
+      }
+
+      // FRONT OF CARD
+      ctx.clearRect(0, 0, spec.w, spec.h);
+      ctx.save();
+      nlgCardPath(ctx, spec.w, spec.h, nlgCardFormat, false);
+      ctx.clip();
+
+      if (nlgCardArtImg) {
+        const sc = Math.max(spec.w / nlgCardArtImg.width, spec.h / nlgCardArtImg.height) * zoom;
+        const dw = nlgCardArtImg.width * sc, dh = nlgCardArtImg.height * sc;
+        ctx.drawImage(nlgCardArtImg, (spec.w - dw) / 2, (spec.h - dh) / 2 + offsetY, dw, dh);
+      } else {
+        const bgGrad = ctx.createLinearGradient(0, 0, spec.w, spec.h);
+        bgGrad.addColorStop(0, '#090d1a'); bgGrad.addColorStop(0.5, c1 + '44'); bgGrad.addColorStop(1, '#060812');
+        ctx.fillStyle = bgGrad; ctx.fillRect(0, 0, spec.w, spec.h);
+        ctx.fillStyle = 'rgba(255,255,255,0.22)'; ctx.font = 'bold 36px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText('UPLOAD HERO PHOTO & CLICK GENERATE ART', spec.w / 2, 840);
+      }
+
+      const topVig = ctx.createLinearGradient(0, 0, 0, 360);
+      topVig.addColorStop(0, 'rgba(5,8,18,0.82)'); topVig.addColorStop(1, 'rgba(5,8,18,0)');
+      ctx.fillStyle = topVig; ctx.fillRect(0, 0, spec.w, 340);
+
+      const brandGrad = ctx.createLinearGradient(0, 0, spec.w, 0);
+      brandGrad.addColorStop(0, c1); brandGrad.addColorStop(1, c2);
+
+      if (document.getElementById('nlgChkFrontLogo')?.checked && nlgBrandLogoImg) {
+        ctx.save();
+        const logoH = isMainline ? 190 : 210;
+        const logoW = logoH * (nlgBrandLogoImg.width / nlgBrandLogoImg.height);
+        ctx.shadowColor = 'rgba(0,0,0,0.85)'; ctx.shadowBlur = 18;
+        ctx.drawImage(nlgBrandLogoImg, isMainline ? 205 : 64, isMainline ? 24 : 30, logoW, logoH);
+        ctx.restore();
+      }
+
+      if (useAiLogo) {
+        ctx.save();
+        const drawW = isMainline ? 1140 : 1280;
+        const drawH = drawW * (nlgTitleLogoImg.height / nlgTitleLogoImg.width);
+        ctx.shadowColor = 'rgba(0,0,0,0.78)'; ctx.shadowBlur = 28; ctx.shadowOffsetY = 10;
+        ctx.drawImage(nlgTitleLogoImg, (spec.w - drawW) / 2, isMainline ? 268 : 238, drawW, drawH);
+        ctx.restore();
+      } else {
+        ctx.save();
+        ctx.translate(spec.w / 2, isMainline ? 436 : 410);
+        ctx.transform(1, 0, -0.12, 1, 0, 0);
+        ctx.textAlign = 'center';
+        const baseMax = isMainline ? 132 : 156, maxTitleW = spec.w - 130;
+        let titleFontSize = baseMax;
+        ctx.font = `italic 900 ${titleFontSize}px "Arial Black", Impact, sans-serif`;
+        const mw = ctx.measureText(theme).width;
+        if (mw > maxTitleW) {
+          titleFontSize = Math.max(72, Math.floor(baseMax * (maxTitleW / mw)));
+          ctx.font = `italic 900 ${titleFontSize}px "Arial Black", Impact, sans-serif`;
+        }
+        ctx.shadowColor = c1 + '99'; ctx.shadowBlur = 36;
+        ctx.lineWidth = 22; ctx.strokeStyle = '#05070e'; ctx.lineJoin = 'round'; ctx.strokeText(theme, 0, 0);
+        ctx.shadowBlur = 0; ctx.lineWidth = 10; ctx.strokeStyle = c1; ctx.strokeText(theme, 0, 0);
+        const g = ctx.createLinearGradient(0, -titleFontSize * 0.85, 0, 14);
+        g.addColorStop(0, '#ffffff'); g.addColorStop(0.55, '#cbd5e1'); g.addColorStop(1, '#ffffff');
+        ctx.fillStyle = g; ctx.fillText(theme, 0, 0);
+        ctx.restore();
+      }
+
+      const footerH = 155, footerY = spec.h - footerH;
+      const preFoot = ctx.createLinearGradient(0, footerY - 200, 0, footerY);
+      preFoot.addColorStop(0, 'rgba(8,10,16,0)'); preFoot.addColorStop(1, 'rgba(8,10,16,0.92)');
+      ctx.fillStyle = preFoot; ctx.fillRect(0, footerY - 200, spec.w, 200);
+
+      if (document.getElementById('nlgChkShowSerial')?.checked) {
+        ctx.save(); ctx.textAlign = 'left'; ctx.fillStyle = 'rgba(255,255,255,0.92)';
+        ctx.font = 'italic 900 44px "Arial Black", Impact, sans-serif';
+        ctx.shadowColor = 'rgba(0,0,0,0.9)'; ctx.shadowBlur = 10;
+        ctx.fillText(serial.replace(/\s+/g, ''), 54, footerY - 34); ctx.restore();
+      }
+
+      ctx.fillStyle = '#090b10'; ctx.fillRect(0, footerY, spec.w, footerH);
+      ctx.fillStyle = brandGrad; ctx.fillRect(0, footerY, spec.w, 6);
+      ctx.save(); ctx.textAlign = 'center'; ctx.fillStyle = '#ffffff';
+      ctx.font = 'italic 900 66px "Arial Black", Impact, sans-serif';
+      ctx.fillText(casting, spec.w / 2, footerY + 102); ctx.restore();
+
+      if (showBlister) {
+        const bx = (spec.w - spec.blisterW) / 2, by = footerY - 34 - spec.blisterH;
+        ctx.save(); ctx.strokeStyle = 'rgba(0,240,255,0.75)'; ctx.lineWidth = 5; ctx.setLineDash([22, 16]);
+        nlgRoundRectPath(ctx, bx, by, spec.blisterW, spec.blisterH, 55); ctx.stroke();
+        ctx.fillStyle = 'rgba(0,240,255,0.05)'; ctx.fill(); ctx.setLineDash([]);
+        ctx.fillStyle = 'rgba(0,240,255,0.9)'; ctx.font = 'bold 24px monospace'; ctx.textAlign = 'center';
+        ctx.fillText('BLISTER BUBBLE SAFE ZONE', spec.w / 2, by + 42); ctx.restore();
+      }
+      ctx.restore();
+
+      ctx.save();
+      nlgCardPath(ctx, spec.w, spec.h, nlgCardFormat, false);
+      if (showGuides) {
+        ctx.strokeStyle = '#ff0055'; ctx.lineWidth = 7; ctx.setLineDash([22, 14]); ctx.stroke(); ctx.setLineDash([]);
+      } else {
+        ctx.strokeStyle = 'rgba(255,255,255,0.16)'; ctx.lineWidth = 3; ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    function nlgDrawCard() {
+      const canvas = document.getElementById('nlgCardCanvas');
+      if (!canvas) return;
+      nlgRenderCardToCanvas(canvas, !!document.getElementById('nlgChkGuides')?.checked, !!document.getElementById('nlgChkBlister')?.checked, nlgCardSide);
+    }
+
+    function nlgExportCardPng(side, includeGuides) {
+      const targetSide = side || nlgCardSide;
+      const off = document.createElement('canvas');
+      nlgRenderCardToCanvas(off, includeGuides, includeGuides && targetSide === 'front', targetSide);
+      const a = document.createElement('a');
+      const name = (document.getElementById('nlgInpTheme')?.value || 'custom_card').toLowerCase().replace(/[^a-z0-9]+/g, '_');
+      a.href = off.toDataURL('image/png');
+      a.download = `${name}_${nlgCardFormat}_${targetSide}_300dpi${includeGuides ? '_with_guides' : ''}.png`;
+      a.click();
+    }
+
+    function nlgZoomCardPreview() {
+      const canvas = document.getElementById('nlgCardCanvas');
+      if (canvas && typeof openImageLightbox === 'function') {
+        openImageLightbox(canvas.toDataURL('image/png'), `Blister Card ${nlgCardSide.toUpperCase()} (${NLG_FORMATS[nlgCardFormat].label})`);
+      }
+    }
+
+    // Hook into toggleModal so opening cardModal auto-loads logo, active car metadata & random saved drops!
+    const _origToggleModalForCard = toggleModal;
+    toggleModal = function(id) {
+      _origToggleModalForCard(id);
+      if (id === 'cardModal') {
+        const modal = document.getElementById('cardModal');
+        if (modal && !modal.classList.contains('hidden')) {
+          nlgLoadBrandLogoOnce();
+          const activeCasting = document.getElementById('donorCastingInput')?.value?.trim();
+          if (activeCasting && document.getElementById('nlgInpCasting')) {
+            document.getElementById('nlgInpCasting').value = activeCasting.toUpperCase();
+          }
+          if (currentWinningVariation?.title && document.getElementById('nlgInpTheme')) {
+            document.getElementById('nlgInpTheme').value = currentWinningVariation.title.split('//')[0].trim().toUpperCase();
+          }
+          if (!nlgCardArtImg && currentWinningVariation?.img) {
+            const im = new Image();
+            im.onload = () => { nlgCardArtImg = im; nlgDrawCard(); };
+            im.src = currentWinningVariation.img;
+          }
+          nlgShuffleGarageDrops();
+          nlgDrawCard();
+        }
+      }
     };
   </script>
 </body>
