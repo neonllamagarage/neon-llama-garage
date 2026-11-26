@@ -188,7 +188,7 @@
           <span>🖼️</span> ALBUMS <span id="albumsCountBadge" class="px-1.5 py-0.2 rounded bg-purple-950 text-purple-200 text-[10px] font-mono border border-purple-500/40">0</span>
         </button>
         <button onclick="openConceptGenModal(true)" class="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-orbitron font-black text-xs border border-pink-400/50 shadow-lg shadow-pink-900/40 transition active:scale-95 flex items-center gap-1.5">
-          <span>✨</span> + NEW CAR (v4.3.2)
+          <span>✨</span> + NEW CAR (v4.3.3)
         </button>
         <div class="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-[10px] font-mono text-cyan-400">
           STORE: <a href="https://neonllamagarage.com" target="_blank" class="hover:underline font-bold text-white">NEONLLAMAGARAGE.COM</a>
@@ -628,7 +628,7 @@
           <div>
             <h2 class="font-orbitron font-black text-base text-pink-400 flex items-center gap-2 tracking-wide flex-wrap">
               <span>UNIVERSAL DIECAST WIZARD</span>
-              <span class="px-2.5 py-0.5 rounded bg-cyan-950 text-cyan-300 text-[10px] font-mono border border-cyan-400 font-black shadow-[0_0_10px_rgba(6,182,212,0.5)]">v4.3.2 LIVE</span>
+              <span class="px-2.5 py-0.5 rounded bg-cyan-950 text-cyan-300 text-[10px] font-mono border border-cyan-400 font-black shadow-[0_0_10px_rgba(6,182,212,0.5)]">v4.3.3 LIVE</span>
               <span class="px-2 py-0.5 rounded bg-purple-950 text-purple-300 text-[10px] font-mono border border-purple-400/50">💎 GEMINI 3.1 • AUTO-ALBUMS</span>
             </h2>
             <p class="text-xs text-slate-400">1. Car & Printable Panels → 2. Photos → 3. 8-to-3 Concepts (+Feedback) → 4. Pure Flat Print-Ready Decals (+Tweak & Export)</p>
@@ -1204,11 +1204,11 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               <div>
                 <label class="text-[10px] font-bold text-slate-400 block mb-1">Theme / Wordmark Title</label>
-                <input id="nlgInpTheme" type="text" value="NEON FREEZE" oninput="nlgDrawCard()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs font-bold text-white outline-none focus:border-pink-500" />
+                <input id="nlgInpTheme" type="text" value="" placeholder="e.g. NEON FREEZE" oninput="nlgOnCardMetaEdit()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs font-bold text-white outline-none focus:border-pink-500" />
               </div>
               <div>
                 <label class="text-[10px] font-bold text-slate-400 block mb-1">Casting Name (Footer)</label>
-                <input id="nlgInpCasting" type="text" value="'98 DAIRY DELIVERY" oninput="nlgDrawCard()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs font-bold text-white outline-none focus:border-pink-500" />
+                <input id="nlgInpCasting" type="text" value="" placeholder="e.g. DAIRY DELIVERY" oninput="nlgOnCardMetaEdit()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs font-bold text-white outline-none focus:border-pink-500" />
               </div>
               <div>
                 <label class="text-[10px] font-bold text-slate-400 block mb-1">Series / Collection (Back Spec)</label>
@@ -4020,7 +4020,7 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
     };
 
     // =========================================================================
-    // v4.3.2 BLISTER CARD RULES ENGINE (FRONT + MIRRORED BACK • REAL QR • ALBUMS)
+    // v4.3.3 BLISTER CARD RULES ENGINE (FRONT + MIRRORED BACK • REAL QR • ALBUMS)
     // =========================================================================
     let nlgCardFormat = 'premium';
     let nlgCardSide = 'front';
@@ -4162,17 +4162,47 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
       nlgShuffleGarageDrops();
     }
 
+    function nlgCleanCastingName(name) {
+      return String(name || '').replace(/^hot\s+wheels\s+/i, '').trim();
+    }
+
+    function nlgOnCardMetaEdit() {
+      // Persist edited Casting Name & Theme Title straight back to the active batch so it ALWAYS sticks!
+      const activeBatch = (typeof workshopBatches !== 'undefined') ? workshopBatches.find(x => x.id === currentActiveBatchId) : null;
+      const newCasting = (document.getElementById('nlgInpCasting')?.value || '').trim();
+      const newTheme = (document.getElementById('nlgInpTheme')?.value || '').trim();
+      if (activeBatch) {
+        if (newCasting) activeBatch.model = newCasting;
+        if (newTheme) activeBatch.theme = newTheme;
+        try {
+          if (typeof saveBatchesToStorage === 'function') saveBatchesToStorage();
+          else localStorage.setItem('neonLlamaWorkshopBatches_v2', JSON.stringify(workshopBatches));
+          if (typeof renderBatchSidebar === 'function') renderBatchSidebar();
+        } catch (e) {}
+      }
+      nlgDrawCard();
+    }
+
     async function nlgShuffleGarageDrops() {
       try {
-        const all = await nlgGetAllSavedVisuals();
-        const currentCasting = (document.getElementById('nlgInpCasting')?.value || '').toUpperCase().trim();
-        // Exclude raw flat decals & wordmarks; prefer completed car visuals from OTHER builds!
-        const candidates = all.filter(it => {
-          const st = String(it.stage || '').toLowerCase();
-          return it.image && !st.includes('decal') && !st.includes('wordmark') && !st.includes('8-pack');
-        });
-        const others = candidates.filter(it => it.casting.toUpperCase() !== currentCasting);
-        const pool = others.length >= 2 ? others : candidates;
+        // STRICT CONSISTENCY: Only pull illustrated 'Blister Card Art' drops from Albums so all 3 back thumbnails match!
+        const albumItems = (typeof getAllAlbumItems === 'function') ? await getAllAlbumItems() : [];
+        const currentCasting = nlgCleanCastingName(document.getElementById('nlgInpCasting')?.value || '').toUpperCase();
+        const currentTheme = (document.getElementById('nlgInpTheme')?.value || '').toUpperCase().trim();
+        const currentSrc = nlgCardArtImg?.src || '';
+
+        const cardArts = albumItems
+          .filter(it => it.image && String(it.stage || '').toLowerCase() === 'blister card art')
+          .filter(it => it.image !== currentSrc)
+          .map(it => ({
+            casting: nlgCleanCastingName(it.casting || 'CUSTOM DROP').toUpperCase(),
+            title: String(it.title || 'NEON LLAMA ARCHIVE').split('//')[0].trim().toUpperCase(),
+            image: it.image
+          }));
+
+        // Prefer different casting/theme from current card; fall back to mystery silhouette if fewer than 2 exist
+        const distinct = cardArts.filter(it => it.casting !== currentCasting || it.title !== currentTheme);
+        const pool = distinct;
 
         const countEl = document.getElementById('nlgAlbumDropCount');
         if (countEl) countEl.innerText = pool.length;
@@ -4304,7 +4334,7 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
     async function nlgGenerateAiCardArt() {
       const status = document.getElementById('nlgAiCardStatus');
       const casting = (document.getElementById('nlgInpCasting')?.value || 'Custom 1:64 Hot Wheels').trim();
-      const theme = (document.getElementById('nlgInpTheme')?.value || 'NEON FREEZE').trim();
+      const theme = (document.getElementById('nlgInpTheme')?.value || 'CUSTOM SERIES').trim();
       const activeBatch = (typeof workshopBatches !== 'undefined') ? workshopBatches.find(x => x.id === currentActiveBatchId) : null;
       const fallbackHero = currentWinningVariation?.img || activeBatch?.hero || activeBatch?.conceptData?.img || null;
       const heroRef = nlgHeroPhotoDataUrl || fallbackHero;
@@ -4338,7 +4368,7 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
 
     async function nlgGenerateAiWordmark() {
       const status = document.getElementById('nlgAiCardStatus');
-      const theme = (document.getElementById('nlgInpTheme')?.value || 'NEON FREEZE').trim().toUpperCase();
+      const theme = (document.getElementById('nlgInpTheme')?.value || 'CUSTOM SERIES').trim().toUpperCase();
       const refs = [];
       if (nlgCardArtImg && nlgCardArtImg.src.startsWith('data:image/')) refs.push(nlgCardArtImg.src);
       else if (nlgHeroPhotoDataUrl) refs.push(nlgHeroPhotoDataUrl);
@@ -4527,8 +4557,8 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
       canvas.width = spec.w; canvas.height = spec.h;
       const ctx = canvas.getContext('2d');
 
-      const theme = (document.getElementById('nlgInpTheme')?.value || 'NEON FREEZE').toUpperCase();
-      const casting = (document.getElementById('nlgInpCasting')?.value || "'98 DAIRY DELIVERY").toUpperCase();
+      const theme = (document.getElementById('nlgInpTheme')?.value || 'CUSTOM SERIES').toUpperCase();
+      const casting = (document.getElementById('nlgInpCasting')?.value || "CUSTOM DIECAST").toUpperCase();
       const series = (document.getElementById('nlgInpSeries')?.value || "PIKE'S 13 // CUSTOM UV SERIES").toUpperCase();
       const serial = (document.getElementById('nlgInpSerial')?.value || '01 / 10').toUpperCase();
       const c1 = document.getElementById('nlgInpColor1')?.value || '#ff0099';
@@ -4890,7 +4920,7 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
           const activeHero = currentWinningVariation?.img || activeBatch?.hero || activeBatch?.conceptData?.img || null;
 
           if (activeCasting && document.getElementById('nlgInpCasting')) {
-            document.getElementById('nlgInpCasting').value = activeCasting.toUpperCase();
+            document.getElementById('nlgInpCasting').value = nlgCleanCastingName(activeCasting).toUpperCase();
           }
           if (activeTheme && document.getElementById('nlgInpTheme')) {
             document.getElementById('nlgInpTheme').value = activeTheme.toUpperCase();
