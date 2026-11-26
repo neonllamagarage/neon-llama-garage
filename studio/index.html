@@ -188,7 +188,7 @@
           <span>🖼️</span> ALBUMS <span id="albumsCountBadge" class="px-1.5 py-0.2 rounded bg-purple-950 text-purple-200 text-[10px] font-mono border border-purple-500/40">0</span>
         </button>
         <button onclick="openConceptGenModal(true)" class="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-orbitron font-black text-xs border border-pink-400/50 shadow-lg shadow-pink-900/40 transition active:scale-95 flex items-center gap-1.5">
-          <span>✨</span> + NEW CAR (v4.3.1)
+          <span>✨</span> + NEW CAR (v4.3.2)
         </button>
         <div class="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-[10px] font-mono text-cyan-400">
           STORE: <a href="https://neonllamagarage.com" target="_blank" class="hover:underline font-bold text-white">NEONLLAMAGARAGE.COM</a>
@@ -628,7 +628,7 @@
           <div>
             <h2 class="font-orbitron font-black text-base text-pink-400 flex items-center gap-2 tracking-wide flex-wrap">
               <span>UNIVERSAL DIECAST WIZARD</span>
-              <span class="px-2.5 py-0.5 rounded bg-cyan-950 text-cyan-300 text-[10px] font-mono border border-cyan-400 font-black shadow-[0_0_10px_rgba(6,182,212,0.5)]">v4.3.1 LIVE</span>
+              <span class="px-2.5 py-0.5 rounded bg-cyan-950 text-cyan-300 text-[10px] font-mono border border-cyan-400 font-black shadow-[0_0_10px_rgba(6,182,212,0.5)]">v4.3.2 LIVE</span>
               <span class="px-2 py-0.5 rounded bg-purple-950 text-purple-300 text-[10px] font-mono border border-purple-400/50">💎 GEMINI 3.1 • AUTO-ALBUMS</span>
             </h2>
             <p class="text-xs text-slate-400">1. Car & Printable Panels → 2. Photos → 3. 8-to-3 Concepts (+Feedback) → 4. Pure Flat Print-Ready Decals (+Tweak & Export)</p>
@@ -2430,12 +2430,14 @@
       return out;
     }
 
-    async function generateAiImage(prompt, referenceImages = []) {
+    async function generateAiImage(prompt, referenceImages = [], aspectRatio = null) {
       try {
+        const payload = { prompt, referenceImages };
+        if (aspectRatio) payload.aspectRatio = aspectRatio;
         const resp = await fetch(`${AI_API_BASE}/generate-image`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ prompt, referenceImages })
+          body: JSON.stringify(payload)
         });
         if (!resp.ok) {
           const errText = await resp.text().catch(() => resp.statusText);
@@ -3227,7 +3229,7 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
       }
 
       const prompt = buildPureFlatDecalPrompt(p.key, p.label, casting, winVar, feedback, refImgs.length > 1);
-      const res = await generateAiImage(prompt, refImgs);
+      const res = await generateAiImage(prompt, refImgs, "3:2");
 
       if (!res.ok || !res.image) {
         if (previewEl) {
@@ -4018,7 +4020,7 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
     };
 
     // =========================================================================
-    // v4.3.1 BLISTER CARD RULES ENGINE (FRONT + MIRRORED BACK • REAL QR • ALBUMS)
+    // v4.3.2 BLISTER CARD RULES ENGINE (FRONT + MIRRORED BACK • REAL QR • ALBUMS)
     // =========================================================================
     let nlgCardFormat = 'premium';
     let nlgCardSide = 'front';
@@ -4318,8 +4320,8 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
         status.classList.remove('hidden');
         status.innerText = '⏳ Generating text-free full-bleed collector card illustration from your exact hero car...';
       }
-      const prompt = `High-end Mattel Hot Wheels Car Culture / RLC collector blister-card background illustration featuring the EXACT custom 1:64 ${casting} ("${theme}") from the attached hero photo. Keep the EXACT car paint, side livery, and wheels from the photo, placed dynamically in the upper-middle action zone on a vibrant themed neon/cyber background matching the car's vibe. Leave the bottom 35% darker and uncluttered asphalt/reflections for the physical blister bubble. CRITICAL: ABSOLUTELY ZERO TEXT, ZERO LETTERS, ZERO LOGOS, ZERO BORDERS, ZERO CARD OUTLINE — pure edge-to-edge full-bleed illustration only.`;
-      const res = await generateAiImage(prompt, refs);
+      const prompt = `High-end Mattel Hot Wheels Car Culture / RLC vertical portrait collector blister-card illustration featuring the EXACT custom 1:64 ${casting} ("${theme}") from the attached hero photo. Keep the EXACT car paint, side livery, and wheels from the photo. WIDE PULLED-BACK FULL-BLEED VERTICAL COMPOSITION: Size the vehicle cleanly to ~65-72% of the frame width in the middle action zone with GENEROUS OVERSIZED BACKGROUND BLEED extending all the way to every edge — tall atmospheric neon sky/scenery above (top 30% open for the title wordmark), generous breathing room on the left and right edges (never crop the front or rear bumper!), and deep dark uncluttered wet asphalt reflections across the bottom 38% for the physical blister bubble. CRITICAL: ABSOLUTELY ZERO TEXT, ZERO LETTERS, ZERO LOGOS, ZERO BORDERS, ZERO CARD OUTLINE — pure edge-to-edge oversized full-bleed illustration only.`;
+      const res = await generateAiImage(prompt, refs, "3:4");
       if (!res.ok || !res.image) {
         if (status) status.innerText = '⚠️ ' + (res.error || 'Card art generation failed');
         return;
@@ -4346,7 +4348,7 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
         status.innerText = `⏳ Generating bespoke collector wordmark for "${theme}" & extracting transparency...`;
       }
       const prompt = `Bespoke collector diecast blister-card title wordmark logo reading ONLY the exact text "${theme}" in bold, dynamic, slanted custom hand-lettered automotive racing / retro-futuristic typography designed to match the exact color palette and vibe of the attached artwork. Brushed chrome metallic bevels, electric neon trim, crisp Mattel Hot Wheels Car Culture / RLC factory series logo quality. Centered horizontally with generous padding on a 100% pure flat solid pitch-black (#000000) background with ZERO cars, ZERO scenery, ZERO extra text, ZERO subtitles, ZERO borders, ZERO watermarks. ONLY the isolated graphic wordmark "${theme}" on pure black.`;
-      const res = await generateAiImage(prompt, refs);
+      const res = await generateAiImage(prompt, refs, "16:9");
       if (!res.ok || !res.image) {
         if (status) status.innerText = '⚠️ ' + (res.error || 'Wordmark generation failed');
         return;
@@ -4741,6 +4743,15 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
       ctx.clip();
 
       if (nlgCardArtImg) {
+        // Seamless oversized blurred backdrop underneath so zooming out or panning NEVER exposes black bars!
+        ctx.save();
+        const coverSc = Math.max(spec.w / nlgCardArtImg.width, spec.h / nlgCardArtImg.height) * 1.15;
+        const bw = nlgCardArtImg.width * coverSc, bh = nlgCardArtImg.height * coverSc;
+        ctx.filter = 'blur(34px) brightness(0.75)';
+        ctx.drawImage(nlgCardArtImg, (spec.w - bw) / 2, (spec.h - bh) / 2, bw, bh);
+        ctx.restore();
+
+        // Crisp main illustration layer
         const sc = Math.max(spec.w / nlgCardArtImg.width, spec.h / nlgCardArtImg.height) * zoom;
         const dw = nlgCardArtImg.width * sc, dh = nlgCardArtImg.height * sc;
         ctx.drawImage(nlgCardArtImg, (spec.w - dw) / 2, (spec.h - dh) / 2 + offsetY, dw, dh);
