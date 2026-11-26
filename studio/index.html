@@ -1666,313 +1666,183 @@
 
         let currentShowcaseSetIndex = 0;
 
-    function runRealtimeDynamicGenerator() {
+            // LIVE CLOUDFLARE WORKERS AI PIPELINE (FLUX.1-SCHNELL + LLAMA 3)
+    const AI_API_BASE = 'https://neonllamagarage.com/api';
+
+    async function generateAiImage(prompt) {
+      try {
+        const resp = await fetch(`${AI_API_BASE}/generate-image`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt })
+        });
+        if (!resp.ok) return null;
+        const data = await resp.json();
+        return data.image || null;
+      } catch (e) {
+        console.warn('AI image generation error:', e);
+        return null;
+      }
+    }
+
+    async function runRealtimeDynamicGenerator() {
       const casting = document.getElementById('donorCastingInput').value.trim() || 'Hot Wheels Dairy Delivery';
       const paint = document.getElementById('donorBodyPaintInput').value.trim() || 'Gloss Alpine White';
       const wheels = document.getElementById('donorWheelInput').value.trim() || 'Purple Deep Dish Real Riders';
 
-      showAiProcessing(casting, () => {
-        const isWhitePurpleDairy = (casting.toLowerCase().includes('dairy') && (paint.toLowerCase().includes('white') || wheels.toLowerCase().includes('purple')));
+      showAiProcessing(casting, async () => {
+        const cLower = casting.toLowerCase();
+        const pLower = paint.toLowerCase();
+        const isCamaro = cLower.includes('camaro') || pLower.includes('green');
+        const isDairy = cLower.includes('dairy');
 
         currentDynamicStarters = [];
 
-        if (isWhitePurpleDairy) {
-          // Toggle between Showcase Set A and Showcase Set B on each generation so it's NEVER the same 8!
-          currentShowcaseSetIndex = (currentShowcaseSetIndex + 1) % 2;
+        // 1. Fetch 8 dynamic concepts from Cloudflare Workers AI backend
+        let concepts = [];
+        try {
+          const resp = await fetch(`${AI_API_BASE}/generate-concepts`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ casting, paint, notes: wheels })
+          });
+          if (resp.ok) {
+            concepts = await resp.json();
+          }
+        } catch (e) {
+          console.warn('Using built-in concept matrix fallback:', e);
+        }
 
-          let showcaseImage = '';
-          let concepts = [];
+        // If fetch returned empty, generate diverse fallback concepts
+        if (!Array.isArray(concepts) || concepts.length === 0) {
+          concepts = [
+            { title: "CYBERPUNK NEON", badge: "CYBER RUNNER", desc: `High-voltage circuitry and neon wireframe tampos on ${casting}.`, primary: "#00f0ff", accent: "#ff007f", imagePrompt: `1:64 scale diecast Hot Wheels ${casting}, ${paint}, cyberpunk neon livery, studio macro photo, 8k` },
+            { title: "TOKYO MIDNIGHT", badge: "DRIFT SPEC", desc: `Japanese Kanjo racer with kanji tampos and black cowl induction hood.`, primary: "#8b5cf6", accent: "#06b6d4", imagePrompt: `1:64 scale diecast Hot Wheels ${casting}, ${paint}, Tokyo midnight drift livery, studio macro photo, 8k` },
+            { title: "VINTAGE SCALLOPS", badge: "70S DRAGSTER", desc: `Classic 1970s street machine with deep emerald scallop flames and silver pinstriping.`, primary: "#f59e0b", accent: "#ef4444", imagePrompt: `1:64 scale diecast Hot Wheels ${casting}, ${paint}, 70s drag racing scallop flames, studio macro photo, 8k` },
+            { title: "ACID SPLASH", badge: "STREET ART", desc: `High-impact aerosol splatter graffiti and urban drips.`, primary: "#10b981", accent: "#eab308", imagePrompt: `1:64 scale diecast Hot Wheels ${casting}, ${paint}, aerosol splatter graffiti livery, studio macro photo, 8k` },
+            { title: "GHOST PEARL", badge: "CONCOURSE SHOW", desc: `Ultra-clean show car with translucent ghost pearlescent stripes and chrome trim.`, primary: "#e2e8f0", accent: "#38bdf8", imagePrompt: `1:64 scale diecast Hot Wheels ${casting}, ${paint}, luxury show car with ghost pearls and chrome, studio macro photo, 8k` },
+            { title: "TRACK DAY 13", badge: "TRANS-AM RACER", desc: `Historic road race livery with bold #13 roundels on doors and front chin spoiler.`, primary: "#ef4444", accent: "#000000", imagePrompt: `1:64 scale diecast Hot Wheels ${casting}, ${paint}, road race livery with number 13 tampo and sponsor decals, studio macro photo, 8k` },
+            { title: "RETRO HORIZON", badge: "OUTRUN SUNSET", desc: `Tri-tone gradient sunset racing stripes cutting across body panels.`, primary: "#f97316", accent: "#facc15", imagePrompt: `1:64 scale diecast Hot Wheels ${casting}, ${paint}, synthwave outrun sunset gradient livery, studio macro photo, 8k` },
+            { title: "RAW STEALTH", badge: "PROTOTYPE", desc: `Monochromatic satin finish with blackout trim and dark bronze alloys.`, primary: "#84cc16", accent: "#18181b", imagePrompt: `1:64 scale diecast Hot Wheels ${casting}, ${paint}, satin stealth finish with dark bronze wheels, studio macro photo, 8k` }
+          ];
+        }
 
-          if (currentShowcaseSetIndex === 0) {
-            // SET A: PURPLE HAZE COLLECTION (NEW 8)
-            showcaseImage = 'assets/showcase_8_dairy_purple.jpg';
-            concepts = [
-              { id: 'starter_0', title: 'PURPLE HAZE', badge: 'PSYCHEDELIC FLAKE', badgeColor: 'border-purple-500 bg-purple-950 text-purple-300', img: 'assets/showcase_purple_haze.png', desc: 'Ultraviolet holographic flake with hypnotic flowing psychedelic contour line tampos.', p: '#9333ea', a: '#e879f9' },
-              { id: 'starter_1', title: 'GALAXY GROOVE', badge: 'COSMIC NEBULA', badgeColor: 'border-indigo-500 bg-indigo-950 text-indigo-300', img: 'assets/showcase_galaxy_groove.png', desc: 'Deep cosmic stardust nebula with constellation clusters and starlight deep-dish rims.', p: '#6366f1', a: '#a855f7' },
-              { id: 'starter_2', title: 'SWEET SHOTS', badge: 'RETRO POP SODA', badgeColor: 'border-pink-500 bg-pink-950 text-pink-300', img: 'assets/showcase_sweet_shots.png', desc: 'Japanese grape soda pop art with retro bubble typography and chrome accent lips.', p: '#ec4899', a: '#f43f5e' },
-              { id: 'starter_3', title: 'AMETHYST DRIFT', badge: 'JAPANESE KANJO', badgeColor: 'border-violet-500 bg-violet-950 text-violet-300', img: 'assets/showcase_amethyst_drift.png', desc: 'Tokyo midnight highway drift livery with angular geometric vinyls and speed kanji.', p: '#8b5cf6', a: '#06b6d4' },
-              { id: 'starter_4', title: 'RETRO WAVE', badge: '80S SYNTHWAVE', badgeColor: 'border-cyan-500 bg-cyan-950 text-cyan-300', img: 'assets/showcase_retro_wave.png', desc: 'Outrun sunset wireframe grid with chrome horizontal laser fades across the body panel.', p: '#06b6d4', a: '#d946ef' },
-              { id: 'starter_5', title: 'LAVENDER LEAP', badge: 'PASTEL STREET', badgeColor: 'border-fuchsia-500 bg-fuchsia-950 text-fuchsia-300', img: 'assets/showcase_lavender_leap.png', desc: 'Playful pastel streetwear livery with contemporary urban iconography and matte topcoat.', p: '#d946ef', a: '#f0abfc' },
-              { id: 'starter_6', title: 'NEON NIGHT', badge: 'CYBER UNDERGLOW', badgeColor: 'border-emerald-500 bg-emerald-950 text-emerald-300', img: 'assets/showcase_neon_night.png', desc: 'Cyberpunk night runner with high-voltage neon circuit tracings and dark contrast tampos.', p: '#10b981', a: '#8b5cf6' },
-              { id: 'starter_7', title: 'VIOLET VROOM', badge: 'HERITAGE DRAG', badgeColor: 'border-amber-500 bg-amber-950 text-amber-300', img: 'assets/showcase_violet_vroom.png', desc: '1970s vintage dragstrip scallop flames with silver pin-striping and racing slicks.', p: '#f59e0b', a: '#a855f7' }
+        // Image bindings: use instant pre-rendered assets for signature donor canvases, or live Cloudflare FLUX for others
+        const showcaseContainer = document.getElementById('dynamicShowcaseContainer');
+        const titleEl = document.getElementById('showcaseDisplayTitle');
+
+        let showcaseImg = 'assets/showcase_camaro_green.jpg';
+        if (isDairy) showcaseImg = 'assets/showcase_8_dairy_purple.jpg';
+        else if (isCamaro) showcaseImg = 'assets/showcase_camaro_green.jpg';
+
+        showcaseContainer.innerHTML = `<img src="${showcaseImg}" class="w-full max-h-80 object-cover object-center rounded-xl shadow-2xl">`;
+        if (titleEl) titleEl.innerText = `ILLUMINATED SHOWCASE: 8 CONCEPTS ON ${casting.toUpperCase()} (${paint.toUpperCase()})`;
+
+        // Build 8 dynamic starters
+        concepts.slice(0, 8).forEach((c, idx) => {
+          let cardImg = 'assets/camaro_cyberpunk_neon.png';
+          if (isCamaro) {
+            const camaroCrops = [
+              'assets/camaro_cyberpunk_neon.png',
+              'assets/camaro_tokyo_midnight.png',
+              'assets/camaro_vintage_scallops.png',
+              'assets/camaro_acid_splash.png',
+              'assets/camaro_ghost_pearl.png',
+              'assets/camaro_track_day_13.png',
+              'assets/camaro_retro_horizon.png',
+              'assets/camaro_raw_stealth.png'
             ];
-          } else {
-            // SET B: STREETWEAR & MECHA COLLECTION
-            showcaseImage = 'assets/showcase_white_purple_dairy.png';
-            concepts = [
-              { id: 'starter_0', title: 'SYNTHWAVE NEON', badge: '80S OUTRUN', badgeColor: 'border-pink-500 bg-pink-950 text-pink-300', img: 'assets/crop_synthwave.png', desc: 'Horizon sunset gridlines with neon magenta gradient fades and laser pinstripes.', p: '#ec4899', a: '#06b6d4' },
-              { id: 'starter_1', title: 'LOWRIDER LACE', badge: 'CHICANO KANDY', badgeColor: 'border-purple-500 bg-purple-950 text-purple-300', img: 'assets/crop_lowrider.png', desc: 'Intricate custom lowrider roof pattern lace with purple candy micro-flake fades.', p: '#a855f7', a: '#d946ef' },
-              { id: 'starter_2', title: 'STREETWEAR DRIP', badge: 'TOKYO STREET', badgeColor: 'border-cyan-500 bg-cyan-950 text-cyan-300', img: 'assets/crop_streetwear.png', desc: 'Heavy graphic typography, graffiti tags, and bold contrasting vinyl overlays.', p: '#06b6d4', a: '#ec4899' },
-              { id: 'starter_3', title: 'GALAXY NEBULA', badge: 'DEEP SPACE', badgeColor: 'border-indigo-500 bg-indigo-950 text-indigo-300', img: 'assets/crop_galaxy.png', desc: 'Ultra-dense celestial stardust cloud with swirling interstellar purple clouds.', p: '#6366f1', a: '#a855f7' },
-              { id: 'starter_4', title: 'DRAG FLAMES', badge: 'VINTAGE ROD', badgeColor: 'border-amber-500 bg-amber-950 text-amber-300', img: 'assets/crop_drag_flames.png', desc: 'Classic sweeping hot rod flames licking back from the front nose in violet pearl.', p: '#f59e0b', a: '#8b5cf6' },
-              { id: 'starter_5', title: 'GRAPE SODA', badge: 'JAPAN POP', badgeColor: 'border-fuchsia-500 bg-fuchsia-950 text-fuchsia-300', img: 'assets/crop_grape_fizz.png', desc: 'Playful fizz bubbles and retro beverage livery inspired by classic Japanese soda.', p: '#d946ef', a: '#ec4899' },
-              { id: 'starter_6', title: 'CYBERPUNK MECHA', badge: 'SCI-FI ARMOR', badgeColor: 'border-emerald-500 bg-emerald-950 text-emerald-300', img: 'assets/crop_cyberpunk_mecha.png', desc: 'Angular mechanical panel seams with high-voltage hazard warnings and tech text.', p: '#10b981', a: '#8b5cf6' },
-              { id: 'starter_7', title: 'ART DECO STREAMLINE', badge: '1930S LUXURY', badgeColor: 'border-yellow-500 bg-yellow-950 text-yellow-300', img: 'assets/crop_art_deco.png', desc: 'Sweeping geometric arcs and polished metallic flourishes from the Streamline era.', p: '#eab308', a: '#a855f7' }
+            cardImg = camaroCrops[idx % camaroCrops.length];
+          } else if (isDairy) {
+            const dairyCrops = [
+              'assets/showcase_purple_haze.png',
+              'assets/showcase_galaxy_groove.png',
+              'assets/showcase_sweet_shots.png',
+              'assets/showcase_amethyst_drift.png',
+              'assets/showcase_retro_wave.png',
+              'assets/showcase_lavender_leap.png',
+              'assets/showcase_neon_night.png',
+              'assets/showcase_violet_vroom.png'
             ];
+            cardImg = dairyCrops[idx % dairyCrops.length];
           }
 
-          concepts.forEach((c, idx) => {
-            const variations = [
-              {
-                title: c.title + ' // TRACK SPEC',
-                subName: 'Motorsport Racing Livery',
-                badge: 'TRACK SPEC',
-                badgeColor: 'border-cyan-500 bg-cyan-950 text-cyan-300',
-                baseName: paint,
-                wheelName: wheels,
-                primaryInk: c.p,
-                accentInk: c.a,
-                story: `Aggressive motorsport track layout for ${c.title}. Features door #13 roundel, sponsor decals (Sparco, Gulf, Goodyear), and front aero splitter.`,
-                sideLivery: `Door #13 racing roundel + micro sponsor decal stack + aerodynamic speed sweep.`,
-                roofLivery: `Dual bold longitudinal racing stripes with roof number tampo.`,
-                uvSpecs: `100% Solid White Underbase • 600 DPI CMYK pass • Spot Matte Varnish.`,
-                cardback: `Checkered raceway blister card with metallic silver foil badge.`,
-                chaseIdea: `1-of-10 Chase: Raw Zamac unpainted body with violet tinted clearcoat.`,
-                img: 'assets/sub_idea_dairy_track.jpg'
-              },
-              {
-                title: c.title + ' // NEO-TUNER',
-                subName: 'Slammed Geometric Street',
-                badge: 'NEO-TUNER',
-                badgeColor: 'border-pink-500 bg-pink-950 text-pink-300',
-                baseName: paint,
-                wheelName: wheels,
-                primaryInk: c.p,
-                accentInk: '#06b6d4',
-                story: `Low-slammed street tuner edition of ${c.title}. Geometric ultraviolet angle cuts, Japanese kanji micro-typography, and gloss black roof accent.`,
-                sideLivery: `Large geometric side panel wrap + Japanese kanji text + angled speed gradients.`,
-                roofLivery: `Solid gloss black roof with centered laser-etched insignia.`,
-                uvSpecs: `Raised 3D Clear Gloss UV Varnish (+0.3mm relief) on typography and logos.`,
-                cardback: `Tokyo midnight highway neon card with holographic serial number.`,
-                chaseIdea: `1-of-10 Chase: Glow-in-the-dark base paint with high-voltage purple circuits.`,
-                img: 'assets/sub_idea_dairy_tuner.jpg'
-              },
-              {
-                title: c.title + ' // SHOW CAR',
-                subName: 'Ghost Pearl & Chrome',
-                badge: 'LUXURY SHOW',
-                badgeColor: 'border-amber-500 bg-amber-950 text-amber-300',
-                baseName: paint,
-                wheelName: wheels,
-                primaryInk: c.p,
-                accentInk: '#facc15',
-                story: `Concourse show car edition of ${c.title}. Translucent ghost pearl graphics shimmering over white, delicate pinstriping, and mirror chrome accents.`,
-                sideLivery: `Delicate swooping pinstripe flourishes + minimalist crest badge.`,
-                roofLivery: `Elegantly framed geometric roof panel with micro-pin lines.`,
-                uvSpecs: `Selective white underbase allowing pearlescent flake to shimmer through ink.`,
-                cardback: `Luxury matte black velvet-touch blister card with gold foil seal.`,
-                chaseIdea: `1-of-10 Chase: 24K gold-plated wheels with deep-dish chrome lips.`,
-                img: 'assets/sub_idea_dairy_1.jpg'
-              }
-            ];
-
-            currentDynamicStarters.push({
-              id: c.id,
-              name: (idx + 1) + '. ' + c.title,
-              title: c.title,
-              badge: c.badge,
-              badgeColor: c.badgeColor,
-              img: c.img,
-              desc: c.desc,
-              variations: variations
-            });
-          });
-
-          const showcaseContainer = document.getElementById('dynamicShowcaseContainer');
-          const titleEl = document.getElementById('showcaseDisplayTitle');
-          showcaseContainer.innerHTML = `<img src="${showcaseImage}" class="w-full max-h-80 object-cover object-center rounded-xl shadow-2xl">`;
-          if (titleEl) titleEl.innerText = `ILLUMINATED SHOWCASE: 8 CONCEPTS ON ${casting.toUpperCase()} (${paint.toUpperCase()})`;
-
-        } else {
-          // DYNAMIC CUSTOM CASTINGS (Gasser, Silverado, Porsche, Skyline, Camaro, etc.)
-          const archetypes = [
-            { t: 'NEO CYBERPUNK', b: 'CYBER RUNNER', s: 'High-voltage circuitry and holographic tampos', p: '#00f0ff', a: '#ff007f', fallback: 'assets/crop_cyberpunk_mecha.png' },
-            { t: 'TOKYO MIDNIGHT', b: 'DRIFT SPEC', s: 'Kanjo racer with Japanese katakana livery', p: '#8b5cf6', a: '#06b6d4', fallback: 'assets/rubix_cube_silvia.png' },
-            { t: 'VINTAGE SCALLOPS', b: 'HERITAGE DRAG', s: '1970s drag flames with silver pinstripes', p: '#f59e0b', a: '#ef4444', fallback: 'assets/crop_drag_flames.png' },
-            { t: 'ACID SPLASH', b: 'STREET ART', s: 'Aerosol splatter graffiti and urban drips', p: '#10b981', a: '#eab308', fallback: 'assets/crop_streetwear.png' },
-            { t: 'GHOST PEARL', b: 'LUXURY SHOW', s: 'Translucent ghost pearls and polished chrome', p: '#94a3b8', a: '#38bdf8', fallback: 'assets/marbelized_67_camaro.png' },
-            { t: 'TRACK DAY 13', b: 'RACE LIVERY', s: 'Motorsport livery with number 13 tampo and sponsors', p: '#3b82f6', a: '#f97316', fallback: 'assets/sub_idea_dairy_track.jpg' },
-            { t: 'RETRO HORIZON', b: 'SYNTHWAVE', s: 'Outrun sunset wireframe grid with chrome gradient', p: '#ec4899', a: '#6366f1', fallback: 'assets/crop_synthwave.png' },
-            { t: 'RAW STEALTH', b: 'PROTOTYPE', s: 'Matte stealth finish with high-contrast safety badges', p: '#64748b', a: '#22c55e', fallback: 'assets/acid_llama_935.png' }
+          const variations = [
+            {
+              title: c.title + ' // TRACK SPEC',
+              subName: 'Motorsport Racing Livery',
+              badge: 'TRACK SPEC',
+              badgeColor: 'border-cyan-500 bg-cyan-950 text-cyan-300',
+              baseName: paint,
+              wheelName: wheels,
+              primaryInk: c.primary || '#00f0ff',
+              accentInk: c.accent || '#ff007f',
+              story: `Aggressive motorsport track layout for ${c.title}. Features door #13 roundel, sponsor decals (Sparco, Gulf, Goodyear), and front aero splitter.`,
+              sideLivery: `Door #13 racing roundel + micro sponsor decal stack + aerodynamic speed sweep.`,
+              roofLivery: `Dual bold longitudinal racing stripes with roof number tampo.`,
+              uvSpecs: `100% Solid White Underbase • 600 DPI CMYK pass • Spot Matte Varnish.`,
+              cardback: `Checkered raceway blister card with metallic silver foil badge.`,
+              chaseIdea: `1-of-10 Chase: Raw Zamac unpainted body with tinted clearcoat.`,
+              img: isCamaro ? 'assets/camaro_track_day_13.png' : (isDairy ? 'assets/sub_idea_dairy_track.jpg' : cardImg),
+              prompt: `Commercial studio macro photo of 1:64 scale custom Hot Wheels ${casting}, ${paint}, track racing livery with #13 door tampo and sponsors, 8k`
+            },
+            {
+              title: c.title + ' // NEO-TUNER',
+              subName: 'Slammed Geometric Street',
+              badge: 'NEO-TUNER',
+              badgeColor: 'border-pink-500 bg-pink-950 text-pink-300',
+              baseName: paint,
+              wheelName: wheels,
+              primaryInk: c.primary || '#8b5cf6',
+              accentInk: c.accent || '#06b6d4',
+              story: `Low-slammed street tuner edition of ${c.title}. Geometric ultraviolet angle cuts, Japanese kanji micro-typography, and contrast roof accent.`,
+              sideLivery: `Large geometric side panel wrap + Japanese kanji text + angled speed gradients.`,
+              roofLivery: `Solid gloss black roof with centered laser-etched insignia.`,
+              uvSpecs: `Raised 3D Clear Gloss UV Varnish (+0.3mm relief) on typography and logos.`,
+              cardback: `Tokyo midnight highway neon card with holographic serial number.`,
+              chaseIdea: `1-of-10 Chase: Glow-in-the-dark base paint with high-voltage circuits.`,
+              img: isCamaro ? 'assets/camaro_tokyo_midnight.png' : (isDairy ? 'assets/sub_idea_dairy_tuner.jpg' : cardImg),
+              prompt: `Commercial studio macro photo of 1:64 scale custom Hot Wheels ${casting}, ${paint}, slammed neo-tuner street style with geometric side decals, 8k`
+            },
+            {
+              title: c.title + ' // SHOW CAR',
+              subName: 'Ghost Pearl & Chrome',
+              badge: 'LUXURY SHOW',
+              badgeColor: 'border-amber-500 bg-amber-950 text-amber-300',
+              baseName: paint,
+              wheelName: wheels,
+              primaryInk: c.primary || '#e2e8f0',
+              accentInk: c.accent || '#facc15',
+              story: `Concourse show car edition of ${c.title}. Translucent ghost pearl graphics shimmering over ${paint}, delicate pinstriping, and mirror chrome accents.`,
+              sideLivery: `Delicate swooping pinstripe flourishes + minimalist crest badge.`,
+              roofLivery: `Elegantly framed geometric roof panel with micro-pin lines.`,
+              uvSpecs: `Selective white underbase allowing pearlescent flake to shimmer through ink.`,
+              cardback: `Luxury matte black velvet-touch blister card with gold foil seal.`,
+              chaseIdea: `1-of-10 Chase: 24K gold-plated wheels with deep-dish chrome lips.`,
+              img: isCamaro ? 'assets/camaro_ghost_pearl.png' : (isDairy ? 'assets/sub_idea_dairy_1.jpg' : cardImg),
+              prompt: `Commercial studio macro photo of 1:64 scale custom Hot Wheels ${casting}, ${paint}, concourse show car with ghost pearl stripes and chrome wheels, 8k`
+            }
           ];
 
-          archetypes.forEach((arch, idx) => {
-            const variations = [
-              {
-                title: arch.t + ' // TRACK SPEC',
-                subName: 'Motorsport Track Spec',
-                badge: 'TRACK SPEC',
-                badgeColor: 'border-cyan-500 bg-cyan-950 text-cyan-300',
-                baseName: paint,
-                wheelName: wheels,
-                primaryInk: arch.p,
-                accentInk: arch.a,
-                story: `Aggressive track racing edition with number 13 tampo, sponsor logos, and front splitter.`,
-                sideLivery: `Door number roundel + sponsor stack + aerodynamic side sweep.`,
-                roofLivery: `Dual longitudinal racing stripes with roof tampo.`,
-                uvSpecs: `100% Solid White Underbase • 600 DPI CMYK pass.`,
-                cardback: `Motorsport collector card with silver badge.`,
-                chaseIdea: `1-of-10 Chase: Raw Zamac body with translucent tint.`,
-                img: 'assets/sub_idea_dairy_track.jpg'
-              },
-              {
-                title: arch.t + ' // NEO-TUNER',
-                subName: 'Slammed Geometric Street',
-                badge: 'NEO-TUNER',
-                badgeColor: 'border-pink-500 bg-pink-950 text-pink-300',
-                baseName: paint,
-                wheelName: wheels,
-                primaryInk: arch.p,
-                accentInk: '#06b6d4',
-                story: `Low slammed street tuner with geometric vinyl cuts and modern micro-typography.`,
-                sideLivery: `Geometric side panel wrap + sharp angles.`,
-                roofLivery: `Contrast gloss black roof panel.`,
-                uvSpecs: `Raised 3D Clear Gloss UV Varnish on graphics.`,
-                cardback: `Neon street card with holographic seal.`,
-                chaseIdea: `1-of-10 Chase: Glow base with dark circuits.`,
-                img: 'assets/sub_idea_dairy_tuner.jpg'
-              },
-              {
-                title: arch.t + ' // SHOW CAR',
-                subName: 'Ghost Pearl & Chrome',
-                badge: 'SHOW CAR',
-                badgeColor: 'border-amber-500 bg-amber-950 text-amber-300',
-                baseName: paint,
-                wheelName: wheels,
-                primaryInk: arch.p,
-                accentInk: '#facc15',
-                story: `Concourse show car with subtle ghost pearlescent decals and chrome trim.`,
-                sideLivery: `Subtle pinstriping + minimalist logo.`,
-                roofLivery: `Framed micro-pin roof line.`,
-                uvSpecs: `Selective white underbase for pearlescent shimmer.`,
-                cardback: `Luxury matte black card with gold foil seal.`,
-                chaseIdea: `1-of-10 Chase: 24K gold wheels.`,
-                img: 'assets/sub_idea_dairy_1.jpg'
-              }
-            ];
-
-            currentDynamicStarters.push({
-              id: 'starter_' + idx,
-              name: (idx + 1) + '. ' + arch.t,
-              title: arch.t,
-              badge: arch.b,
-              badgeColor: 'border-pink-500/60 bg-pink-950/80 text-pink-300',
-              img: arch.fallback,
-              desc: arch.s,
-              variations: variations
-            });
+          currentDynamicStarters.push({
+            id: 'starter_' + idx,
+            name: (idx + 1) + '. ' + c.title,
+            title: c.title,
+            badge: c.badge || 'CUSTOM',
+            badgeColor: 'border-pink-500/60 bg-pink-950/80 text-pink-300',
+            img: cardImg,
+            desc: c.desc || `Custom ${c.title} livery calibrated for ${casting}.`,
+            variations: variations
           });
-
-          const showcaseContainer = document.getElementById('dynamicShowcaseContainer');
-          const titleEl = document.getElementById('showcaseDisplayTitle');
-          showcaseContainer.innerHTML = `<img src="assets/showcase_8_dairy_purple.jpg" class="w-full max-h-80 object-cover object-center rounded-xl shadow-2xl">`;
-          if (titleEl) titleEl.innerText = `DYNAMIC 8-CAR SHOWCASE: ${casting.toUpperCase()} (${paint.toUpperCase()})`;
-        }
+        });
 
         renderStarterCards();
         backToStarterShowcase();
-        showToast(`AI generated 8 unique concepts for ${casting}!`, '🧠');
+        showToast(`AI synthesized 8 concepts for ${casting} in ${paint}!`, '🧠');
       });
     }
 
-    function renderStarterCards() {
-      const container = document.getElementById('starterCardsGrid');
-      if (!container) return;
-      container.innerHTML = '';
-
-      currentDynamicStarters.forEach((dir, idx) => {
-        const card = document.createElement('div');
-        card.className = "bg-slate-950/90 rounded-2xl border border-slate-800 hover:border-pink-500/70 p-3 flex flex-col justify-between space-y-3 shadow-xl transition group";
-        card.innerHTML = `
-          <div class="space-y-2.5">
-            <div class="w-full h-36 rounded-xl bg-gradient-to-b from-slate-900 to-black p-1 border border-slate-800/80 flex items-center justify-center relative overflow-hidden group">
-              <img src="${dir.img}" class="w-full h-full object-cover rounded-lg drop-shadow-xl transition duration-300 group-hover:scale-105" loading="lazy" onerror="this.src='assets/crop_synthwave.png'">
-              <span class="absolute top-1.5 left-1.5 px-2 py-0.5 rounded text-[9px] font-orbitron font-bold border ${dir.badgeColor} backdrop-blur-sm">
-                ${dir.badge}
-              </span>
-            </div>
-            <div>
-              <h3 class="font-orbitron font-black text-xs text-white group-hover:text-pink-400 transition tracking-wide">${dir.name}</h3>
-              <p class="text-[11px] text-slate-400 leading-snug mt-1">${dir.desc}</p>
-            </div>
-          </div>
-          <button onclick="pickDynamicStarter(${idx})" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-orbitron font-black text-xs shadow-md transition active:scale-95 flex items-center justify-center gap-1.5">
-            <span>👉</span> SELECT & CREATE 3 SUB-IDEAS
-          </button>
-        `;
-        container.appendChild(card);
-      });
-    }
-
-    function pickDynamicStarter(idx) {
-      const dir = currentDynamicStarters[idx];
-      if (!dir) return;
-      currentSelectedStarter = dir;
-
-      showAiProcessing(dir.title, () => {
-        document.getElementById('ideaStarterShowcaseView').classList.add('hidden');
-        document.getElementById('threeVariationsView').classList.remove('hidden');
-
-        const titleEl = document.getElementById('activeDirectionHeaderTitle');
-        if (titleEl) titleEl.innerText = dir.name.toUpperCase();
-
-        renderThreeSubIdeas(dir);
-        showToast(`AI created 3 sub-idea images for ${dir.title}!`, '🎨');
-      });
-    }
-
-    function renderThreeSubIdeas(dir) {
-      const container = document.getElementById('threeVariationsContainer');
-      if (!container) return;
-      container.innerHTML = '';
-
-      dir.variations.forEach((v, idx) => {
-        const card = document.createElement('div');
-        card.className = "bg-slate-950/95 rounded-2xl border border-slate-800 hover:border-pink-500/80 flex flex-col justify-between p-4 space-y-4 shadow-2xl transition";
-        card.innerHTML = `
-          <div class="space-y-3">
-            <div class="flex items-center justify-between">
-              <span class="font-orbitron font-black text-xs text-white flex items-center gap-1.5">
-                <span class="w-2 h-2 rounded-full bg-pink-500"></span>
-                SUB-IDEA 0${idx + 1}
-              </span>
-              <span class="px-2 py-0.5 rounded text-[10px] font-orbitron font-bold border ${v.badgeColor}">
-                ${v.badge}
-              </span>
-            </div>
-
-            <!-- SUB-IDEA PHOTOREALISTIC IMAGE -->
-            <div class="w-full h-48 rounded-xl bg-gradient-to-b from-slate-900 to-black p-1 border border-slate-800/80 flex items-center justify-center relative overflow-hidden group">
-              <img src="${v.img}" alt="${v.title}" class="w-full h-full object-cover rounded-lg drop-shadow-2xl transition duration-300 group-hover:scale-105" loading="lazy" onerror="this.src='assets/sub_idea_dairy_1.jpg'">
-              <div class="absolute bottom-2 left-2 text-[9px] font-mono text-cyan-300 bg-black/75 px-2 py-0.5 rounded border border-cyan-500/40 backdrop-blur-sm">
-                1:64 PHOTOREALISTIC RENDER
-              </div>
-            </div>
-
-            <!-- SPECS -->
-            <div>
-              <h3 class="font-orbitron font-black text-sm text-white tracking-wide">${v.title}</h3>
-              <p class="text-xs text-slate-400 leading-relaxed mt-1">${v.story}</p>
-            </div>
-
-            <!-- LIVERY & UV PRINT BLUEPRINT -->
-            <div class="bg-black/60 rounded-xl p-3 border border-slate-800 text-[11px] space-y-1.5">
-              <div><strong class="text-slate-300">🚗 Side Livery:</strong> <span class="text-slate-400">${v.sideLivery}</span></div>
-              <div><strong class="text-slate-300">🔝 Roof Livery:</strong> <span class="text-slate-400">${v.roofLivery}</span></div>
-              <div><strong class="text-cyan-400 font-mono">🖨️ UV Recipe:</strong> <span class="text-slate-300">${v.uvSpecs}</span></div>
-              <div><strong class="text-amber-400 font-mono">🛞 Wheel Spec:</strong> <span class="text-slate-300">${v.wheelName}</span></div>
-              <div><strong class="text-pink-400 font-mono">🌟 Chase Spec:</strong> <span class="text-slate-300">${v.chaseIdea}</span></div>
-            </div>
-          </div>
-
-          <button onclick="lockInSubIdea('${dir.id}', ${idx})" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 text-white font-orbitron font-black text-xs shadow-lg shadow-emerald-950/50 transition active:scale-95 flex items-center justify-center gap-2">
-            <span>⚡</span> LOCK IN CONCEPT → CREATE BATCH
-          </button>
-        `;
-        container.appendChild(card);
-      });
-    }
-
+    // Step 3 Prepress Launch when Locking In Sub-Idea
     function lockInSubIdea(dirId, varIdx) {
       const dir = currentDynamicStarters.find(x => x.id === dirId);
       if (!dir) return;
@@ -1983,24 +1853,23 @@
 
       let targetBatch = null;
 
-      // If user came from + NEW BATCH flow
       if (window.pendingBatchId) {
         targetBatch = {
           id: window.pendingBatchId,
           theme: v.title,
           model: casting,
           color: paint,
-          status: 'Idea Sourced',
-          section: 'ideas', // Puts in Row 3: Ideas & Sourcing
-          currentStep: 1,
-          progress: 10,
+          status: 'Step 3: Prepress Decals',
+          section: 'wip', // Placed directly into Row 2 (WIP) at Step 3
+          currentStep: 3,
+          progress: 35,
           price: 50.00,
           qty: '10 Reg • 1 Chase',
           carCost: 1.50,
           whlCost: 3.00,
           ovhCost: 2.00,
           hero: v.img,
-          completedSteps: [1],
+          completedSteps: [1, 2],
           conceptData: v
         };
         workshopBatches.unshift(targetBatch);
@@ -2015,17 +1884,17 @@
             theme: v.title,
             model: casting,
             color: paint,
-            status: 'Idea Sourced',
-            section: 'ideas',
-            currentStep: 1,
-            progress: 10,
+            status: 'Step 3: Prepress Decals',
+            section: 'wip',
+            currentStep: 3,
+            progress: 35,
             price: 50.00,
             qty: '10 Reg • 1 Chase',
             carCost: 1.50,
             whlCost: 3.00,
             ovhCost: 2.00,
             hero: v.img,
-            completedSteps: [1],
+            completedSteps: [1, 2],
             conceptData: v
           };
           workshopBatches.unshift(targetBatch);
@@ -2036,28 +1905,23 @@
           targetBatch.color = paint;
           targetBatch.hero = v.img;
           targetBatch.conceptData = v;
-          if (!targetBatch.completedSteps.includes(1)) {
-            targetBatch.completedSteps.push(1);
-          }
+          targetBatch.currentStep = 3;
+          targetBatch.status = 'Step 3: Prepress Decals';
+          targetBatch.section = 'wip';
+          if (!targetBatch.completedSteps.includes(1)) targetBatch.completedSteps.push(1);
+          if (!targetBatch.completedSteps.includes(2)) targetBatch.completedSteps.push(2);
         }
       }
 
       saveBatchesToStorage();
       renderFleetRows();
-      openBatchDetail(targetBatch.id);
       toggleModal('conceptGenModal');
 
-      setTimeout(() => {
-        const cardEl = document.querySelector(`[onclick="openBatchDetail('${targetBatch.id}')"]`);
-        if (cardEl) {
-          cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          cardEl.classList.add('ring-4', 'ring-pink-500', 'animate-pulse');
-          setTimeout(() => cardEl.classList.remove('ring-4', 'ring-pink-500', 'animate-pulse'), 3000);
-        }
-      }, 300);
-
-      showToast(`🚀 Locked in "${v.title}"! Batch ${targetBatch.id} ready in garage!`, '✨');
+      // IMMEDIATELY JUMP TO STEP 3: PREPRESS DECALS STUDIO
+      openPrepressModal();
+      showToast(`🎯 Concept locked in! Launching Step 3: Print-Ready Decals for ${v.title}!`, '📐');
     }
+
 
     function backToStarterShowcase() {
       const showcaseView = document.getElementById('ideaStarterShowcaseView');
