@@ -184,8 +184,11 @@
         <button onclick="openLlamaCamModal()" class="px-3 py-1.5 rounded-lg bg-yellow-600/20 hover:bg-yellow-500/30 text-yellow-300 font-orbitron font-bold text-xs border border-yellow-500/30 transition">
           📸 LLAMA CAM
         </button>
+        <button onclick="openCastingAlbumsModal()" class="px-3 py-1.5 rounded-lg bg-purple-600/20 hover:bg-purple-500/30 text-purple-300 font-orbitron font-bold text-xs border border-purple-500/40 transition flex items-center gap-1.5">
+          <span>🖼️</span> ALBUMS <span id="albumsCountBadge" class="px-1.5 py-0.2 rounded bg-purple-950 text-purple-200 text-[10px] font-mono border border-purple-500/40">0</span>
+        </button>
         <button onclick="openConceptGenModal(true)" class="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-orbitron font-black text-xs border border-pink-400/50 shadow-lg shadow-pink-900/40 transition active:scale-95 flex items-center gap-1.5">
-          <span>✨</span> + NEW CAR (v3.9.0)
+          <span>✨</span> + NEW CAR (v4.0.0)
         </button>
         <div class="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-[10px] font-mono text-cyan-400">
           STORE: <a href="https://neonllamagarage.com" target="_blank" class="hover:underline font-bold text-white">NEONLLAMAGARAGE.COM</a>
@@ -625,28 +628,32 @@
           <div>
             <h2 class="font-orbitron font-black text-base text-pink-400 flex items-center gap-2 tracking-wide flex-wrap">
               <span>UNIVERSAL DIECAST WIZARD</span>
-              <span class="px-2.5 py-0.5 rounded bg-cyan-950 text-cyan-300 text-[10px] font-mono border border-cyan-400 font-black shadow-[0_0_10px_rgba(6,182,212,0.5)]">v3.9.0 LIVE</span>
-              <span class="px-2 py-0.5 rounded bg-purple-950 text-purple-300 text-[10px] font-mono border border-purple-400/50">💎 GEMINI 3.1 FLASH IMAGE</span>
+              <span class="px-2.5 py-0.5 rounded bg-cyan-950 text-cyan-300 text-[10px] font-mono border border-cyan-400 font-black shadow-[0_0_10px_rgba(6,182,212,0.5)]">v4.0.0 LIVE</span>
+              <span class="px-2 py-0.5 rounded bg-purple-950 text-purple-300 text-[10px] font-mono border border-purple-400/50">💎 GEMINI 3.1 • AUTO-ALBUMS</span>
             </h2>
-            <p class="text-xs text-slate-400">Step 1: Pick or Type ANY Car/Truck → Step 2: Reference Photos (Auto-Skips if on File) → Step 3: Gemini 3.1 Renders 1-Shot 8-Car Showcase</p>
+            <p class="text-xs text-slate-400">1. Car & Printable Panels → 2. Photos → 3. 8-to-3 Concepts (+Feedback) → 4. Pure Flat Print-Ready Decals (+Tweak & Export)</p>
           </div>
         </div>
         <div class="flex items-center gap-2">
+          <button onclick="openCastingAlbumsModal()" class="text-purple-300 hover:text-white font-orbitron font-bold text-xs px-3 py-1.5 rounded-lg bg-purple-950/60 border border-purple-500/40 transition">🖼️ Albums</button>
           <button onclick="resetWizardToStep1()" class="text-cyan-300 hover:text-white font-orbitron font-bold text-xs px-3 py-1.5 rounded-lg bg-cyan-950/60 border border-cyan-500/40 transition">↺ Start Over</button>
           <button onclick="toggleModal('conceptGenModal')" class="text-slate-400 hover:text-white font-bold text-sm px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800">✕ Close</button>
         </div>
       </div>
 
-      <!-- 3-STEP PROGRESS BAR -->
-      <div class="grid grid-cols-3 gap-2 text-center font-orbitron text-[11px] font-bold">
-        <button type="button" onclick="goToWizardStep(1)" id="stepPill1" class="py-2 px-3 rounded-xl bg-pink-600/20 border border-pink-500 text-pink-300 transition">
-          1️⃣ SELECT CAR & SURFACES
+      <!-- 4-STEP PROGRESS BAR -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center font-orbitron text-[10px] font-bold">
+        <button type="button" onclick="goToWizardStep(1)" id="stepPill1" class="py-2 px-2 rounded-xl bg-pink-600/20 border border-pink-500 text-pink-300 transition">
+          1️⃣ CAR & SURFACES
         </button>
-        <button type="button" onclick="goToWizardStep(2)" id="stepPill2" class="py-2 px-3 rounded-xl bg-slate-900 border border-slate-800 text-slate-500 transition">
-          2️⃣ CASTING PHOTOS
+        <button type="button" onclick="goToWizardStep(2)" id="stepPill2" class="py-2 px-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-500 transition">
+          2️⃣ PHOTOS
         </button>
-        <button type="button" id="stepPill3" class="py-2 px-3 rounded-xl bg-slate-900 border border-slate-800 text-slate-500 transition cursor-default">
-          3️⃣ LIVE AI 8-CONCEPT LAB
+        <button type="button" id="stepPill3" class="py-2 px-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-500 transition cursor-default">
+          3️⃣ 8 → 3 CONCEPTS
+        </button>
+        <button type="button" id="stepPill4" class="py-2 px-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-500 transition cursor-default">
+          4️⃣ PRINT DECALS
         </button>
       </div>
 
@@ -910,6 +917,56 @@
 
       </div>
 
+      <!-- ===================================================================== -->
+      <!-- WIZARD STEP 4: PURE FLAT PRINT-READY DECAL STUDIO (+TWEAK & EXPORT)   -->
+      <!-- ===================================================================== -->
+      <div id="wizardStep4Decals" class="hidden space-y-4">
+        
+        <div class="flex items-center justify-between bg-slate-950 border border-emerald-500/50 p-3.5 rounded-xl flex-wrap gap-3">
+          <div class="flex items-center gap-3">
+            <button type="button" onclick="backToThreeVariations()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-orbitron font-bold text-xs transition">
+              ← BACK TO 3 VARIATIONS
+            </button>
+            <div>
+              <div class="font-orbitron font-black text-sm text-emerald-400 flex items-center gap-2">
+                <span>🖨️</span> STAGE 4: PURE FLAT PRINT-READY DECAL STUDIO
+              </div>
+              <div class="text-[11px] text-slate-400 font-mono" id="decalStudioSubtitle">No car, no wheels, no door seams, no background — 100% transparent PNG + Solid White Underbase</div>
+            </div>
+          </div>
+          <button type="button" onclick="exportAllFinalDecals()" id="btnExportAllDecals" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-orbitron font-black text-xs shadow-lg transition active:scale-95">
+            📦 FINALIZE & EXPORT ALL DECAL PNGs
+          </button>
+        </div>
+
+        <!-- SELECTED WINNER PREVIEW + PRE-DECAL / FINAL TWEAK FEEDBACK BAR -->
+        <div class="bg-slate-950/95 border border-cyan-500/50 rounded-2xl p-4 grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+          <div id="decalWinnerPreviewBox" class="h-32 rounded-xl bg-white border border-slate-700 flex items-center justify-center overflow-hidden cursor-zoom-in p-1">
+            <span class="text-xs text-slate-500 font-mono">Winning Variation</span>
+          </div>
+          <div class="md:col-span-3 space-y-2.5">
+            <div class="flex items-center justify-between flex-wrap gap-1">
+              <label for="decalFeedbackInput" class="text-xs font-orbitron font-bold text-cyan-300">
+                💬 FEEDBACK / FINAL TWEAKS BEFORE OR AFTER GENERATING DECALS:
+              </label>
+              <span class="text-[10px] font-mono text-slate-400">Zero car body • Zero wheels • Zero seams • Pure flat transparent PNG</span>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-2.5">
+              <input type="text" id="decalFeedbackInput" placeholder='e.g. "remove the lightning bolts", "keep clean margin above rear wheel arch", "make the drips bolder"...' class="flex-1 bg-black px-3.5 py-2.5 rounded-xl border border-slate-700 focus:border-cyan-400 text-white text-xs outline-none">
+              <button type="button" onclick="generatePureFlatDecals()" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-pink-600 via-purple-600 to-cyan-600 hover:from-pink-500 hover:to-cyan-500 text-white font-orbitron font-black text-xs tracking-wide shadow-lg transition active:scale-95 whitespace-nowrap">
+                🖨️ GENERATE PRINT-READY DECALS →
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- GENERATED TRANSPARENT DECAL PANELS GRID -->
+        <div id="finalDecalsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Populated live with Transparent CMYK PNG + Solid White Underbase PNG per active surface -->
+        </div>
+
+      </div>
+
     </div>
   </div>
 
@@ -928,7 +985,34 @@
         </button>
       </div>
     </div>
-    <img id="lightboxImg" src="" alt="Full screen preview" onclick="event.stopPropagation()" class="max-w-full max-h-[84vh] object-contain rounded-xl shadow-2xl border border-slate-700/80 cursor-default">
+    <img id="lightboxImg" src="" alt="Full screen preview" onclick="event.stopPropagation()" class="max-w-full max-h-[84vh] object-contain rounded-xl shadow-2xl border border-slate-700/80 cursor-default" style="background-image: linear-gradient(45deg, #1e293b 25%, transparent 25%), linear-gradient(-45deg, #1e293b 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #1e293b 75%), linear-gradient(-45deg, transparent 75%, #1e293b 75%); background-size: 20px 20px; background-position: 0 0, 0 10px, 10px -10px, -10px 0px;">
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- CASTING ALBUMS GALLERY MODAL (AUTO-SAVES EVERY 8-PACK, SUB-IDEA & DECAL)  -->
+  <!-- ========================================================================= -->
+  <div id="castingAlbumsModal" class="hidden fixed inset-0 bg-black/92 backdrop-blur-md z-[80] flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+    <div class="bg-[#0b101d] border border-purple-500/60 rounded-2xl max-w-7xl w-full my-auto max-h-[92vh] overflow-y-auto p-5 space-y-5 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3 flex-wrap gap-2">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-500/50 flex items-center justify-center text-purple-300 text-xl">🖼️</div>
+          <div>
+            <h2 class="font-orbitron font-black text-base text-purple-300">CASTING DESIGN ALBUMS</h2>
+            <p class="text-xs text-slate-400">Every 8-Pack, Sub-Idea, and Print-Ready Decal is auto-saved here by casting name</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <select id="albumCastingFilter" onchange="renderCastingAlbumsGrid()" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white font-bold outline-none">
+            <option value="ALL">All Castings</option>
+          </select>
+          <button type="button" onclick="toggleModal('castingAlbumsModal')" class="text-slate-400 hover:text-white font-bold text-sm px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800">✕ Close</button>
+        </div>
+      </div>
+
+      <div id="castingAlbumsContainer" class="space-y-6">
+        <!-- Populated dynamically from IndexedDB -->
+      </div>
+    </div>
   </div>
 
   <!-- ========================================================================= -->
@@ -1991,21 +2075,23 @@
       const s2 = document.getElementById('wizardStep2');
       const s3 = document.getElementById('ideaStarterShowcaseView');
       const v2 = document.getElementById('threeVariationsView');
+      const s4 = document.getElementById('wizardStep4Decals');
 
       if (s1) s1.classList.toggle('hidden', stepNum !== 1);
       if (s2) s2.classList.toggle('hidden', stepNum !== 2);
       if (s3) s3.classList.toggle('hidden', stepNum !== 3);
       if (v2) v2.classList.add('hidden');
+      if (s4) s4.classList.toggle('hidden', stepNum !== 4);
 
-      [1, 2, 3].forEach(n => {
+      [1, 2, 3, 4].forEach(n => {
         const pill = document.getElementById(`stepPill${n}`);
         if (!pill) return;
         if (n === stepNum) {
-          pill.className = 'py-2 px-3 rounded-xl bg-pink-600/20 border border-pink-500 text-pink-300 transition';
+          pill.className = 'py-2 px-2 rounded-xl bg-pink-600/20 border border-pink-500 text-pink-300 transition';
         } else if (n < stepNum) {
-          pill.className = 'py-2 px-3 rounded-xl bg-emerald-950/60 border border-emerald-500/50 text-emerald-300 transition';
+          pill.className = 'py-2 px-2 rounded-xl bg-emerald-950/60 border border-emerald-500/50 text-emerald-300 transition';
         } else {
-          pill.className = 'py-2 px-3 rounded-xl bg-slate-900 border border-slate-800 text-slate-500 transition';
+          pill.className = 'py-2 px-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-500 transition';
         }
       });
     }
@@ -2189,7 +2275,13 @@
 
     function buildGemini8PackPrompt(casting, paint, wheels, conceptsList) {
       const listText = conceptsList.map((c, i) => `${i + 1}. ${c.title} (${c.style || c.desc})`).join(', ');
-      return `Commercial studio product photography of an illuminated clear acrylic collector display case with 2 shelves of 4 slots (8 slots total) on a dark walnut workshop table. Inside are 8 custom 1:64 scale diecast Hot Wheels ${casting} models in ${paint} paint with ${wheels}. All 8 models share the identical ${casting} casting tooling, identical 1:64 scale, identical side-quarter viewing angle, and identical wheels. Each slot features a distinct custom livery: ${listText}. Under each slot is a sleek matte black display plaque with illuminated laser-etched theme name text. Soft overhead LED shelf lighting, ultra-sharp focus, photorealistic 8k diecast collector showcase.`;
+      let onZones = ['flat side panels'];
+      let offZones = ['front nose', 'front bumper', 'A-pillars', 'window trim'];
+      if (activePrintZones.roof !== 'off') onZones.push('flat roof'); else offZones.push('roof');
+      if (activePrintZones.hood !== 'off') onZones.push('flat hood'); else offZones.push('hood');
+      if (activePrintZones.trunk !== 'off') onZones.push('flat rear tailgate/trunk'); else offZones.push('rear tailgate/trunk');
+
+      return `Commercial studio product photography of an illuminated clear acrylic collector display case with 2 shelves of 4 slots (8 slots total) on a dark walnut workshop table. Inside are 8 custom 1:64 scale diecast Hot Wheels ${casting} models in ${paint} paint with ${wheels}. All 8 models share the identical ${casting} casting tooling, identical 1:64 scale, identical side-quarter viewing angle, and identical wheels. CRITICAL UV-PRINTABILITY RULE: On ALL 8 cars, graphics MUST be crisp flat-panel tampo/decal designs applied ONLY to the ${onZones.join(' and ')} — NEVER 100% full-car wraps! The clean unpainted ${paint} base coat MUST remain clearly visible on the ${offZones.join(', ')} of EVERY SINGLE CAR. Each slot features a distinct printable custom livery: ${listText}. Under each slot is a sleek matte black display plaque with illuminated laser-etched theme name text. Soft overhead LED shelf lighting, ultra-sharp focus, photorealistic 8k diecast collector showcase.`;
     }
 
     async function urlOrDataToBase64(src) {
@@ -2383,6 +2475,7 @@
       if (masterBox) {
         if (res.ok && res.image) {
           window.latestMasterShowcaseImg = res.image;
+          saveToCastingAlbum(casting, '8-Pack Showcase', `${casting} (${paint})`, res.image);
           masterBox.innerHTML = `
             <div class="relative w-full flex flex-col items-center space-y-2">
               <div class="relative group cursor-zoom-in w-full flex justify-center" onclick="openImageLightbox(window.latestMasterShowcaseImg, '${casting.replace(/'/g, "\\'")} — 8-Car Collector Showcase')">
@@ -2665,6 +2758,9 @@
 
           if (res && res.ok && res.image) {
             v.img = res.image;
+            const cName = (document.getElementById("donorCastingInput")?.value || "Custom Casting").trim();
+            saveToCastingAlbum(cName, 'Sub-Idea', v.title, res.image);
+
             imgBox.className = "w-full h-56 rounded-xl bg-white border border-slate-800/80 flex items-center justify-center relative overflow-hidden group cursor-zoom-in";
             imgBox.onclick = () => openImageLightbox(v.img, v.title);
             imgBox.innerHTML = `
@@ -2699,7 +2795,7 @@
       const imgContainerId = `subIdeaImg_${idx}`;
       const imgBox = document.getElementById(imgContainerId);
       if (imgBox) {
-        imgBox.className = "w-full h-52 rounded-xl bg-slate-900 border border-slate-800/80 flex flex-col items-center justify-center relative overflow-hidden group p-2 text-center";
+        imgBox.className = "w-full h-56 rounded-xl bg-slate-900 border border-slate-800/80 flex flex-col items-center justify-center relative overflow-hidden group p-2 text-center";
         imgBox.innerHTML = `
           <div class="flex flex-col items-center justify-center space-y-2 animate-pulse">
             <div class="w-8 h-8 rounded-full border-2 border-purple-400 border-t-pink-500 animate-spin"></div>
@@ -2708,25 +2804,31 @@
         `;
       }
       const refImages = await getActiveReferenceBase64List();
-      const groundedPrompt = refImages.length > 0
-        ? `MATCH THE EXACT PHYSICAL 1:64 DIECAST CASTING SHAPE, PROPORTIONS, PAINT, AND WHEELS SHOWN IN THE ATTACHED REFERENCE PHOTO(S). ` + v.prompt
-        : v.prompt;
-      generateAiImage(groundedPrompt, refImages).then(res => {
+      if (window.latestMasterShowcaseImg && window.latestMasterShowcaseImg.startsWith('data:image/')) {
+        refImages.unshift(window.latestMasterShowcaseImg);
+      }
+      generateAiImage(v.prompt, refImages).then(res => {
         if (!imgBox) return;
         if (res && res.ok && res.image) {
           v.img = res.image;
-          imgBox.className = "w-full h-52 rounded-xl bg-white border border-slate-800/80 flex items-center justify-center relative overflow-hidden group";
+          const cName = (document.getElementById("donorCastingInput")?.value || "Custom Casting").trim();
+          saveToCastingAlbum(cName, 'Sub-Idea', v.title, res.image);
+          imgBox.className = "w-full h-56 rounded-xl bg-white border border-slate-800/80 flex items-center justify-center relative overflow-hidden group cursor-zoom-in";
+          imgBox.onclick = () => openImageLightbox(v.img, v.title);
           imgBox.innerHTML = `
             <img src="${res.image}" alt="${v.title}" class="w-full h-full object-contain drop-shadow-2xl transition duration-300 group-hover:scale-105">
             <div class="absolute bottom-2 left-2 text-[9px] font-mono text-purple-300 bg-black/80 px-2 py-0.5 rounded border border-purple-500/50 backdrop-blur-sm">
               💎 GEMINI 3.1
             </div>
+            <div class="absolute top-2 right-2 text-[9px] font-mono text-cyan-300 bg-black/80 px-2 py-0.5 rounded border border-cyan-500/50">
+              🔍 Zoom
+            </div>
           `;
         } else {
-          const errMsg = (res && res.error) ? res.error : "Unknown generation failure";
-          imgBox.className = "w-full h-52 rounded-xl bg-red-950/40 border border-red-500/80 flex flex-col items-center justify-center p-3 text-center space-y-1.5";
+          const errMsg = (res && res.error) ? res.error : "Render failed";
+          imgBox.className = "w-full h-56 rounded-xl bg-red-950/40 border border-red-500/80 flex flex-col items-center justify-center p-3 text-center space-y-1.5";
           imgBox.innerHTML = `
-            <span class="text-xs font-orbitron font-bold text-red-400">⚠️ FLUX RENDER ERROR</span>
+            <span class="text-xs font-orbitron font-bold text-red-400">⚠️ GEMINI RENDER ERROR</span>
             <span class="text-[10px] text-red-300 font-mono line-clamp-3">${errMsg}</span>
             <button onclick="retrySubIdeaRender('${dir.id}', ${idx})" class="mt-1 px-2.5 py-1 bg-red-900/80 hover:bg-red-800 text-white rounded text-[10px] font-bold border border-red-500/50">
               🔄 Retry Render
@@ -2736,26 +2838,42 @@
       });
     }
 
+    // =========================================================================
+    // STAGE 4: PURE FLAT PRINT-READY DECAL STUDIO (+TRANSPARENCY & WHITE BASE)
+    // =========================================================================
+    let currentWinningVariation = null;
+    let generatedFinalDecals = [];
+
+    function backToThreeVariations() {
+      const s4 = document.getElementById('wizardStep4Decals');
+      const v2 = document.getElementById('threeVariationsView');
+      if (s4) s4.classList.add('hidden');
+      if (v2) v2.classList.remove('hidden');
+    }
+
     function lockInSubIdea(dirId, varIdx) {
       const dir = currentDynamicStarters.find(x => x.id === dirId);
       if (!dir) return;
       const v = dir.variations[varIdx];
-      const casting = document.getElementById("donorCastingInput").value.trim() || "Hot Wheels Custom";
-      const paint = document.getElementById("donorBodyPaintInput").value.trim() || "Custom Finish";
-      const wheels = document.getElementById("donorWheelInput").value.trim() || "Real Riders";
+      if (!v) return;
 
-      let targetBatch = null;
+      currentWinningVariation = { ...v, parentTitle: dir.title, parentDesc: dir.desc };
+      generatedFinalDecals = [];
 
+      const casting = (document.getElementById("donorCastingInput")?.value || "Hot Wheels Custom").trim();
+      const paint = (document.getElementById("donorBodyPaintInput")?.value || "Gloss White").trim();
+
+      // Save batch to workshop tracker
       if (window.pendingBatchId) {
-        targetBatch = {
+        const targetBatch = {
           id: window.pendingBatchId,
           theme: v.title,
           model: casting,
           color: paint,
-          status: "Step 3: Prepress Decals",
+          status: "Stage 4: Print-Ready Decals",
           section: "wip",
           currentStep: 3,
-          progress: 35,
+          progress: 50,
           price: 50.00,
           qty: "10 Reg • 1 Chase",
           carCost: 1.50,
@@ -2769,54 +2887,437 @@
         workshopBatches.unshift(targetBatch);
         currentActiveBatchId = targetBatch.id;
         window.pendingBatchId = null;
-      } else {
-        targetBatch = workshopBatches.find(x => x.id === currentActiveBatchId);
-        if (!targetBatch) {
-          const nextId = "B-0" + (workshopBatches.length + 1);
-          targetBatch = {
-            id: nextId,
-            theme: v.title,
-            model: casting,
-            color: paint,
-            status: "Step 3: Prepress Decals",
-            section: "wip",
-            currentStep: 3,
-            progress: 35,
-            price: 50.00,
-            qty: "10 Reg • 1 Chase",
-            carCost: 1.50,
-            whlCost: 3.00,
-            ovhCost: 2.00,
-            hero: v.img || null,
-            completedSteps: [1, 2],
-            conceptData: v,
-            printZones: { ...activePrintZones }
-          };
-          workshopBatches.unshift(targetBatch);
-          currentActiveBatchId = targetBatch.id;
+        saveBatchesToStorage();
+        renderFleetRows();
+      }
+
+      // Open Stage 4 inside the Wizard!
+      goToWizardStep(4);
+
+      const subEl = document.getElementById("decalStudioSubtitle");
+      if (subEl) subEl.innerText = `${casting} • ${v.title} • Pure flat 2D graphics ONLY (no car, no wheels, no seams, transparent PNG + Solid White Underbase)`;
+
+      const previewBox = document.getElementById("decalWinnerPreviewBox");
+      if (previewBox) {
+        if (v.img) {
+          previewBox.onclick = () => openImageLightbox(v.img, v.title);
+          previewBox.innerHTML = `<img src="${v.img}" alt="${v.title}" class="w-full h-full object-contain">`;
         } else {
-          targetBatch.theme = v.title;
-          targetBatch.model = casting;
-          targetBatch.color = paint;
-          targetBatch.hero = v.img || targetBatch.hero;
-          targetBatch.conceptData = v;
-          targetBatch.currentStep = 3;
-          targetBatch.status = "Step 3: Prepress Decals";
-          targetBatch.section = "wip";
-          targetBatch.printZones = { ...activePrintZones };
-          if (!targetBatch.completedSteps.includes(1)) targetBatch.completedSteps.push(1);
-          if (!targetBatch.completedSteps.includes(2)) targetBatch.completedSteps.push(2);
+          previewBox.innerHTML = `<span class="text-xs font-orbitron font-bold text-slate-600">${v.title}</span>`;
         }
       }
 
-      saveBatchesToStorage();
-      renderFleetRows();
-      toggleModal("conceptGenModal");
+      const fb = document.getElementById("decalFeedbackInput");
+      if (fb) {
+        fb.value = "";
+        fb.focus();
+      }
 
-      // IMMEDIATELY JUMP TO STEP 3: PREPRESS DECALS STUDIO
-      openPrepressModal();
-      showToast(`🎯 Concept locked in! Launching Step 3: Print-Ready Decals for ${v.title}!`, "📐");
+      const grid = document.getElementById("finalDecalsGrid");
+      if (grid) {
+        grid.innerHTML = `
+          <div class="col-span-full bg-slate-950/80 border border-slate-800 rounded-2xl p-8 text-center space-y-2.5">
+            <div class="text-3xl">🖨️</div>
+            <div class="font-orbitron font-bold text-sm text-white">READY TO EXTRACT PURE FLAT PRINT-READY DECALS</div>
+            <p class="text-xs text-slate-400 max-w-xl mx-auto">
+              Add any final decal tweaks above (or leave blank), then click <strong class="text-cyan-300">🖨️ GENERATE PRINT-READY DECALS</strong>.
+              Gemini 3.1 will output pure flat 2D artwork (zero car body, zero wheels, zero seams), automatically strip the background to 100% transparent PNG, and generate the matching Solid White Underbase.
+            </p>
+          </div>
+        `;
+      }
     }
+
+    // Flood-fill outer pure-white background to TRUE 100% alpha transparency + generate 100% Solid White Underbase PNG + optional horizontal mirror
+    function processPureFlatDecalImage(dataUrl, mirrorHorizontal = false) {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.onload = () => {
+          const w = img.naturalWidth || img.width;
+          const h = img.naturalHeight || img.height;
+
+          // 1. Draw onto canvas (optionally mirrored for Passenger Side)
+          const c = document.createElement('canvas');
+          c.width = w;
+          c.height = h;
+          const ctx = c.getContext('2d');
+          if (mirrorHorizontal) {
+            ctx.translate(w, 0);
+            ctx.scale(-1, 1);
+          }
+          ctx.drawImage(img, 0, 0, w, h);
+
+          const imgData = ctx.getImageData(0, 0, w, h);
+          const data = imgData.data;
+
+          // Edge flood-fill to strip pure white/near-white background ONLY from outside (preserves white highlights inside artwork!)
+          const visited = new Uint8Array(w * h);
+          const queue = new Int32Array(w * h);
+          let head = 0, tail = 0;
+
+          const isBg = (idx) => {
+            const r = data[idx], g = data[idx + 1], b = data[idx + 2];
+            return r > 236 && g > 236 && b > 236;
+          };
+
+          const enqueue = (x, y) => {
+            const pos = y * w + x;
+            if (visited[pos]) return;
+            if (isBg(pos * 4)) {
+              visited[pos] = 1;
+              queue[tail++] = pos;
+            }
+          };
+
+          for (let x = 0; x < w; x++) { enqueue(x, 0); enqueue(x, h - 1); }
+          for (let y = 0; y < h; y++) { enqueue(0, y); enqueue(w - 1, y); }
+
+          while (head < tail) {
+            const pos = queue[head++];
+            const p4 = pos * 4;
+            data[p4 + 3] = 0; // Transparent!
+            const x = pos % w;
+            const y = (pos - x) / w;
+            if (x > 0) enqueue(x - 1, y);
+            if (x < w - 1) enqueue(x + 1, y);
+            if (y > 0) enqueue(x, y - 1);
+            if (y < h - 1) enqueue(x, y + 1);
+          }
+
+          ctx.putImageData(imgData, 0, 0);
+          const transparentPng = c.toDataURL('image/png');
+
+          // 2. Generate 100% Solid White Underbase PNG matching exact non-transparent pixels
+          const wc = document.createElement('canvas');
+          wc.width = w;
+          wc.height = h;
+          const wctx = wc.getContext('2d');
+          const wData = wctx.createImageData(w, h);
+          const wd = wData.data;
+          for (let i = 0; i < data.length; i += 4) {
+            if (data[i + 3] > 20) {
+              wd[i] = 255;
+              wd[i + 1] = 255;
+              wd[i + 2] = 255;
+              wd[i + 3] = 255;
+            } else {
+              wd[i + 3] = 0;
+            }
+          }
+          wctx.putImageData(wData, 0, 0);
+          const underbasePng = wc.toDataURL('image/png');
+
+          resolve({ transparentPng, underbasePng });
+        };
+        img.onerror = () => resolve({ transparentPng: dataUrl, underbasePng: dataUrl });
+        img.src = dataUrl;
+      });
+    }
+
+    function buildPureFlatDecalPrompt(panelLabel, casting, winVar, feedback) {
+      const fbText = feedback ? `USER TWEAK INSTRUCTION: "${feedback}".` : '';
+      return `PURE FLAT 2D VECTOR-STYLE PRINT-READY DECAL GRAPHIC SHEET ONLY for the ${panelLabel} of the custom 1:64 Hot Wheels ${casting} design shown in the attached reference image (${winVar.title}: ${winVar.story}). ${fbText}
+CRITICAL STRICT REQUIREMENTS:
+- Output ONLY the isolated flat 2D graphic artwork itself, completely flat orthographic 2D print art.
+- ABSOLUTELY NO CAR, NO VEHICLE OUTLINE, NO WHEELS, NO TIRES, NO WINDOWS, NO DOOR SEAMS, NO PANEL LINES, NO SHADOWS, NO 3D PERSPECTIVE, NO TABLE, NO BACKGROUND TEXTURE.
+- Centered cleanly with generous margin on a 100% SOLID PURE FLAT WHITE (#FFFFFF) background so it can be cleanly cut to transparent PNG for UV printing.
+- Crisp vector-sharp edges, vibrant high-contrast print colors, ready for 600 DPI eufyMake UV flatbed decal printing.`;
+    }
+
+    async function generatePureFlatDecals() {
+      const winVar = currentWinningVariation;
+      if (!winVar) return;
+
+      const casting = (document.getElementById("donorCastingInput")?.value || "Hot Wheels Custom").trim();
+      const feedback = (document.getElementById("decalFeedbackInput")?.value || "").trim();
+      const grid = document.getElementById("finalDecalsGrid");
+      if (!grid) return;
+
+      // Build list of active print panels from Step 1 toggles
+      const panels = [
+        { key: 'side_driver', label: 'DRIVER SIDE (LEFT)', mode: activePrintZones.side, mirrorOf: null },
+        { key: 'side_passenger', label: 'PASSENGER SIDE (RIGHT — MATCHED MIRROR)', mode: activePrintZones.side, mirrorOf: 'side_driver' }
+      ];
+      if (activePrintZones.roof !== 'off') panels.push({ key: 'roof', label: 'ROOF PANEL (TOP-DOWN)', mode: activePrintZones.roof, mirrorOf: null });
+      if (activePrintZones.hood !== 'off') panels.push({ key: 'hood', label: 'HOOD PANEL (TOP-DOWN)', mode: activePrintZones.hood, mirrorOf: null });
+      if (activePrintZones.trunk !== 'off') panels.push({ key: 'trunk', label: 'TRUNK / TAILGATE PANEL', mode: activePrintZones.trunk, mirrorOf: null });
+
+      generatedFinalDecals = panels.map(p => ({ ...p, cmykPng: null, underbasePng: null }));
+      grid.innerHTML = "";
+
+      const refImgs = [];
+      if (winVar.img && winVar.img.startsWith('data:image/')) refImgs.push(winVar.img);
+
+      // Render loading cards
+      generatedFinalDecals.forEach((p, idx) => {
+        const card = document.createElement('div');
+        card.id = `decalCard_${p.key}`;
+        card.className = "bg-slate-950 rounded-2xl border border-slate-800 p-4 space-y-3 shadow-xl flex flex-col justify-between";
+        card.innerHTML = `
+          <div class="space-y-2.5">
+            <div class="flex items-center justify-between">
+              <span class="font-orbitron font-black text-xs text-white">${p.label}</span>
+              <span class="px-2 py-0.5 rounded text-[9px] font-mono bg-cyan-950 text-cyan-300 border border-cyan-500/40">${(p.mode || 'direct').toUpperCase()}</span>
+            </div>
+            <div id="decalPreview_${p.key}" class="w-full h-52 rounded-xl border border-slate-700 flex flex-col items-center justify-center p-3 text-center space-y-2" style="background-image: linear-gradient(45deg, #1e293b 25%, transparent 25%), linear-gradient(-45deg, #1e293b 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #1e293b 75%), linear-gradient(-45deg, transparent 75%, #1e293b 75%); background-size: 16px 16px; background-position: 0 0, 0 8px, 8px -8px, -8px 0px; background-color: #0f172a;">
+              <div class="w-8 h-8 rounded-full border-2 border-emerald-400 border-t-pink-500 animate-spin"></div>
+              <span class="text-[10px] font-mono text-emerald-300">${p.mirrorOf ? 'WAITING TO MIRROR DRIVER SIDE...' : 'GENERATING PURE FLAT DECAL...'}</span>
+            </div>
+          </div>
+          <div id="decalActions_${p.key}" class="flex items-center gap-2 text-[10px] font-mono text-slate-500">
+            Preparing 600 DPI transparent PNG + White Underbase...
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+
+      // Generate each unique panel (Driver Side auto-generates mirrored Passenger Side for $0 extra!)
+      for (const p of generatedFinalDecals) {
+        if (p.mirrorOf) continue;
+        await renderSingleDecalPanel(p, casting, winVar, feedback, refImgs);
+      }
+    }
+
+    async function renderSingleDecalPanel(p, casting, winVar, feedback, refImgs) {
+      const previewEl = document.getElementById(`decalPreview_${p.key}`);
+      const actionsEl = document.getElementById(`decalActions_${p.key}`);
+      const prompt = buildPureFlatDecalPrompt(p.label, casting, winVar, feedback);
+      const res = await generateAiImage(prompt, refImgs);
+
+      if (!res.ok || !res.image) {
+        if (previewEl) {
+          previewEl.innerHTML = `<div class="text-xs text-red-400 font-bold">⚠️ ${res.error || 'Decal render failed'}</div>`;
+        }
+        return;
+      }
+
+      const processed = await processPureFlatDecalImage(res.image, false);
+      p.cmykPng = processed.transparentPng;
+      p.underbasePng = processed.underbasePng;
+      saveToCastingAlbum(casting, 'Final Decal', `${winVar.title} — ${p.label}`, p.cmykPng);
+      updateDecalCardUI(p, casting);
+
+      // If this was Driver Side, automatically build the mirrored Passenger Side!
+      if (p.key === 'side_driver') {
+        const passPanel = generatedFinalDecals.find(x => x.key === 'side_passenger');
+        if (passPanel) {
+          const mirrored = await processPureFlatDecalImage(res.image, true);
+          passPanel.cmykPng = mirrored.transparentPng;
+          passPanel.underbasePng = mirrored.underbasePng;
+          saveToCastingAlbum(casting, 'Final Decal', `${winVar.title} — ${passPanel.label}`, passPanel.cmykPng);
+          updateDecalCardUI(passPanel, casting);
+        }
+      }
+    }
+
+    function updateDecalCardUI(p, casting) {
+      const previewEl = document.getElementById(`decalPreview_${p.key}`);
+      const actionsEl = document.getElementById(`decalActions_${p.key}`);
+      const safeName = `${casting}_${p.key}`.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+
+      if (previewEl) {
+        previewEl.classList.add('cursor-zoom-in', 'relative', 'group');
+        previewEl.onclick = () => openImageLightbox(p.cmykPng, `${casting} — ${p.label} (Transparent CMYK)`);
+        previewEl.innerHTML = `
+          <img src="${p.cmykPng}" alt="${p.label}" class="max-w-full max-h-48 object-contain drop-shadow-lg transition group-hover:scale-105">
+          <span class="absolute top-2 right-2 px-1.5 py-0.5 rounded bg-black/80 border border-cyan-500/50 text-[9px] font-mono text-cyan-300">🔍 Zoom</span>
+          <span class="absolute bottom-2 left-2 px-1.5 py-0.5 rounded bg-black/80 border border-emerald-500/50 text-[9px] font-mono text-emerald-300">✓ TRANSPARENT PNG</span>
+        `;
+      }
+
+      if (actionsEl) {
+        actionsEl.innerHTML = `
+          <a href="${p.cmykPng}" download="${safeName}_CMYK_transparent.png" class="flex-1 py-2 text-center rounded-lg bg-emerald-600/30 hover:bg-emerald-500/40 border border-emerald-500/50 text-emerald-200 font-orbitron font-bold text-[10px] transition">
+            ⬇ CMYK PNG
+          </a>
+          <a href="${p.underbasePng}" download="${safeName}_WHITE_UNDERBASE.png" class="flex-1 py-2 text-center rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white font-orbitron font-bold text-[10px] transition">
+            ⬇ WHITE BASE
+          </a>
+          <button type="button" onclick="openImageLightbox('${p.underbasePng}', '${p.label} — 100% Solid White Underbase')" class="px-2.5 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 text-[10px]" title="Inspect White Underbase">
+            👁️
+          </button>
+        `;
+      }
+    }
+
+    function exportAllFinalDecals() {
+      const ready = generatedFinalDecals.filter(p => p.cmykPng);
+      if (ready.length === 0) {
+        showToast('Generate your print-ready decals first!', '⚠️');
+        return;
+      }
+      const casting = (document.getElementById("donorCastingInput")?.value || "custom").toLowerCase().replace(/[^a-z0-9]+/g, '_');
+      ready.forEach((p, i) => {
+        setTimeout(() => {
+          const a1 = document.createElement('a');
+          a1.href = p.cmykPng;
+          a1.download = `${casting}_${p.key}_CMYK_transparent.png`;
+          document.body.appendChild(a1);
+          a1.click();
+          document.body.removeChild(a1);
+
+          const a2 = document.createElement('a');
+          a2.href = p.underbasePng;
+          a2.download = `${casting}_${p.key}_WHITE_UNDERBASE.png`;
+          document.body.appendChild(a2);
+          a2.click();
+          document.body.removeChild(a2);
+        }, i * 350);
+      });
+      showToast(`Exporting ${ready.length * 2} print-ready PNG files (CMYK + White Underbase)!`, '📦');
+    }
+
+    // =========================================================================
+    // INDEXEDDB CASTING DESIGN ALBUMS (AUTO-SAVES EVERY 8-PACK, SUB-IDEA & DECAL)
+    // =========================================================================
+    function openAlbumsDB() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open('NeonLlamaCastingAlbumsDB', 1);
+        req.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains('items')) {
+            const store = db.createObjectStore('items', { keyPath: 'id', autoIncrement: true });
+            store.createIndex('casting', 'casting', { unique: false });
+          }
+        };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function saveToCastingAlbum(casting, stage, title, imageData) {
+      if (!imageData) return;
+      try {
+        const db = await openAlbumsDB();
+        const tx = db.transaction('items', 'readwrite');
+        tx.objectStore('items').add({
+          casting: casting || 'Custom Casting',
+          stage: stage || 'Render',
+          title: title || casting,
+          image: imageData,
+          createdAt: new Date().toISOString()
+        });
+        tx.oncomplete = () => updateAlbumsBadge();
+      } catch (e) {
+        console.warn('Album save error:', e);
+      }
+    }
+
+    async function getAllAlbumItems() {
+      try {
+        const db = await openAlbumsDB();
+        return await new Promise((resolve) => {
+          const tx = db.transaction('items', 'readonly');
+          const req = tx.objectStore('items').getAll();
+          req.onsuccess = () => resolve((req.result || []).reverse());
+          req.onerror = () => resolve([]);
+        });
+      } catch (e) {
+        return [];
+      }
+    }
+
+    async function deleteAlbumItem(id) {
+      try {
+        const db = await openAlbumsDB();
+        const tx = db.transaction('items', 'readwrite');
+        tx.objectStore('items').delete(id);
+        tx.oncomplete = () => {
+          updateAlbumsBadge();
+          renderCastingAlbumsGrid();
+        };
+      } catch (e) {
+        console.warn('Delete album item error:', e);
+      }
+    }
+
+    async function updateAlbumsBadge() {
+      const items = await getAllAlbumItems();
+      const badge = document.getElementById('albumsCountBadge');
+      if (badge) badge.innerText = items.length;
+    }
+
+    async function openCastingAlbumsModal() {
+      const modal = document.getElementById('castingAlbumsModal');
+      if (modal) modal.classList.remove('hidden');
+      await renderCastingAlbumsGrid();
+    }
+
+    async function renderCastingAlbumsGrid() {
+      const container = document.getElementById('castingAlbumsContainer');
+      const filterSelect = document.getElementById('albumCastingFilter');
+      if (!container) return;
+
+      const items = await getAllAlbumItems();
+      const castings = [...new Set(items.map(i => i.casting))];
+
+      if (filterSelect) {
+        const prevVal = filterSelect.value || 'ALL';
+        filterSelect.innerHTML = `<option value="ALL">All Castings (${items.length} images)</option>` +
+          castings.map(c => `<option value="${c.replace(/"/g, '&quot;')}">${c}</option>`).join('');
+        if (castings.includes(prevVal)) filterSelect.value = prevVal;
+      }
+
+      const selectedFilter = filterSelect ? filterSelect.value : 'ALL';
+      const filtered = selectedFilter === 'ALL' ? items : items.filter(i => i.casting === selectedFilter);
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="py-14 text-center space-y-2 text-slate-400">
+            <div class="text-4xl">🖼️</div>
+            <div class="font-orbitron font-bold text-sm text-white">NO SAVED DESIGNS IN YOUR ALBUMS YET</div>
+            <p class="text-xs">Every 8-Pack showcase, Sub-Idea, and Print-Ready Decal you generate is automatically saved here by casting!</p>
+          </div>
+        `;
+        return;
+      }
+
+      // Group by casting name
+      const grouped = {};
+      filtered.forEach(item => {
+        if (!grouped[item.casting]) grouped[item.casting] = [];
+        grouped[item.casting].push(item);
+      });
+
+      container.innerHTML = Object.entries(grouped).map(([castingName, groupItems]) => `
+        <div class="space-y-3 bg-slate-950/90 border border-slate-800 rounded-2xl p-4">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+            <h3 class="font-orbitron font-black text-sm text-cyan-300 flex items-center gap-2">
+              <span>🏎️</span> ${castingName.toUpperCase()}
+            </h3>
+            <span class="text-[10px] font-mono text-purple-300 bg-purple-950/70 px-2 py-0.5 rounded border border-purple-500/40">
+              ${groupItems.length} SAVED IMAGE${groupItems.length === 1 ? '' : 'S'}
+            </span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            ${groupItems.map(item => `
+              <div class="bg-black/80 border border-slate-800 hover:border-purple-500/60 rounded-xl p-2.5 space-y-2 transition group">
+                <div class="w-full h-40 rounded-lg bg-slate-900 overflow-hidden flex items-center justify-center relative cursor-zoom-in" onclick="openImageLightbox('${item.image}', '${(item.casting + ' — ' + item.title).replace(/'/g, "\\'")}')">
+                  <img src="${item.image}" alt="${item.title}" class="w-full h-full object-contain group-hover:scale-105 transition">
+                  <span class="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded text-[8px] font-orbitron font-bold bg-black/80 text-pink-300 border border-pink-500/40">${item.stage.toUpperCase()}</span>
+                </div>
+                <div class="flex items-center justify-between gap-1">
+                  <div class="truncate">
+                    <div class="text-[11px] font-bold text-white truncate">${item.title}</div>
+                    <div class="text-[9px] font-mono text-slate-500">${new Date(item.createdAt).toLocaleString()}</div>
+                  </div>
+                  <div class="flex items-center gap-1 shrink-0">
+                    <a href="${item.image}" download="${(item.casting + '_' + item.title).toLowerCase().replace(/[^a-z0-9]+/g, '_')}.png" class="px-2 py-1 rounded bg-emerald-950/80 hover:bg-emerald-800 text-emerald-300 text-[10px] border border-emerald-500/40" title="Download PNG">⬇</a>
+                    <button type="button" onclick="deleteAlbumItem(${item.id})" class="px-2 py-1 rounded bg-red-950/80 hover:bg-red-800 text-red-300 text-[10px] border border-red-500/40" title="Delete">✕</button>
+                  </div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Initialize album count badge on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      updateAlbumsBadge();
+    });
     function backToStarterShowcase() {
       const showcaseView = document.getElementById('ideaStarterShowcaseView');
       const varView = document.getElementById('threeVariationsView');
