@@ -3245,36 +3245,7 @@
             if (y < h - 1) enqueue(x, y + 1);
           }
 
-          // Knock out large pure-white interior cutouts (e.g. enclosed side windows) to 100% transparent so eufyMake NEVER prints white ink on windows!
-          const whiteVisited = new Uint8Array(w * h);
-          const wq = new Int32Array(w * h);
-          const isPureWhite = (p4) => {
-            if (data[p4 + 3] <= 20) return false;
-            const r = data[p4], g = data[p4 + 1], b = data[p4 + 2];
-            const mx = Math.max(r, g, b), mn = Math.min(r, g, b);
-            return mn > 215 && (mx - mn) < 26;
-          };
-          const minWindowPx = Math.max(450, Math.floor(w * h * 0.004));
-          for (let pos = 0; pos < w * h; pos++) {
-            if (!whiteVisited[pos] && isPureWhite(pos * 4)) {
-              let wh = 0, wt = 0;
-              whiteVisited[pos] = 1;
-              wq[wt++] = pos;
-              while (wh < wt) {
-                const cur = wq[wh++];
-                const cx = cur % w, cy = (cur - cx) / w;
-                if (cx > 0 && !whiteVisited[cur - 1] && isPureWhite((cur - 1) * 4)) { whiteVisited[cur - 1] = 1; wq[wt++] = cur - 1; }
-                if (cx < w - 1 && !whiteVisited[cur + 1] && isPureWhite((cur + 1) * 4)) { whiteVisited[cur + 1] = 1; wq[wt++] = cur + 1; }
-                if (cy > 0 && !whiteVisited[cur - w] && isPureWhite((cur - w) * 4)) { whiteVisited[cur - w] = 1; wq[wt++] = cur - w; }
-                if (cy < h - 1 && !whiteVisited[cur + w] && isPureWhite((cur + w) * 4)) { whiteVisited[cur + w] = 1; wq[wt++] = cur + w; }
-              }
-              if (wt >= minWindowPx) {
-                for (let k = 0; k < wt; k++) {
-                  data[wq[k] * 4 + 3] = 0; // Transparent window cutout!
-                }
-              }
-            }
-          }
+          // (Note: Removed destructive interior window knockout loop that was severing decals in half)
 
           // Auto-erase tiny disconnected floating specks / stray captions (e.g. tire text, footer labels < 1.5% of main decal area)
           const compId = new Int32Array(w * h);
@@ -3383,24 +3354,41 @@
     }
 
     function buildPureFlatDecalPrompt(panelKey, panelLabel, casting, winVar, feedback, hasDriverRef = false) {
-      const fbText = feedback ? `USER TWEAK INSTRUCTION: "${feedback}".` : '';
+      const fbText = feedback ? `USER DIRECT TWEAK REQUEST: "${feedback}".` : '';
       let layoutSpec = '';
       if (panelKey === 'side_driver') {
-        layoutSpec = `UNWRAP AND FLATTEN ONLY THE EXACT 2D ARTWORK PAINTED ON THE FLAT SIDE PANEL of the attached vehicle image. Match the EXACT shapes, colors, gradients, icons, and layout — DO NOT invent ANY new text, words, letters, titles, icons, or extra front-fender graphic tails that are NOT painted on the side panel of the attached car! Front edge of the side panel is on the LEFT, rear edge is on the RIGHT. Compact 3:2 landscape composition centered cleanly.`;
+        layoutSpec = `DRIVER SIDE (LEFT) DECAL STICKER:
+- Isolated horizontal 2D livery graphic strip for the DRIVER side.
+- Flow direction: NOSE / FRONT of vehicle is on the LEFT, REAR / TAIL is on the RIGHT.
+- If there is text or logos (like numbers, sponsor names, or words), render text crisp and strictly readable left-to-right.`;
       } else if (panelKey === 'side_passenger') {
-        layoutSpec = `UNWRAP AND FLATTEN ONLY THE EXACT 2D ARTWORK PAINTED ON THE FLAT SIDE PANEL for the PASSENGER (RIGHT) SIDE — STRICTLY MIRRORED HORIZONTALLY compared to the Driver Side! The FRONT nose/fender/cab edge MUST be on the FAR RIGHT and the flat REAR edge MUST be on the FAR LEFT (opposite direction of Driver Side!). Match the EXACT color palette, ink style, and graphics of the attached Driver Side decal. Only if lettering already exists on the car, keep letters legible left-to-right; otherwise mirror the graphic cleanly left-to-right and DO NOT invent any words!`;
+        layoutSpec = `PASSENGER SIDE (RIGHT) DECAL STICKER:
+- Isolated horizontal 2D livery graphic strip for the PASSENGER (RIGHT) side.
+- Flow direction is REVERSED: NOSE / FRONT is on the FAR RIGHT, REAR / TAIL is on the FAR LEFT.
+- CRITICAL TEXT INTEGRITY RULE: Any words, letters, logos, or numbers MUST BE DRAWN FORWARD AND FULLY LEGIBLE READING FROM LEFT TO RIGHT! DO NOT MIRROR OR REVERSE THE LETTERS! Under NO circumstances should text be drawn backwards!`;
       } else if (panelKey === 'roof') {
-        layoutSpec = `UNWRAP AND FLATTEN ONLY THE EXACT 2D ROOF GRAPHIC from the attached vehicle image as a flat top-down rectangular panel decal matching the EXACT color palette and ink style of the attached Driver Side decal. DO NOT invent extra text or titles.`;
+        layoutSpec = `ROOF PANEL DECAL:
+- Isolated top-down rectangular 2D decal artwork that sits directly on top of the vehicle roof.
+- DO NOT draw the car, windshield, windows, or roof pillars. Only the flat graphic pattern / livery design.`;
+      } else if (panelKey === 'hood') {
+        layoutSpec = `HOOD PANEL DECAL:
+- Isolated top-down 2D decal artwork that sits directly on top of the front hood.
+- DO NOT draw headlights, grille, bumper, or car body. Only the flat graphic pattern / livery design.`;
       } else {
-        layoutSpec = `UNWRAP AND FLATTEN ONLY THE EXACT 2D GRAPHIC for the ${panelLabel} matching the EXACT color palette and art style of the attached Driver Side decal. DO NOT invent extra text or titles.`;
+        layoutSpec = `Isolated 2D decal graphic for ${panelLabel}.`;
       }
 
-      return `STRICT 1:1 UNWRAPPED FLAT 2D UV-PRINT DECAL EXTRACTION ONLY for the ${panelLabel}. ${fbText}
+      return `ISOLATED 2D VECTOR DECAL STICKER GRAPHICS ONLY FOR DIECAST PREPRESS (EUFYMAKE UV PRINT). ${fbText}
+Panel: ${panelLabel}.
+Casting: 1:64 scale ${casting}.
 ${layoutSpec}
-ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
-- Extract ONLY the pure flat 2D graphic artwork painted on the panel — NO car body, NO metal, NO paint reflection, NO headlights, NO grille, NO front fender tail, NO door seams, NO wheel wells, NO wheels, NO tires, NO windows, NO 3D shading, NO dark perimeter sticker outline.
-- ABSOLUTELY ZERO TIRE TEXT, ZERO GOODYEAR/BRAND LOGOS, ZERO PRINT-SHEET LABELS, ZERO CAPTIONS, ZERO FOOTER TEXT, ZERO WATERMARKS OR INVENTED WORDS anywhere on the image!
-- Centered with generous clean blank white margin on a 100% SOLID PURE FLAT WHITE (#FFFFFF) background with crisp vector-sharp edges.`;
+
+ABSOLUTE STRICT ZERO-CAR-BODY & ZERO-SILHOUETTE CONSTRAINTS (MANDATORY):
+- DO NOT DRAW ANY VEHICLE! ABSOLUTELY ZERO CAR BODY, ZERO GREEN SHEET METAL, ZERO CAR SILHOUETTES, ZERO 3D SHADING!
+- DO NOT DRAW WHEELS, TIRES, WINDOWS, WINDSHIELDS, LIGHTS, BUMPERS, OR SEAMS!
+- THIS IS NOT A 3D CAR RENDER. THIS IS NOT A FLATTENED UV CAR MESH.
+- Draw ONLY the isolated graphic decals / stickers (illustrations, typography, stripes, flames, sponsor marks) centered on a 100% PURE SOLID WHITE (#FFFFFF) BACKGROUND.
+- Keep edges crisp and vector-sharp so the pure white background can be keyed out to a 100% transparent PNG.`;
     }
 
     async function generatePureFlatDecals() {
@@ -3412,7 +3400,7 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
       const grid = document.getElementById("finalDecalsGrid");
       if (!grid) return;
 
-      // Build list of active print panels from Step 1 toggles (Passenger Side generated natively so text is NEVER backwards!)
+      // Build list of active print panels from Step 1 toggles
       const panels = [
         { key: 'side_driver', label: 'DRIVER SIDE (LEFT)', mode: activePrintZones.side },
         { key: 'side_passenger', label: 'PASSENGER SIDE (RIGHT)', mode: activePrintZones.side }
@@ -3440,7 +3428,7 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
             </div>
             <div id="decalPreview_${p.key}" class="w-full h-52 rounded-xl border border-slate-700 flex flex-col items-center justify-center p-3 text-center space-y-2" style="background-image: linear-gradient(45deg, #1e293b 25%, transparent 25%), linear-gradient(-45deg, #1e293b 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #1e293b 75%), linear-gradient(-45deg, transparent 75%, #1e293b 75%); background-size: 16px 16px; background-position: 0 0, 0 8px, 8px -8px, -8px 0px; background-color: #0f172a;">
               <div class="w-8 h-8 rounded-full border-2 border-emerald-400 border-t-pink-500 animate-spin"></div>
-              <span class="text-[10px] font-mono text-emerald-300">${p.key === 'side_driver' ? 'GENERATING MASTER FLAT DECAL...' : 'WAITING FOR DRIVER SIDE PALETTE LOCK...'}</span>
+              <span class="text-[10px] font-mono text-emerald-300">${p.key === 'side_driver' ? 'GENERATING ISOLATED DRIVER DECAL...' : 'EXTRACTING PANEL ARTWORK...'}</span>
             </div>
           </div>
           <div id="decalActions_${p.key}" class="flex items-center gap-2 text-[10px] font-mono text-slate-500">
@@ -3450,18 +3438,29 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
         grid.appendChild(card);
       });
 
-      // 1. Generate Driver Side FIRST so it locks the exact color palette & art style
+      // 1. Generate Driver Side FIRST (anchored to 3D vehicle concept)
       const driverPanel = generatedFinalDecals.find(x => x.key === 'side_driver');
       if (driverPanel) {
         await renderSingleDecalPanel(driverPanel, casting, winVar, feedback, baseRefs);
       }
 
-      // 2. Pass Driver Side as visual palette/style anchor to Passenger Side + Roof/Hood/Trunk in parallel!
-      const anchoredRefs = [...baseRefs];
-      if (driverPanel && driverPanel.rawImg) anchoredRefs.push(driverPanel.rawImg);
+      // 2. Generate Passenger Side with Driver Side reference to match style, but with strict forward-text rule
+      const passPanel = generatedFinalDecals.find(x => x.key === 'side_passenger');
+      const sideRefs = [...baseRefs];
+      if (driverPanel && driverPanel.rawImg) sideRefs.push(driverPanel.rawImg);
 
-      const remaining = generatedFinalDecals.filter(x => x.key !== 'side_driver');
-      await Promise.all(remaining.map(p => renderSingleDecalPanel(p, casting, winVar, feedback, anchoredRefs)));
+      // 3. Generate Roof & Hood referencing ONLY the original 3D concept car (NEVER driver side decal, preventing identical clone bug!)
+      const topPanels = generatedFinalDecals.filter(x => x.key !== 'side_driver' && x.key !== 'side_passenger');
+
+      const parallelTasks = [];
+      if (passPanel) {
+        parallelTasks.push(renderSingleDecalPanel(passPanel, casting, winVar, feedback, sideRefs));
+      }
+      topPanels.forEach(p => {
+        parallelTasks.push(renderSingleDecalPanel(p, casting, winVar, feedback, baseRefs));
+      });
+
+      await Promise.all(parallelTasks);
       if (typeof nlgSaveCarState === 'function') {
         await nlgSaveCarState({ savedDecals: generatedFinalDecals.filter(d => d && d.cmykPng), steps: { decalsGenerated: true } });
       }
