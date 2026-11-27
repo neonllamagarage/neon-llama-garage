@@ -486,6 +486,86 @@
 
           </div>
 
+          <!-- STOREFRONT & COLLECTOR COPY CARD (GAS MES BRIDGE) -->
+          <div class="p-3.5 rounded-2xl bg-[#0b101d] border border-cyan-500/30 space-y-3 shadow-xl">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+              <div class="flex items-center gap-2">
+                <span class="text-sm">🌐</span>
+                <div>
+                  <h4 class="font-orbitron font-bold text-xs text-cyan-300 uppercase tracking-wider">STOREFRONT & COLLECTOR METADATA</h4>
+                  <p class="text-[9px] text-slate-400">Authentic copy & checkout mapped from Google Sheets / MES</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <button type="button" onclick="nlgDeployBatchToLiveStore(currentActiveBatchId)" class="px-2.5 py-1 rounded bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-black font-orbitron font-black text-[10px] shadow transition active:scale-95 flex items-center gap-1">
+                  <span>🚀</span> DEPLOY
+                </button>
+              </div>
+            </div>
+
+            <!-- SERIES TITLE -->
+            <div>
+              <label class="text-[9px] font-mono text-slate-400 block uppercase mb-1">Collector Series Title</label>
+              <input type="text" id="cockpitSeriesTitle" oninput="saveCurrentBatchSpecs()" placeholder="e.g. Neon Llama Garage '83 Silverado 'Stained Glass'" class="w-full bg-black/70 border border-slate-800 focus:border-cyan-400 rounded-lg p-2 text-white font-orbitron font-bold text-xs outline-none transition" />
+            </div>
+
+            <!-- STRIPE CHECKOUT LINK & 1-CLICK TEST BUTTON -->
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label class="text-[9px] font-mono text-slate-400 uppercase">Stripe Live Checkout Link</label>
+                <span id="cockpitStripeStatusBadge" class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-500/40 font-bold">LINK ACTIVE</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <input type="url" id="cockpitStripeLink" oninput="saveCurrentBatchSpecs()" placeholder="https://buy.stripe.com/..." class="flex-grow bg-black/70 border border-slate-800 focus:border-cyan-400 rounded-lg p-2 text-cyan-300 font-mono text-xs outline-none transition" />
+                <button type="button" id="cockpitBtnTestStripe" onclick="nlgOpenStripeCheckout()" class="px-3 py-2 rounded-lg bg-emerald-950 hover:bg-emerald-800 text-emerald-300 border border-emerald-500/50 font-orbitron font-bold text-[10px] whitespace-nowrap transition active:scale-95" title="Test checkout in new tab">
+                  💳 Open Stripe ↗
+                </button>
+                <button type="button" onclick="nlgCopyStripeLink()" class="px-2.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 font-mono text-xs active:scale-95" title="Copy checkout link">
+                  📋
+                </button>
+              </div>
+            </div>
+
+            <!-- LAUNCH DATE & COUNTDOWN -->
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="text-[9px] font-mono text-slate-400 block uppercase mb-1">Scheduled Drop Date</label>
+                <input type="datetime-local" id="cockpitLaunchDate" onchange="saveCurrentBatchSpecs()" class="w-full bg-black/70 border border-slate-800 focus:border-cyan-400 rounded-lg p-1.5 text-white font-mono text-xs outline-none" />
+              </div>
+              <div>
+                <label class="text-[9px] font-mono text-slate-400 block uppercase mb-1">Drop Countdown Status</label>
+                <div id="cockpitCountdownBadge" class="p-1.5 rounded-lg bg-black/80 border border-slate-800 text-center font-mono font-bold text-xs text-yellow-400">
+                  LIVE NOW
+                </div>
+              </div>
+            </div>
+
+            <!-- COLLECTOR STORY / DESCRIPTION -->
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label class="text-[9px] font-mono text-slate-400 uppercase">Collector Story / Product Description</label>
+                <div class="flex items-center gap-1.5">
+                  <button type="button" onclick="nlgToggleStorySourceView()" id="btnToggleStoryView" class="text-[10px] text-cyan-400 hover:underline">HTML Source 📝</button>
+                  <span class="text-slate-600 text-xs">•</span>
+                  <button type="button" onclick="nlgCopyCollectorStory()" class="text-[10px] text-pink-400 hover:underline">Copy Story 📋</button>
+                </div>
+              </div>
+              <div id="cockpitDescPreview" class="p-2.5 rounded-lg bg-black/80 border border-slate-800 text-slate-300 font-sans text-xs leading-relaxed max-h-36 overflow-y-auto prose prose-invert prose-xs">
+                <!-- Rendered HTML Description -->
+              </div>
+              <textarea id="cockpitDescInput" oninput="nlgUpdateStoryFromInput()" rows="4" class="hidden w-full bg-black/80 border border-slate-800 focus:border-cyan-400 rounded-lg p-2 text-slate-300 font-mono text-xs outline-none mt-1"></textarea>
+            </div>
+
+            <!-- SEO TAGS -->
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label class="text-[9px] font-mono text-slate-400 uppercase">Tags & Keywords</label>
+                <button type="button" onclick="nlgCopyTags()" class="text-[10px] text-cyan-400 hover:underline">Copy Tags 📋</button>
+              </div>
+              <input type="text" id="cockpitTags" oninput="saveCurrentBatchSpecs()" placeholder="Comma-separated SEO tags" class="w-full bg-black/70 border border-slate-800 focus:border-cyan-400 rounded-lg p-1.5 text-slate-400 font-mono text-[11px] outline-none" />
+            </div>
+          </div>
+
         </div>
 
         <!-- RIGHT COLUMN: MASTER PRODUCTION CHECKLIST (7 Cols) -->
@@ -1026,17 +1106,49 @@
         </div>
       </div>
 
-      <!-- DROP CONFIGURATION -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label class="text-[10px] font-mono text-slate-400 block uppercase mb-1">Launch Date & Drop Time (CST)</label>
-          <input type="datetime-local" id="deployLaunchDate" class="w-full bg-black/80 border border-slate-800 focus:border-cyan-400 rounded-lg p-2 text-white font-mono text-xs outline-none" />
-          <span class="text-[10px] text-slate-500 block mt-1">Powers the live T-MINUS countdown clock on the storefront billboard</span>
+      <!-- DROP CONFIGURATION & STOREFRONT METADATA -->
+      <div class="space-y-3 bg-slate-950 p-4 rounded-xl border border-slate-800">
+        <div class="flex items-center justify-between pb-2 border-b border-slate-850">
+          <span class="font-orbitron font-bold text-xs text-cyan-300 uppercase tracking-wider flex items-center gap-1.5">
+            <span>🌐</span> STOREFRONT LISTING & CHECKOUT CONFIG
+          </span>
+          <span class="text-[10px] font-mono text-slate-500">Google Sheets / MES Linked</span>
         </div>
+
         <div>
-          <label class="text-[10px] font-mono text-slate-400 block uppercase mb-1">Stripe Checkout Link (Buy Now)</label>
-          <input type="url" id="deployStripeLink" placeholder="https://buy.stripe.com/..." class="w-full bg-black/80 border border-slate-800 focus:border-cyan-400 rounded-lg p-2 text-cyan-300 font-mono text-xs outline-none" />
-          <span class="text-[10px] text-slate-500 block mt-1">Direct buy link for collectors on neonllamagarage.com</span>
+          <label class="text-[10px] font-mono text-slate-400 block uppercase mb-1">Collector Series Title</label>
+          <input type="text" id="deploySeriesTitle" placeholder="e.g. Neon Llama Garage '83 Silverado 'Stained Glass' Custom 1/64" class="w-full bg-black/80 border border-slate-800 focus:border-cyan-400 rounded-lg p-2 text-white font-orbitron font-bold text-xs outline-none" />
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="text-[10px] font-mono text-slate-400 block uppercase mb-1">Launch Date & Drop Time (CST)</label>
+            <input type="datetime-local" id="deployLaunchDate" class="w-full bg-black/80 border border-slate-800 focus:border-cyan-400 rounded-lg p-2 text-white font-mono text-xs outline-none" />
+            <span class="text-[9px] text-slate-500 block mt-1">Powers the live T-MINUS countdown clock on neonllamagarage.com</span>
+          </div>
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="text-[10px] font-mono text-slate-400 uppercase">Stripe Checkout Link (Buy Now)</label>
+              <button type="button" onclick="nlgTestDeployStripeLink()" class="text-[9px] font-mono text-emerald-400 hover:underline font-bold">Test Stripe ↗</button>
+            </div>
+            <div class="flex items-center gap-1">
+              <input type="url" id="deployStripeLink" placeholder="https://buy.stripe.com/..." class="w-full bg-black/80 border border-slate-800 focus:border-cyan-400 rounded-lg p-2 text-cyan-300 font-mono text-xs outline-none" />
+            </div>
+            <span class="text-[9px] text-slate-500 block mt-1">Direct buy link for collectors on neonllamagarage.com</span>
+          </div>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="text-[10px] font-mono text-slate-400 uppercase">Product Description / Collector Story</label>
+            <button type="button" onclick="copyText(document.getElementById('deployDescription').value)" class="text-[9px] text-cyan-400 hover:underline">Copy Story 📋</button>
+          </div>
+          <textarea id="deployDescription" rows="3" placeholder="Enter product description and storytelling copy for this drop..." class="w-full bg-black/80 border border-slate-800 focus:border-cyan-400 rounded-lg p-2 text-slate-300 font-sans text-xs leading-relaxed outline-none"></textarea>
+        </div>
+
+        <div>
+          <label class="text-[10px] font-mono text-slate-400 block uppercase mb-1">SEO & Social Tags</label>
+          <input type="text" id="deployTags" placeholder="custom diecast, hot wheels custom, real riders, limited edition..." class="w-full bg-black/80 border border-slate-800 focus:border-cyan-400 rounded-lg p-2 text-slate-400 font-mono text-xs outline-none" />
         </div>
       </div>
 
@@ -1638,304 +1750,528 @@
 
     // DEFAULT FLEET DATABASE
     const defaultBatches = [
-      // ROW 1: ACTIVE DROPS
       {
-        id: 'D-001',
-        theme: 'Stained Glass',
-        model: "'83 Silverado",
-        color: 'Deep Cathedral Purple',
-        status: 'Live / Ready',
-        section: 'active',
-        currentStep: 8,
-        progress: 100,
-        price: 50.00,
-        qty: '9 In Stock',
-        carCost: 1.50,
-        whlCost: 3.00,
-        ovhCost: 2.00,
-        hero: 'https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_LOOSE_SINGLE.jpg',
-        images: [
-          'https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_OTHER_PXL_20260708_001631566.jpg',
-          'https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_OTHER_PXL_20260708_010622199.jpg',
-          'https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_CHASE_P_PXL_20260708_001440542.jpg',
-          'https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_CHASE_P_PXL_20260708_010452254.jpg',
-          'https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_CHASE_P_PXL_20260708_010614929.jpg',
-          'https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_PKG_F_Stained_Glass_83_Silverado_1788780176579.jpg',
-          'https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_GROUP_PXL_20260708_010437684.jpg',
-          'https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_SET_L_PXL_20260708_001545268.jpg',
-          'https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_SET_P_PXL_20260708_010606013.jpg',
-          'https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_CHASE_L_PXL_20260701_215849992.jpg',
-          'https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_LOOSE_PXL_20260628_190929312.jpg'
-        ],
-        completedSteps: [1, 2, 3, 4, 5, 6, 7, 8]
+            "id": "D-001",
+            "theme": "Stained Glass",
+            "model": "'83 Silverado",
+            "color": "Deep Cathedral Purple",
+            "status": "Live / Ready",
+            "section": "active",
+            "currentStep": 8,
+            "progress": 100,
+            "price": 50.0,
+            "qty": "9 In Stock",
+            "plannedTotal": 10,
+            "plannedChase": 1,
+            "launchDate": "2026-09-12T00:00:00.000Z",
+            "stripeLink": "https://buy.stripe.com/7sY5kDb7IgVk4jr5Gn1VK00",
+            "title": "Neon Llama Garage '83 Silverado 'Stained Glass' Custom 1/64",
+            "desc": "<p>Welcome to the pinnacle of 1/64 scale artistry. Handcrafted in our dual Utah and Texas workshops, the Neon Llama Garage '83 Silverado 'Stained Glass' edition is a high-end custom masterpiece designed for the serious collector. Featuring a deep, translucent purple finish that mimics the breathtaking beauty of cathedral glass, this premium build is fitted with real rubber Real Rider wheels and housed in our signature custom vaporwave-inspired packaging.</p><p>This is an ultra-limited run of only 10 individually numbered units. True to our custom studio roots, each purchase carries a 1 in 10 chance of pulling the highly coveted Chase variant. Elevate your collection with a piece of father-son craftsmanship that blurs the line between diecast and fine art.</p>",
+            "tags": "Neon Llama Garage, custom diecast, 83 Silverado, stained glass, 1 64 scale, hot wheels custom, real riders, vaporwave aesthetic, limited edition diecast, custom toy truck",
+            "carCost": 1.5,
+            "whlCost": 3.0,
+            "ovhCost": 2.0,
+            "hero": "https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_LOOSE_SINGLE.jpg",
+            "images": [
+                  "https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_OTHER_PXL_20260708_001631566.jpg",
+                  "https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_OTHER_PXL_20260708_010622199.jpg",
+                  "https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_CHASE_P_PXL_20260708_001440542.jpg",
+                  "https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_CHASE_P_PXL_20260708_010452254.jpg",
+                  "https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_CHASE_P_PXL_20260708_010614929.jpg",
+                  "https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_PKG_F_Stained_Glass_83_Silverado_1788780176579.jpg",
+                  "https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_GROUP_PXL_20260708_010437684.jpg",
+                  "https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_SET_L_PXL_20260708_001545268.jpg",
+                  "https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_SET_P_PXL_20260708_010606013.jpg",
+                  "https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_CHASE_L_PXL_20260701_215849992.jpg",
+                  "https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_LOOSE_PXL_20260628_190929312.jpg"
+            ],
+            "completedSteps": [
+                  1,
+                  2,
+                  3,
+                  4,
+                  5,
+                  6,
+                  7,
+                  8
+            ]
       },
       {
-        id: 'D-002',
-        theme: 'Stained Glass',
-        model: "'55 Gasser",
-        color: 'Deep Cathedral Purple',
-        status: 'Live / Ready',
-        section: 'active',
-        currentStep: 8,
-        progress: 100,
-        price: 50.00,
-        qty: '8 In Stock',
-        carCost: 1.50,
-        whlCost: 3.00,
-        ovhCost: 2.00,
-        hero: 'https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_LOOSE_PXL_20260816_104313748.jpg',
-        images: [
-          'https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_PKG_R_Stained_Glass_55_Gasser_1791031506000.jpg',
-          'https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_TOP_Stained_Glass_55_Gasser_PXL_20260917_192357122.jpg',
-          'https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_DCL_CU_Stained_Glass_55_Gasser_PXL_20260917_192335629.jpg',
-          'https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_PKG_GRP_Stained_Glass_55_Gasser_PXL_20260917_192056620.jpg',
-          'https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_PKG_CU_Stained_Glass_55_Gasser_PXL_20260917_192252408.jpg',
-          'https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_PKG_F_Stained_Glass_55_Gasser_PXL_20260917_191845947.jpg',
-          'https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_CHASE_P_Stained_Glass_55_Gasser_PXL_20260917_191937365.jpg',
-          'https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_OTHER_PXL_20260823_163126583.jpg',
-          'https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_OTHER_PXL_20260823_163106178.jpg',
-          'https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_PKG_WHT_PXL_20260823_162940269.jpg',
-          'https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_OTHER_PXL_20260823_162820856.jpg',
-          'https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_OTHER_PXL_20260823_162945176.jpg',
-          'https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_GROUP_PXL_20260823_163103470.jpg',
-          'https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_CHASE_L_PXL_20260816_104326413.jpg',
-          'https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_LOOSE_PXL_20260816_104313748.jpg',
-          'https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_CHASE_P_PXL_20260823_162812683.jpg',
-          'https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_SET_P_PXL_20260823_162930668.jpg'
-        ],
-        completedSteps: [1, 2, 3, 4, 5, 6, 7, 8]
+            "id": "D-002",
+            "theme": "Stained Glass",
+            "model": "'55 Gasser",
+            "color": "Deep Cathedral Purple",
+            "status": "Live / Ready",
+            "section": "active",
+            "currentStep": 8,
+            "progress": 100,
+            "price": 50.0,
+            "qty": "8 In Stock",
+            "plannedTotal": 8,
+            "plannedChase": 1,
+            "launchDate": "2026-10-10T00:00:00.000Z",
+            "stripeLink": "https://buy.stripe.com/28E8wPgs2awW5nvd8P1VK02",
+            "title": "Neon Llama Garage: 'Stained Glass Gasser' - Purple 55 Gasser 1/64 Diecast",
+            "desc": "<p>Prepare for a transcendent experience with the latest masterpiece from Neon Llama Garage: the 'Stained Glass Gasser'. Crafted with meticulous care in our dual workshops spanning Utah and Texas, this custom 1/64 diecast car redefines artistry on four wheels.</p><p>Featuring an ethereal, translucent stained glass purple finish that plays with light like a cathedral window, this '55 Gasser commands attention from every angle. It's grounded with authentic rubber Real Rider wheels and housed in our exclusive, handcrafted vaporwave-inspired packaging. Hand-built by a father-son duo dedicated to precision and passion, this piece blurs the line between high-octane racing heritage and fine collectible art.</p><p>Strictly limited to a micro-production run of just 8 pieces worldwide, each piece comes with an elusive 1 in 8 chance of unwrapping a rare Chase variant. Own a piece of diecast history before it vanishes.</p>",
+            "tags": "Neon Llama Garage, 1/64 diecast, custom hot wheels, 55 Gasser, stained glass, purple car, limited edition, chase car, real rider, custom packaging, Hot Wheels",
+            "carCost": 1.5,
+            "whlCost": 3.0,
+            "ovhCost": 2.0,
+            "hero": "https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_LOOSE_PXL_20260816_104313748.jpg",
+            "images": [
+                  "https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_PKG_R_Stained_Glass_55_Gasser_1791031506000.jpg",
+                  "https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_TOP_Stained_Glass_55_Gasser_PXL_20260917_192357122.jpg",
+                  "https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_DCL_CU_Stained_Glass_55_Gasser_PXL_20260917_192335629.jpg",
+                  "https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_PKG_GRP_Stained_Glass_55_Gasser_PXL_20260917_192056620.jpg",
+                  "https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_PKG_CU_Stained_Glass_55_Gasser_PXL_20260917_192252408.jpg",
+                  "https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_PKG_F_Stained_Glass_55_Gasser_PXL_20260917_191845947.jpg",
+                  "https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_CHASE_P_Stained_Glass_55_Gasser_PXL_20260917_191937365.jpg",
+                  "https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_OTHER_PXL_20260823_163126583.jpg",
+                  "https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_OTHER_PXL_20260823_163106178.jpg",
+                  "https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_PKG_WHT_PXL_20260823_162940269.jpg",
+                  "https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_OTHER_PXL_20260823_162820856.jpg",
+                  "https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_OTHER_PXL_20260823_162945176.jpg",
+                  "https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_GROUP_PXL_20260823_163103470.jpg",
+                  "https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_CHASE_L_PXL_20260816_104326413.jpg",
+                  "https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_LOOSE_PXL_20260816_104313748.jpg",
+                  "https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_CHASE_P_PXL_20260823_162812683.jpg",
+                  "https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_SET_P_PXL_20260823_162930668.jpg"
+            ],
+            "completedSteps": [
+                  1,
+                  2,
+                  3,
+                  4,
+                  5,
+                  6,
+                  7,
+                  8
+            ]
       },
       {
-        id: 'B-010',
-        theme: 'Ice Spider',
-        model: "'14 Camaro",
-        color: 'Silver / Purple',
-        status: 'Live / Ready',
-        section: 'active',
-        currentStep: 8,
-        progress: 100,
-        price: 50.00,
-        qty: '8 In Stock',
-        carCost: 1.50,
-        whlCost: 3.00,
-        ovhCost: 2.00,
-        hero: 'https://media.neonllamagarage.com/Ice_Spider_14_Camaro__IMG_PKG_WHT__PXL_20260816_104255638.jpg',
-        images: [
-          'https://media.neonllamagarage.com/Ice_Spider_14_Camaro__IMG_PKG_WHT__PXL_20260816_104255638.jpg',
-          'https://media.neonllamagarage.com/Ice_Spider_14_Camaro__IMG_OTHER__PXL_20260823_162659039.jpg',
-          'https://media.neonllamagarage.com/Ice_Spider_14_Camaro__IMG_OTHER__PXL_20260823_162711292.jpg',
-          'https://media.neonllamagarage.com/Ice_Spider_14_Camaro__IMG_OTHER__PXL_20260823_162718133.jpg',
-          'https://media.neonllamagarage.com/Ice_Spider_14_Camaro__IMG_PKG_R__PXL_20260823_162217462.jpg',
-          'https://media.neonllamagarage.com/Ice_Spider_14_Camaro__IMG_SET_P__PXL_20260823_162628078.jpg',
-          'https://media.neonllamagarage.com/Ice_Spider_14_Camaro__IMG_CHASE_L__PXL_20260816_104303691.jpg',
-          'https://media.neonllamagarage.com/Ice_Spider_14_Camaro__IMG_PKG_F__PXL_20260823_162642780.jpg',
-          'https://media.neonllamagarage.com/Ice_Spider_14_Camaro__IMG_GROUP__PXL_20260823_162550935.jpg',
-          'https://media.neonllamagarage.com/Ice_Spider_14_Camaro__IMG_CHASE_P__PXL_20260823_162616296.jpg'
-        ],
-        completedSteps: [1, 2, 3, 4, 5, 6, 7, 8]
-      },
-
-      // ROW 2: WORK IN PROGRESS (WIP) -> Closest to sell on furthest left!
-      {
-        id: 'B-011',
-        theme: 'Pixel Glitch',
-        model: "'67 Chevy Camaro",
-        color: 'Acid Green Body • Black Livery',
-        status: 'Stage 3: Decals Design',
-        section: 'wip',
-        currentStep: 3,
-        progress: 60,
-        price: 50.00,
-        qty: '8 Reg • 1 Chase',
-        carCost: 1.50,
-        whlCost: 3.00,
-        ovhCost: 2.00,
-        hero: 'assets/camaro_pixel_glitch_hero.png',
-        subIdeas: [
-          { title: 'Pixel Glitch Livery (Hero Spec)', img: 'assets/camaro_pixel_glitch_hero.png' },
-          { title: 'Acid Glitch Livery', img: 'assets/camaro_acid_splash.png' },
-          { title: "'67 Chevy Camaro 8-Car Showcase", img: 'assets/showcase_camaro_green.jpg' },
-          { title: 'Dual Angle Concept View', img: 'assets/camaro_dual_view.jpg' },
-          { title: 'Cyberpunk Neon Livery', img: 'assets/camaro_cyberpunk_neon.png' },
-          { title: 'Tokyo Midnight Livery', img: 'assets/camaro_tokyo_midnight.png' },
-          { title: 'Track Day 13 Livery', img: 'assets/camaro_track_day_13.png' },
-          { title: 'Retro Horizon Livery', img: 'assets/camaro_retro_horizon.png' },
-          { title: 'Ghost Pearl Custom', img: 'assets/camaro_ghost_pearl.png' },
-          { title: 'Vintage Scallops Hot Rod', img: 'assets/camaro_vintage_scallops.png' },
-          { title: 'Raw Zamac Stealth Spec', img: 'assets/camaro_raw_stealth.png' }
-        ],
-        completedSteps: [1, 2]
+            "id": "B-010",
+            "theme": "Ice Spider",
+            "model": "'14 Camaro",
+            "color": "Silver / Purple",
+            "status": "Live / Ready",
+            "section": "active",
+            "currentStep": 8,
+            "progress": 100,
+            "price": 50.0,
+            "qty": "8 In Stock",
+            "plannedTotal": 8,
+            "plannedChase": 1,
+            "launchDate": "2026-10-17T00:00:00.000Z",
+            "stripeLink": "https://buy.stripe.com/6oU6oH6Rs6gG17f4Cj1VK03",
+            "title": "Pike's 13 Garage Custom '14 Camaro \"Ice Spider\" - Limited Edition Real Riders Diecast",
+            "desc": "<p>Unleash the chill with the <strong>\"Ice Spider\" '14 Camaro</strong>, a premium custom diecast masterpiece from the father-and-son team at Pike's 13 Garage (Utah/Texas). Featuring a striking silver and purple neon/retro aesthetic, this build is mounted on a custom-designed cardback and upgraded with premium Real Rider rubber wheels.</p><p><strong>Extremely Limited:</strong> Only 8 pieces exist worldwide. Every order has a 1 in 8 chance of pulling the ultra-rare Chase variant!</p><ul><li>Model: 2014 Chevrolet Camaro</li><li>Theme: Ice Spider (Silver with Purple accents)</li><li>Wheels: Real Rider rubber wheel swap</li><li>Packaging: Custom retro-style cardback</li><li>Run Size: Strictly limited to 8 units (1:8 Chase Chance)</li></ul>",
+            "tags": "customdiecast, hotwheels, 14camaro, realriders, pikes13garage, diecastcollector, customhotwheels, retroaesthetic, chasetoy, limitededition",
+            "carCost": 1.5,
+            "whlCost": 3.0,
+            "ovhCost": 2.0,
+            "hero": "https://media.neonllamagarage.com/Ice_Spider_14_Camaro__IMG_PKG_WHT__PXL_20260816_104255638.jpg",
+            "images": [
+                  "https://media.neonllamagarage.com/Ice_Spider_14_Camaro__IMG_PKG_WHT__PXL_20260816_104255638.jpg",
+                  "https://media.neonllamagarage.com/Ice_Spider_14_Camaro__IMG_OTHER__PXL_20260823_162659039.jpg",
+                  "https://media.neonllamagarage.com/Ice_Spider_14_Camaro__IMG_OTHER__PXL_20260823_162711292.jpg",
+                  "https://media.neonllamagarage.com/Ice_Spider_14_Camaro__IMG_OTHER__PXL_20260823_162718133.jpg",
+                  "https://media.neonllamagarage.com/Ice_Spider_14_Camaro__IMG_PKG_R__PXL_20260823_162217462.jpg",
+                  "https://media.neonllamagarage.com/Ice_Spider_14_Camaro__IMG_SET_P__PXL_20260823_162628078.jpg",
+                  "https://media.neonllamagarage.com/Ice_Spider_14_Camaro__IMG_CHASE_L__PXL_20260816_104303691.jpg",
+                  "https://media.neonllamagarage.com/Ice_Spider_14_Camaro__IMG_PKG_F__PXL_20260823_162642780.jpg",
+                  "https://media.neonllamagarage.com/Ice_Spider_14_Camaro__IMG_GROUP__PXL_20260823_162550935.jpg",
+                  "https://media.neonllamagarage.com/Ice_Spider_14_Camaro__IMG_CHASE_P__PXL_20260823_162616296.jpg"
+            ],
+            "completedSteps": [
+                  1,
+                  2,
+                  3,
+                  4,
+                  5,
+                  6,
+                  7,
+                  8
+            ]
       },
       {
-        id: 'B-018',
-        theme: 'Neon Freeze',
-        model: 'Dairy Delivery',
-        color: 'Gloss White Body • Metallic Purple Wheels',
-        status: 'Stage 3: Decals & Glory Shot',
-        section: 'wip',
-        currentStep: 3,
-        progress: 50,
-        price: 50.00,
-        qty: '8 Reg • 0 Chase',
-        carCost: 1.50,
-        whlCost: 3.00,
-        ovhCost: 2.00,
-        hero: 'assets/neon_freeze_ice_cream_hero.png',
-        donorPhoto: 'assets/dairy_donor_side_cutout.png',
-        heroPhotoDataUrl: 'assets/neon_freeze_ice_cream_hero.png',
-        cardArtDataUrl: 'assets/neon_freeze_card_bg_art_1795718086574.jpg',
-        wordmarkDataUrl: 'assets/neon_freeze_title_logo_clean.png',
-        subIdeas: [
-          { title: 'Neon Freeze Ice Cream Truck', img: 'assets/neon_freeze_ice_cream_hero.png' },
-          { title: 'Ice Cream Dairy Donor', img: 'assets/dairy_donor_side_cutout.png' },
-          { title: 'Cyber Ice Cream Track', img: 'assets/sub_idea_dairy_track.jpg' },
-          { title: 'Neon Drip Tuner', img: 'assets/sub_idea_dairy_tuner.jpg' },
-          { title: '8-Pack Acrylic Showcase', img: 'assets/showcase_8_dairy_purple.jpg' }
-        ],
-        savedDecals: [
-          { key: 'side_driver', label: 'DRIVER SIDE (LEFT)', mode: 'direct', cmykPng: 'assets/Side_Driver_CMYK.png', underbasePng: 'assets/Side_Driver_White_Underbase.png' },
-          { key: 'side_passenger', label: 'PASSENGER SIDE (RIGHT)', mode: 'direct', cmykPng: 'assets/Side_Passenger_CMYK.png', underbasePng: 'assets/Side_Passenger_White_Underbase.png' },
-          { key: 'roof', label: 'ROOF PANEL (TOP-DOWN)', mode: 'direct', cmykPng: 'assets/Roof_CMYK.png', underbasePng: 'assets/Roof_White_Underbase.png' },
-          { key: 'driver_clean', label: 'DRIVER CLEAN VECTOR', mode: 'direct', cmykPng: 'assets/neon_freeze_driver_decal_clean_1795718334556.jpg', underbasePng: null }
-        ],
-        completedSteps: [1, 2]
+            "id": "B-011",
+            "theme": "Pixel Glitch",
+            "model": "'67 Chevy Camaro",
+            "color": "Acid Green Body \u2022 Black Livery",
+            "status": "Stage 3: Decals Design",
+            "section": "wip",
+            "currentStep": 3,
+            "progress": 60,
+            "price": 50.0,
+            "qty": "8 Reg \u2022 1 Chase",
+            "plannedTotal": 9,
+            "plannedChase": 1,
+            "title": "Neon Llama Garage '67 Chevy Camaro \"Pixel Glitch\" Custom 1/64",
+            "desc": "<p>Step into the retro-futuristic grid with the <strong>\"Pixel Glitch\" '67 Chevy Camaro</strong>, handcrafted by the father-son team at Neon Llama Garage. Featuring an Acid Green metallic body with high-contrast digitized glitch livery, real rubber Real Rider wheels, and bespoke vaporwave blister packaging.</p><p>Strictly limited to 8 Regular units and 1 Chase variant. Handcrafted in our UT/TX workshops.</p>",
+            "tags": "Neon Llama Garage, custom diecast, 67 Camaro, pixel glitch, 1 64 scale, hot wheels custom, real riders, vaporwave aesthetic, limited edition diecast",
+            "stripeLink": "",
+            "carCost": 1.5,
+            "whlCost": 3.0,
+            "ovhCost": 2.0,
+            "hero": "assets/camaro_pixel_glitch_hero.png",
+            "subIdeas": [
+                  {
+                        "title": "Pixel Glitch Livery (Hero Spec)",
+                        "img": "assets/camaro_pixel_glitch_hero.png"
+                  },
+                  {
+                        "title": "Acid Glitch Livery",
+                        "img": "assets/camaro_acid_splash.png"
+                  },
+                  {
+                        "title": "'67 Chevy Camaro 8-Car Showcase",
+                        "img": "assets/showcase_camaro_green.jpg"
+                  },
+                  {
+                        "title": "Dual Angle Concept View",
+                        "img": "assets/camaro_dual_view.jpg"
+                  },
+                  {
+                        "title": "Cyberpunk Neon Livery",
+                        "img": "assets/camaro_cyberpunk_neon.png"
+                  },
+                  {
+                        "title": "Tokyo Midnight Livery",
+                        "img": "assets/camaro_tokyo_midnight.png"
+                  },
+                  {
+                        "title": "Track Day 13 Livery",
+                        "img": "assets/camaro_track_day_13.png"
+                  },
+                  {
+                        "title": "Retro Horizon Livery",
+                        "img": "assets/camaro_retro_horizon.png"
+                  },
+                  {
+                        "title": "Ghost Pearl Custom",
+                        "img": "assets/camaro_ghost_pearl.png"
+                  },
+                  {
+                        "title": "Vintage Scallops Hot Rod",
+                        "img": "assets/camaro_vintage_scallops.png"
+                  },
+                  {
+                        "title": "Raw Zamac Stealth Spec",
+                        "img": "assets/camaro_raw_stealth.png"
+                  }
+            ],
+            "completedSteps": [
+                  1,
+                  2
+            ]
       },
       {
-        id: 'B-006',
-        theme: 'Acid Llama',
-        model: 'Porsche 935',
-        color: 'Hot Pink & Cyan',
-        status: 'Stage 4: Clear Coat & Assembly',
-        section: 'wip',
-        currentStep: 5,
-        progress: 75,
-        price: 60.00,
-        qty: '10 Reg • 1 Chase',
-        carCost: 2.00,
-        whlCost: 3.50,
-        ovhCost: 2.00,
-        hero: 'assets/acid_llama_935.png',
-        heroPhoto: 'assets/acid_llama_935.png',
-        heroPhotoDataUrl: 'assets/acid_llama_935.png',
-        images: ['assets/acid_llama_935.png'],
-        subIdeas: [
-          { title: 'Acid Llama Finished Prototype', img: 'assets/acid_llama_935.png' },
-          { title: 'Purple Haze Acid Splatter', img: 'assets/showcase_purple_haze.png' },
-          { title: 'Acid Splatter Livery Concept', img: 'assets/camaro_acid_splash.png' }
-        ],
-        completedSteps: [1, 2, 3, 4]
+            "id": "B-018",
+            "theme": "Neon Freeze",
+            "model": "Dairy Delivery",
+            "color": "Gloss White Body \u2022 Metallic Purple Wheels",
+            "status": "Stage 3: Decals & Glory Shot",
+            "section": "wip",
+            "currentStep": 3,
+            "progress": 50,
+            "price": 50.0,
+            "qty": "8 Reg \u2022 0 Chase",
+            "plannedTotal": 8,
+            "plannedChase": 0,
+            "title": "Neon Llama Garage \"Neon Freeze\" Ice Cream Dairy Delivery Custom 1/64",
+            "desc": "<p>Serve up pure chilled vaporwave nostalgia with the <strong>\"Neon Freeze\" Dairy Delivery</strong>, handcrafted by Neon Llama Garage. Drenched in a crisp gloss white body with metallic purple Real Rider wheels and frozen vaporwave dripped livery, this custom ice cream truck is an instant grail for 1/64 collectors.</p><p>Ultra-limited run of 8 individually numbered pieces. Complete with custom blister card packaging and father-son craftsmanship from Utah and Texas.</p>",
+            "tags": "Neon Llama Garage, custom diecast, Dairy Delivery, neon freeze, ice cream truck, 1 64 scale, hot wheels custom, real riders, vaporwave aesthetic",
+            "stripeLink": "",
+            "carCost": 1.5,
+            "whlCost": 3.0,
+            "ovhCost": 2.0,
+            "hero": "assets/neon_freeze_ice_cream_hero.png",
+            "donorPhoto": "assets/dairy_donor_side_cutout.png",
+            "heroPhotoDataUrl": "assets/neon_freeze_ice_cream_hero.png",
+            "cardArtDataUrl": "assets/neon_freeze_card_bg_art_1795718086574.jpg",
+            "wordmarkDataUrl": "assets/neon_freeze_title_logo_clean.png",
+            "subIdeas": [
+                  {
+                        "title": "Neon Freeze Ice Cream Truck",
+                        "img": "assets/neon_freeze_ice_cream_hero.png"
+                  },
+                  {
+                        "title": "Ice Cream Dairy Donor",
+                        "img": "assets/dairy_donor_side_cutout.png"
+                  },
+                  {
+                        "title": "Cyber Ice Cream Track",
+                        "img": "assets/sub_idea_dairy_track.jpg"
+                  },
+                  {
+                        "title": "Neon Drip Tuner",
+                        "img": "assets/sub_idea_dairy_tuner.jpg"
+                  },
+                  {
+                        "title": "8-Pack Acrylic Showcase",
+                        "img": "assets/showcase_8_dairy_purple.jpg"
+                  }
+            ],
+            "savedDecals": [
+                  {
+                        "key": "side_driver",
+                        "label": "DRIVER SIDE (LEFT)",
+                        "mode": "direct",
+                        "cmykPng": "assets/Side_Driver_CMYK.png",
+                        "underbasePng": "assets/Side_Driver_White_Underbase.png"
+                  },
+                  {
+                        "key": "side_passenger",
+                        "label": "PASSENGER SIDE (RIGHT)",
+                        "mode": "direct",
+                        "cmykPng": "assets/Side_Passenger_CMYK.png",
+                        "underbasePng": "assets/Side_Passenger_White_Underbase.png"
+                  },
+                  {
+                        "key": "roof",
+                        "label": "ROOF PANEL (TOP-DOWN)",
+                        "mode": "direct",
+                        "cmykPng": "assets/Roof_CMYK.png",
+                        "underbasePng": "assets/Roof_White_Underbase.png"
+                  },
+                  {
+                        "key": "driver_clean",
+                        "label": "DRIVER CLEAN VECTOR",
+                        "mode": "direct",
+                        "cmykPng": "assets/neon_freeze_driver_decal_clean_1795718334556.jpg",
+                        "underbasePng": null
+                  }
+            ],
+            "completedSteps": [
+                  1,
+                  2
+            ]
       },
       {
-        id: 'B-020',
-        theme: 'Rubix Cube',
-        model: 'Nissan Silvia S15',
-        color: 'Alpine White',
-        status: 'Stage 5: Packaging',
-        section: 'wip',
-        currentStep: 7,
-        progress: 85,
-        price: 50.00,
-        qty: '10 Reg • 0 Chase',
-        carCost: 1.50,
-        whlCost: 3.00,
-        ovhCost: 2.00,
-        hero: 'assets/rubix_cube_silvia.png',
-        completedSteps: [1, 2, 3, 4, 5, 6]
+            "id": "B-006",
+            "theme": "Acid Llama",
+            "model": "Porsche 935",
+            "color": "Hot Pink & Cyan",
+            "status": "Stage 4: Clear Coat & Assembly",
+            "section": "wip",
+            "currentStep": 5,
+            "progress": 75,
+            "price": 60.0,
+            "qty": "10 Reg \u2022 1 Chase",
+            "plannedTotal": 11,
+            "plannedChase": 1,
+            "title": "Neon Llama Garage \"Acid Llama\" Porsche 935 Custom 1/64",
+            "desc": "<p>The legendary Porsche 935 silhouette meets raw Neon Llama studio energy in the <strong>\"Acid Llama\" Edition</strong>. Sporting an aggressive Hot Pink and Cyan livery with splatter accents, aerodynamic racing aerodynamics, and authentic Real Rider rubber racing slicks.</p><p>Limited run of 10 Regular units plus 1 ultra-rare Chase variant. Designed and hand-assembled in our UT/TX workshops.</p>",
+            "tags": "Neon Llama Garage, custom diecast, Porsche 935, acid llama, 1 64 scale, hot wheels custom, real riders, race car, limited edition diecast",
+            "stripeLink": "",
+            "carCost": 2.0,
+            "whlCost": 3.5,
+            "ovhCost": 2.0,
+            "hero": "assets/acid_llama_935.png",
+            "heroPhoto": "assets/acid_llama_935.png",
+            "heroPhotoDataUrl": "assets/acid_llama_935.png",
+            "images": [
+                  "assets/acid_llama_935.png"
+            ],
+            "subIdeas": [
+                  {
+                        "title": "Acid Llama Finished Prototype",
+                        "img": "assets/acid_llama_935.png"
+                  },
+                  {
+                        "title": "Purple Haze Acid Splatter",
+                        "img": "assets/showcase_purple_haze.png"
+                  },
+                  {
+                        "title": "Acid Splatter Livery Concept",
+                        "img": "assets/camaro_acid_splash.png"
+                  }
+            ],
+            "completedSteps": [
+                  1,
+                  2,
+                  3,
+                  4
+            ]
       },
       {
-        id: 'B-015',
-        theme: 'Acid Bone',
-        model: "'82 Nissan Skyline",
-        color: 'Vibrant Blue',
-        status: 'Stage 4: Clear Coat & Assembly',
-        section: 'wip',
-        currentStep: 5,
-        progress: 70,
-        price: 50.00,
-        qty: '10 Reg • 0 Chase',
-        carCost: 1.50,
-        whlCost: 3.00,
-        ovhCost: 2.00,
-        hero: 'assets/acid_bone_skyline.png',
-        completedSteps: [1, 2, 3, 4]
+            "id": "B-020",
+            "theme": "Rubix Cube",
+            "model": "Nissan Silvia S15",
+            "color": "Alpine White",
+            "status": "Stage 5: Packaging",
+            "section": "wip",
+            "currentStep": 7,
+            "progress": 85,
+            "price": 50.0,
+            "qty": "10 Reg \u2022 0 Chase",
+            "plannedTotal": 10,
+            "plannedChase": 0,
+            "title": "Neon Llama Garage \"Rubix Cube\" Nissan Silvia S15 Custom 1/64",
+            "desc": "<p>Retro geometric styling meets JDM drift royalty with the <strong>\"Rubix Cube\" Silvia S15</strong>. Handcrafted with precision Real Rider rubber wheels and exclusive numbered blister card.</p>",
+            "tags": "Neon Llama Garage, custom diecast, Nissan Silvia S15, Rubix Cube, 1 64 scale, hot wheels custom",
+            "stripeLink": "",
+            "carCost": 1.5,
+            "whlCost": 3.0,
+            "ovhCost": 2.0,
+            "hero": "assets/rubix_cube_silvia.png",
+            "completedSteps": [
+                  1,
+                  2,
+                  3,
+                  4,
+                  5,
+                  6
+            ]
       },
       {
-        id: 'B-003',
-        theme: 'Iron Talon',
-        model: "'62 Chevy Truck",
-        color: 'Liquid Silver',
-        status: 'Stage 4: Clear Coat & Assembly',
-        section: 'wip',
-        currentStep: 5,
-        progress: 70,
-        price: 50.00,
-        qty: '8 Reg • 0 Chase',
-        carCost: 1.50,
-        whlCost: 3.00,
-        ovhCost: 2.00,
-        hero: 'assets/iron_talon_62_chevy.png',
-        completedSteps: [1, 2, 3, 4]
-      },
-
-      // ROW 4: THE VAULT (SOLD OUT & ARCHIVED)
-      {
-        id: 'B-024',
-        theme: 'Marbelized',
-        model: 'VW Bug',
-        color: 'Swirled Purple',
-        status: 'Sold Out (10/10)',
-        section: 'vault',
-        currentStep: 8,
-        progress: 100,
-        price: 50.00,
-        qty: '0 Available (Vaulted)',
-        carCost: 1.50,
-        whlCost: 3.00,
-        ovhCost: 2.00,
-        hero: 'https://media.neonllamagarage.com/Marbelized_VW_Bug_IMG_LOOSE_Marbelized_VW_Bug_1788826027622.jpg',
-        images: [
-          'https://media.neonllamagarage.com/Marbelized_VW_Bug_IMG_TOP_Marbelized_VW_Bug_1788828140185.jpg',
-          'https://media.neonllamagarage.com/Marbelized_VW_Bug_IMG_PKG_WHT_Marbelized_VW_Bug_1788828095532.jpg',
-          'https://media.neonllamagarage.com/Marbelized_VW_Bug_IMG_TOP_Marbelized_VW_Bug_1788826183828.jpg',
-          'https://media.neonllamagarage.com/Marbelized_VW_Bug_IMG_DCL_CU_Marbelized_VW_Bug_1788826156527.jpg',
-          'https://media.neonllamagarage.com/Marbelized_VW_Bug_IMG_PKG_WHT_Marbelized_VW_Bug_1788826139307.jpg',
-          'https://media.neonllamagarage.com/Marbelized_VW_Bug_IMG_PKG_CU_Marbelized_VW_Bug_1788826123955.jpg',
-          'https://media.neonllamagarage.com/Marbelized_VW_Bug_IMG_LOOSE_Marbelized_VW_Bug_1788826027622.jpg',
-          'https://media.neonllamagarage.com/Marbelized_VW_Bug_IMG_PKG_WHT_Marbelized_VW_Bug_PXL_20260823_164157096.jpg',
-          'https://media.neonllamagarage.com/Marbelized_VW_Bug_IMG_PKG_CU_Marbelized_VW_Bug_PXL_20260823_164204246.jpg',
-          'https://media.neonllamagarage.com/Marbelized_VW_Bug_IMG_PKG_F_Marbelized_VW_Bug_1788825263746.jpg'
-        ],
-        completedSteps: [1, 2, 3, 4, 5, 6, 7, 8]
+            "id": "B-015",
+            "theme": "Acid Bone",
+            "model": "'82 Nissan Skyline",
+            "color": "Vibrant Blue",
+            "status": "Stage 4: Clear Coat & Assembly",
+            "section": "wip",
+            "currentStep": 5,
+            "progress": 70,
+            "price": 50.0,
+            "qty": "10 Reg \u2022 0 Chase",
+            "plannedTotal": 10,
+            "plannedChase": 0,
+            "title": "Neon Llama Garage \"Acid Bone\" '82 Nissan Skyline Custom 1/64",
+            "desc": "<p>Classic boxy Skyline silhouette coated in vibrant electric blue with Acid Bone hand-designed liveries and Real Rider wheels.</p>",
+            "tags": "Neon Llama Garage, custom diecast, 82 Skyline, acid bone, 1 64 scale, hot wheels custom",
+            "stripeLink": "",
+            "carCost": 1.5,
+            "whlCost": 3.0,
+            "ovhCost": 2.0,
+            "hero": "assets/acid_bone_skyline.png",
+            "completedSteps": [
+                  1,
+                  2,
+                  3,
+                  4
+            ]
       },
       {
-        id: 'B-026',
-        theme: 'Marbelized',
-        model: 'Dairy Delivery',
-        color: 'Cosmic Magenta / Vapor Blue',
-        status: 'Sold Out (10/10)',
-        section: 'vault',
-        currentStep: 8,
-        progress: 100,
-        price: 50.00,
-        qty: '0 Available (Vaulted)',
-        carCost: 1.50,
-        whlCost: 3.00,
-        ovhCost: 2.00,
-        hero: 'https://media.neonllamagarage.com/Marbelized_Dairy_Delivery_HERO.jpg',
-        images: [
-          'https://media.neonllamagarage.com/Marbelized_Dairy_Delivery_IMG_PKG_F_Marbelized_Dairy_Delivery_1788780604445.jpg',
-          'https://media.neonllamagarage.com/Marbelized_Dairy_Delivery_IMG_PKG_F_Marbelized_Dairy_Delivery_1788780027384.jpg',
-          'https://media.neonllamagarage.com/Marbelized_Dairy_Delivery_IMG_OTHER_Marbelized_Dairy_Delivery_1788780034098.jpg',
-          'https://media.neonllamagarage.com/Marbelized_Dairy_Delivery_IMG_PKG_WHT_PXL_20260823_164338127.jpg',
-          'https://media.neonllamagarage.com/Marbelized_Dairy_Delivery_IMG_OTHER_PXL_20260823_164350867.jpg',
-          'https://media.neonllamagarage.com/Marbelized_Dairy_Delivery_IMG_PKG_R_PXL_20260823_164344200.jpg',
-          'https://media.neonllamagarage.com/Marbelized_Dairy_Delivery_IMG_LOOSE_PXL_20260627_130053134.jpg'
-        ],
-        completedSteps: [1, 2, 3, 4, 5, 6, 7, 8]
+            "id": "B-003",
+            "theme": "Iron Talon",
+            "model": "'62 Chevy Truck",
+            "color": "Liquid Silver",
+            "status": "Stage 4: Clear Coat & Assembly",
+            "section": "wip",
+            "currentStep": 5,
+            "progress": 70,
+            "price": 50.0,
+            "qty": "8 Reg \u2022 0 Chase",
+            "plannedTotal": 8,
+            "plannedChase": 0,
+            "title": "Neon Llama Garage \"Iron Talon\" '62 Chevy Truck Custom 1/64",
+            "desc": "<p>Vintage American iron with low stance, liquid silver finish, and custom Real Rider wheels.</p>",
+            "tags": "Neon Llama Garage, custom diecast, 62 Chevy Truck, iron talon, 1 64 scale, hot wheels custom",
+            "stripeLink": "",
+            "carCost": 1.5,
+            "whlCost": 3.0,
+            "ovhCost": 2.0,
+            "hero": "assets/iron_talon_62_chevy.png",
+            "completedSteps": [
+                  1,
+                  2,
+                  3,
+                  4
+            ]
+      },
+      {
+            "id": "B-024",
+            "theme": "Marbelized",
+            "model": "VW Bug",
+            "color": "Swirled Purple",
+            "status": "Sold Out (10/10)",
+            "section": "vault",
+            "currentStep": 8,
+            "progress": 100,
+            "price": 50.0,
+            "qty": "0 Available (Vaulted)",
+            "plannedTotal": 1,
+            "plannedChase": 0,
+            "totalStock": 0,
+            "launchDate": "2026-09-14T00:00:00.000Z",
+            "stripeLink": "https://buy.stripe.com/7sYaEX0t434u5nv3yf1VK01",
+            "title": "Neon Llama Garage: Marbelized Purple VW Bug Custom Diecast",
+            "desc": "<p>Experience the unparalleled artistry of Neon Llama Garage with our latest custom 1/64 diecast masterpiece: the Marbelized Purple VW Bug.</p><p>Crafted with meticulous precision in our dual father-son workshops spanning Utah and Texas, this isn't just a toy \u2013 it's a collectible work of art. Each piece features a unique, swirling marbelized purple finish, ensuring no two are exactly alike. Rolling on authentic Real Rider wheels and presented in bespoke, high-end packaging, this custom VW Bug embodies the neon/vaporwave aesthetic and premium quality you expect from Neon Llama Garage. Elevate your collection with a piece that truly stands out.</p>",
+            "tags": "custom diecast, 1/64 scale, VW Bug, purple car, marbelized finish, Real Rider wheels, Neon Llama Garage, collectible car, custom hot rod, premium diecast",
+            "carCost": 1.5,
+            "whlCost": 3.0,
+            "ovhCost": 2.0,
+            "hero": "https://media.neonllamagarage.com/Marbelized_VW_Bug_IMG_LOOSE_Marbelized_VW_Bug_1788826027622.jpg",
+            "images": [
+                  "https://media.neonllamagarage.com/Marbelized_VW_Bug_IMG_TOP_Marbelized_VW_Bug_1788828140185.jpg",
+                  "https://media.neonllamagarage.com/Marbelized_VW_Bug_IMG_PKG_WHT_Marbelized_VW_Bug_1788828095532.jpg",
+                  "https://media.neonllamagarage.com/Marbelized_VW_Bug_IMG_TOP_Marbelized_VW_Bug_1788826183828.jpg",
+                  "https://media.neonllamagarage.com/Marbelized_VW_Bug_IMG_DCL_CU_Marbelized_VW_Bug_1788826156527.jpg",
+                  "https://media.neonllamagarage.com/Marbelized_VW_Bug_IMG_PKG_WHT_Marbelized_VW_Bug_1788826139307.jpg",
+                  "https://media.neonllamagarage.com/Marbelized_VW_Bug_IMG_PKG_CU_Marbelized_VW_Bug_1788826123955.jpg",
+                  "https://media.neonllamagarage.com/Marbelized_VW_Bug_IMG_LOOSE_Marbelized_VW_Bug_1788826027622.jpg",
+                  "https://media.neonllamagarage.com/Marbelized_VW_Bug_IMG_PKG_WHT_Marbelized_VW_Bug_PXL_20260823_164157096.jpg",
+                  "https://media.neonllamagarage.com/Marbelized_VW_Bug_IMG_PKG_CU_Marbelized_VW_Bug_PXL_20260823_164204246.jpg",
+                  "https://media.neonllamagarage.com/Marbelized_VW_Bug_IMG_PKG_F_Marbelized_VW_Bug_1788825263746.jpg"
+            ],
+            "completedSteps": [
+                  1,
+                  2,
+                  3,
+                  4,
+                  5,
+                  6,
+                  7,
+                  8
+            ]
+      },
+      {
+            "id": "B-026",
+            "theme": "Marbelized",
+            "model": "Dairy Delivery",
+            "color": "Cosmic Magenta / Vapor Blue",
+            "status": "Sold Out (10/10)",
+            "section": "vault",
+            "currentStep": 8,
+            "progress": 100,
+            "price": 50.0,
+            "qty": "0 Available (Vaulted)",
+            "plannedTotal": 1,
+            "plannedChase": 0,
+            "totalStock": 0,
+            "launchDate": "2026-09-07T11:50:00.000Z",
+            "stripeLink": "https://checkout.stripe.com/c/pay/cs_live_a1WjFKeG2J0BL3SOA9Y5FH25I3Zg1PY6CBD55lVt7sPVNdeANFPkCSrAWJ#fidnandhYHdWcXxpYCc%2FJ2FgY2RwaXEnKSdicGRmZGhqaWBTZHdsZGtxJz8nZmprcXdqaScpJ2R1bE5gfCc%2FJ3VuWmlsc2BaMDRQPEBNUkNxT2ZjN1RxYEdPbVFEbkB%2FM0JANTJSVDdRVmZRb29JaDJEXTxnaDxrbmdJakl1MTVLV0Z0XH9kf0dVQ2ZwX0NSS1FwYDUxUX1EfW9%2FbGxtNUA1NUk1Sn9RcVw3JyknY3dqaFZgd3Ngdyc%2FcXdwYCknZ2RmbmJ3anBrYUZqaWp3Jz8nJmNjY2NjYycpJ2lkfGpwcVF8dWAnPyd2bGtiaWBabHFgaCcpJ2BrZGdpYFVpZGZgbWppYWB3dic%2FcXdwYHgl",
+            "title": "Neon Llama Garage Custom \"Marbelized\" Dairy Delivery - Cosmic Magenta & Vapor Blue",
+            "desc": "<p>Elevate your collection with the ultimate fusion of retro vaporwave aesthetics and premium diecast artistry. Hand-painted by our father-and-son team operating out of our dual Utah and Texas workshops, this custom <strong>Dairy Delivery</strong> features a mesmerizing, one-of-a-kind marbelized finish in Cosmic Magenta and Vapor Blue.</p><ul><li>Genuine Hot Wheels Dairy Delivery casting</li><li>Custom hand-swirled Marbelized paint job (no two are identical)</li><li>Premium Real Riders rubber tires and custom wheel swap</li><li>Exclusive Neon Llama Garage custom-designed cardback</li><li>Hand-crafted in UT/TX workshops</li></ul>",
+            "tags": "NeonLlamaGarage, CustomDiecast, DairyDelivery, VaporwaveArt, RealRiders, HandPaintedToy, PremiumDiecast, HotWheelsCustom, CollectibleArt, MarbelizedPaint",
+            "carCost": 1.5,
+            "whlCost": 3.0,
+            "ovhCost": 2.0,
+            "hero": "https://media.neonllamagarage.com/Marbelized_Dairy_Delivery_HERO.jpg",
+            "images": [
+                  "https://media.neonllamagarage.com/Marbelized_Dairy_Delivery_IMG_PKG_F_Marbelized_Dairy_Delivery_1788780604445.jpg",
+                  "https://media.neonllamagarage.com/Marbelized_Dairy_Delivery_IMG_PKG_F_Marbelized_Dairy_Delivery_1788780027384.jpg",
+                  "https://media.neonllamagarage.com/Marbelized_Dairy_Delivery_IMG_OTHER_Marbelized_Dairy_Delivery_1788780034098.jpg",
+                  "https://media.neonllamagarage.com/Marbelized_Dairy_Delivery_IMG_PKG_WHT_PXL_20260823_164338127.jpg",
+                  "https://media.neonllamagarage.com/Marbelized_Dairy_Delivery_IMG_OTHER_PXL_20260823_164350867.jpg",
+                  "https://media.neonllamagarage.com/Marbelized_Dairy_Delivery_IMG_PKG_R_PXL_20260823_164344200.jpg",
+                  "https://media.neonllamagarage.com/Marbelized_Dairy_Delivery_IMG_LOOSE_PXL_20260627_130053134.jpg"
+            ],
+            "completedSteps": [
+                  1,
+                  2,
+                  3,
+                  4,
+                  5,
+                  6,
+                  7,
+                  8
+            ]
       }
-    ];
+];
 
-// DEFAULT IDEA ALBUM MOCKUPS (Unpicked concepts & creative starters)
+    // DEFAULT IDEA ALBUM MOCKUPS (Unpicked concepts & creative starters)
     const defaultIdeaBankMockups = [
       {
         title: 'Blue Banana (Original Decal Concept)',
@@ -2028,24 +2364,60 @@
       // Purge any [In Design Lab] / Dairy Showcase placeholder batches
       workshopBatches = workshopBatches.filter(b => b.id !== 'B-025' && b.theme !== '[In Design Lab]' && b.theme !== 'Dairy Showcase');
 
+      // Backfill rich GAS metadata (title, desc, tags, stripeLink, launchDate, images) from defaultBatches to all workshop batches
+      workshopBatches.forEach(b => {
+        const def = defaultBatches.find(d => d.id === b.id);
+        if (def) {
+          if (!b.stripeLink && def.stripeLink) b.stripeLink = def.stripeLink;
+          if (!b.title && def.title) b.title = def.title;
+          if (!b.desc && def.desc) b.desc = def.desc;
+          if (!b.tags && def.tags) b.tags = def.tags;
+          if (!b.launchDate && def.launchDate) b.launchDate = def.launchDate;
+          if (b.plannedTotal === undefined && def.plannedTotal !== undefined) b.plannedTotal = def.plannedTotal;
+          if (b.plannedChase === undefined && def.plannedChase !== undefined) b.plannedChase = def.plannedChase;
+          if ((!b.images || b.images.length === 0) && def.images) b.images = def.images;
+        }
+      });
+
       // SSoT LOCK: Ensure Active Drops (D-001, D-002, B-010) use authentic high-res media CDN images and have full photography gallery
       const s1 = workshopBatches.find(b => b.id === 'D-001');
       if (s1) {
         s1.hero = 'https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_LOOSE_SINGLE.jpg';
         const def = defaultBatches.find(d => d.id === 'D-001');
-        if (def && def.images) s1.images = def.images;
+        if (def) {
+          if (def.images) s1.images = def.images;
+          if (def.stripeLink) s1.stripeLink = def.stripeLink;
+          if (def.title) s1.title = def.title;
+          if (def.desc) s1.desc = def.desc;
+          if (def.tags) s1.tags = def.tags;
+          if (def.launchDate) s1.launchDate = def.launchDate;
+        }
       }
       const s2 = workshopBatches.find(b => b.id === 'D-002');
       if (s2) {
         s2.hero = 'https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_LOOSE_PXL_20260816_104313748.jpg';
         const def = defaultBatches.find(d => d.id === 'D-002');
-        if (def && def.images) s2.images = def.images;
+        if (def) {
+          if (def.images) s2.images = def.images;
+          if (def.stripeLink) s2.stripeLink = def.stripeLink;
+          if (def.title) s2.title = def.title;
+          if (def.desc) s2.desc = def.desc;
+          if (def.tags) s2.tags = def.tags;
+          if (def.launchDate) s2.launchDate = def.launchDate;
+        }
       }
       const s3 = workshopBatches.find(b => b.id === 'B-010');
       if (s3) {
         s3.hero = 'https://media.neonllamagarage.com/Ice_Spider_14_Camaro__IMG_PKG_WHT__PXL_20260816_104255638.jpg';
         const def = defaultBatches.find(d => d.id === 'B-010');
-        if (def && def.images) s3.images = def.images;
+        if (def) {
+          if (def.images) s3.images = def.images;
+          if (def.stripeLink) s3.stripeLink = def.stripeLink;
+          if (def.title) s3.title = def.title;
+          if (def.desc) s3.desc = def.desc;
+          if (def.tags) s3.tags = def.tags;
+          if (def.launchDate) s3.launchDate = def.launchDate;
+        }
       }
 
       // SSoT LOCK 1: Ensure B-024 (Marbelized VW Bug) is PERMANENTLY LOCKED in The Vault (Sold Out)
@@ -2054,9 +2426,17 @@
         bugBatch.section = 'vault';
         bugBatch.status = 'Sold Out (10/10)';
         bugBatch.qty = '0 Available (Vaulted)';
+        bugBatch.totalStock = 0;
         bugBatch.hero = 'https://media.neonllamagarage.com/Marbelized_VW_Bug_IMG_LOOSE_Marbelized_VW_Bug_1788826027622.jpg';
         const def = defaultBatches.find(d => d.id === 'B-024');
-        if (def && def.images) bugBatch.images = def.images;
+        if (def) {
+          if (def.images) bugBatch.images = def.images;
+          if (def.stripeLink) bugBatch.stripeLink = def.stripeLink;
+          if (def.title) bugBatch.title = def.title;
+          if (def.desc) bugBatch.desc = def.desc;
+          if (def.tags) bugBatch.tags = def.tags;
+          if (def.launchDate) bugBatch.launchDate = def.launchDate;
+        }
       }
 
       // SSoT LOCK 1B: Ensure B-026 (Marbelized Dairy Delivery) is PERMANENTLY LOCKED in The Vault (Sold Out)
@@ -2065,9 +2445,17 @@
         marbleDairy.section = 'vault';
         marbleDairy.status = 'Sold Out (10/10)';
         marbleDairy.qty = '0 Available (Vaulted)';
+        marbleDairy.totalStock = 0;
         marbleDairy.hero = 'https://media.neonllamagarage.com/Marbelized_Dairy_Delivery_HERO.jpg';
         const def = defaultBatches.find(d => d.id === 'B-026');
-        if (def && def.images) marbleDairy.images = def.images;
+        if (def) {
+          if (def.images) marbleDairy.images = def.images;
+          if (def.stripeLink) marbleDairy.stripeLink = def.stripeLink;
+          if (def.title) marbleDairy.title = def.title;
+          if (def.desc) marbleDairy.desc = def.desc;
+          if (def.tags) marbleDairy.tags = def.tags;
+          if (def.launchDate) marbleDairy.launchDate = def.launchDate;
+        }
       }
 
       // SSoT LOCK 2: Ensure B-018 (Neon Freeze Ice Cream Dairy) has its hero concept, donor photo, decals, and card art
@@ -4588,14 +4976,28 @@ CORE LIVERY & PRODUCTION RULES:
           data.batches.forEach(remote => {
             const local = workshopBatches.find(x => x.id === remote.id);
             if (local) {
+              if (remote.title) local.title = remote.title;
               if (remote.stripeLink) local.stripeLink = remote.stripeLink;
               if (remote.launchDate) local.launchDate = remote.launchDate;
               if (remote.desc) local.desc = remote.desc;
               if (remote.tags) local.tags = remote.tags;
-              if (remote.totalStock !== undefined) local.totalStock = remote.totalStock;
+              if (remote.plannedTotal) local.plannedTotal = remote.plannedTotal;
+              if (remote.plannedChase !== undefined) local.plannedChase = remote.plannedChase;
+              if (remote.minPrice) local.price = remote.minPrice;
               if (Array.isArray(remote.images) && remote.images.length > 0) local.images = remote.images;
               if (remote.heroImg && (remote.heroImg.includes('media.neonllamagarage.com') || !local.hero || local.hero.startsWith('assets/stained_glass'))) {
                 local.hero = remote.heroImg;
+              }
+
+              // STRICT SSoT VAULT GUARD: If batch is in The Vault (or B-024 / B-026), NEVER overwrite stock or un-vault!
+              if (local.section === 'vault' || local.id === 'B-024' || local.id === 'B-026') {
+                local.section = 'vault';
+                local.status = 'Sold Out (10/10)';
+                local.qty = '0 Available (Vaulted)';
+                local.totalStock = 0;
+              } else if (remote.totalStock !== undefined) {
+                local.totalStock = remote.totalStock;
+                local.qty = (remote.totalStock || 0) + ' In Stock';
               }
               mergedCount++;
             }
@@ -4627,6 +5029,10 @@ CORE LIVERY & PRODUCTION RULES:
       const modelEl = document.getElementById('deployCarModel');
       if (modelEl) modelEl.innerText = `${b.model} • ${b.qty} • $${b.price || 50} MSRP`;
 
+      // Series Title
+      const titleInp = document.getElementById('deploySeriesTitle');
+      if (titleInp) titleInp.value = b.title || `Neon Llama Garage "${b.theme}" ${b.model} Custom 1/64`;
+
       // Pre-fill launch date (default to next Friday at 7:00 PM CST if not set)
       const dateInp = document.getElementById('deployLaunchDate');
       if (dateInp) {
@@ -4649,6 +5055,20 @@ CORE LIVERY & PRODUCTION RULES:
       const stripeInp = document.getElementById('deployStripeLink');
       if (stripeInp) stripeInp.value = b.stripeLink || '';
 
+      // Product Description
+      const descInp = document.getElementById('deployDescription');
+      if (descInp) {
+        if (b.desc) {
+          descInp.value = b.desc.replace(/<\/p>/gi, '\n\n').replace(/<br\s*[\/]?>/gi, '\n').replace(/<li\s*[\/]?>/gi, '• ').replace(/<\/li>/gi, '\n').replace(/<[^>]+>/g, '').trim();
+        } else {
+          descInp.value = `Handcrafted custom 1/64 diecast build from the father-and-son team at Neon Llama Garage. Featuring premium Real Rider rubber wheels and exclusive retro packaging. Limited edition run.`;
+        }
+      }
+
+      // Tags
+      const tagsInp = document.getElementById('deployTags');
+      if (tagsInp) tagsInp.value = b.tags || 'Neon Llama Garage, custom diecast, 1 64 scale, hot wheels custom, real riders, limited edition';
+
       // Populate CapCut Social Storyboard customized for this car
       const teaserEl = document.getElementById('capcutTeaser');
       if (teaserEl) {
@@ -4667,9 +5087,21 @@ CORE LIVERY & PRODUCTION RULES:
       if (modal) modal.classList.remove('hidden');
     }
 
+    function nlgTestDeployStripeLink() {
+      const url = document.getElementById('deployStripeLink')?.value?.trim();
+      if (url && url.startsWith('http')) {
+        window.open(url, '_blank');
+      } else {
+        alert('Please enter a valid Stripe Checkout link first.');
+      }
+    }
+
     function nlgConfirmPublishToStorefront() {
       const b = workshopBatches.find(x => x.id === currentDeployingBatchId);
       if (!b) return;
+
+      const titleInp = document.getElementById('deploySeriesTitle');
+      if (titleInp && titleInp.value.trim()) b.title = titleInp.value.trim();
 
       const dateInp = document.getElementById('deployLaunchDate');
       if (dateInp && dateInp.value) {
@@ -4680,6 +5112,15 @@ CORE LIVERY & PRODUCTION RULES:
         b.stripeLink = stripeInp.value.trim();
       }
 
+      const descInp = document.getElementById('deployDescription');
+      if (descInp && descInp.value.trim()) {
+        const val = descInp.value.trim();
+        b.desc = val.startsWith('<p>') ? val : val.split('\n\n').map(p => `<p>${p.trim()}</p>`).join('');
+      }
+
+      const tagsInp = document.getElementById('deployTags');
+      if (tagsInp && tagsInp.value.trim()) b.tags = tagsInp.value.trim();
+
       b.section = 'active';
       b.status = 'Live Drop on Storefront';
       b.progress = 100;
@@ -4689,6 +5130,7 @@ CORE LIVERY & PRODUCTION RULES:
       saveBatchesToStorage();
       renderFleetRows();
       renderMasterChecklist(b);
+      openBatchDetail(b.id);
 
       const modal = document.getElementById('deployModal');
       if (modal) modal.classList.add('hidden');
@@ -5556,6 +5998,70 @@ CORE LIVERY & PRODUCTION RULES:
         heroEl.src = b.hero;
       }
 
+      // Populate Storefront Metadata & Collector Story
+      const seriesTitleEl = document.getElementById('cockpitSeriesTitle');
+      if (seriesTitleEl) seriesTitleEl.value = b.title || '';
+
+      const stripeLinkEl = document.getElementById('cockpitStripeLink');
+      if (stripeLinkEl) stripeLinkEl.value = b.stripeLink || '';
+
+      const stripeBadgeEl = document.getElementById('cockpitStripeStatusBadge');
+      if (stripeBadgeEl) {
+        if (b.stripeLink && b.stripeLink.startsWith('http')) {
+          stripeBadgeEl.innerText = 'LINK ACTIVE';
+          stripeBadgeEl.className = 'text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-500/40 font-bold';
+        } else {
+          stripeBadgeEl.innerText = 'NO STRIPE LINK';
+          stripeBadgeEl.className = 'text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-900 text-slate-500 border border-slate-700 font-bold';
+        }
+      }
+
+      const launchDateEl = document.getElementById('cockpitLaunchDate');
+      if (launchDateEl) {
+        if (b.launchDate) {
+          const d = new Date(b.launchDate);
+          launchDateEl.value = new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+        } else {
+          launchDateEl.value = '';
+        }
+      }
+
+      const countdownBadgeEl = document.getElementById('cockpitCountdownBadge');
+      if (countdownBadgeEl) {
+        if (b.section === 'vault') {
+          countdownBadgeEl.innerText = 'VAULTED // SOLD OUT';
+          countdownBadgeEl.className = 'p-1.5 rounded-lg bg-purple-950/60 border border-purple-800 text-center font-mono font-bold text-xs text-purple-300';
+        } else if (b.launchDate) {
+          const launchTime = new Date(b.launchDate).getTime();
+          const now = Date.now();
+          if (now >= launchTime) {
+            countdownBadgeEl.innerText = 'LIVE NOW // IN STORE';
+            countdownBadgeEl.className = 'p-1.5 rounded-lg bg-emerald-950/80 border border-emerald-500/40 text-center font-mono font-bold text-xs text-emerald-400';
+          } else {
+            const diffHours = Math.round((launchTime - now) / (1000 * 60 * 60));
+            const diffDays = Math.floor(diffHours / 24);
+            const remHours = diffHours % 24;
+            countdownBadgeEl.innerText = `T-MINUS ${diffDays}d ${remHours}h`;
+            countdownBadgeEl.className = 'p-1.5 rounded-lg bg-cyan-950/80 border border-cyan-500/40 text-center font-mono font-bold text-xs text-cyan-300';
+          }
+        } else {
+          countdownBadgeEl.innerText = 'NOT SCHEDULED';
+          countdownBadgeEl.className = 'p-1.5 rounded-lg bg-black/80 border border-slate-800 text-center font-mono font-bold text-xs text-slate-500';
+        }
+      }
+
+      const descPreviewEl = document.getElementById('cockpitDescPreview');
+      if (descPreviewEl) {
+        descPreviewEl.innerHTML = b.desc || '<span class="text-slate-500 italic">No product description entered yet.</span>';
+      }
+      const descInputEl = document.getElementById('cockpitDescInput');
+      if (descInputEl) {
+        descInputEl.value = b.desc || '';
+      }
+
+      const tagsEl = document.getElementById('cockpitTags');
+      if (tagsEl) tagsEl.value = b.tags || '';
+
       renderMasterChecklist(b);
       nlgRenderAssetDrawer(b);
     }
@@ -5632,10 +6138,104 @@ CORE LIVERY & PRODUCTION RULES:
       const ovhInput = document.getElementById('inputOvhCost');
       if (ovhInput) b.ovhCost = parseFloat(ovhInput.value) || 2.00;
 
+      // Save Storefront & Collector Metadata
+      const seriesTitleEl = document.getElementById('cockpitSeriesTitle');
+      if (seriesTitleEl && seriesTitleEl.value.trim()) b.title = seriesTitleEl.value.trim();
+
+      const stripeLinkEl = document.getElementById('cockpitStripeLink');
+      if (stripeLinkEl) b.stripeLink = stripeLinkEl.value.trim();
+
+      const launchDateEl = document.getElementById('cockpitLaunchDate');
+      if (launchDateEl && launchDateEl.value) {
+        b.launchDate = new Date(launchDateEl.value).toISOString();
+      }
+
+      const descInputEl = document.getElementById('cockpitDescInput');
+      if (descInputEl && !descInputEl.classList.contains('hidden') && descInputEl.value.trim()) {
+        b.desc = descInputEl.value.trim();
+        const descPreviewEl = document.getElementById('cockpitDescPreview');
+        if (descPreviewEl) descPreviewEl.innerHTML = b.desc;
+      }
+
+      const tagsEl = document.getElementById('cockpitTags');
+      if (tagsEl && tagsEl.value.trim()) b.tags = tagsEl.value.trim();
+
       saveBatchesToStorage();
       renderFleetRows();
       renderMasterChecklist(b);
-      showToast('Specifications saved for ' + b.id + ' (' + b.theme + ')', '💾');
+      showToast('Specifications & Storefront data saved for ' + b.id + ' (' + b.theme + ')', '💾');
+    }
+
+    function nlgOpenStripeCheckout() {
+      const b = (typeof workshopBatches !== 'undefined') ? workshopBatches.find(x => x.id === currentActiveBatchId) : null;
+      const url = document.getElementById('cockpitStripeLink')?.value?.trim() || b?.stripeLink;
+      if (url && url.startsWith('http')) {
+        window.open(url, '_blank');
+      } else {
+        alert('No valid Stripe Checkout link set for this car. Paste a buy.stripe.com URL first.');
+      }
+    }
+
+    function nlgCopyStripeLink() {
+      const b = (typeof workshopBatches !== 'undefined') ? workshopBatches.find(x => x.id === currentActiveBatchId) : null;
+      const url = document.getElementById('cockpitStripeLink')?.value?.trim() || b?.stripeLink;
+      if (url) {
+        copyText(url);
+        showToast('Stripe checkout URL copied to clipboard!', '💳');
+      } else {
+        showToast('No Stripe link available to copy', '⚠️');
+      }
+    }
+
+    function nlgCopyCollectorStory() {
+      const b = (typeof workshopBatches !== 'undefined') ? workshopBatches.find(x => x.id === currentActiveBatchId) : null;
+      const story = b?.desc || document.getElementById('cockpitDescInput')?.value || '';
+      if (story) {
+        const cleanText = story.replace(/<\/p>/gi, '\n\n').replace(/<br\s*[\/]?>/gi, '\n').replace(/<li\s*[\/]?>/gi, '• ').replace(/<\/li>/gi, '\n').replace(/<[^>]+>/g, '').trim();
+        copyText(cleanText);
+        showToast('Collector story copied to clipboard!', '📋');
+      } else {
+        showToast('No collector story entered', '⚠️');
+      }
+    }
+
+    function nlgCopyTags() {
+      const tags = document.getElementById('cockpitTags')?.value?.trim();
+      if (tags) {
+        copyText(tags);
+        showToast('SEO & Social tags copied to clipboard!', '📋');
+      }
+    }
+
+    function nlgToggleStorySourceView() {
+      const preview = document.getElementById('cockpitDescPreview');
+      const input = document.getElementById('cockpitDescInput');
+      const btn = document.getElementById('btnToggleStoryView');
+      if (preview && input && btn) {
+        if (input.classList.contains('hidden')) {
+          input.classList.remove('hidden');
+          preview.classList.add('hidden');
+          btn.innerText = 'Preview 👁️';
+          input.focus();
+        } else {
+          input.classList.add('hidden');
+          preview.classList.remove('hidden');
+          btn.innerText = 'HTML Source 📝';
+          preview.innerHTML = input.value || '<span class="text-slate-500 italic">No product description entered yet.</span>';
+          saveCurrentBatchSpecs();
+        }
+      }
+    }
+
+    function nlgUpdateStoryFromInput() {
+      const input = document.getElementById('cockpitDescInput');
+      const preview = document.getElementById('cockpitDescPreview');
+      const b = (typeof workshopBatches !== 'undefined') ? workshopBatches.find(x => x.id === currentActiveBatchId) : null;
+      if (input && b) {
+        b.desc = input.value;
+        if (preview) preview.innerHTML = b.desc;
+        saveBatchesToStorage();
+      }
     }
 
     // QUICK ACTION: CHANGE STAGE / MOVE SECTION
@@ -6247,26 +6847,9 @@ CORE LIVERY & PRODUCTION RULES:
       showToast('Created new batch ' + newB.id + ' (' + newB.theme + ')!', '✨');
     }
 
-    // Live Feed Synchronization
+    // Live Feed Synchronization (Unified SSoT with Google Apps Script Sheets Feed)
     async function loadLiveFeed() {
-      try {
-        const res = await fetch(GAS_ENDPOINT + '?feed=public');
-        const data = await res.json();
-        if (data && data.success && data.batches && data.batches.length > 0) {
-          data.batches.forEach(lb => {
-            const existing = workshopBatches.find(x => x.id === lb.id);
-            if (existing) {
-              if (Array.isArray(lb.images) && lb.images.length > 0) existing.images = lb.images;
-              if (lb.heroImg && lb.heroImg.includes('media.neonllamagarage.com')) existing.hero = lb.heroImg;
-              existing.price = lb.minPrice || 50;
-              existing.qty = (lb.totalStock || 0) + ' In Stock';
-            }
-          });
-          renderFleetRows();
-        }
-      } catch (e) {
-        console.log("Using cached offline fleet data:", e);
-      }
+      return syncWithLiveGASFeed();
     }
 
     window.onload = () => {
