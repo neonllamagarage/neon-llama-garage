@@ -7644,6 +7644,16 @@
           return copy;
         });
         localStorage.setItem('neon_llama_workshop_fleet_v8', JSON.stringify(sanitized));
+        if (!window._suppressCloudSync) {
+          clearTimeout(window._nlgCloudSyncTimer);
+          window._nlgCloudSyncTimer = setTimeout(() => {
+            fetch('/api/sync-batches', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ batches: sanitized })
+            }).catch(() => {});
+          }, 900);
+        }
       } catch(e) {
         console.warn('localStorage quota warning:', e);
       }
@@ -10013,77 +10023,76 @@ CORE LIVERY & PRODUCTION RULES:
         let currentDeployingBatchId = null;
 
     async function syncWithLiveGASFeed() {
-      const syncBtn = document.getElementById('btnSyncSheets');
       const syncText = document.getElementById('gasSyncText');
       const syncIcon = document.getElementById('gasSyncIcon');
       const syncInd = document.getElementById('syncIndicator');
-      
+
       if (syncText) syncText.innerText = 'SYNCING...';
       if (syncIcon) syncIcon.innerText = '⏳';
 
       try {
-        // Try ?feed=studio first (full Sheet rows + Drive folderUrls) before falling back to ?feed=public
-        try {
-          const studioRes = await fetch(GAS_ENDPOINT + '?feed=studio');
-          const studioCt = studioRes.headers?.get?.('content-type') || '';
-          if (studioCt.includes('json')) {
-            const sData = await studioRes.json();
-            if (sData && Array.isArray(sData.batches)) {
-              sData.batches.forEach(sb => {
-                const loc = workshopBatches.find(x => x.id === sb.id || (x.theme?.toLowerCase() === sb.theme?.toLowerCase() && x.model?.toLowerCase().includes(sb.model?.toLowerCase())));
-                if (loc) {
-                  if (sb.folderUrl) loc.folderUrl = sb.folderUrl;
-                  if (sb.rowIndex) loc.rowIndex = sb.rowIndex;
-                }
-              });
-            }
-          }
-        } catch (_studioErr) {}
-        const res = await fetch(GAS_ENDPOINT + '?feed=public');
+        // Pull from Single-Source Cloudflare KV (/api/storefront-feed?scope=studio)
+        const res = await fetch('/api/storefront-feed?scope=studio');
         const data = await res.json();
-        if (data && data.success && Array.isArray(data.batches)) {
+        if (data && data.success && Array.isArray(data.batches) && data.batches.length > 0) {
           let mergedCount = 0;
           data.batches.forEach(remote => {
-            const local = workshopBatches.find(x => x.id === remote.id);
-            if (local) {
-              if (remote.title) local.title = remote.title;
-              if (remote.stripeLink) local.stripeLink = remote.stripeLink;
-              if (remote.launchDate) local.launchDate = remote.launchDate;
-              if (remote.desc) local.desc = remote.desc;
-              if (remote.tags) local.tags = remote.tags;
-              if (remote.plannedTotal) local.plannedTotal = remote.plannedTotal;
-              if (remote.plannedChase !== undefined) local.plannedChase = remote.plannedChase;
-              if (remote.minPrice) local.price = remote.minPrice;
-              if (Array.isArray(remote.images) && remote.images.length > 0) local.images = remote.images;
-              if (remote.heroImg && (remote.heroImg.includes('media.neonllamagarage.com') || !local.hero || local.hero.startsWith('assets/stained_glass'))) {
-                local.hero = remote.heroImg;
-              }
-
-              // STRICT SSoT VAULT GUARD: If batch is in The Vault (or B-024 / B-026), NEVER overwrite stock or un-vault!
-              if (local.section === 'vault' || local.id === 'B-024' || local.id === 'B-026') {
-                local.section = 'vault';
-                local.status = 'Sold Out (10/10)';
-                local.qty = '0 Available (Vaulted)';
-                local.totalStock = 0;
-              } else if (remote.totalStock !== undefined) {
-                local.totalStock = remote.totalStock;
-                local.qty = (remote.totalStock || 0) + ' In Stock';
-              }
+            let local = workshopBatches.find(x => x.id === remote.id);
+            if (!local) {
+              workshopBatches.push(remote);
               mergedCount++;
+              return;
             }
+            if (remote.title) local.title = remote.title;
+            if (remote.stripeLink) local.stripeLink = remote.stripeLink;
+            if (remote.launchDate) local.launchDate = remote.launchDate;
+            if (remote.desc) local.desc = remote.desc;
+            if (remote.tags) local.tags = remote.tags;
+            if (remote.plannedTotal !== undefined) local.plannedTotal = remote.plannedTotal;
+            if (remote.plannedChase !== undefined) local.plannedChase = remote.plannedChase;
+            if (remote.price) local.price = remote.price;
+            if (remote.socialCopy) local.socialCopy = remote.socialCopy;
+            if (Array.isArray(remote.images) && remote.images.length > 0) local.images = remote.images;
+            if (remote.heroImg && remote.heroImg.includes('media.neonllamagarage.com')) {
+              local.hero = remote.heroImg;
+            }
+
+            // Honor Sell-Out / Vault transitions from Stripe Webhook OR Permanent Vault Lock
+            if (remote.section === 'vault' || remote.status === 'Sold' || (remote.section === 'active' && remote.totalStock === 0) || local.id === 'B-024' || local.id === 'B-026') {
+              local.section = 'vault';
+              local.status = 'Sold Out';
+              local.qty = '0 Available (Vaulted)';
+              local.totalStock = 0;
+            } else if (remote.section === 'active') {
+              local.section = 'active';
+              local.status = 'Live / Ready';
+              if (remote.totalStock !== undefined) {
+                local.totalStock = remote.totalStock;
+                local.qty = `${remote.totalStock} In Stock`;
+              }
+            } else if (remote.completedSteps) {
+              local.completedSteps = remote.completedSteps;
+              if (remote.unitProgress) local.unitProgress = remote.unitProgress;
+            }
+            mergedCount++;
           });
+
+          window._suppressCloudSync = true;
           saveBatchesToStorage();
+          window._suppressCloudSync = false;
+
           renderFleetRows();
-          if (syncText) syncText.innerText = 'SYNCED ✅';
-          if (syncIcon) syncIcon.innerText = '📊';
-          if (syncInd) syncInd.innerText = `SHEETS LIVE (${mergedCount} SYNCED) ✅`;
-          showToast(`Successfully synced ${mergedCount} catalog drops with Google Sheets!`, '📊');
+          if (currentActiveBatchId) {
+            const cur = workshopBatches.find(x => x.id === currentActiveBatchId);
+            if (cur) renderMasterChecklist(cur);
+          }
+          if (syncText) syncText.innerText = 'SSoT SYNCED ✅';
+          if (syncIcon) syncIcon.innerText = '☁️';
+          if (syncInd) syncInd.innerText = `CLOUD SSoT LIVE (${mergedCount} CARS) ✅`;
         }
       } catch (e) {
-        console.warn('Could not sync with GAS feed:', e);
-        if (syncText) syncText.innerText = 'OFFLINE ⚠️';
+        if (syncText) syncText.innerText = 'LOCAL CACHE ⚠️';
         if (syncIcon) syncIcon.innerText = '⚪';
-        showToast('Using local offline workshop fleet', 'ℹ️');
       }
     }
 

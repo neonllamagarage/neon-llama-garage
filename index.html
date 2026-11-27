@@ -674,9 +674,9 @@
           newsletterOptIn: document.getElementById('notifyNewsletter').checked
       };
 
-      fetch(GAS_ENDPOINT, { 
+      fetch('/api/crm', { 
           method: 'POST', 
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload) 
       })
       .then(res => res.json())
@@ -711,9 +711,9 @@
           message: type === 'Contact' ? document.getElementById('ctMsg').value : ""
       };
 
-      fetch(GAS_ENDPOINT, { 
+      fetch('/api/crm', { 
           method: 'POST', 
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload) 
       })
       .then(response => {
