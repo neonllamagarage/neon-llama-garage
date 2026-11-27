@@ -188,7 +188,7 @@
           <span>🖼️</span> ALBUMS <span id="albumsCountBadge" class="px-1.5 py-0.2 rounded bg-purple-950 text-purple-200 text-[10px] font-mono border border-purple-500/40">0</span>
         </button>
         <button onclick="openConceptGenModal(true)" class="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-orbitron font-black text-xs border border-pink-400/50 shadow-lg shadow-pink-900/40 transition active:scale-95 flex items-center gap-1.5">
-          <span>✨</span> + NEW CAR (v5.1.0)
+          <span>✨</span> + NEW CAR (v5.1.1)
         </button>
         <div class="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-[10px] font-mono text-cyan-400">
           STORE: <a href="https://neonllamagarage.com" target="_blank" class="hover:underline font-bold text-white">NEONLLAMAGARAGE.COM</a>
@@ -649,7 +649,7 @@
           <div>
             <h2 class="font-orbitron font-black text-base text-pink-400 flex items-center gap-2 tracking-wide flex-wrap">
               <span>UNIVERSAL DIECAST WIZARD</span>
-              <span class="px-2.5 py-0.5 rounded bg-cyan-950 text-cyan-300 text-[10px] font-mono border border-cyan-400 font-black shadow-[0_0_10px_rgba(6,182,212,0.5)]">v5.1.0 LIVE</span>
+              <span class="px-2.5 py-0.5 rounded bg-cyan-950 text-cyan-300 text-[10px] font-mono border border-cyan-400 font-black shadow-[0_0_10px_rgba(6,182,212,0.5)]">v5.1.1 LIVE</span>
               <span class="px-2 py-0.5 rounded bg-purple-950 text-purple-300 text-[10px] font-mono border border-purple-400/50">💎 GEMINI 3.1 • AUTO-ALBUMS</span>
             </h2>
             <p class="text-xs text-slate-400">1. Car & Printable Panels → 2. Photos → 3. 8-to-3 Concepts (+Feedback) → 4. Pure Flat Print-Ready Decals (+Tweak & Export)</p>
@@ -1222,7 +1222,7 @@
               </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-3 pt-1">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
               <label class="text-[11px] text-slate-400">
                 Art Zoom: <span id="nlgZoomVal" class="font-mono text-white">100%</span>
                 <input type="range" id="nlgArtZoom" min="60" max="180" value="100" oninput="nlgDrawCard()" class="w-full accent-pink-500" />
@@ -1230,6 +1230,10 @@
               <label class="text-[11px] text-slate-400">
                 Art Vertical Offset: <span id="nlgOffsetVal" class="font-mono text-white">-120px</span>
                 <input type="range" id="nlgArtOffsetY" min="-320" max="320" value="-120" oninput="nlgDrawCard()" class="w-full accent-pink-500" />
+              </label>
+              <label class="text-[11px] text-slate-400">
+                Title Vertical Offset: <span id="nlgTitleOffsetVal" class="font-mono text-white">0px</span>
+                <input type="range" id="nlgTitleOffsetY" min="-220" max="260" value="0" oninput="nlgDrawCard()" class="w-full accent-pink-500" />
               </label>
             </div>
           </div>
@@ -4281,7 +4285,7 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
     };
 
     // =========================================================================
-    // v5.1.0 BLISTER CARD RULES ENGINE (FRONT + MIRRORED BACK • REAL QR • ALBUMS)
+    // v5.1.1 BLISTER CARD RULES ENGINE (FRONT + MIRRORED BACK • REAL QR • ALBUMS)
     // =========================================================================
     let nlgCardFormat = 'premium';
     let nlgCardSide = 'front';
@@ -4836,11 +4840,13 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
       const c2 = document.getElementById('nlgInpColor2')?.value || '#00f0ff';
       const zoom = Number(document.getElementById('nlgArtZoom')?.value || 100) / 100;
       const offsetY = Number(document.getElementById('nlgArtOffsetY')?.value || -120);
+      const titleOffsetY = Number(document.getElementById('nlgTitleOffsetY')?.value || 0);
       const isMainline = nlgCardFormat === 'mainline';
       const useAiLogo = document.getElementById('nlgChkAiLogo')?.checked && nlgTitleLogoImg;
 
       const zEl = document.getElementById('nlgZoomVal'); if (zEl) zEl.innerText = Math.round(zoom * 100) + '%';
       const oEl = document.getElementById('nlgOffsetVal'); if (oEl) oEl.innerText = offsetY + 'px';
+      const tEl = document.getElementById('nlgTitleOffsetVal'); if (tEl) tEl.innerText = titleOffsetY + 'px';
       const dEl = document.getElementById('nlgDimReadout'); if (dEl) dEl.innerText = spec.label;
 
       if (side === 'back') {
@@ -5085,11 +5091,12 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
         const drawW = isMainline ? 1140 : 1280;
         const drawH = drawW * (nlgTitleLogoImg.height / nlgTitleLogoImg.width);
         ctx.shadowColor = 'rgba(0,0,0,0.78)'; ctx.shadowBlur = 28; ctx.shadowOffsetY = 10;
-        ctx.drawImage(nlgTitleLogoImg, (spec.w - drawW) / 2, isMainline ? 268 : 238, drawW, drawH);
+        const ty = (isMainline ? 268 : 238) + titleOffsetY;
+        ctx.drawImage(nlgTitleLogoImg, (spec.w - drawW) / 2, ty, drawW, drawH);
         ctx.restore();
       } else {
         ctx.save();
-        ctx.translate(spec.w / 2, isMainline ? 436 : 410);
+        ctx.translate(spec.w / 2, (isMainline ? 436 : 410) + titleOffsetY);
         ctx.transform(1, 0, -0.12, 1, 0, 0);
         ctx.textAlign = 'center';
         const baseMax = isMainline ? 132 : 156, maxTitleW = spec.w - 130;
@@ -5266,7 +5273,7 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
     };
 
     // =========================================================================
-    // v5.1.0 PER-CAR PERSISTENT MEMORY + SERIES WORDMARK LIBRARY + 5-STEP FLOW
+    // v5.1.1 PER-CAR PERSISTENT MEMORY + SERIES WORDMARK LIBRARY + 5-STEP FLOW
     // =========================================================================
     const NLG_STATE_DB_NAME = 'NeonLlamaPipelineDB';
     let _nlgStateDbPromise = null;
@@ -5610,6 +5617,7 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
           format: nlgCardFormat,
           zoom: Number(document.getElementById('nlgArtZoom')?.value || 100),
           offsetY: Number(document.getElementById('nlgArtOffsetY')?.value || -120),
+          titleOffsetY: Number(document.getElementById('nlgTitleOffsetY')?.value || 0),
           color1: document.getElementById('nlgInpColor1')?.value || '#ff0099',
           color2: document.getElementById('nlgInpColor2')?.value || '#00f0ff',
           series: document.getElementById('nlgInpSeries')?.value || '',
@@ -5647,6 +5655,7 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
             if (st.format) nlgSetCardFormat(st.format);
             if (st.zoom && document.getElementById('nlgArtZoom')) document.getElementById('nlgArtZoom').value = st.zoom;
             if (typeof st.offsetY === 'number' && document.getElementById('nlgArtOffsetY')) document.getElementById('nlgArtOffsetY').value = st.offsetY;
+            if (typeof st.titleOffsetY === 'number' && document.getElementById('nlgTitleOffsetY')) document.getElementById('nlgTitleOffsetY').value = st.titleOffsetY;
             if (st.color1 && document.getElementById('nlgInpColor1')) document.getElementById('nlgInpColor1').value = st.color1;
             if (st.color2 && document.getElementById('nlgInpColor2')) document.getElementById('nlgInpColor2').value = st.color2;
             if (st.series && document.getElementById('nlgInpSeries')) document.getElementById('nlgInpSeries').value = st.series;
