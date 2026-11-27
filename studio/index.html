@@ -188,7 +188,7 @@
           <span>🖼️</span> ALBUMS <span id="albumsCountBadge" class="px-1.5 py-0.2 rounded bg-purple-950 text-purple-200 text-[10px] font-mono border border-purple-500/40">0</span>
         </button>
         <button onclick="openConceptGenModal(true)" class="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-orbitron font-black text-xs border border-pink-400/50 shadow-lg shadow-pink-900/40 transition active:scale-95 flex items-center gap-1.5">
-          <span>✨</span> + NEW CAR (v5.1.1)
+          <span>✨</span> + NEW CAR (v5.1.2)
         </button>
         <div class="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-[10px] font-mono text-cyan-400">
           STORE: <a href="https://neonllamagarage.com" target="_blank" class="hover:underline font-bold text-white">NEONLLAMAGARAGE.COM</a>
@@ -281,7 +281,7 @@
           <div class="flex items-center gap-2 flex-wrap">
             <span id="detailBatchBadge" class="px-2 py-0.5 rounded bg-cyan-950 border border-cyan-500 text-cyan-300 font-orbitron font-black text-xs">B-021</span>
             <span id="detailBatchTheme" class="font-orbitron font-black text-white text-base">CYBER BANANA</span>
-            <span id="detailBatchModel" class="text-slate-400 text-xs">HOT WHEELS DAIRY DELIVERY</span>
+            <span id="detailBatchModel" class="text-slate-400 text-xs">DAIRY DELIVERY</span>
           </div>
         </div>
 
@@ -428,25 +428,20 @@
 
           </div>
 
-          <!-- ASSET BUCKET PREVIEWS -->
-          <div class="bg-[#0b101d] border border-slate-800 rounded-2xl p-4 space-y-2">
-            <div class="flex items-center justify-between">
-              <span class="font-orbitron font-bold text-xs text-slate-300">ATTACHED PRINT ASSETS</span>
-              <span class="text-[10px] text-cyan-400 font-mono">6 FILES PREPPED</span>
+          <!-- CAR DESIGN & PRINT ASSET VAULT (INSIDE THIS CAR TILE) -->
+          <div id="detailCarAssetVault" class="bg-[#0b101d] border border-cyan-500/40 rounded-2xl p-4 space-y-3 shadow-xl">
+            <div class="flex items-center justify-between flex-wrap gap-2 pb-2 border-b border-slate-800">
+              <div class="flex items-center gap-2">
+                <span class="text-base">📁</span>
+                <div>
+                  <h3 class="font-orbitron font-bold text-xs text-cyan-300 uppercase tracking-wider">CAR DESIGN & PRINT ASSET VAULT</h3>
+                  <p class="text-[10px] text-slate-400">All sub-ideas, print decals & card art saved for this car</p>
+                </div>
+              </div>
+              <span id="detailCarAssetCount" class="text-[10px] font-mono text-cyan-400 bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-500/40">0 FILES</span>
             </div>
-            <div class="grid grid-cols-3 gap-2">
-              <div class="p-2 rounded-lg bg-black/60 border border-slate-800 text-center">
-                <span class="text-[9px] text-slate-400 block">Side Driver</span>
-                <span class="text-emerald-400 font-bold text-[10px]">600 DPI ✓</span>
-              </div>
-              <div class="p-2 rounded-lg bg-black/60 border border-slate-800 text-center">
-                <span class="text-[9px] text-slate-400 block">Passenger</span>
-                <span class="text-emerald-400 font-bold text-[10px]">Mirrored ✓</span>
-              </div>
-              <div class="p-2 rounded-lg bg-black/60 border border-slate-800 text-center">
-                <span class="text-[9px] text-slate-400 block">Roof 1:2</span>
-                <span class="text-emerald-400 font-bold text-[10px]">600 DPI ✓</span>
-              </div>
+            <div id="detailCarAssetGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+              <!-- Dynamically populated per active car -->
             </div>
           </div>
 
@@ -552,10 +547,10 @@
         <!-- FIELD 1: MODEL / CASTING -->
         <div>
           <label class="text-xs text-slate-300 font-bold block mb-1">1. CASTING / MODEL ON HAND</label>
-          <input type="text" id="promptBatchModel" value="Hot Wheels Dairy Delivery" placeholder="e.g. Dairy Delivery, '55 Gasser, '83 Silverado" class="w-full bg-slate-950 p-2.5 rounded-xl border border-slate-700 text-white font-bold text-xs outline-none focus:border-pink-500">
+          <input type="text" id="promptBatchModel" value="Dairy Delivery" placeholder="e.g. Dairy Delivery, '55 Gasser, '83 Silverado" class="w-full bg-slate-950 p-2.5 rounded-xl border border-slate-700 text-white font-bold text-xs outline-none focus:border-pink-500">
           <div class="flex items-center gap-1.5 mt-1.5 flex-wrap">
             <span class="text-[10px] text-slate-500 font-mono">QUICK:</span>
-            <button type="button" onclick="document.getElementById('promptBatchModel').value='Hot Wheels Dairy Delivery'" class="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-slate-800 text-[10px] text-cyan-300">Dairy Delivery</button>
+            <button type="button" onclick="document.getElementById('promptBatchModel').value='Dairy Delivery'" class="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-slate-800 text-[10px] text-cyan-300">Dairy Delivery</button>
             <button type="button" onclick="document.getElementById('promptBatchModel').value=''55 Chevy Gasser'" class="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-slate-800 text-[10px] text-cyan-300">'55 Gasser</button>
             <button type="button" onclick="document.getElementById('promptBatchModel').value=''83 Chevy Silverado'" class="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-slate-800 text-[10px] text-cyan-300">'83 Silverado</button>
             <button type="button" onclick="document.getElementById('promptBatchModel').value='Porsche 935'" class="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-slate-800 text-[10px] text-cyan-300">Porsche 935</button>
@@ -649,7 +644,7 @@
           <div>
             <h2 class="font-orbitron font-black text-base text-pink-400 flex items-center gap-2 tracking-wide flex-wrap">
               <span>UNIVERSAL DIECAST WIZARD</span>
-              <span class="px-2.5 py-0.5 rounded bg-cyan-950 text-cyan-300 text-[10px] font-mono border border-cyan-400 font-black shadow-[0_0_10px_rgba(6,182,212,0.5)]">v5.1.1 LIVE</span>
+              <span class="px-2.5 py-0.5 rounded bg-cyan-950 text-cyan-300 text-[10px] font-mono border border-cyan-400 font-black shadow-[0_0_10px_rgba(6,182,212,0.5)]">v5.1.2 LIVE</span>
               <span class="px-2 py-0.5 rounded bg-purple-950 text-purple-300 text-[10px] font-mono border border-purple-400/50">💎 GEMINI 3.1 • AUTO-ALBUMS</span>
             </h2>
             <p class="text-xs text-slate-400">1. Car & Printable Panels → 2. Photos → 3. 8-to-3 Concepts (+Feedback) → 4. Pure Flat Print-Ready Decals (+Tweak & Export)</p>
@@ -694,7 +689,7 @@
             </div>
             <select id="castingLibrarySelect" onchange="onCastingLibraryChange(this.value)" class="w-full bg-slate-900 p-2.5 rounded-xl border border-slate-700 text-white font-bold text-xs outline-none focus:border-cyan-400 transition">
               <option value="" selected>-- Choose a Prepopulated Casting (or type custom below) --</option>
-              <option value="dairy-delivery">Hot Wheels Dairy Delivery (Phil Riehlman 1998)</option>
+              <option value="dairy-delivery">Dairy Delivery</option>
               <option value="silverado-83">'83 Chevy Silverado Pickup Truck</option>
               <option value="chevy-62">'62 Chevy Fleetside Pickup Truck</option>
               <option value="camaro-67">'67 Chevy Camaro (Muscle)</option>
@@ -1018,14 +1013,19 @@
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-500/50 flex items-center justify-center text-purple-300 text-xl">🖼️</div>
           <div>
-            <h2 class="font-orbitron font-black text-base text-purple-300">CASTING DESIGN ALBUMS</h2>
-            <p class="text-xs text-slate-400">Every 8-Pack, Sub-Idea, and Print-Ready Decal is auto-saved here by casting name</p>
+            <h2 class="font-orbitron font-black text-base text-purple-300 flex items-center gap-2">
+              <span>CASTING SHOWCASE & GROUP SHOT ALBUMS</span>
+            </h2>
+            <p class="text-xs text-slate-400">8-Car Concept Showcases & Untitled Group Shots (Individual car decals & card art live inside each car's tile)</p>
           </div>
         </div>
-        <div class="flex items-center gap-2">
-          <input type="file" id="nlgAlbumCardArtUpload" accept="image/*" class="hidden" onchange="nlgUploadExistingCardArtToAlbum(this)" />
-          <button type="button" onclick="document.getElementById('nlgAlbumCardArtUpload').click()" class="px-3 py-1.5 rounded-lg bg-pink-600/80 hover:bg-pink-500 text-white font-orbitron font-black text-[11px] border border-pink-400/60 transition">
-            + Add Old Card Art
+        <div class="flex items-center gap-2 flex-wrap">
+          <button type="button" onclick="nlgCleanUpAlbumToGroupShotsOnly()" class="px-3 py-1.5 rounded-lg bg-amber-950/80 hover:bg-amber-800 text-amber-200 font-orbitron font-black text-[11px] border border-amber-500/50 shadow transition flex items-center gap-1.5" title="Purge individual sub-ideas and decals from albums so only 8-pack concept showcases and group shots remain">
+            <span>🧹</span> Clean Album (Group Shots Only)
+          </button>
+          <input type="file" id="nlgAlbumGroupShotUpload" accept="image/*" class="hidden" onchange="nlgUploadGroupShotToAlbum(this)" />
+          <button type="button" onclick="document.getElementById('nlgAlbumGroupShotUpload').click()" class="px-3 py-1.5 rounded-lg bg-purple-900/80 hover:bg-purple-700 text-purple-200 font-orbitron font-black text-[11px] border border-purple-400/60 transition flex items-center gap-1">
+            <span>+</span> Upload Group Shot
           </button>
           <select id="albumCastingFilter" onchange="renderCastingAlbumsGrid()" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white font-bold outline-none">
             <option value="ALL">All Castings</option>
@@ -1838,6 +1838,7 @@
         if (!b.hero) b.hero = 'assets/showcase_purple_haze.png';
         if (!b.section) b.section = 'ideas';
         if (!b.completedSteps) b.completedSteps = [];
+        if (b.model) b.model = nlgCleanCastingName(b.model);
       });
     }
 
@@ -2075,7 +2076,7 @@
     }
 
     function startNewBatchIdeaFlow() {
-      const model = document.getElementById('promptBatchModel').value.trim() || 'Hot Wheels Dairy Delivery';
+      const model = document.getElementById('promptBatchModel').value.trim() || 'Dairy Delivery';
       const color = document.getElementById('promptBatchColor').value.trim() || 'White body with purple wheels';
       const notes = document.getElementById('promptBatchNotes').value.trim() || '';
 
@@ -2108,7 +2109,7 @@
     // -------------------------------------------------------------
     const castingLibrary = {
       'dairy-delivery': {
-        name: 'Hot Wheels Dairy Delivery',
+        name: 'Dairy Delivery',
         hasBuiltInPhotos: true,
         sidePhoto: 'assets/dairy_donor_side_cutout.png',
         topPhoto: 'assets/dairy_pxl_top.jpg',
@@ -2920,8 +2921,17 @@
 
           if (res && res.ok && res.image) {
             v.img = res.image;
-            const cName = (document.getElementById("donorCastingInput")?.value || "Custom Casting").trim();
-            saveToCastingAlbum(cName, 'Sub-Idea', v.title, res.image);
+            const activeB = (typeof workshopBatches !== 'undefined') ? workshopBatches.find(x => x.id === currentActiveBatchId) : null;
+            if (activeB) {
+              if (!Array.isArray(activeB.subIdeas)) activeB.subIdeas = [];
+              const exIdx = activeB.subIdeas.findIndex(x => x.title === v.title);
+              if (exIdx >= 0) activeB.subIdeas[exIdx] = { title: v.title, img: res.image };
+              else activeB.subIdeas.push({ title: v.title, img: res.image });
+              if (typeof saveBatchesToStorage === 'function') saveBatchesToStorage();
+            }
+            if (typeof nlgSaveCarState === 'function') {
+              nlgSaveCarState({ subIdeas: activeB?.subIdeas || [{ title: v.title, img: res.image }] });
+            }
 
             imgBox.className = "w-full h-56 rounded-xl bg-white border border-slate-800/80 flex items-center justify-center relative overflow-hidden group cursor-zoom-in";
             imgBox.onclick = () => openImageLightbox(v.img, v.title);
@@ -2973,8 +2983,17 @@
         if (!imgBox) return;
         if (res && res.ok && res.image) {
           v.img = res.image;
-          const cName = (document.getElementById("donorCastingInput")?.value || "Custom Casting").trim();
-          saveToCastingAlbum(cName, 'Sub-Idea', v.title, res.image);
+          const activeB = (typeof workshopBatches !== 'undefined') ? workshopBatches.find(x => x.id === currentActiveBatchId) : null;
+          if (activeB) {
+            if (!Array.isArray(activeB.subIdeas)) activeB.subIdeas = [];
+            const exIdx = activeB.subIdeas.findIndex(x => x.title === v.title);
+            if (exIdx >= 0) activeB.subIdeas[exIdx] = { title: v.title, img: res.image };
+            else activeB.subIdeas.push({ title: v.title, img: res.image });
+            if (typeof saveBatchesToStorage === 'function') saveBatchesToStorage();
+          }
+          if (typeof nlgSaveCarState === 'function') {
+            nlgSaveCarState({ subIdeas: activeB?.subIdeas || [{ title: v.title, img: res.image }] });
+          }
           imgBox.className = "w-full h-56 rounded-xl bg-white border border-slate-800/80 flex items-center justify-center relative overflow-hidden group cursor-zoom-in";
           imgBox.onclick = () => openImageLightbox(v.img, v.title);
           imgBox.innerHTML = `
@@ -3395,9 +3414,14 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
       const processed = await processPureFlatDecalImage(res.image, false);
       p.cmykPng = processed.transparentPng;
       p.underbasePng = processed.underbasePng;
-      saveToCastingAlbum(casting, 'Final Decal', `${winVar.title} — ${p.label}`, p.cmykPng);
+      const validDecals = generatedFinalDecals.filter(d => d && d.cmykPng);
+      const activeB = (typeof workshopBatches !== 'undefined') ? workshopBatches.find(x => x.id === currentActiveBatchId) : null;
+      if (activeB) {
+        activeB.savedDecals = validDecals;
+        if (typeof saveBatchesToStorage === 'function') saveBatchesToStorage();
+      }
       if (typeof nlgSaveCarState === 'function') {
-        nlgSaveCarState({ savedDecals: generatedFinalDecals.filter(d => d && d.cmykPng), steps: { decalsGenerated: true } });
+        nlgSaveCarState({ savedDecals: validDecals, steps: { decalsGenerated: true } });
       }
       updateDecalCardUI(p, casting);
     }
@@ -3513,7 +3537,9 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
     }
 
     // =========================================================================
-    // INDEXEDDB CASTING DESIGN ALBUMS (AUTO-SAVES EVERY 8-PACK, SUB-IDEA & DECAL)
+    // =========================================================================
+    // INDEXEDDB CASTING SHOWCASE ALBUMS (8-PACK SHOWCASES & GROUP SHOTS ONLY)
+    // INDIVIDUAL SUB-IDEAS, PRINT DECALS & CARD ART LIVE IN EACH CAR'S TILE
     // =========================================================================
     function openAlbumsDB() {
       return new Promise((resolve, reject) => {
@@ -3535,10 +3561,11 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
       try {
         const db = await openAlbumsDB();
         const tx = db.transaction('items', 'readwrite');
+        const cleanCasting = nlgCleanCastingName(casting || 'Custom Casting');
         tx.objectStore('items').add({
-          casting: casting || 'Custom Casting',
-          stage: stage || 'Render',
-          title: title || casting,
+          casting: cleanCasting,
+          stage: stage || '8-Pack Showcase',
+          title: title || cleanCasting,
           image: imageData,
           createdAt: new Date().toISOString()
         });
@@ -3554,12 +3581,30 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
         return await new Promise((resolve) => {
           const tx = db.transaction('items', 'readonly');
           const req = tx.objectStore('items').getAll();
-          req.onsuccess = () => resolve((req.result || []).reverse());
+          req.onsuccess = () => {
+            const items = (req.result || []).reverse().map(it => {
+              it.casting = nlgCleanCastingName(it.casting);
+              return it;
+            });
+            resolve(items);
+          };
           req.onerror = () => resolve([]);
         });
       } catch (e) {
         return [];
       }
+    }
+
+    function isGroupShowcaseAlbumItem(item) {
+      if (!item) return false;
+      const s = String(item.stage || '').toLowerCase();
+      // Explicit group showcases / multi-car sheets
+      if (s === '8-pack showcase' || s === 'group shot' || s === 'showcase' || s === 'concept showcase') return true;
+      const t = String(item.title || '').toLowerCase();
+      if (t.includes('8-pack') || t.includes('8-car') || t.includes('showcase') || t.includes('group')) return true;
+      // Exclude individual car assets (these live inside each car's tile)
+      if (s === 'sub-idea' || s === 'final decal' || s === 'card wordmark' || s.startsWith('blister card')) return false;
+      return true;
     }
 
     async function deleteAlbumItem(id) {
@@ -3577,9 +3622,10 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
     }
 
     async function updateAlbumsBadge() {
-      const items = await getAllAlbumItems();
+      const all = await getAllAlbumItems();
+      const groupItems = all.filter(isGroupShowcaseAlbumItem);
       const badge = document.getElementById('albumsCountBadge');
-      if (badge) badge.innerText = items.length;
+      if (badge) badge.innerText = groupItems.length;
     }
 
     async function openCastingAlbumsModal() {
@@ -3593,12 +3639,14 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
       const filterSelect = document.getElementById('albumCastingFilter');
       if (!container) return;
 
-      const items = await getAllAlbumItems();
+      const allItems = await getAllAlbumItems();
+      // Strictly Showcases & Group Shots without individual titles
+      const items = allItems.filter(isGroupShowcaseAlbumItem);
       const castings = [...new Set(items.map(i => i.casting))];
 
       if (filterSelect) {
         const prevVal = filterSelect.value || 'ALL';
-        filterSelect.innerHTML = `<option value="ALL">All Castings (${items.length} images)</option>` +
+        filterSelect.innerHTML = `<option value="ALL">All Castings (${items.length} showcases)</option>` +
           castings.map(c => `<option value="${c.replace(/"/g, '&quot;')}">${c}</option>`).join('');
         if (castings.includes(prevVal)) filterSelect.value = prevVal;
       }
@@ -3610,8 +3658,8 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
         container.innerHTML = `
           <div class="py-14 text-center space-y-2 text-slate-400">
             <div class="text-4xl">🖼️</div>
-            <div class="font-orbitron font-bold text-sm text-white">NO SAVED DESIGNS IN YOUR ALBUMS YET</div>
-            <p class="text-xs">Every 8-Pack showcase, Sub-Idea, and Print-Ready Decal you generate is automatically saved here by casting!</p>
+            <div class="font-orbitron font-bold text-sm text-white">NO GROUP SHOWCASES IN ALBUMS YET</div>
+            <p class="text-xs">8-Pack concept showcases and group shots live here. Individual car sub-ideas, print decals & card art are stored directly inside each car's tile!</p>
           </div>
         `;
         return;
@@ -3631,7 +3679,7 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
               <span>🏎️</span> ${castingName.toUpperCase()}
             </h3>
             <span class="text-[10px] font-mono text-purple-300 bg-purple-950/70 px-2 py-0.5 rounded border border-purple-500/40">
-              ${groupItems.length} SAVED IMAGE${groupItems.length === 1 ? '' : 'S'}
+              ${groupItems.length} SHOWCASE${groupItems.length === 1 ? '' : 'S'}
             </span>
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
@@ -3655,6 +3703,226 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
                 </div>
               </div>
             `).join('')}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function nlgCleanUpAlbumToGroupShotsOnly() {
+      try {
+        const db = await openAlbumsDB();
+        const all = await getAllAlbumItems();
+        if (!all.length) {
+          showToast('Album is already empty.', 'ℹ️');
+          return;
+        }
+        let purgedCount = 0;
+        let standardizedCount = 0;
+
+        for (const item of all) {
+          const isGroup = isGroupShowcaseAlbumItem(item);
+          if (!isGroup) {
+            // Migrate decal to matching car state in NeonLlamaPipelineDB so it is never lost
+            const stage = String(item.stage || '').toLowerCase();
+            if (stage === 'final decal' && item.image && typeof nlgSaveCarState === 'function') {
+              const matchBatch = workshopBatches.find(b => {
+                const itC = nlgCleanCastingName(item.casting).toLowerCase();
+                const itT = String(item.title || '').toLowerCase();
+                return (b.model && nlgCleanCastingName(b.model).toLowerCase() === itC) || (b.theme && itT.includes(b.theme.toLowerCase()));
+              });
+              if (matchBatch) {
+                const st = await nlgLoadCarState(matchBatch.id);
+                const savedDecals = (st && Array.isArray(st.savedDecals)) ? [...st.savedDecals] : [];
+                const key = item.title.includes('Driver') ? 'side_driver' : item.title.includes('Passenger') ? 'side_passenger' : 'roof';
+                if (!savedDecals.some(d => d.key === key)) {
+                  savedDecals.push({ key, label: item.title, cmykPng: item.image, underbasePng: item.image });
+                  await nlgSaveCarState({ savedDecals, batchId: matchBatch.id });
+                }
+              }
+            }
+
+            // Remove individual car asset from Casting Albums store
+            await new Promise((res) => {
+              const tx = db.transaction('items', 'readwrite');
+              tx.objectStore('items').delete(item.id);
+              tx.oncomplete = () => res(true);
+              tx.onerror = () => res(false);
+            });
+            purgedCount++;
+          } else {
+            const cleanC = nlgCleanCastingName(item.casting);
+            if (cleanC !== item.casting) {
+              item.casting = cleanC;
+              await new Promise((res) => {
+                const tx = db.transaction('items', 'readwrite');
+                tx.objectStore('items').put(item);
+                tx.oncomplete = () => res(true);
+                tx.onerror = () => res(false);
+              });
+              standardizedCount++;
+            }
+          }
+        }
+
+        await updateAlbumsBadge();
+        await renderCastingAlbumsGrid();
+        showToast(`🧹 Album cleaned! Kept group showcases (${purgedCount} individual items moved to car tiles).`, '✨');
+      } catch (err) {
+        console.error('Clean up album error:', err);
+        showToast('Clean up error: ' + err.message, '⚠️');
+      }
+    }
+
+    function nlgUploadGroupShotToAlbum(input) {
+      if (!input.files || !input.files[0]) return;
+      const file = input.files[0];
+      const defaultName = file.name.replace(/\.[^.]+$/, '').replace(/[_-]+/g, ' ').toUpperCase();
+      const title = (prompt('Showcase / Group Shot Label:', defaultName) || defaultName).trim();
+      const casting = (prompt('Casting Name (e.g. DAIRY DELIVERY, GASSER):', 'Dairy Delivery') || 'Dairy Delivery').trim();
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        if (typeof saveToCastingAlbum === 'function') {
+          await saveToCastingAlbum(nlgCleanCastingName(casting), '8-Pack Showcase', title, e.target.result);
+          if (typeof renderCastingAlbumsGrid === 'function') renderCastingAlbumsGrid();
+          if (typeof showToast === 'function') showToast(`Added "${title}" to Group Showcases!`, '✅');
+        }
+        input.value = '';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Interactive Car Design & Print Asset Vault inside each car's tile
+    async function renderCarAssetVault(b) {
+      const grid = document.getElementById('detailCarAssetGrid');
+      const countEl = document.getElementById('detailCarAssetCount');
+      if (!grid || !b) return;
+
+      const st = (typeof nlgLoadCarState === 'function') ? await nlgLoadCarState(b.id) : null;
+      const assets = [];
+
+      // 1. Primary Hero Mock
+      const heroImg = b.hero || b.conceptData?.img || st?.heroPhotoDataUrl;
+      if (heroImg) {
+        assets.push({
+          type: 'HERO',
+          label: 'Primary Hero Mock',
+          image: heroImg,
+          badgeColor: 'border-pink-500/50 text-pink-300'
+        });
+      }
+
+      // 2. Loose Physical Photo (if uploaded)
+      if (st?.heroPhotoDataUrl && st.heroPhotoDataUrl !== b.hero) {
+        assets.push({
+          type: 'LOOSE HERO',
+          label: 'Physical Car Photo',
+          image: st.heroPhotoDataUrl,
+          badgeColor: 'border-yellow-500/50 text-yellow-300'
+        });
+      }
+
+      // 3. Sub-Idea Variations (from batch or pipeline state or albums)
+      const subIdeas = (b.subIdeas && Array.isArray(b.subIdeas)) ? b.subIdeas : (st?.subIdeas || []);
+      subIdeas.forEach((si, i) => {
+        if (si && si.img) {
+          assets.push({
+            type: 'SUB-IDEA',
+            label: si.title || `Sub-Idea #${i + 1}`,
+            image: si.img,
+            badgeColor: 'border-purple-500/50 text-purple-300',
+            action: () => openDecalStudioWithData({ casting: b.model, paint: b.color, title: si.title, story: '', img: si.img })
+          });
+        }
+      });
+
+      // 4. Print-Ready Decals (from pipeline state or batch)
+      const savedDecals = (st?.savedDecals && Array.isArray(st.savedDecals)) ? st.savedDecals : (b.savedDecals || []);
+      savedDecals.forEach(d => {
+        if (d && d.cmykPng) {
+          assets.push({
+            type: 'DECAL CMYK',
+            label: d.label || d.key.replace('_', ' ').toUpperCase(),
+            image: d.cmykPng,
+            underbase: d.underbasePng,
+            badgeColor: 'border-emerald-500/50 text-emerald-300',
+            action: () => openDecalStudioForCurrentBatch()
+          });
+        }
+      });
+
+      // Also pull any matching decals/subideas from Albums for this car
+      if (typeof getAllAlbumItems === 'function') {
+        try {
+          const allAlbums = await getAllAlbumItems();
+          const cleanModel = nlgCleanCastingName(b.model).toLowerCase();
+          const cleanTheme = String(b.theme || '').toLowerCase();
+          const albumCarItems = allAlbums.filter(it => {
+            const stg = String(it.stage || '').toLowerCase();
+            if (stg !== 'final decal' && stg !== 'sub-idea') return false;
+            const itC = nlgCleanCastingName(it.casting).toLowerCase();
+            const itT = String(it.title || '').toLowerCase();
+            return (cleanModel && itC.includes(cleanModel)) || (cleanTheme && itT.includes(cleanTheme));
+          });
+          albumCarItems.forEach(ad => {
+            if (!assets.some(a => a.image === ad.image)) {
+              assets.push({
+                type: ad.stage.toUpperCase(),
+                label: ad.title,
+                image: ad.image,
+                badgeColor: ad.stage === 'Sub-Idea' ? 'border-purple-500/50 text-purple-300' : 'border-emerald-500/50 text-emerald-300'
+              });
+            }
+          });
+        } catch (e) {}
+      }
+
+      // 5. Card Art
+      if (st?.cardArtDataUrl) {
+        assets.push({
+          type: 'CARD ART',
+          label: '3:4 Blister Art',
+          image: st.cardArtDataUrl,
+          badgeColor: 'border-pink-500/50 text-pink-300',
+          action: () => openCardModal()
+        });
+      }
+
+      // 6. Wordmark
+      if (st?.wordmarkDataUrl) {
+        assets.push({
+          type: 'WORDMARK',
+          label: 'AI Logo',
+          image: st.wordmarkDataUrl,
+          badgeColor: 'border-cyan-500/50 text-cyan-300',
+          action: () => openCardModal()
+        });
+      }
+
+      if (countEl) countEl.innerText = `${assets.length} SAVED FILE${assets.length === 1 ? '' : 'S'}`;
+
+      if (assets.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full py-5 text-center text-slate-500 text-xs space-y-1">
+            <div class="text-2xl">📦</div>
+            <div class="font-bold text-slate-400">NO ATTACHED ASSETS YET FOR THIS CAR</div>
+            <p class="text-[10px]">Run 8→3 Idea Lab or Print Decals above to populate this car's design vault.</p>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = assets.map(a => `
+        <div class="bg-black/80 border border-slate-800 hover:border-cyan-500/60 rounded-xl p-2 space-y-1.5 transition group">
+          <div class="w-full h-24 rounded-lg bg-slate-950 overflow-hidden flex items-center justify-center relative cursor-zoom-in p-1" onclick="openImageLightbox('${a.image}', '${(b.theme + ' — ' + a.label).replace(/'/g, "\\'")}')">
+            <img src="${a.image}" alt="${a.label}" class="w-full h-full object-contain group-hover:scale-105 transition">
+            <span class="absolute top-1 left-1 px-1 py-0.2 rounded text-[7px] font-orbitron font-bold bg-black/85 ${a.badgeColor} border">${a.type}</span>
+          </div>
+          <div class="flex items-center justify-between gap-1">
+            <span class="text-[10px] font-bold text-white truncate" title="${a.label}">${a.label}</span>
+            <div class="flex items-center gap-1 shrink-0">
+              ${a.action ? `<button type="button" onclick="(${a.action.toString()})()" class="px-1.5 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-cyan-300 text-[9px] border border-slate-700" title="Open in workbench tool">🛠️</button>` : ''}
+              <a href="${a.image}" download="${(b.theme + '_' + a.label).toLowerCase().replace(/[^a-z0-9]+/g, '_')}.png" class="px-1.5 py-0.5 rounded bg-emerald-950 hover:bg-emerald-800 text-emerald-300 text-[9px] border border-emerald-500/40" title="Download PNG">⬇</a>
+            </div>
           </div>
         </div>
       `).join('');
@@ -4428,7 +4696,11 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
     }
 
     function nlgCleanCastingName(name) {
-      return String(name || '').replace(/^hot\s+wheels\s+/i, '').trim();
+      let c = String(name || '').replace(/^hot\s+wheels\s+/i, '').replace(/["']/g, '').trim();
+      if (/^('?98\s+|1998\s+)?dairy\s+delivery(\s*\(.*\))?$/i.test(c)) {
+        return 'Dairy Delivery';
+      }
+      return c;
     }
 
     function nlgOnCardMetaEdit() {
@@ -4635,7 +4907,6 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
       img.onload = () => {
         nlgCardArtImg = img;
         if (status) status.innerText = '✓ Text-free card art generated & locked onto canvas!';
-        if (typeof saveToCastingAlbum === 'function') saveToCastingAlbum(casting, 'Blister Card Art', theme, res.image);
         nlgDrawCard();
       };
       img.src = res.image;
@@ -4661,11 +4932,7 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
       nlgTitleLogoImg = await nlgKnockoutBlackToTransparent(res.image);
       const chk = document.getElementById('nlgChkAiLogo');
       if (chk) chk.checked = true;
-      const wmCasting = (document.getElementById('nlgInpCasting')?.value || 'Custom 1:64').trim();
-      if (typeof saveToCastingAlbum === 'function' && nlgTitleLogoImg?.src) {
-        saveToCastingAlbum(wmCasting, 'Card Wordmark', theme, nlgTitleLogoImg.src);
-      }
-      if (status) status.innerText = `✓ Bespoke "${theme}" wordmark extracted & saved to Albums!`;
+      if (status) status.innerText = `✓ Bespoke "${theme}" wordmark extracted & saved to Series Library!`;
       nlgDrawCard();
     }
 
@@ -5227,11 +5494,6 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
       const a = document.createElement('a');
       const name = (document.getElementById('nlgInpTheme')?.value || 'custom_card').toLowerCase().replace(/[^a-z0-9]+/g, '_');
       const pngUrl = off.toDataURL('image/png');
-      if (!includeGuides && typeof saveToCastingAlbum === 'function') {
-        const expCasting = (document.getElementById('nlgInpCasting')?.value || 'Custom 1:64').trim();
-        const expTheme = (document.getElementById('nlgInpTheme')?.value || 'Custom').trim();
-        saveToCastingAlbum(expCasting, `Blister Card (${targetSide.toUpperCase()})`, `${expTheme} — ${nlgCardFormat.toUpperCase()}`, pngUrl);
-      }
       a.href = pngUrl;
       a.download = `${name}_${nlgCardFormat}_${targetSide}_300dpi${includeBleed ? '_bleed' : ''}${includeGuides ? '_with_guides' : ''}.png`;
       a.click();
@@ -5333,6 +5595,8 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
           tx.onerror = () => resolve(false);
         });
         nlgRenderPipelineBar();
+        const activeB = (typeof workshopBatches !== 'undefined') ? workshopBatches.find(x => x.id === batchId) : null;
+        if (activeB && typeof renderCarAssetVault === 'function') renderCarAssetVault(activeB);
       } catch (e) { console.warn('Save car state error:', e); }
     }
 
@@ -5568,6 +5832,8 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
       _origOpenBatchDetailV5(batchId);
       currentCarPipelineState = await nlgLoadCarState(batchId);
       nlgRenderPipelineBar();
+      const b = (typeof workshopBatches !== 'undefined') ? workshopBatches.find(x => x.id === batchId) : null;
+      if (b && typeof renderCarAssetVault === 'function') await renderCarAssetVault(b);
     };
 
     // Persist Card Art, Wordmark, Settings & Exports automatically!
