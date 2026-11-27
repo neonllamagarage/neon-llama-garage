@@ -1152,7 +1152,7 @@
         </div>
         <div class="flex items-center gap-2">
           <button type="button" id="btnAiOmnichannelCopy" onclick="nlgGenerateOmnichannelCopy()" class="px-3 py-1.5 rounded-lg bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-orbitron font-black text-[11px] shadow-lg transition active:scale-95 flex items-center gap-1.5">
-            <span>✨</span> AI WRITE ALL COPY & 3-PHASE SOCIALS
+            <span>✨</span> AI VISION: WRITE STORY, EBAY &amp; 4-PHASE SOCIALS
           </button>
           <button type="button" onclick="toggleModal('deployModal')" class="text-slate-400 hover:text-white font-bold text-sm px-2 py-1 rounded">✕</button>
         </div>
@@ -1179,24 +1179,31 @@
       </div>
 
       <!-- FINAL EDITED SOCIAL REELS (.MP4 FOR MAKE.COM / IG / TIKTOK / YT SHORTS) -->
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 bg-slate-950 p-3 rounded-xl border border-slate-800 text-[10px] font-mono">
+      <div class="grid grid-cols-1 sm:grid-cols-4 gap-2 bg-slate-950 p-3 rounded-xl border border-slate-800 text-[10px] font-mono">
         <div class="p-2 rounded-lg bg-black/70 border border-slate-800 flex items-center justify-between gap-2">
           <div class="truncate">
-            <span class="text-pink-400 font-bold block">1. TEASER REEL (.MP4)</span>
+            <span class="text-pink-400 font-bold block">1. TEASER (T-72h)</span>
             <span id="reelStatus_teaser" class="text-slate-500 truncate block">Optional (uses Hero JPG)</span>
           </div>
           <button type="button" onclick="nlgTriggerDeployReelUpload('teaser')" class="px-2 py-1 rounded bg-pink-950 text-pink-300 border border-pink-500/40 font-bold shrink-0 hover:bg-pink-900">📤 .MP4</button>
         </div>
         <div class="p-2 rounded-lg bg-black/70 border border-slate-800 flex items-center justify-between gap-2">
           <div class="truncate">
-            <span class="text-cyan-400 font-bold block">2. REVEAL REEL (.MP4)</span>
+            <span class="text-amber-400 font-bold block">2. PROCESS (T-48h)</span>
+            <span id="reelStatus_process" class="text-slate-500 truncate block">Optional (uses Hero JPG)</span>
+          </div>
+          <button type="button" onclick="nlgTriggerDeployReelUpload('process')" class="px-2 py-1 rounded bg-amber-950 text-amber-300 border border-amber-500/40 font-bold shrink-0 hover:bg-amber-900">📤 .MP4</button>
+        </div>
+        <div class="p-2 rounded-lg bg-black/70 border border-slate-800 flex items-center justify-between gap-2">
+          <div class="truncate">
+            <span class="text-cyan-400 font-bold block">3. REVEAL (T-24h)</span>
             <span id="reelStatus_reveal" class="text-slate-500 truncate block">Optional (uses Hero JPG)</span>
           </div>
           <button type="button" onclick="nlgTriggerDeployReelUpload('reveal')" class="px-2 py-1 rounded bg-cyan-950 text-cyan-300 border border-cyan-500/40 font-bold shrink-0 hover:bg-cyan-900">📤 .MP4</button>
         </div>
         <div class="p-2 rounded-lg bg-black/70 border border-slate-800 flex items-center justify-between gap-2">
           <div class="truncate">
-            <span class="text-emerald-400 font-bold block">3. LAUNCH REEL (.MP4)</span>
+            <span class="text-emerald-400 font-bold block">4. LAUNCH (LIVE)</span>
             <span id="reelStatus_launch" class="text-slate-500 truncate block">Optional (uses Hero JPG)</span>
           </div>
           <button type="button" onclick="nlgTriggerDeployReelUpload('launch')" class="px-2 py-1 rounded bg-emerald-950 text-emerald-300 border border-emerald-500/40 font-bold shrink-0 hover:bg-emerald-900">📤 .MP4</button>
@@ -1205,6 +1212,7 @@
 
       <!-- STOREFRONT, STOCK CAPS & STRIPE CONFIG -->
       <div class="space-y-3 bg-slate-950 p-4 rounded-xl border border-slate-800">
+        <div id="deployVisionBreakdownBanner" class="hidden p-2.5 rounded-lg bg-purple-950/40 border border-purple-500/40 text-[11px] font-mono text-purple-200"></div>
         <div class="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
           <div class="col-span-2">
             <label class="text-[10px] font-mono text-slate-400 block uppercase mb-1">Collision-Checked Launch Date</label>
@@ -1227,45 +1235,50 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
-            <label class="text-[10px] font-mono text-slate-400 block uppercase mb-1">Collector Series Title</label>
+            <label class="text-[10px] font-mono text-slate-400 block uppercase mb-1">Storefront Series Title (&le;75 chars)</label>
             <input type="text" id="deploySeriesTitle" class="w-full bg-black/80 border border-slate-800 focus:border-cyan-400 rounded-lg p-2 text-white font-orbitron font-bold text-xs outline-none" />
           </div>
           <div>
+            <label class="text-[10px] font-mono text-amber-300 block uppercase mb-1">eBay SEO Title (&le;80 chars @ $59.99)</label>
+            <input type="text" id="deployEbayTitle" maxlength="80" class="w-full bg-black/80 border border-slate-800 focus:border-amber-400 rounded-lg p-2 text-amber-200 font-mono text-xs outline-none" />
+          </div>
+          <div>
             <div class="flex items-center justify-between mb-1">
-              <label class="text-[10px] font-mono text-slate-400 uppercase">Hard-Capped Stripe Link (Blank = Auto-Create)</label>
+              <label class="text-[10px] font-mono text-slate-400 uppercase">Hard-Capped Stripe Link (Blank = Auto)</label>
               <button type="button" onclick="nlgTestDeployStripeLink()" class="text-[9px] font-mono text-emerald-400 hover:underline font-bold">Test Link ↗</button>
             </div>
-            <input type="url" id="deployStripeLink" placeholder="Leave blank to auto-generate capped Stripe link on deploy..." class="w-full bg-black/80 border border-slate-800 focus:border-cyan-400 rounded-lg p-2 text-cyan-300 font-mono text-xs outline-none" />
+            <input type="url" id="deployStripeLink" placeholder="Leave blank to auto-generate capped Stripe link..." class="w-full bg-black/80 border border-slate-800 focus:border-cyan-400 rounded-lg p-2 text-cyan-300 font-mono text-xs outline-none" />
           </div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div class="sm:col-span-2">
-            <label class="text-[10px] font-mono text-slate-400 block uppercase mb-1">Collector Story (HTML / Storefront Description)</label>
+            <label class="text-[10px] font-mono text-slate-400 block uppercase mb-1">Collector Story (HTML / Storefront &amp; eBay Description)</label>
             <textarea id="deployDescription" rows="3" class="w-full bg-black/80 border border-slate-800 focus:border-cyan-400 rounded-lg p-2 text-slate-300 font-sans text-xs leading-relaxed outline-none"></textarea>
           </div>
           <div>
-            <label class="text-[10px] font-mono text-slate-400 block uppercase mb-1">SEO & Marketplace Tags</label>
+            <label class="text-[10px] font-mono text-slate-400 block uppercase mb-1">SEO &amp; Marketplace Tags</label>
             <textarea id="deployTags" rows="3" class="w-full bg-black/80 border border-slate-800 focus:border-cyan-400 rounded-lg p-2 text-slate-400 font-mono text-[11px] outline-none"></textarea>
           </div>
         </div>
       </div>
 
-      <!-- 3-PHASE OMNICHANNEL AUTO-POST COPY (IG / FB / X / TIKTOK / YT / PINTEREST) -->
+      <!-- 4-PHASE OMNICHANNEL AUTO-POST COPY (IG / FB / X / TIKTOK / YT / PINTEREST) -->
       <div class="p-4 rounded-xl bg-slate-950 border border-pink-500/30 space-y-3">
         <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2">
           <div>
             <h3 class="font-orbitron font-bold text-xs text-pink-400 flex items-center gap-1.5">
-              <span>📡</span> 3-PHASE OMNICHANNEL SOCIAL AUTO-POST QUEUE (MAKE.COM + BUFFER)
+              <span>📡</span> 4-PHASE OMNICHANNEL SOCIAL AUTO-POST QUEUE (MAKE.COM + BUFFER)
             </h3>
-            <p class="text-[10px] text-slate-400 font-mono" id="deployChronosTimelineSummary">Auto-fires T-72h Teaser → T-24h Reveal → T-1h VIP → Launch → +72h eBay → +18d Vault Sweep</p>
+            <p class="text-[10px] text-slate-400 font-mono" id="deployChronosTimelineSummary">Auto-fires T-72h Teaser → T-48h Process → T-24h Reveal → T-1h VIP → Launch → +72h eBay → +18d Sweep</p>
           </div>
-          <div class="flex items-center gap-1 bg-black p-1 rounded-lg border border-slate-800 text-[10px] font-orbitron font-bold">
+          <div class="flex flex-wrap items-center gap-1 bg-black p-1 rounded-lg border border-slate-800 text-[10px] font-orbitron font-bold">
             <button type="button" id="tabBtnPhaseTeaser" onclick="nlgSwitchSocialPhaseTab('teaser')" class="px-2.5 py-1 rounded bg-pink-950 text-pink-300 border border-pink-500/40">1. TEASER (T-72h)</button>
-            <button type="button" id="tabBtnPhaseReveal" onclick="nlgSwitchSocialPhaseTab('reveal')" class="px-2.5 py-1 rounded text-slate-400 hover:text-white">2. REVEAL (T-24h)</button>
-            <button type="button" id="tabBtnPhaseLaunch" onclick="nlgSwitchSocialPhaseTab('launch')" class="px-2.5 py-1 rounded text-slate-400 hover:text-white">3. LAUNCH (LIVE)</button>
+            <button type="button" id="tabBtnPhaseProcess" onclick="nlgSwitchSocialPhaseTab('process')" class="px-2.5 py-1 rounded text-slate-400 hover:text-white">2. PROCESS (T-48h)</button>
+            <button type="button" id="tabBtnPhaseReveal" onclick="nlgSwitchSocialPhaseTab('reveal')" class="px-2.5 py-1 rounded text-slate-400 hover:text-white">3. REVEAL (T-24h)</button>
+            <button type="button" id="tabBtnPhaseLaunch" onclick="nlgSwitchSocialPhaseTab('launch')" class="px-2.5 py-1 rounded text-slate-400 hover:text-white">4. LAUNCH (LIVE)</button>
           </div>
         </div>
 
@@ -1284,7 +1297,7 @@
             <textarea id="sc_tea_tt" rows="2" class="w-full bg-black/80 border border-slate-800 rounded-lg p-2 text-slate-200 text-xs outline-none"></textarea>
           </div>
           <div>
-            <label class="text-[9px] font-mono text-slate-300 uppercase">X (Twitter) Teaser (&lt;280 chars)</label>
+            <label class="text-[9px] font-mono text-slate-300 uppercase">X (Twitter) Teaser (&lt;260 chars)</label>
             <textarea id="sc_tea_x" rows="2" class="w-full bg-black/80 border border-slate-800 rounded-lg p-2 text-slate-200 text-xs outline-none"></textarea>
           </div>
           <div>
@@ -1297,7 +1310,35 @@
           </div>
         </div>
 
-        <!-- PHASE 2: REVEAL -->
+        <!-- PHASE 2: PROCESS (T-48h ASMR / WORKSHOP BUILD) -->
+        <div id="socialPhasePane_process" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+          <div>
+            <label class="text-[9px] font-mono text-pink-300 uppercase">Instagram 48h Build Process Caption</label>
+            <textarea id="sc_pro_ig" rows="2" class="w-full bg-black/80 border border-slate-800 rounded-lg p-2 text-slate-200 text-xs outline-none"></textarea>
+          </div>
+          <div>
+            <label class="text-[9px] font-mono text-blue-300 uppercase">Facebook 48h Behind-the-Build Post</label>
+            <textarea id="sc_pro_fb" rows="2" class="w-full bg-black/80 border border-slate-800 rounded-lg p-2 text-slate-200 text-xs outline-none"></textarea>
+          </div>
+          <div>
+            <label class="text-[9px] font-mono text-cyan-300 uppercase">TikTok 48h Process ASMR Hook</label>
+            <textarea id="sc_pro_tt" rows="2" class="w-full bg-black/80 border border-slate-800 rounded-lg p-2 text-slate-200 text-xs outline-none"></textarea>
+          </div>
+          <div>
+            <label class="text-[9px] font-mono text-slate-300 uppercase">X (Twitter) 48h Build Post (&lt;260 chars)</label>
+            <textarea id="sc_pro_x" rows="2" class="w-full bg-black/80 border border-slate-800 rounded-lg p-2 text-slate-200 text-xs outline-none"></textarea>
+          </div>
+          <div>
+            <label class="text-[9px] font-mono text-red-400 uppercase">YouTube Shorts Process Title</label>
+            <input type="text" id="sc_pro_ytTitle" class="w-full bg-black/80 border border-slate-800 rounded-lg p-2 text-slate-200 text-xs outline-none" />
+          </div>
+          <div>
+            <label class="text-[9px] font-mono text-red-300 uppercase">YouTube Shorts Process Description</label>
+            <input type="text" id="sc_pro_ytDesc" class="w-full bg-black/80 border border-slate-800 rounded-lg p-2 text-slate-200 text-xs outline-none" />
+          </div>
+        </div>
+
+        <!-- PHASE 3: REVEAL -->
         <div id="socialPhasePane_reveal" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
           <div>
             <label class="text-[9px] font-mono text-pink-300 uppercase">Instagram 24h Reveal Caption</label>
@@ -1325,7 +1366,7 @@
           </div>
         </div>
 
-        <!-- PHASE 3: LAUNCH -->
+        <!-- PHASE 4: LAUNCH -->
         <div id="socialPhasePane_launch" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
           <div>
             <label class="text-[9px] font-mono text-pink-300 uppercase">Instagram LIVE Launch Caption</label>
@@ -1362,9 +1403,14 @@
         <button type="button" onclick="toggleModal('deployModal')" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-orbitron font-bold text-xs transition">
           Cancel
         </button>
-        <button type="button" id="btnConfirmOmnichannelDeploy" onclick="nlgConfirmPublishToStorefront()" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-black font-orbitron font-black text-xs shadow-lg transition active:scale-95 flex items-center gap-2">
-          <span>🚀</span> SAVE COPY, CREATE STRIPE LINK &amp; ARM CHRONOS AUTO-POSTER
-        </button>
+        <div class="flex flex-wrap items-center gap-2">
+          <button type="button" id="btnStageOmnichannelPrep" onclick="nlgConfirmPublishToStorefront(true)" class="px-4 py-2.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/50 text-amber-200 font-orbitron font-black text-xs transition active:scale-95 flex items-center gap-2">
+            <span>💾</span> STAGE PREP ONLY (R2 PHOTOS + STRIPE + COPY, HOLD LAUNCH)
+          </button>
+          <button type="button" id="btnConfirmOmnichannelDeploy" onclick="nlgConfirmPublishToStorefront(false)" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-black font-orbitron font-black text-xs shadow-lg transition active:scale-95 flex items-center gap-2">
+            <span>🚀</span> ARM FULL CHRONOS DROP
+          </button>
+        </div>
       </div>
 
     </div>
@@ -10128,6 +10174,8 @@ MANDATORY PRODUCTION CONSTRAINTS (CRITICAL):
               return;
             }
             if (remote.title) local.title = remote.title;
+            if (remote.ebayTitle) local.ebayTitle = remote.ebayTitle;
+            if (remote.visualBreakdown) local.visualBreakdown = remote.visualBreakdown;
             if (remote.stripeLink) local.stripeLink = remote.stripeLink;
             if (remote.launchDate) local.launchDate = remote.launchDate;
             if (remote.desc) local.desc = remote.desc;
@@ -10136,9 +10184,16 @@ MANDATORY PRODUCTION CONSTRAINTS (CRITICAL):
             if (remote.plannedChase !== undefined) local.plannedChase = remote.plannedChase;
             if (remote.price) local.price = remote.price;
             if (remote.socialCopy) local.socialCopy = remote.socialCopy;
+            if (remote.ebayItemId) local.ebayItemId = remote.ebayItemId;
+            if (remote.ebayUrl) local.ebayUrl = remote.ebayUrl;
+            if (remote.ebayStatus) local.ebayStatus = remote.ebayStatus;
+            ['teaserVideoUrl', 'processVideoUrl', 'revealVideoUrl', 'launchVideoUrl'].forEach(vk => {
+              if (remote[vk]) local[vk] = remote[vk];
+            });
             if (Array.isArray(remote.images) && remote.images.length > 0) local.images = remote.images;
             if (remote.heroImg && remote.heroImg.includes('media.neonllamagarage.com')) {
               local.hero = remote.heroImg;
+              local.heroPhoto = remote.heroImg;
             }
 
             // Honor Sell-Out / Vault transitions from Stripe Webhook OR Permanent Vault Lock
@@ -10154,8 +10209,11 @@ MANDATORY PRODUCTION CONSTRAINTS (CRITICAL):
                 local.totalStock = remote.totalStock;
                 local.qty = `${remote.totalStock} In Stock`;
               }
-            } else if (remote.completedSteps) {
-              local.completedSteps = remote.completedSteps;
+            } else {
+              if (remote.totalStock !== undefined && remote.totalStock !== null) local.totalStock = remote.totalStock;
+              if (remote.status) local.status = remote.status;
+              if (remote.qty) local.qty = remote.qty;
+              if (remote.completedSteps) local.completedSteps = remote.completedSteps;
               if (remote.unitProgress) local.unitProgress = remote.unitProgress;
             }
             mergedCount++;
@@ -10181,11 +10239,16 @@ MANDATORY PRODUCTION CONSTRAINTS (CRITICAL):
     }
 
     function nlgSwitchSocialPhaseTab(phase) {
-      ['teaser', 'reveal', 'launch'].forEach(p => {
+      ['teaser', 'process', 'reveal', 'launch'].forEach(p => {
         const pane = document.getElementById('socialPhasePane_' + p);
         if (pane) pane.classList.toggle('hidden', p !== phase);
       });
-      const map = { teaser: 'tabBtnPhaseTeaser', reveal: 'tabBtnPhaseReveal', launch: 'tabBtnPhaseLaunch' };
+      const map = {
+        teaser: 'tabBtnPhaseTeaser',
+        process: 'tabBtnPhaseProcess',
+        reveal: 'tabBtnPhaseReveal',
+        launch: 'tabBtnPhaseLaunch'
+      };
       Object.entries(map).forEach(([p, id]) => {
         const btn = document.getElementById(id);
         if (!btn) return;
@@ -10229,14 +10292,16 @@ MANDATORY PRODUCTION CONSTRAINTS (CRITICAL):
       if (isNaN(lDate)) return;
       const fmt = d => d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
       const t72 = new Date(lDate.getTime() - 72 * 3600 * 1000);
+      const t48 = new Date(lDate.getTime() - 48 * 3600 * 1000);
       const t24 = new Date(lDate.getTime() - 24 * 3600 * 1000);
-      sumEl.innerText = `Teaser: ${fmt(t72)} → Reveal: ${fmt(t24)} → Launch: ${fmt(lDate)} (+ VIP T-1h & eBay +72h)`;
+      sumEl.innerText = `Teaser: ${fmt(t72)} → Process: ${fmt(t48)} → Reveal: ${fmt(t24)} → Launch: ${fmt(lDate)} (+ VIP T-1h & eBay +72h)`;
     }
 
     function nlgPopulateSocialCopyInputs(sc) {
       const safe = sc || {};
       const map = {
         sc_tea_ig: safe.teaser?.ig, sc_tea_fb: safe.teaser?.fb, sc_tea_tt: safe.teaser?.tt, sc_tea_x: safe.teaser?.x, sc_tea_ytTitle: safe.teaser?.ytTitle, sc_tea_ytDesc: safe.teaser?.ytDesc,
+        sc_pro_ig: safe.process?.ig, sc_pro_fb: safe.process?.fb, sc_pro_tt: safe.process?.tt, sc_pro_x: safe.process?.x, sc_pro_ytTitle: safe.process?.ytTitle, sc_pro_ytDesc: safe.process?.ytDesc,
         sc_rev_ig: safe.reveal?.ig, sc_rev_fb: safe.reveal?.fb, sc_rev_tt: safe.reveal?.tt, sc_rev_x: safe.reveal?.x, sc_rev_ytTitle: safe.reveal?.ytTitle, sc_rev_ytDesc: safe.reveal?.ytDesc,
         sc_lau_ig: safe.launch?.ig, sc_lau_fb: safe.launch?.fb, sc_lau_tt: safe.launch?.tt, sc_lau_x: safe.launch?.x, sc_lau_ytTitle: safe.launch?.ytTitle, sc_lau_pinTitle: safe.launch?.pinTitle, sc_lau_pinDesc: safe.launch?.pinDesc
       };
@@ -10250,6 +10315,7 @@ MANDATORY PRODUCTION CONSTRAINTS (CRITICAL):
       const v = id => document.getElementById(id)?.value?.trim() || '';
       return {
         teaser: { ig: v('sc_tea_ig'), fb: v('sc_tea_fb'), tt: v('sc_tea_tt'), x: v('sc_tea_x'), ytTitle: v('sc_tea_ytTitle'), ytDesc: v('sc_tea_ytDesc') },
+        process: { ig: v('sc_pro_ig'), fb: v('sc_pro_fb'), tt: v('sc_pro_tt'), x: v('sc_pro_x'), ytTitle: v('sc_pro_ytTitle'), ytDesc: v('sc_pro_ytDesc') },
         reveal: { ig: v('sc_rev_ig'), fb: v('sc_rev_fb'), tt: v('sc_rev_tt'), x: v('sc_rev_x'), ytTitle: v('sc_rev_ytTitle'), ytDesc: v('sc_rev_ytDesc') },
         launch: { ig: v('sc_lau_ig'), fb: v('sc_lau_fb'), tt: v('sc_lau_tt'), x: v('sc_lau_x'), ytTitle: v('sc_lau_ytTitle'), pinTitle: v('sc_lau_pinTitle'), pinDesc: v('sc_lau_pinDesc') }
       };
@@ -10263,34 +10329,50 @@ MANDATORY PRODUCTION CONSTRAINTS (CRITICAL):
       const parsedQty = typeof nlgParseQty === 'function' ? nlgParseQty(b.qty) : { total: b.plannedTotal || 10, chase: b.plannedChase || 0 };
       const planTotal = parseInt(b.plannedTotal ?? parsedQty.total ?? 10, 10);
       const planChase = parseInt(b.plannedChase ?? parsedQty.chase ?? 0, 10);
+      const sellable = parseInt(b.totalStock ?? planTotal, 10);
 
-      document.getElementById('deployCarImg').src = b.heroPhoto || b.hero || '';
+      document.getElementById('deployCarImg').src = b.heroPhoto || b.hero || (Array.isArray(b.images) && b.images[0]) || '';
       document.getElementById('deployCarTheme').innerText = `${b.theme.toUpperCase()} (${b.id})`;
-      document.getElementById('deployCarModel').innerText = `${b.model} • ${planTotal} Units (${planChase} Chase) • $${b.price || 50} MSRP`;
+      document.getElementById('deployCarModel').innerText = `${b.model} • ${sellable} Sellable / ${planTotal} Built (${planChase} Chase) • $${b.price || 50} MSRP`;
+
+      const visBanner = document.getElementById('deployVisionBreakdownBanner');
+      if (visBanner) {
+        if (b.visualBreakdown) {
+          visBanner.innerText = `👁️ AI Vision Specs: ${b.visualBreakdown}`;
+          visBanner.classList.remove('hidden');
+        } else {
+          visBanner.classList.add('hidden');
+        }
+      }
 
       const capBtn = document.getElementById('deployCapCutFolderBtn');
       if (capBtn) capBtn.href = b.folderUrl || '#';
 
-      // Check Drive media readiness
+      // Check Drive & R2 media readiness
       const pa = b.pipelineAssets || {};
       const photoReady = ['IMG_LOOSE', 'IMG_PKG_F', 'IMG_PKG_R', 'IMG_PKG_WHT'].filter(k => (pa[k] && pa[k].length) || (b.images && b.images.some(u => u.includes(k)))).length;
-      const vidReady = ['VID_TEASER', 'VID_REVEAL', 'VID_LAUNCH', 'RAW_VID_CAR_MACRO', 'RAW_VID_CARD_TT'].filter(k => pa[k] && pa[k].length).length;
+      const r2Count = Array.isArray(b.images) ? b.images.filter(u => u.includes('media.neonllamagarage.com')).length : 0;
+      const vidReady = ['VID_TEASER', 'VID_PROCESS', 'VID_REVEAL', 'VID_LAUNCH'].filter(k => (pa[k] && pa[k].length) || b[k.replace('VID_', '').toLowerCase() + 'VideoUrl']).length;
       const readyEl = document.getElementById('deployMediaReadiness');
       if (readyEl) {
-        readyEl.innerText = `✅ ${photoReady}/4 Core Promo Photos • 🎬 ${vidReady} Drive Video Reels Linked`;
+        readyEl.innerText = `✅ ${photoReady}/4 Core Photos (${r2Count} on R2) • 🎬 ${vidReady}/4 Edited Reels Linked`;
       }
 
-      document.getElementById('deployPhysicalStock').value = b.totalStock ?? planTotal;
+      document.getElementById('deployPhysicalStock').value = sellable;
       document.getElementById('deployPlanTotal').value = planTotal;
       document.getElementById('deployPlanChase').value = planChase;
       document.getElementById('deployMsrp').value = b.price || 50;
       document.getElementById('deploySeriesTitle').value = b.title || `Neon Llama Garage "${b.theme}" ${b.model} Custom 1/64`;
+      const ebayInp = document.getElementById('deployEbayTitle');
+      if (ebayInp) {
+        ebayInp.value = b.ebayTitle || `Custom Hot Wheels ${b.model} "${b.theme}" 1/64 Real Riders Diecast`.slice(0, 80);
+      }
       document.getElementById('deployStripeLink').value = b.stripeLink || '';
       document.getElementById('deployTags').value = b.tags || `Neon Llama Garage, custom diecast, ${b.model}, ${b.theme}, 1 64 scale, hot wheels custom, real riders, limited edition`;
 
       const descInp = document.getElementById('deployDescription');
       if (descInp) {
-        descInp.value = b.desc || `<p>Handcrafted custom 1/64 ${b.model} "${b.theme}" build from Neon Llama Garage, fitted with Real Rider rubber tires and custom collector packaging. Strictly limited to ${planTotal} numbered pieces.</p>`;
+        descInp.value = b.desc || `<p>Handcrafted custom 1/64 ${b.model} "${b.theme}" build from Neon Llama Garage, fitted with Real Rider rubber tires and custom collector packaging. Strictly limited to ${planTotal} handcrafted pieces.</p>`;
       }
 
       const localIso = b.launchDate
@@ -10299,30 +10381,38 @@ MANDATORY PRODUCTION CONSTRAINTS (CRITICAL):
       document.getElementById('deployLaunchDate').value = localIso;
       nlgUpdateOmnichannelPhaseDates(localIso);
 
-      // Default or saved 3-phase copy
+      // Default or saved 4-phase copy
       const defaultSc = b.socialCopy || {
         teaser: {
-          ig: `Something wild is rolling out of the lab... 👀 Custom 1/64 "${b.theme}" ${b.model} on Real Riders. Strictly ${planTotal} units worldwide. Drops this Friday at 7PM! #neonllamagarage #hotwheelscustom #diecastcollector`,
-          fb: `Sneak peek from the Neon Llama bench! Our custom 1/64 "${b.theme}" ${b.model} (${planTotal} numbered units) drops this Friday at 7PM on neonllamagarage.com.`,
+          ig: `Something wild is rolling out of the lab... 👀 Custom 1/64 "${b.theme}" ${b.model} on Real Riders. Strictly ${planTotal} units built. #neonllamagarage #hotwheelscustom #diecastcollector`,
+          fb: `Sneak peek from the Neon Llama bench! Our custom 1/64 "${b.theme}" ${b.model} (${planTotal} handcrafted units) drops soon on neonllamagarage.com.`,
           tt: `POV: Stripping and UV-printing a 1-of-${planTotal} "${b.theme}" ${b.model} custom Hot Wheels 🔥 #hotwheelscustom #neonllamagarage #diecast`,
-          x: `Lab leak 👀 1-of-${planTotal} custom "${b.theme}" ${b.model} on Real Riders drops Friday 7PM at neonllamagarage.com`,
-          ytTitle: `1-of-${planTotal} Custom "${b.theme}" ${b.model} Teaser | Neon Llama Garage`,
-          ytDesc: `Dropping Friday 7PM at https://neonllamagarage.com — custom 1/64 ${b.model} "${b.theme}" on Real Riders.`
+          x: `Lab leak 👀 1-of-${planTotal} custom "${b.theme}" ${b.model} on Real Riders coming to neonllamagarage.com`,
+          ytTitle: `1-of-${planTotal} Custom "${b.theme}" ${b.model} Teaser #Shorts`,
+          ytDesc: `Coming soon at https://neonllamagarage.com — custom 1/64 ${b.model} "${b.theme}" on Real Riders.`
+        },
+        process: {
+          ig: `Behind the build 🔧 Laying down custom graphics and bolting Real Rider rubber onto the 1-of-${planTotal} "${b.theme}" ${b.model}. #neonllamagarage #customdiecast #hotwheelscustom`,
+          fb: `Inside the Utah & Texas Neon Llama bench: custom UV livery + rubber Real Rider wheel swap on the "${b.theme}" ${b.model}.`,
+          tt: `Wait for the wheel swap + custom card seal 🔥 1-of-${planTotal} "${b.theme}" ${b.model} build ASMR #hotwheelscustom #diecast`,
+          x: `Bench check 🔧 Real Riders + custom art card going onto the 1-of-${planTotal} "${b.theme}" ${b.model}.`,
+          ytTitle: `Building the 1-of-${planTotal} "${b.theme}" ${b.model} #Shorts`,
+          ytDesc: `Handcrafted custom 1/64 ${b.model} "${b.theme}" — VIP list at https://neonllamagarage.com`
         },
         reveal: {
-          ig: `FULL REVEAL 🔥 Meet the 1-of-${planTotal} "${b.theme}" ${b.model} in full bespoke blister art! Drops TOMORROW at 7PM sharp at neonllamagarage.com 🦙⚡ #neonllamagarage #customhotwheels`,
-          fb: `24 HOURS OUT! Full 360 reveal of our "${b.theme}" ${b.model} custom 1/64 build. Only ${planTotal} made—goes live tomorrow at 7PM on neonllamagarage.com!`,
-          tt: `Full 360 + custom blister reveal of the "${b.theme}" ${b.model}! Drops tomorrow 7PM — only ${planTotal} exist! #hotwheelscustom #diecast`,
-          x: `24 HOURS: Full reveal of the 1-of-${planTotal} "${b.theme}" ${b.model}. Vault opens tomorrow 7PM → neonllamagarage.com`,
-          ytTitle: `Full 360 Reveal: "${b.theme}" ${b.model} Custom 1/64 (Drops Tomorrow!)`,
-          ytDesc: `Only ${planTotal} units built. Set your alarm for tomorrow 7PM at https://neonllamagarage.com`
+          ig: `FULL REVEAL 🔥 Meet the 1-of-${planTotal} "${b.theme}" ${b.model} sealed on bespoke blister art! Drops TOMORROW at 7PM CT sharp at neonllamagarage.com 🦙⚡ #neonllamagarage #customhotwheels`,
+          fb: `24 HOURS OUT! Full 360 reveal of our "${b.theme}" ${b.model} custom 1/64 build. Goes live tomorrow at 7PM CT on neonllamagarage.com!`,
+          tt: `Full 360 + custom blister reveal of the "${b.theme}" ${b.model}! Drops tomorrow 7PM CT! #hotwheelscustom #diecast`,
+          x: `24 HOURS: Full reveal of the 1-of-${planTotal} "${b.theme}" ${b.model}. Vault opens tomorrow 7PM CT → neonllamagarage.com`,
+          ytTitle: `Full 360 Reveal: "${b.theme}" ${b.model} Custom 1/64 #Shorts`,
+          ytDesc: `Set your alarm for tomorrow 7PM CT at https://neonllamagarage.com`
         },
         launch: {
-          ig: `🚨 LIVE IN THE VAULT NOW! The 1-of-${planTotal} "${b.theme}" ${b.model} custom 1/64 is officially up for grabs at neonllamagarage.com (link in bio)! Once all ${planTotal} sell out, it enters The Vault forever. 🏛️🦙`,
-          fb: `🚀 THE VAULT IS OPEN! Grab your 1-of-${planTotal} "${b.theme}" ${b.model} custom 1/64 right now at https://neonllamagarage.com before all ${planTotal} are gone!`,
-          tt: `IT'S LIVE! "${b.theme}" ${b.model} (only ${planTotal} made) just dropped at neonllamagarage.com! 🏃💨 #neonllamagarage #hotwheelscustom`,
-          x: `LIVE NOW 🚨 1-of-${planTotal} "${b.theme}" ${b.model} custom 1/64 is in the shop! Grab yours → https://neonllamagarage.com`,
-          ytTitle: `LIVE NOW: "${b.theme}" ${b.model} Custom 1/64 Drop!`,
+          ig: `🚨 LIVE IN THE VAULT NOW! The "${b.theme}" ${b.model} custom 1/64 is officially up for grabs at neonllamagarage.com (link in bio)! Once sold out, it enters The Vault forever. 🏛️🦙`,
+          fb: `🚀 THE VAULT IS OPEN! Grab your "${b.theme}" ${b.model} custom 1/64 right now at https://neonllamagarage.com before they're gone!`,
+          tt: `IT'S LIVE! "${b.theme}" ${b.model} just dropped at neonllamagarage.com! 🏃💨 #neonllamagarage #hotwheelscustom`,
+          x: `LIVE NOW 🚨 "${b.theme}" ${b.model} custom 1/64 is in the shop! Grab yours → https://neonllamagarage.com`,
+          ytTitle: `LIVE NOW: "${b.theme}" ${b.model} Custom 1/64 Drop! #Shorts`,
           pinTitle: `Custom 1/64 ${b.model} "${b.theme}" Limited Diecast — Neon Llama Garage`,
           pinDesc: `Handcrafted 1/64 ${b.model} "${b.theme}" custom diecast with Real Riders and collector blister card by Neon Llama Garage.`
         }
@@ -10339,31 +10429,54 @@ MANDATORY PRODUCTION CONSTRAINTS (CRITICAL):
       if (!b) return;
       const btn = document.getElementById('btnAiOmnichannelCopy');
       const orig = btn ? btn.innerHTML : '';
-      if (btn) { btn.disabled = true; btn.innerHTML = '<span>⏳</span> WRITING 3-PHASE COPY...'; }
+      if (btn) { btn.disabled = true; btn.innerHTML = '<span>👁️</span> INSPECTING PHOTOS &amp; WRITING 4-PHASE COPY...'; }
 
       try {
+        const pa = b.pipelineAssets || {};
+        const pick = t => (Array.isArray(pa[t]) ? pa[t][0] : pa[t]);
+        const photoUrls = [
+          pick('IMG_PKG_WHT') || pick('IMG_PKG_F'),
+          pick('IMG_LOOSE'),
+          pick('IMG_DCL_CU') || pick('IMG_TOP'),
+          ...(Array.isArray(b.images) ? b.images.slice(0, 3) : [])
+        ].filter(Boolean);
+
         const resp = await fetch('/api/generate-social-copy', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
+            batchId: b.id,
             theme: b.theme,
             model: b.model,
             color: b.color,
-            plannedTotal: parseInt(document.getElementById('deployPlanTotal')?.value || 10, 10),
+            totalStock: parseInt(document.getElementById('deployPhysicalStock')?.value || 8, 10),
+            plannedTotal: parseInt(document.getElementById('deployPlanTotal')?.value || 8, 10),
             plannedChase: parseInt(document.getElementById('deployPlanChase')?.value || 0, 10),
-            price: parseFloat(document.getElementById('deployMsrp')?.value || 50)
+            price: parseFloat(document.getElementById('deployMsrp')?.value || 50),
+            photoUrls: [...new Set(photoUrls)].slice(0, 3)
           })
         });
         const data = await resp.json();
         if (!resp.ok || !data.success) throw new Error(data.error || `API HTTP ${resp.status}`);
 
         if (data.title) document.getElementById('deploySeriesTitle').value = data.title;
+        if (data.ebayTitle && document.getElementById('deployEbayTitle')) {
+          document.getElementById('deployEbayTitle').value = data.ebayTitle;
+        }
         if (data.desc) document.getElementById('deployDescription').value = data.desc;
         if (data.tags) document.getElementById('deployTags').value = data.tags;
         if (data.socialCopy) nlgPopulateSocialCopyInputs(data.socialCopy);
-        showToast('AI generated Title, Collector Story, SEO Tags & all 19 social captions!', '✨');
+        if (data.visualBreakdown) {
+          b.visualBreakdown = data.visualBreakdown;
+          const visBanner = document.getElementById('deployVisionBreakdownBanner');
+          if (visBanner) {
+            visBanner.innerText = `👁️ AI Vision (${data.photosAnalyzed || 0} photos analyzed): ${data.visualBreakdown}`;
+            visBanner.classList.remove('hidden');
+          }
+        }
+        showToast(`Gemini Vision analyzed ${data.photosAnalyzed || 0} photos & wrote Story, eBay Title & all 4 Social Phases!`, '✨');
       } catch (err) {
-        showToast('Worker v2.0 copy endpoint pending deploy: ' + err.message, '⚠️');
+        showToast('AI Copy error: ' + err.message, '⚠️');
       } finally {
         if (btn) { btn.disabled = false; btn.innerHTML = orig; }
       }
@@ -10371,7 +10484,7 @@ MANDATORY PRODUCTION CONSTRAINTS (CRITICAL):
 
     window._activeReelPhase = null;
     function nlgRefreshDeployReelBadges(b) {
-      ['teaser', 'reveal', 'launch'].forEach(ph => {
+      ['teaser', 'process', 'reveal', 'launch'].forEach(ph => {
         const el = document.getElementById('reelStatus_' + ph);
         if (!el) return;
         const url = b?.[ph + 'VideoUrl'] || '';
@@ -10418,24 +10531,30 @@ MANDATORY PRODUCTION CONSTRAINTS (CRITICAL):
       }
     }
 
-        function nlgTestDeployStripeLink() {
+    function nlgTestDeployStripeLink() {
       const url = document.getElementById('deployStripeLink')?.value?.trim();
       if (url && url.startsWith('http')) {
         window.open(url, '_blank');
       } else {
-        alert('No Stripe link entered yet—leave blank on Deploy to auto-generate a hard-capped Stripe link via Worker!');
+        alert('No Stripe link entered yet—click Stage Prep Only or Arm Full Drop to auto-generate a hard-capped Stripe link!');
       }
     }
 
-    async function nlgConfirmPublishToStorefront() {
+    async function nlgConfirmPublishToStorefront(stageOnly = false) {
       const b = workshopBatches.find(x => x.id === currentDeployingBatchId);
       if (!b) return;
-      const btn = document.getElementById('btnConfirmOmnichannelDeploy');
+      const btn = document.getElementById(stageOnly ? 'btnStageOmnichannelPrep' : 'btnConfirmOmnichannelDeploy');
       const orig = btn ? btn.innerHTML : '';
-      if (btn) { btn.disabled = true; btn.innerHTML = '<span>⏳</span> DEPLOYING TO SHOP, STRIPE &amp; CHRONOS...'; }
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = stageOnly
+          ? '<span>⏳</span> PROMOTING R2 PHOTOS &amp; STAGING STRIPE...'
+          : '<span>⏳</span> DEPLOYING TO SHOP, STRIPE &amp; CHRONOS...';
+      }
 
       try {
         b.title = document.getElementById('deploySeriesTitle')?.value?.trim() || b.title;
+        b.ebayTitle = document.getElementById('deployEbayTitle')?.value?.trim() || b.ebayTitle || '';
         const dateVal = document.getElementById('deployLaunchDate')?.value;
         if (dateVal) b.launchDate = new Date(dateVal).toISOString();
         b.totalStock = parseInt(document.getElementById('deployPhysicalStock')?.value || 10, 10);
@@ -10448,17 +10567,15 @@ MANDATORY PRODUCTION CONSTRAINTS (CRITICAL):
         b.tags = document.getElementById('deployTags')?.value?.trim() || '';
         b.socialCopy = nlgReadSocialCopyInputs();
 
-        const pa = b.pipelineAssets || {};
-        const firstOf = k => Array.isArray(pa[k]) ? pa[k][0] : pa[k];
-
-        // Push to Single-Source Cloudflare Worker (/api/deploy-drop)
         const resp = await fetch('/api/deploy-drop', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             ...b,
+            stageOnly: Boolean(stageOnly),
             heroImg: b.heroPhoto || b.hero,
             teaserVideoUrl: b.teaserVideoUrl || '',
+            processVideoUrl: b.processVideoUrl || '',
             revealVideoUrl: b.revealVideoUrl || '',
             launchVideoUrl: b.launchVideoUrl || ''
           })
@@ -10466,27 +10583,48 @@ MANDATORY PRODUCTION CONSTRAINTS (CRITICAL):
 
         if (!resp.ok) {
           const errJson = await resp.json().catch(() => ({}));
-          throw new Error(errJson.error || `Backend Worker HTTP ${resp.status} (Worker v2.0 needs wrangler deploy)`);
+          throw new Error(errJson.error || `Backend Worker HTTP ${resp.status}`);
         }
         const res = await resp.json();
         if (!res.success) throw new Error(res.error || 'Deploy failed');
 
-        if (res.stripeLink) b.stripeLink = res.stripeLink;
-        b.section = 'active';
-        b.status = 'Live / Ready';
-        b.qty = `${b.totalStock} In Stock`;
-        b.progress = 100;
-        if (!b.completedSteps) b.completedSteps = [];
-        if (!b.completedSteps.includes(8)) b.completedSteps.push(8);
+        if (res.stripeLink) {
+          b.stripeLink = res.stripeLink;
+          const slInp = document.getElementById('deployStripeLink');
+          if (slInp) slInp.value = res.stripeLink;
+        }
+        if (Array.isArray(res.images) && res.images.length > 0) b.images = res.images;
+        if (res.heroImg) { b.hero = res.heroImg; b.heroPhoto = res.heroImg; }
 
-        saveBatchesToStorage();
-        renderFleetRows();
-        renderMasterChecklist(b);
-        openBatchDetail(b.id);
-        document.getElementById('deployModal')?.classList.add('hidden');
-        showToast(`🚀 "${b.theme}" LIVE on Shop + 6 Chronos Auto-Posts Armed!`, '🎉');
+        if (stageOnly) {
+          b.section = 'wip';
+          b.status = 'Staged: Ready for Reels';
+          b.qty = `${b.totalStock} Staged`;
+          window._suppressCloudSync = true;
+          saveBatchesToStorage();
+          window._suppressCloudSync = false;
+          renderFleetRows();
+          renderMasterChecklist(b);
+          showToast(`💾 Staged "${b.theme}": ${res.r2PhotoCount || b.images?.length || 0} R2 Photos + Capped Stripe Link locked!`, '✅');
+        } else {
+          b.section = 'active';
+          b.status = 'Live / Ready';
+          b.qty = `${b.totalStock} In Stock`;
+          b.progress = 100;
+          if (!b.completedSteps) b.completedSteps = [];
+          if (!b.completedSteps.includes(8)) b.completedSteps.push(8);
+
+          window._suppressCloudSync = true;
+          saveBatchesToStorage();
+          window._suppressCloudSync = false;
+          renderFleetRows();
+          renderMasterChecklist(b);
+          openBatchDetail(b.id);
+          document.getElementById('deployModal')?.classList.add('hidden');
+          showToast(`🚀 "${b.theme}" LIVE on Shop + 7 Chronos Events Armed!`, '🎉');
+        }
       } catch (err) {
-        alert('⚠️ Backend Deploy Not Armed Yet:\n' + err.message);
+        alert('⚠️ Deploy / Stage Error:\n' + err.message);
       } finally {
         if (btn) { btn.disabled = false; btn.innerHTML = orig; }
       }

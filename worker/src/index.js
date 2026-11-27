@@ -35,7 +35,7 @@ export default {
       const ebay = await getEbayStatus(env);
       return jsonResp({
         status: "ok",
-        service: "Neon Llama Single-Source Studio & Chronos Engine v2.5",
+        service: "Neon Llama Single-Source Studio & Chronos Engine v2.6",
         geminiConfigured: Boolean(env.GEMINI_API_KEY),
         kvConfigured: Boolean(env.NLG_DB),
         r2Configured: Boolean(env.MEDIA_BUCKET),
@@ -347,18 +347,25 @@ export default {
         const batchId = payload.id;
         if (!batchId) return jsonResp({ success: false, error: "Missing batch id" }, 400);
 
-        const totalStock = Math.max(1, parseInt(payload.totalStock ?? payload.plannedTotal ?? 10, 10));
-        const plannedTotal = Math.max(totalStock, parseInt(payload.plannedTotal ?? totalStock, 10));
-        const plannedChase = parseInt(payload.plannedChase ?? 0, 10);
-        const priceUsd = parseFloat(payload.price || 50);
-        const title = payload.title || `Neon Llama Garage "${payload.theme}" ${payload.model} Custom 1/64`;
+        const existingBatches = (await env.NLG_DB.get("batches_v1", "json")) || [];
+        const existingBatch = existingBatches.find((x) => x.id === batchId) || {};
+        const mergedInput = { ...existingBatch, ...payload };
 
-        // Auto-promote ONLY final storefront IMG_* photos from Google Drive to R2 on launch
-        const cleanSlug = `${payload.theme || "Custom"}_${payload.model || "Car"}`.replace(/[^a-zA-Z0-9]+/g, "_");
-        const pa = payload.pipelineAssets || {};
+        const stageOnly = Boolean(payload.stageOnly);
+        const totalStock = Math.max(1, parseInt(mergedInput.totalStock ?? mergedInput.plannedTotal ?? 10, 10));
+        const plannedTotal = Math.max(totalStock, parseInt(mergedInput.plannedTotal ?? totalStock, 10));
+        const plannedChase = parseInt(mergedInput.plannedChase ?? 0, 10);
+        const priceUsd = parseFloat(mergedInput.price || 50);
+        const title = mergedInput.title || `Neon Llama Garage "${mergedInput.theme}" ${mergedInput.model} Custom 1/64`;
+        const ebayTitle = (mergedInput.ebayTitle || "").trim();
+
+        // Auto-promote ALL final IMG_* photos from Google Drive to R2 (pure-white-bg & front blister first!)
+        const cleanSlug = `${mergedInput.theme || "Custom"}_${mergedInput.model || "Car"}`.replace(/[^a-zA-Z0-9]+/g, "_");
+        const pa = mergedInput.pipelineAssets || {};
         const promoTags = [
-          "IMG_LOOSE", "IMG_PKG_F", "IMG_PKG_R", "IMG_PKG_WHT", "IMG_TOP",
-          "IMG_DCL_CU", "IMG_PKG_CU", "IMG_CHASE_L", "IMG_CHASE_P", "IMG_SET_P", "IMG_SET_L", "IMG_GROUP", "IMG_PKG_GRP",
+          "IMG_PKG_WHT", "IMG_PKG_F", "IMG_LOOSE", "IMG_TOP", "IMG_DCL_CU",
+          "IMG_PKG_CU", "IMG_PKG_R", "IMG_PKG_GRP", "IMG_GROUP",
+          "IMG_SET_P", "IMG_SET_L", "IMG_CHASE_P", "IMG_CHASE_L", "IMG_OTHER",
         ];
         const candidatePhotos = [];
         for (const t of promoTags) {
@@ -367,18 +374,31 @@ export default {
             if (vals[idx]) candidatePhotos.push({ tag: t, idx, url: vals[idx] });
           }
         }
-        if (Array.isArray(payload.images)) {
-          payload.images.forEach((u, i) => {
+        // Also harvest any IMG_* tagged JPEG/PNG files from driveFiles not already in candidatePhotos
+        if (Array.isArray(mergedInput.driveFiles)) {
+          mergedInput.driveFiles.forEach((df, i) => {
+            if (df?.id && /^IMG_/i.test(df.tag || "") && /^image\//i.test(df.mime || "")) {
+              const thumb = df.thumb || `https://drive.google.com/thumbnail?id=${df.id}&sz=w1600`;
+              if (!candidatePhotos.some((c) => c.url.includes(df.id))) {
+                candidatePhotos.push({ tag: df.tag, idx: i, url: thumb });
+              }
+            }
+          });
+        }
+        if (Array.isArray(mergedInput.images)) {
+          mergedInput.images.forEach((u, i) => {
             if (u && !candidatePhotos.some((c) => c.url === u)) candidatePhotos.push({ tag: "IMG_OTHER", idx: i, url: u });
           });
         }
 
         const r2Gallery = [];
-        let promotedHero = payload.heroImg || payload.hero || "";
+        let promotedHero = mergedInput.heroImg || mergedInput.hero || "";
         for (const item of candidatePhotos) {
           if (item.url.startsWith("https://media.neonllamagarage.com/")) {
             if (!r2Gallery.includes(item.url)) r2Gallery.push(item.url);
-            if (item.tag === "IMG_LOOSE" && !promotedHero.startsWith("https://media.")) promotedHero = item.url;
+            if ((item.tag === "IMG_PKG_WHT" || item.tag === "IMG_LOOSE") && !promotedHero.startsWith("https://media.")) {
+              promotedHero = item.url;
+            }
           } else if (env.MEDIA_BUCKET && item.url.includes("drive.google.com/thumbnail")) {
             try {
               const hiResUrl = item.url.replace(/sz=w\d+/, "sz=w1600");
@@ -390,16 +410,55 @@ export default {
                 });
                 const pubUrl = `https://media.neonllamagarage.com/${key}`;
                 if (!r2Gallery.includes(pubUrl)) r2Gallery.push(pubUrl);
-                if (item.tag === "IMG_LOOSE") promotedHero = pubUrl;
+                if (item.tag === "IMG_PKG_WHT" || (!promotedHero.startsWith("https://media.") && item.tag === "IMG_LOOSE")) {
+                  promotedHero = pubUrl;
+                }
               }
             } catch (_) {}
           }
         }
-        const finalImages = r2Gallery.length > 0 ? r2Gallery : payload.images || [];
-        const finalHero = promotedHero || finalImages[0] || payload.hero || "";
+        const finalImages = r2Gallery.length > 0 ? r2Gallery : mergedInput.images || [];
+        const finalHero =
+          (promotedHero && promotedHero.startsWith("https://media.") ? promotedHero : "") ||
+          finalImages[0] ||
+          promotedHero ||
+          "";
 
-        // Auto-create Hard-Capped Stripe Payment Link if none supplied
-        let stripeLink = (payload.stripeLink || "").trim();
+        // Auto-promote edited Drive CapCut reels ([VID_TEASER], [VID_PROCESS], [VID_REVEAL], [VID_LAUNCH]) to R2 if present!
+        const reelMap = {
+          teaserVideoUrl: ["VID_TEASER"],
+          processVideoUrl: ["VID_PROCESS"],
+          revealVideoUrl: ["VID_REVEAL"],
+          launchVideoUrl: ["VID_LAUNCH"],
+        };
+        const resolvedReels = {
+          teaserVideoUrl: mergedInput.teaserVideoUrl || "",
+          processVideoUrl: mergedInput.processVideoUrl || "",
+          revealVideoUrl: mergedInput.revealVideoUrl || "",
+          launchVideoUrl: mergedInput.launchVideoUrl || "",
+        };
+        if (env.MEDIA_BUCKET && Array.isArray(mergedInput.driveFiles)) {
+          for (const [prop, tags] of Object.entries(reelMap)) {
+            if (resolvedReels[prop] && resolvedReels[prop].startsWith("https://media.neonllamagarage.com/")) continue;
+            const matchVid = mergedInput.driveFiles.find(
+              (df) => df?.id && tags.includes(String(df.tag || "").toUpperCase()) && /video/i.test(df.mime || "")
+            );
+            if (matchVid) {
+              try {
+                const dlUrl = `https://drive.google.com/uc?export=download&id=${encodeURIComponent(matchVid.id)}`;
+                const vidResp = await fetch(dlUrl, { redirect: "follow" });
+                if (vidResp.ok && (vidResp.headers.get("content-type") || "").includes("video")) {
+                  const vKey = `${cleanSlug}_${tags[0]}_${matchVid.id.slice(0, 8)}.mp4`;
+                  await env.MEDIA_BUCKET.put(vKey, vidResp.body, { httpMetadata: { contentType: "video/mp4" } });
+                  resolvedReels[prop] = `https://media.neonllamagarage.com/${vKey}`;
+                }
+              } catch (_) {}
+            }
+          }
+        }
+
+        // Auto-create Hard-Capped Stripe Payment Link if none supplied (or sync existing cap!)
+        let stripeLink = (mergedInput.stripeLink || "").trim();
         if ((!stripeLink || payload.forceNewStripeLink) && env.STRIPE_SECRET_KEY) {
           stripeLink = await createHardCappedStripePaymentLink(env.STRIPE_SECRET_KEY, {
             batchId,
@@ -411,9 +470,9 @@ export default {
         }
 
         // Provably Fair Chase SHA-256 Commitment (matches legacy Pike-XXXX Salt + Win_Num + Hash)
-        let chaseWinNum = payload.winNum || null;
-        let chaseSalt = payload.salt || null;
-        let chaseHash = payload.chaseHash || null;
+        let chaseWinNum = mergedInput.winNum || null;
+        let chaseSalt = mergedInput.salt || null;
+        let chaseHash = mergedInput.chaseHash || null;
         if (plannedChase > 0 && !chaseHash) {
           const randArr = new Uint32Array(2);
           crypto.getRandomValues(randArr);
@@ -428,104 +487,113 @@ export default {
             .join("");
         }
 
-        const launchMs = payload.launchDate ? new Date(payload.launchDate).getTime() : Date.now() + 72 * 3600 * 1000;
+        const launchMs = mergedInput.launchDate ? new Date(mergedInput.launchDate).getTime() : Date.now() + 72 * 3600 * 1000;
         const launchIso = new Date(launchMs).toISOString();
 
-        // Update batches_v1 in KV
-        const existingBatches = (await env.NLG_DB.get("batches_v1", "json")) || [];
         let found = false;
+        const nextSection = stageOnly ? "wip" : "active";
+        const nextStatus = stageOnly ? "Staged: Ready for Reels" : "Ready";
+        const nextQty = stageOnly ? `${totalStock} Staged` : `${totalStock} In Stock`;
+
+        const savedRecord = {
+          ...mergedInput,
+          ...resolvedReels,
+          section: nextSection,
+          status: nextStatus,
+          qty: nextQty,
+          totalStock,
+          plannedTotal,
+          plannedChase,
+          winNum: plannedChase > 0 ? chaseWinNum : null,
+          salt: plannedChase > 0 ? chaseSalt : null,
+          chaseHash: plannedChase > 0 ? chaseHash : null,
+          price: priceUsd,
+          minPrice: priceUsd,
+          title,
+          ebayTitle: ebayTitle || mergedInput.ebayTitle || "",
+          stripeLink,
+          launchDate: stageOnly ? (payload.launchDate || existingBatch.launchDate || null) : launchIso,
+          lastPromoAt: stageOnly ? (existingBatch.lastPromoAt || null) : launchIso,
+          images: finalImages,
+          heroImg: finalHero,
+          hero: finalHero,
+          heroPhoto: finalHero,
+          socialCopy: payload.socialCopy || existingBatch.socialCopy || {},
+        };
+        delete savedRecord.stageOnly;
+        delete savedRecord.forceNewStripeLink;
+
         const updatedBatches = existingBatches.map((b) => {
           if (b.id !== batchId) return b;
           found = true;
-          return {
-            ...b,
-            ...payload,
-            section: "active",
-            status: "Ready",
-            totalStock,
-            plannedTotal,
-            plannedChase,
-            winNum: chaseWinNum ?? b.winNum,
-            salt: chaseSalt ?? b.salt,
-            chaseHash: chaseHash ?? b.chaseHash,
-            price: priceUsd,
-            minPrice: priceUsd,
-            title,
-            stripeLink,
-            launchDate: launchIso,
-            lastPromoAt: launchIso,
-            images: finalImages,
-            heroImg: finalHero,
-            hero: finalHero,
-            socialCopy: payload.socialCopy || b.socialCopy || {},
-          };
+          return savedRecord;
         });
-        if (!found) {
-          updatedBatches.unshift({
-            ...payload,
-            section: "active",
-            status: "Ready",
-            totalStock,
-            plannedTotal,
-            plannedChase,
-            price: priceUsd,
-            minPrice: priceUsd,
-            title,
+        if (!found) updatedBatches.unshift(savedRecord);
+        await env.NLG_DB.put("batches_v1", JSON.stringify(updatedBatches));
+
+        if (env.STRIPE_SECRET_KEY && stripeLink) {
+          ctx.waitUntil(syncStripeCapForBatch(env.STRIPE_SECRET_KEY, savedRecord));
+        }
+
+        // STAGE-ONLY MODE: Stop here so storefront stays hidden & Chronos stays unarmed until reels are ready!
+        if (stageOnly) {
+          return jsonResp({
+            success: true,
+            staged: true,
+            batchId,
             stripeLink,
-            launchDate: launchIso,
-            lastPromoAt: launchIso,
-            images: finalImages,
             heroImg: finalHero,
-            hero: finalHero,
+            r2PhotoCount: finalImages.length,
+            images: finalImages,
+            resolvedReels,
           });
         }
-        await env.NLG_DB.put("batches_v1", JSON.stringify(updatedBatches));
 
         // Compile Chronos Social Auto-Post Schedule into schedule_v1 KV
         const existingSchedule = ((await env.NLG_DB.get("schedule_v1", "json")) || []).filter(
           (ev) => !(ev.batchId === batchId && ev.status === "PENDING")
         );
 
-        const sc = payload.socialCopy || {};
+        const sc = savedRecord.socialCopy || {};
         const newEvents = [
           {
             id: `EVT-${batchId}-TEASER`,
             batchId,
-            theme: payload.theme,
-            model: payload.model,
+            theme: savedRecord.theme,
+            model: savedRecord.model,
             phase: "TEASER",
             scheduledAt: new Date(launchMs - 72 * 3600 * 1000).toISOString(),
             status: "PENDING",
-            mediaUrl: payload.teaserVideoUrl || finalHero,
+            mediaUrl: resolvedReels.teaserVideoUrl || finalHero,
             copy: sc.teaser || {},
           },
           {
             id: `EVT-${batchId}-PROCESS`,
             batchId,
-            theme: payload.theme,
-            model: payload.model,
+            theme: savedRecord.theme,
+            model: savedRecord.model,
             phase: "PROCESS",
             scheduledAt: new Date(launchMs - 48 * 3600 * 1000).toISOString(),
             status: "PENDING",
-            mediaUrl: payload.processVideoUrl || payload.teaserVideoUrl || finalHero,
+            mediaUrl: resolvedReels.processVideoUrl || resolvedReels.teaserVideoUrl || finalHero,
             copy: sc.process || sc.teaser || {},
           },
           {
             id: `EVT-${batchId}-REVEAL`,
             batchId,
-            theme: payload.theme,
-            model: payload.model,
+            theme: savedRecord.theme,
+            model: savedRecord.model,
             phase: "REVEAL",
             scheduledAt: new Date(launchMs - 24 * 3600 * 1000).toISOString(),
             status: "PENDING",
-            mediaUrl: payload.revealVideoUrl || finalHero,
+            mediaUrl: resolvedReels.revealVideoUrl || finalHero,
             copy: sc.reveal || {},
           },
           {
             id: `EVT-${batchId}-VIP`,
             batchId,
-            theme: payload.theme,
-            model: payload.model,
+            theme: savedRecord.theme,
+            model: savedRecord.model,
             phase: "T-1h_VIP",
             scheduledAt: new Date(launchMs - 1 * 3600 * 1000).toISOString(),
             status: "PENDING",
@@ -536,20 +604,20 @@ export default {
           {
             id: `EVT-${batchId}-LAUNCH`,
             batchId,
-            theme: payload.theme,
-            model: payload.model,
+            theme: savedRecord.theme,
+            model: savedRecord.model,
             phase: "OMNI_LAUNCH",
             scheduledAt: launchIso,
             status: "PENDING",
-            mediaUrl: payload.launchVideoUrl || finalHero,
+            mediaUrl: resolvedReels.launchVideoUrl || finalHero,
             stripeLink,
             copy: sc.launch || {},
           },
           {
             id: `EVT-${batchId}-MARKETPLACE`,
             batchId,
-            theme: payload.theme,
-            model: payload.model,
+            theme: savedRecord.theme,
+            model: savedRecord.model,
             phase: "MARKETPLACE_SYNC",
             scheduledAt: new Date(launchMs + 72 * 3600 * 1000).toISOString(),
             status: "PENDING",
@@ -559,8 +627,8 @@ export default {
           {
             id: `EVT-${batchId}-ARCHIVE`,
             batchId,
-            theme: payload.theme,
-            model: payload.model,
+            theme: savedRecord.theme,
+            model: savedRecord.model,
             phase: "ARCHIVE_SWEEP",
             scheduledAt: new Date(launchMs + 18 * 24 * 3600 * 1000).toISOString(),
             status: "PENDING",
@@ -575,7 +643,7 @@ export default {
         ctx.waitUntil(
           sendTelegramAlert(
             env,
-            `🚀 *DROP ARMED IN CHRONOS*\n*${batchId}: ${payload.theme} (${payload.model})*\n• Stock: ${totalStock} (${plannedChase} Chase) @ $${priceUsd}\n• Launch: ${new Date(launchMs).toUTCString()}\n• Stripe: ${stripeLink || "Manual"}\n• 7 Lifecycle & Social Events Queued`
+            `🚀 *DROP ARMED IN CHRONOS*\n*${batchId}: ${savedRecord.theme} (${savedRecord.model})*\n• Stock: ${totalStock} (${plannedChase} Chase) @ $${priceUsd}\n• Launch: ${new Date(launchMs).toUTCString()}\n• Stripe: ${stripeLink || "Manual"}\n• 7 Lifecycle & Social Events Queued`
           )
         );
 
@@ -752,11 +820,111 @@ export default {
       return jsonResp({ error: "GEMINI_API_KEY secret is not configured on the Cloudflare Worker." }, 500);
     }
 
-    // 8. 3-PHASE OMNICHANNEL SOCIAL COPY & COLLECTOR STORY GENERATOR
+    // 8. MULTIMODAL VISION 4-PHASE OMNICHANNEL COPY & COLLECTOR STORY GENERATOR
     if (url.pathname === "/api/generate-social-copy" && request.method === "POST") {
       try {
         const body = await request.json();
-        const { theme = "Custom", model = "Hot Wheels", color = "Custom", plannedTotal = 10, plannedChase = 0, price = 50 } = body;
+        const {
+          batchId = "",
+          theme = "Custom",
+          model = "Hot Wheels",
+          color = "Custom",
+          totalStock = 8,
+          plannedTotal = 8,
+          plannedChase = 0,
+          price = 50,
+          photoUrls = [],
+        } = body;
+
+        // Gather up to 3 real product photos (Packaged Card + Loose Car + Decal Closeup) for Multimodal Vision!
+        const candidateUrls = Array.isArray(photoUrls) ? [...photoUrls] : [];
+        if (candidateUrls.length === 0 && batchId && env.NLG_DB) {
+          const allB = (await env.NLG_DB.get("batches_v1", "json")) || [];
+          const matched = allB.find((x) => x.id === batchId);
+          if (matched) {
+            const pa = matched.pipelineAssets || {};
+            const pickTag = (t) => (Array.isArray(pa[t]) ? pa[t][0] : pa[t]);
+            [
+              pickTag("IMG_PKG_WHT") || pickTag("IMG_PKG_F"),
+              pickTag("IMG_LOOSE"),
+              pickTag("IMG_DCL_CU") || pickTag("IMG_TOP"),
+              ...(Array.isArray(matched.images) ? matched.images.slice(0, 3) : []),
+            ]
+              .filter(Boolean)
+              .forEach((u) => {
+                if (!candidateUrls.includes(u)) candidateUrls.push(u);
+              });
+          }
+        }
+
+        const arrayBufToBase64 = (buf) => {
+          const bytes = new Uint8Array(buf);
+          let bin = "";
+          const chunk = 0x8000;
+          for (let i = 0; i < bytes.length; i += chunk) {
+            bin += String.fromCharCode(...bytes.subarray(i, i + chunk));
+          }
+          return btoa(bin);
+        };
+
+        const visionParts = [];
+        for (const rawUrl of candidateUrls.slice(0, 3)) {
+          try {
+            const fetchUrl = String(rawUrl).includes("drive.google.com/thumbnail")
+              ? String(rawUrl).replace(/sz=w\d+/, "sz=w1000")
+              : String(rawUrl);
+            if (!fetchUrl.startsWith("https://")) continue;
+            const imgRes = await fetch(fetchUrl);
+            const ct = imgRes.headers.get("content-type") || "image/jpeg";
+            if (imgRes.ok && ct.startsWith("image/")) {
+              const b64 = arrayBufToBase64(await imgRes.arrayBuffer());
+              visionParts.push({ inlineData: { mimeType: ct.split(";")[0], data: b64 } });
+            }
+          } catch (_) {}
+        }
+
+        const chaseNum = parseInt(plannedChase, 10) || 0;
+        const planNum = parseInt(plannedTotal, 10) || 8;
+        const stockNum = parseInt(totalStock ?? planNum, 10) || planNum;
+        const chaseInstruction =
+          chaseNum > 0
+            ? `EDITION & CHASE RULE: Total micro-batch built is ${planNum} numbered units (${stockNum} available in this online release), including ${chaseNum} ultra-rare Chase variant.`
+            : `EDITION & NO-CHASE RULE: Total micro-batch built is strictly ${planNum} handcrafted units (${stockNum} available in this online release). CRITICAL: There is ZERO Chase variant in this release (0 Chase) — DO NOT mention chase cars, mystery pulls, or odds anywhere!`;
+
+        const promptText = `You are the collector-obsessed creative director for Neon Llama Garage (a father-son custom 1/64 Hot Wheels diecast studio spanning Utah & Texas).
+${visionParts.length > 0 ? "CAREFULLY INSPECT THE ATTACHED PRODUCT PHOTOS of this exact finished build and its custom blister card!" : ""}
+
+Build Metadata:
+• Batch ID: ${batchId || "Custom"}
+• Theme / Edition Name: "${theme}"
+• Base Casting: ${model}
+• Base Finish Note: ${color}
+• Direct Shop Price: $${price} at neonllamagarage.com
+• ${chaseInstruction}
+
+CRITICAL COPYWRITING RULES:
+1. GROUND IN REAL VISUAL DETAILS: Describe the exact craftsmanship visible in the photos — wheel spoke style/finish & tire lettering (e.g., anodized rims, Goodyear rubber Real Riders), body finish, decal artwork across sides/hood/roof, window tint/interior, stance, and the bespoke artwork illustrated on the custom blister card! Never invent details that contradict the photos.
+2. EVERGREEN TIMING: Never invent specific calendar dates (like "Sep 12"). Use crisp phase hooks ("72 Hours Out", "Behind the Build", "Drops Tomorrow @ 7PM CT", "LIVE NOW in the Vault at neonllamagarage.com").
+3. STRICT CHARACTER LIMITS:
+   • "title": <= 75 chars (Storefront & Stripe product title)
+   • "ebayTitle": <= 80 chars (High-converting eBay search SEO title starting with "Custom Hot Wheels ${model}")
+   • Every "x" post: <= 255 chars
+   • Every "ytTitle": <= 68 chars (include #Shorts)
+
+Return ONLY valid JSON with this exact structure:
+{
+  "visualBreakdown": "1 concise sentence listing the exact wheels/tires, decal graphics, glass/paint, and card art spotted in the photos",
+  "title": "Neon Llama Garage collector title (<= 75 chars)",
+  "ebayTitle": "Custom Hot Wheels ... SEO title (<= 80 chars)",
+  "desc": "<p>Rich collector story paragraph 1 (visual presence & bespoke livery)</p><p>Paragraph 2 (wheel swap, stance, custom card art & father-son Utah/Texas craftsmanship)</p><p>Paragraph 3 (strictly limited micro-batch scarcity)</p>",
+  "tags": "12 comma-separated collector SEO keywords",
+  "socialCopy": {
+    "teaser": { "ig": "T-72h moody macro teaser caption w/ hashtags", "fb": "FB teaser post", "x": "Punchy X teaser (<=255 chars)", "tt": "TikTok hook caption", "ytTitle": "YT Shorts Teaser Title #Shorts (<=68 chars)", "ytDesc": "YT Shorts teaser description w/ https://neonllamagarage.com" },
+    "process": { "ig": "T-48h workshop build / UV decal / Real Riders swap ASMR caption w/ hashtags", "fb": "FB behind-the-build story post", "x": "Punchy X workshop build post (<=255 chars)", "tt": "TikTok custom Hot Wheels build ASMR caption", "ytTitle": "YT Shorts Build Process Title #Shorts (<=68 chars)", "ytDesc": "YT Shorts build description w/ https://neonllamagarage.com" },
+    "reveal": { "ig": "T-24h full 360 + custom blister card reveal (drops tomorrow 7PM CT) w/ hashtags", "fb": "FB 24h full reveal post", "x": "X 24h reveal post (<=255 chars)", "tt": "TikTok 360 + blister reveal caption", "ytTitle": "YT Shorts Full Reveal Title #Shorts (<=68 chars)", "ytDesc": "YT Shorts reveal description w/ https://neonllamagarage.com" },
+    "launch": { "ig": "LIVE NOW in the Vault! Link in bio / neonllamagarage.com caption w/ hashtags", "fb": "FB LIVE NOW launch post with https://neonllamagarage.com", "x": "X LIVE NOW post (<=255 chars)", "tt": "TikTok LIVE NOW caption", "ytTitle": "YT Shorts LIVE Drop Title #Shorts (<=68 chars)", "ytDesc": "YT Shorts live launch description w/ https://neonllamagarage.com", "pinTitle": "Pinterest Collector Pin Title", "pinDesc": "Pinterest rich SEO collector description" }
+  }
+}`;
 
         const resp = await fetch(
           `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`,
@@ -764,25 +932,7 @@ export default {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              contents: [{
-                parts: [{
-                  text: `You are the hype-driven collector brand voice for Neon Llama Garage (a father-son custom 1/64 Hot Wheels studio in Utah & Texas).
-Generate complete launch copy for our custom 1:64 "${theme}" ${model} (${color} finish, Real Rider rubber wheels, bespoke blister card, limited run of ${plannedTotal} numbered units${plannedChase > 0 ? ` including ${plannedChase} ultra-rare Chase variant` : ""}, $${price} MSRP at neonllamagarage.com).
-
-Return ONLY valid JSON with this exact structure:
-{
-  "title": "SEO collector product title (max 75 chars)",
-  "desc": "<p>2-3 rich HTML paragraphs telling the collector story, craftsmanship, Real Riders, and limited edition scarcity</p>",
-  "tags": "10 comma-separated SEO keywords",
-  "socialCopy": {
-    "teaser": { "ig": "T-72h moody macro teaser caption w/ hashtags", "fb": "FB teaser post", "x": "Punchy X teaser (<260 chars)", "tt": "TikTok hook caption", "ytTitle": "YT Shorts Teaser Title (<70 chars)", "ytDesc": "YT Shorts description" },
-    "process": { "ig": "T-48h workshop custom build / UV decal / Real Riders ASMR caption w/ hashtags", "fb": "FB behind-the-build process post", "x": "Punchy X build process post (<260 chars)", "tt": "TikTok custom Hot Wheels build ASMR caption", "ytTitle": "YT Shorts Custom Build Process Title (<70 chars)", "ytDesc": "YT Shorts build description" },
-    "reveal": { "ig": "T-24h full 360 reveal + blister card drop tomorrow 7PM caption", "fb": "FB reveal post", "x": "X 24h reveal (<260 chars)", "tt": "TikTok reveal caption", "ytTitle": "YT Shorts Reveal Title (<70 chars)", "ytDesc": "YT Shorts reveal description" },
-    "launch": { "ig": "LIVE NOW in the Vault! Link in bio / neonllamagarage.com caption", "fb": "FB LIVE NOW launch post with neonllamagarage.com", "x": "X LIVE NOW post (<260 chars)", "tt": "TikTok LIVE NOW caption", "ytTitle": "YT Shorts Launch Title (<70 chars)", "pinTitle": "Pinterest Pin Title", "pinDesc": "Pinterest SEO description" }
-  }
-}`
-                }]
-              }],
+              contents: [{ parts: [...visionParts, { text: promptText }] }],
               generationConfig: { responseMimeType: "application/json" },
             }),
           }
@@ -795,7 +945,11 @@ Return ONLY valid JSON with this exact structure:
         const gData = await resp.json();
         const rawText = gData.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
         const cleaned = rawText.replace(/```json/gi, "").replace(/```/gi, "").trim();
-        return jsonResp({ success: true, ...JSON.parse(cleaned) });
+        const parsed = JSON.parse(cleaned);
+        if (parsed.ebayTitle && parsed.ebayTitle.length > 80) {
+          parsed.ebayTitle = parsed.ebayTitle.slice(0, 80).trim();
+        }
+        return jsonResp({ success: true, photosAnalyzed: visionParts.length, ...parsed });
       } catch (err) {
         return jsonResp({ success: false, error: err.message }, 500);
       }
@@ -1858,6 +2012,9 @@ async function callEbayTradingApi(env, callName, innerXml) {
 // 3. COLLECTOR TITLE (<= 80 CHARS) & POLICY-SAFE HTML BUILDERS
 // -----------------------------------------------------------------------------
 export function buildEbayTitle(batch) {
+  if (batch.ebayTitle && String(batch.ebayTitle).trim().length > 10) {
+    return String(batch.ebayTitle).replace(/\s+/g, " ").trim().slice(0, 80);
+  }
   const theme = String(batch.theme || "Custom").trim();
   const model = String(batch.model || "Diecast").trim();
   const planned = parseInt(batch.plannedTotal ?? 10, 10) || 10;
