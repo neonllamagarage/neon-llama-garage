@@ -404,16 +404,32 @@
         <!-- LEFT COLUMN: PROMINENT IMAGE & COMPACT UNIT SPECS (5 Cols) -->
         <div class="lg:col-span-5 space-y-3">
           
-          <!-- PROMINENT BEST HERO IMAGE -->
-          <div class="bg-[#0b101d] border border-slate-800 rounded-2xl p-3 overflow-hidden shadow-2xl">
+          <!-- PROMINENT BEST HERO IMAGE + INSTANT MULTI-ASSET GALLERY FILMSTRIP -->
+          <div class="bg-[#0b101d] border border-slate-800 rounded-2xl p-3 overflow-hidden shadow-2xl space-y-2.5">
             <div class="relative w-full h-80 rounded-xl bg-gradient-to-b from-slate-100 to-slate-200 border border-slate-300/40 overflow-hidden flex items-center justify-center group p-0">
               <img id="detailHeroImg" src="" class="w-full h-full object-cover object-center cursor-zoom-in hover:scale-105 transition duration-300" onclick="openImageLightbox(this.src, document.getElementById('headerBatchTheme')?.value || 'Hero')">
-              <div class="absolute top-3 left-3 px-2.5 py-1 rounded-lg bg-black/80 backdrop-blur border border-slate-700 text-xs font-orbitron font-black text-white flex items-center gap-1.5">
+              <div id="detailHeroSlotBadge" class="absolute top-3 left-3 px-2.5 py-1 rounded-lg bg-black/80 backdrop-blur border border-slate-700 text-xs font-orbitron font-black text-white flex items-center gap-1.5">
                 <span>📸</span> HERO SHOT
               </div>
+              <button type="button" onclick="openImageLightbox(document.getElementById('detailHeroImg')?.src, document.getElementById('headerBatchTheme')?.value || 'Hero')" class="absolute top-3 right-3 px-2.5 py-1 rounded-lg bg-black/75 hover:bg-black text-cyan-300 border border-cyan-500/40 text-[10px] font-orbitron font-bold transition">
+                🔍 FULL VIEW
+              </button>
               <button type="button" onclick="openLlamaCamModal()" class="absolute bottom-3 right-3 px-3 py-1.5 rounded-lg bg-yellow-500 text-black font-orbitron font-black text-xs shadow-lg hover:bg-yellow-400 transition active:scale-95">
                 RE-SHOOT IN LLAMA CAM
               </button>
+            </div>
+
+            <!-- ALWAYS-VISIBLE LINKED ASSETS STRIP -->
+            <div class="pt-1">
+              <div class="flex items-center justify-between mb-1.5 px-0.5">
+                <span id="detailFilmstripCount" class="text-[10px] font-orbitron font-bold text-cyan-300 uppercase tracking-wider">📸 Linked Assets</span>
+                <button type="button" onclick="nlgOpenAssetDrawerExplicit()" class="text-[10px] font-orbitron font-bold text-cyan-400 hover:text-white underline flex items-center gap-1">
+                  <span>📂</span> Open Full 14-Slot Matrix ↗
+                </button>
+              </div>
+              <div id="detailHeroFilmstrip" class="flex gap-2 overflow-x-auto pb-1.5 custom-scrollbar">
+                <!-- Populated dynamically with all R2 photos, card art, decals & concepts -->
+              </div>
             </div>
           </div>
 
@@ -1832,16 +1848,16 @@
                   "ART_SIDE": "https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_LOOSE_SINGLE.jpg",
                   "ART_CARD": "assets/card_art_stained_glass_silverado.jpg",
                   "PKG_MASTER_F": "assets/card_art_stained_glass_silverado.jpg",
+                  "PKG_CHASE_F": "https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_CHASE_P_PXL_20260708_001440542.jpg",
                   "IMG_LOOSE": "https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_LOOSE_SINGLE.jpg",
                   "IMG_PKG_F": "https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_PKG_F_Stained_Glass_83_Silverado_1788780176579.jpg",
-                  "IMG_PKG_R": "https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_OTHER_PXL_20260708_001631566.jpg",
                   "IMG_CHASE_L": "https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_CHASE_L_PXL_20260701_215849992.jpg",
-                  "IMG_CHASE_P": "https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_CHASE_P_PXL_20260708_001440542.jpg",
-                  "IMG_GROUP": "https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_GROUP_PXL_20260708_010437684.jpg",
                   "IMG_SET_L": "https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_SET_L_PXL_20260708_001545268.jpg",
-                  "IMG_SET_P": "https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_SET_P_PXL_20260708_010606013.jpg"
+                  "IMG_SET_P": "https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_SET_P_PXL_20260708_010606013.jpg",
+                  "IMG_GROUP": "https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_GROUP_PXL_20260708_010437684.jpg"
             },
-            "cardArtDataUrl": "assets/card_art_stained_glass_silverado.jpg"
+            "cardArtDataUrl": "assets/card_art_stained_glass_silverado.jpg",
+            "heroPhoto": "https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_LOOSE_SINGLE.jpg"
       },
       {
             "id": "D-002",
@@ -1897,18 +1913,25 @@
             "folderUrl": "https://drive.google.com/drive/search?q=Stained%20Glass%20'55%20Gasser",
             "pipelineAssets": {
                   "ART_SIDE": "https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_LOOSE_PXL_20260816_104313748.jpg",
+                  "ART_TOP": "https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_TOP_Stained_Glass_55_Gasser_PXL_20260917_192357122.jpg",
                   "ART_CARD": "assets/card_art_stained_glass_gasser.jpg",
                   "PKG_MASTER_F": "assets/card_art_stained_glass_gasser.jpg",
                   "PKG_MASTER_R": "https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_PKG_R_Stained_Glass_55_Gasser_1791031506000.jpg",
+                  "PKG_CHASE_F": "https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_CHASE_P_Stained_Glass_55_Gasser_PXL_20260917_191937365.jpg",
                   "IMG_LOOSE": "https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_LOOSE_PXL_20260816_104313748.jpg",
                   "IMG_PKG_F": "https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_PKG_F_Stained_Glass_55_Gasser_PXL_20260917_191845947.jpg",
                   "IMG_PKG_R": "https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_PKG_R_Stained_Glass_55_Gasser_1791031506000.jpg",
                   "IMG_PKG_WHT": "https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_PKG_WHT_PXL_20260823_162940269.jpg",
+                  "IMG_TOP": "https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_TOP_Stained_Glass_55_Gasser_PXL_20260917_192357122.jpg",
+                  "IMG_DCL_CU": "https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_DCL_CU_Stained_Glass_55_Gasser_PXL_20260917_192335629.jpg",
+                  "IMG_PKG_CU": "https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_PKG_CU_Stained_Glass_55_Gasser_PXL_20260917_192252408.jpg",
                   "IMG_CHASE_L": "https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_CHASE_L_PXL_20260816_104326413.jpg",
-                  "IMG_CHASE_P": "https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_CHASE_P_PXL_20260823_162812683.jpg",
-                  "IMG_TOP": "https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_TOP_Stained_Glass_55_Gasser_PXL_20260917_192357122.jpg"
+                  "IMG_SET_P": "https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_SET_P_PXL_20260823_162930668.jpg",
+                  "IMG_GROUP": "https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_GROUP_PXL_20260823_163103470.jpg",
+                  "IMG_PKG_GRP": "https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_PKG_GRP_Stained_Glass_55_Gasser_PXL_20260917_192056620.jpg"
             },
-            "cardArtDataUrl": "assets/card_art_stained_glass_gasser.jpg"
+            "cardArtDataUrl": "assets/card_art_stained_glass_gasser.jpg",
+            "heroPhoto": "https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_LOOSE_PXL_20260816_104313748.jpg"
       },
       {
             "id": "B-010",
@@ -2172,14 +2195,6 @@
                   {
                         "title": "Acid Llama Finished Prototype",
                         "img": "assets/acid_llama_935.png"
-                  },
-                  {
-                        "title": "Purple Haze Acid Splatter",
-                        "img": "assets/showcase_purple_haze.png"
-                  },
-                  {
-                        "title": "Acid Splatter Livery Concept",
-                        "img": "assets/camaro_acid_splash.png"
                   }
             ],
             "completedSteps": [
@@ -2190,16 +2205,8 @@
             ],
             "folderUrl": "https://drive.google.com/drive/search?q=Acid%20Llama%20Porsche%20935",
             "pipelineAssets": {
-                  "ART_SIDE": "assets/acid_llama_935.png",
-                  "ART_CARD": "assets/acid_llama_card_art.jpg",
-                  "ART_LOGO": "assets/acid_llama_logo.jpg",
-                  "DCL_SIDE_D": "assets/acid_llama_decal_master.jpg",
-                  "DCL_SIDE_P": "assets/acid_llama_decal_master.jpg",
-                  "PKG_MASTER_F": "assets/acid_llama_card_art.jpg",
                   "IMG_LOOSE": "assets/acid_llama_935.png"
-            },
-            "cardArtDataUrl": "assets/acid_llama_card_art.jpg",
-            "wordmarkDataUrl": "assets/acid_llama_logo.jpg"
+            }
       },
       {
             "id": "B-020",
@@ -2504,7 +2511,7 @@
       // Purge any [In Design Lab] / Dairy Showcase placeholder batches
       workshopBatches = workshopBatches.filter(b => b.id !== 'B-025' && b.theme !== '[In Design Lab]' && b.theme !== 'Dairy Showcase');
 
-      // Backfill rich GAS metadata (title, desc, tags, stripeLink, launchDate, images) from defaultBatches to all workshop batches
+      // Backfill rich GAS metadata & 14-slot pipelineAssets from defaultBatches into cached localStorage batches
       workshopBatches.forEach(b => {
         const def = defaultBatches.find(d => d.id === b.id);
         if (def) {
@@ -2515,7 +2522,19 @@
           if (!b.launchDate && def.launchDate) b.launchDate = def.launchDate;
           if (b.plannedTotal === undefined && def.plannedTotal !== undefined) b.plannedTotal = def.plannedTotal;
           if (b.plannedChase === undefined && def.plannedChase !== undefined) b.plannedChase = def.plannedChase;
-          if ((!b.images || b.images.length === 0) && def.images) b.images = def.images;
+          if (!b.folderUrl && def.folderUrl) b.folderUrl = def.folderUrl;
+          if (!b.cardArtDataUrl && def.cardArtDataUrl) b.cardArtDataUrl = def.cardArtDataUrl;
+          if (!b.wordmarkDataUrl && def.wordmarkDataUrl) b.wordmarkDataUrl = def.wordmarkDataUrl;
+          if (!b.heroPhoto && def.heroPhoto) b.heroPhoto = def.heroPhoto;
+          if (def.images && Array.isArray(def.images)) {
+            const existingImgs = Array.isArray(b.images) ? b.images : [];
+            const mergedImgs = [...existingImgs];
+            def.images.forEach(u => { if (u && !mergedImgs.includes(u)) mergedImgs.push(u); });
+            b.images = mergedImgs;
+          }
+          if (def.pipelineAssets) {
+            b.pipelineAssets = { ...def.pipelineAssets, ...(b.pipelineAssets || {}) };
+          }
         }
       });
 
@@ -2702,10 +2721,17 @@
         acidBatch.heroPhoto = 'assets/acid_llama_935.png';
         acidBatch.heroPhotoDataUrl = 'assets/acid_llama_935.png';
         acidBatch.images = ['assets/acid_llama_935.png'];
+        delete acidBatch.cardArtDataUrl;
+        delete acidBatch.wordmarkDataUrl;
+        if (acidBatch.pipelineAssets) {
+          delete acidBatch.pipelineAssets.ART_CARD;
+          delete acidBatch.pipelineAssets.ART_LOGO;
+          delete acidBatch.pipelineAssets.DCL_SIDE_D;
+          delete acidBatch.pipelineAssets.DCL_SIDE_P;
+          delete acidBatch.pipelineAssets.PKG_MASTER_F;
+        }
         acidBatch.subIdeas = [
-          { title: 'Acid Llama Finished Prototype', img: 'assets/acid_llama_935.png' },
-          { title: 'Purple Haze Acid Splatter', img: 'assets/showcase_purple_haze.png' },
-          { title: 'Acid Splatter Livery Concept', img: 'assets/camaro_acid_splash.png' }
+          { title: 'Acid Llama Finished Prototype', img: 'assets/acid_llama_935.png' }
         ];
         if (typeof nlgSaveCarState === 'function') {
           setTimeout(() => {
@@ -5519,12 +5545,12 @@ CORE LIVERY & PRODUCTION RULES:
       return 'Physical Shot';
     }
 
-    async // CANONICAL 14-SLOT PRODUCTION MATRIX DEFINITION (GARAGE MES PARITY)
+    // CANONICAL PRODUCTION MATRIX DEFINITION (100% GARAGE MES PARITY + EXTRA R2 ASSETS)
     const CANONICAL_ASSET_SECTIONS = [
       {
         id: 'sec_masks',
         title: '🎭 Casting Masks (Shared Library)',
-        sub: '1-Mask Outlines',
+        sub: 'Google Drive: 1-Mask Outlines',
         slots: [
           { tag: 'MASK_SIDE', label: 'Side Mask', tool: 'mask' },
           { tag: 'MASK_TOP', label: 'Top Mask (Roof/Hood)', tool: 'mask' }
@@ -5544,7 +5570,7 @@ CORE LIVERY & PRODUCTION RULES:
       {
         id: 'sec_decals',
         title: '⚡ Decal System (CMYK + White Underbase)',
-        sub: 'eufyMake UV Prepress',
+        sub: 'Batch Folder & eufyMake Prepress',
         slots: [
           { tag: 'DCL_ROOF', label: 'Roof Decal', tool: 'decal' },
           { tag: 'DCL_HOOD', label: 'Hood Decal', tool: 'decal' },
@@ -5555,7 +5581,7 @@ CORE LIVERY & PRODUCTION RULES:
       {
         id: 'sec_pkg',
         title: '📦 Packaging WIP & Masters',
-        sub: 'Mattel 300 DPI Cards',
+        sub: 'Batch Folder & 300 DPI Cards',
         slots: [
           { tag: 'PKG_MASTER_F', label: 'Front Card Master', tool: 'card' },
           { tag: 'PKG_MASTER_R', label: 'Rear Card Master', tool: 'card' }
@@ -5563,20 +5589,26 @@ CORE LIVERY & PRODUCTION RULES:
       },
       {
         id: 'sec_promo',
-        title: '📸 Core Promotional Images',
-        sub: 'Turntable & Studio R2',
+        title: '📸 Core Promotional & Studio Images',
+        sub: 'Cloudflare R2 & Turntable',
+        includeExtraImages: true,
         slots: [
           { tag: 'IMG_LOOSE', label: '1) Loose Hero', tool: 'cam' },
           { tag: 'IMG_PKG_F', label: '2) Pkg Front', tool: 'cam' },
           { tag: 'IMG_PKG_R', label: '3) Pkg Rear', tool: 'cam' },
-          { tag: 'IMG_PKG_WHT', label: '4) Pkg White BG', tool: 'cam' }
+          { tag: 'IMG_PKG_WHT', label: '4) Pkg White BG', tool: 'cam' },
+          { tag: 'IMG_TOP', label: 'Top-Down View', tool: 'cam' },
+          { tag: 'IMG_DCL_CU', label: 'Decal Macro CU', tool: 'cam' },
+          { tag: 'IMG_PKG_CU', label: 'Pkg Macro CU', tool: 'cam' }
         ]
       },
       {
         id: 'sec_video',
         title: '🎬 Video Pipeline & Raw B-Roll',
-        sub: 'CapCut / Socials',
+        sub: 'Google Drive / R2 Socials',
         slots: [
+          { tag: 'VID_TEASER', label: '1) Teaser Reel', tool: 'cam' },
+          { tag: 'VID_REVEAL', label: '2) Reveal Reel', tool: 'cam' },
           { tag: 'RAW_VID_CAR_MACRO', label: '📹 Macro: Car', tool: 'cam' },
           { tag: 'RAW_VID_PKG_MACRO', label: '📹 Macro: Pkg', tool: 'cam' },
           { tag: 'RAW_VID_PKG_TT', label: '📹 Pkg Close TT', tool: 'cam' },
@@ -5586,6 +5618,42 @@ CORE LIVERY & PRODUCTION RULES:
     ];
 
     window.nlgAssetMatrixView = 'matrix';
+
+    function nlgOpenAssetDrawerExplicit() {
+      const drawer = document.getElementById('cockpitAssetDrawer');
+      const arrow = document.getElementById('assetMenuArrow');
+      if (!drawer) return;
+      drawer.classList.remove('hidden');
+      if (arrow) arrow.innerText = '▴';
+      const b = workshopBatches.find(x => x.id === currentActiveBatchId);
+      if (b) nlgRenderAssetDrawer(b);
+      drawer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function nlgSelectHeroPreview(url, label) {
+      if (!url) return;
+      const heroEl = document.getElementById('detailHeroImg');
+      const badgeEl = document.getElementById('detailHeroSlotBadge');
+      if (heroEl) {
+        // Use object-contain for tall blister cards or flat decals so they aren't cropped
+        const isCardOrDecal = /CARD|PKG|DCL|CMYK|LOGO/i.test(label || '') || /PKG|card_art|Side_|Roof_/i.test(url);
+        heroEl.className = isCardOrDecal
+          ? 'w-full h-full object-contain object-center cursor-zoom-in hover:scale-105 transition duration-300 p-2'
+          : 'w-full h-full object-cover object-center cursor-zoom-in hover:scale-105 transition duration-300';
+        heroEl.src = url;
+      }
+      if (badgeEl && label) {
+        badgeEl.innerHTML = `<span>📸</span> ${label.toUpperCase()}`;
+      }
+      // Highlight active thumb
+      document.querySelectorAll('#detailHeroFilmstrip [data-thumb-url]').forEach(el => {
+        if (el.getAttribute('data-thumb-url') === url) {
+          el.classList.add('ring-2', 'ring-cyan-400', 'border-cyan-400');
+        } else {
+          el.classList.remove('ring-2', 'ring-cyan-400', 'border-cyan-400');
+        }
+      });
+    }
 
     function nlgToggleAssetMatrixView(mode) {
       window.nlgAssetMatrixView = mode;
@@ -5607,83 +5675,211 @@ CORE LIVERY & PRODUCTION RULES:
       }
     }
 
-    function nlgResolveSlotAsset(b, st, tag) {
-      if (!b) return null;
+    // Returns ALL matching URLs for a canonical slot tag (supports #1, #2 multi-shot parity with Garage MES)
+    function nlgResolveSlotAssets(b, st, tag) {
+      if (!b) return [];
+      const results = [];
+      const addUnique = (u) => {
+        if (u && typeof u === 'string' && u !== '[stored_in_indexeddb]' && !results.includes(u)) {
+          results.push(u);
+        }
+      };
+
       // 1. Explicit override in st or batch pipelineAssets
-      if (st?.pipelineAssets && st.pipelineAssets[tag]) return st.pipelineAssets[tag];
-      if (b.pipelineAssets && b.pipelineAssets[tag]) return b.pipelineAssets[tag];
+      const stVal = st?.pipelineAssets?.[tag];
+      if (Array.isArray(stVal)) stVal.forEach(addUnique);
+      else addUnique(stVal);
+
+      const bVal = b.pipelineAssets?.[tag];
+      if (Array.isArray(bVal)) bVal.forEach(addUnique);
+      else addUnique(bVal);
 
       // Helper: search decal panels
-      const findDecal = (term) => {
+      const findDecals = (term) => {
         const decals = (st && Array.isArray(st.savedDecals) && st.savedDecals.length > 0) ? st.savedDecals : (b.savedDecals || []);
         for (const d of decals) {
           const k = String(d.key || d.label || '').toLowerCase();
-          if (k.includes(term)) return d.cmykPng || d.underbasePng;
+          if (k.includes(term)) addUnique(d.cmykPng || d.underbasePng);
         }
-        return null;
       };
 
-      // Helper: search image array for bracket or token match
-      const findImageMatch = (tokens) => {
+      // Helper: search b.images array for ALL bracket or token matches
+      const findImageMatches = (tokens) => {
         const list = Array.isArray(b.images) ? b.images : [];
         for (const url of list) {
           if (typeof url !== 'string') continue;
+          const upper = url.toUpperCase();
           for (const t of tokens) {
-            if (url.includes(`[${t}]`) || url.includes(`_${t}_`) || url.includes(`_${t}.`)) return url;
+            const tu = t.toUpperCase();
+            if (upper.includes(`[${tu}]`) || upper.includes(`_${tu}_`) || upper.includes(`_${tu}.`)) {
+              addUnique(url);
+              break;
+            }
           }
         }
-        return null;
       };
 
-      // 2. Smart tag fallback
       switch (tag) {
         case 'MASK_SIDE':
-          return b.castingMaskSide || null;
+          addUnique(b.castingMaskSide);
+          findImageMatches(['MASK_SIDE']);
+          break;
         case 'MASK_TOP':
-          return b.castingMaskTop || null;
+          addUnique(b.castingMaskTop);
+          findImageMatches(['MASK_TOP']);
+          break;
         case 'ART_SIDE':
-          return b.hero || st?.heroMock || null;
+          findImageMatches(['ART_SIDE']);
+          if (results.length === 0 && b.hero && !b.hero.includes('media.neonllamagarage.com')) addUnique(b.hero);
+          addUnique(st?.heroMock);
+          break;
         case 'ART_TOP':
-          return (b.subIdeas && b.subIdeas[0]?.img) || null;
+          findImageMatches(['ART_TOP']);
+          break;
         case 'ART_CARD':
-          return st?.cardArtDataUrl || b.cardArtDataUrl || null;
+          addUnique(st?.cardArtDataUrl || st?.cardArt || b.cardArtDataUrl);
+          findImageMatches(['ART_CARD']);
+          break;
         case 'ART_LOGO':
-          return st?.wordmarkDataUrl || b.wordmarkDataUrl || null;
+          addUnique(st?.wordmarkDataUrl || b.wordmarkDataUrl);
+          findImageMatches(['ART_LOGO']);
+          break;
         case 'DCL_ROOF':
-          return findDecal('roof');
+          findDecals('roof');
+          findImageMatches(['DCL_ROOF']);
+          break;
         case 'DCL_HOOD':
-          return findDecal('hood') || findDecal('roof');
+          findDecals('hood');
+          findImageMatches(['DCL_HOOD']);
+          break;
         case 'DCL_SIDE_D':
-          return findDecal('driver') || findDecal('side');
+          findDecals('driver');
+          findDecals('side_master');
+          findImageMatches(['DCL_SIDE_D']);
+          break;
         case 'DCL_SIDE_P':
-          return findDecal('pass') || findDecal('side');
+          findDecals('pass');
+          findDecals('side_master');
+          findImageMatches(['DCL_SIDE_P']);
+          break;
         case 'DCL_CHASE':
-          return findDecal('chase');
+          findDecals('chase');
+          findImageMatches(['DCL_CHASE']);
+          break;
         case 'PKG_MASTER_F':
-          return st?.cardArtDataUrl || b.cardArtDataUrl || null;
+          addUnique(st?.cardArtDataUrl || b.cardArtDataUrl);
+          findImageMatches(['PKG_MASTER_F']);
+          break;
         case 'PKG_MASTER_R':
-          return findImageMatch(['IMG_PKG_R', 'PKG_MASTER_R', 'PKG_R']);
+          findImageMatches(['PKG_MASTER_R', 'IMG_PKG_R']);
+          break;
         case 'PKG_CHASE_F':
-          return findImageMatch(['PKG_CHASE_F', 'CHASE_P']);
+          findImageMatches(['PKG_CHASE_F', 'IMG_CHASE_P']);
+          break;
         case 'IMG_LOOSE':
-          return st?.heroPhotoDataUrl || b.heroPhoto || findImageMatch(['IMG_LOOSE']) || b.hero || null;
+          addUnique(st?.heroPhotoDataUrl || b.heroPhoto);
+          findImageMatches(['IMG_LOOSE', 'LOOSE_SINGLE']);
+          if (results.length === 0) addUnique(b.hero);
+          break;
         case 'IMG_PKG_F':
-          return findImageMatch(['IMG_PKG_F', 'IMG_PKG']);
+          findImageMatches(['IMG_PKG_F']);
+          break;
         case 'IMG_PKG_R':
-          return findImageMatch(['IMG_PKG_R']);
+          findImageMatches(['IMG_PKG_R']);
+          break;
         case 'IMG_PKG_WHT':
-          return findImageMatch(['IMG_PKG_WHT']);
-        case 'IMG_CHASE_L':
-          return findImageMatch(['IMG_CHASE_L']);
-        case 'IMG_CHASE_P':
-          return findImageMatch(['IMG_CHASE_P']);
-        case 'IMG_GROUP':
-          return findImageMatch(['IMG_GROUP']);
+          findImageMatches(['IMG_PKG_WHT']);
+          break;
         case 'IMG_TOP':
-          return findImageMatch(['IMG_TOP']);
+          findImageMatches(['IMG_TOP']);
+          break;
+        case 'IMG_DCL_CU':
+          findImageMatches(['IMG_DCL_CU']);
+          break;
+        case 'IMG_PKG_CU':
+          findImageMatches(['IMG_PKG_CU']);
+          break;
+        case 'IMG_CHASE_L':
+          findImageMatches(['IMG_CHASE_L']);
+          break;
+        case 'IMG_CHASE_P':
+          findImageMatches(['IMG_CHASE_P']);
+          break;
+        case 'IMG_SET_P':
+          findImageMatches(['IMG_SET_P']);
+          break;
+        case 'IMG_SET_L':
+          findImageMatches(['IMG_SET_L']);
+          break;
+        case 'IMG_GROUP':
+          findImageMatches(['IMG_GROUP', 'IMG_PKG_GRP']);
+          break;
         default:
-          return null;
+          findImageMatches([tag]);
+          break;
       }
+      return results;
+    }
+
+    // Populate the always-visible Hero Filmstrip right beneath detailHeroImg
+    function nlgRenderHeroFilmstrip(b, st, extraAssets) {
+      const strip = document.getElementById('detailHeroFilmstrip');
+      const countEl = document.getElementById('detailFilmstripCount');
+      if (!strip || !b) return;
+
+      const items = [];
+      const seen = new Set();
+      const pushItem = (url, label) => {
+        if (!url || typeof url !== 'string' || url === '[stored_in_indexeddb]' || seen.has(url)) return;
+        seen.add(url);
+        items.push({ url, label });
+      };
+
+      // 1. Primary Hero
+      pushItem(b.hero, formatPhotoLabel(b.hero));
+
+      // 2. All R2 / physical photography in b.images
+      if (Array.isArray(b.images)) {
+        b.images.forEach((u, idx) => pushItem(u, `${formatPhotoLabel(u)} #${idx + 1}`));
+      }
+
+      // 3. Card Art & Wordmark
+      const cardArt = st?.cardArtDataUrl || st?.cardArt || b.cardArtDataUrl;
+      if (cardArt) pushItem(cardArt, '300 DPI Card Art');
+      const wordmark = st?.wordmarkDataUrl || b.wordmarkDataUrl;
+      if (wordmark) pushItem(wordmark, 'Series Wordmark');
+
+      // 4. Saved Decals
+      const decals = (st && Array.isArray(st.savedDecals) && st.savedDecals.length > 0) ? st.savedDecals : (b.savedDecals || []);
+      decals.forEach(d => pushItem(d.cmykPng || d.underbasePng, d.label || d.key || 'UV Decal'));
+
+      // 5. Sub-ideas / Concept Mocks
+      const subs = (b.subIdeas && b.subIdeas.length > 0) ? b.subIdeas : (st?.subIdeas || []);
+      subs.forEach((si, idx) => pushItem(si?.img, si?.title || `Concept #${idx + 1}`));
+
+      // 6. Any extra pipelineAssets
+      if (Array.isArray(extraAssets)) {
+        extraAssets.forEach(a => pushItem(a?.image, a?.label || a?.type || 'Asset'));
+      }
+
+      if (countEl) {
+        countEl.innerText = `📸 ${items.length} Linked Asset${items.length === 1 ? '' : 's'} Ready`;
+      }
+
+      const activeSrc = document.getElementById('detailHeroImg')?.getAttribute('src') || b.hero;
+      strip.innerHTML = items.map(it => {
+        const safeLabel = String(it.label || 'Asset').replace(/'/g, "\'");
+        const safeUrl = String(it.url).replace(/'/g, "\'");
+        const isActive = it.url === activeSrc;
+        return `
+          <button type="button" data-thumb-url="${it.url}" onclick="nlgSelectHeroPreview('${safeUrl}', '${safeLabel}')" class="flex-shrink-0 w-20 rounded-lg bg-slate-900 border ${isActive ? 'ring-2 ring-cyan-400 border-cyan-400' : 'border-slate-800 hover:border-cyan-500/60'} p-1 flex flex-col justify-between transition group text-left">
+            <div class="w-full h-12 rounded bg-black/60 overflow-hidden flex items-center justify-center">
+              <img src="${it.url}" onerror="handleImageError(this, '${String(b.theme || '').replace(/'/g, "\'")}', '${String(b.model || '').replace(/'/g, "\'")}', '${String(b.color || '').replace(/'/g, "\'")}')" class="w-full h-full object-cover group-hover:scale-105 transition" />
+            </div>
+            <span class="text-[8px] font-mono font-bold text-slate-300 truncate w-full mt-1" title="${it.label}">${it.label}</span>
+          </button>
+        `;
+      }).join('');
     }
 
     async function nlgRenderAssetDrawer(b) {
@@ -5699,6 +5895,12 @@ CORE LIVERY & PRODUCTION RULES:
 
       const st = (typeof nlgLoadCarState === 'function') ? await nlgLoadCarState(b.id) : null;
       const allVaultAssets = [];
+      const seenVaultUrls = new Set();
+      const registerVaultAsset = (item) => {
+        if (!item || !item.image || seenVaultUrls.has(item.image)) return;
+        seenVaultUrls.add(item.image);
+        allVaultAssets.push(item);
+      };
 
       // Link Drive Batch Folder button
       if (driveBtn) {
@@ -5706,32 +5908,35 @@ CORE LIVERY & PRODUCTION RULES:
         driveBtn.href = folder;
       }
 
-      // Check for chase capability
-      const hasChase = parseFloat(b.plannedChase || b.chaseStock || 0) > 0;
+      const parsedQty = typeof nlgParseQty === 'function' ? nlgParseQty(b.qty) : { total: b.plannedTotal || 10, chase: b.plannedChase || 0 };
+      const hasChase = parseFloat(b.plannedChase ?? parsedQty.chase ?? 0) > 0;
+      const totalCap = parseFloat(b.plannedTotal ?? parsedQty.total ?? 1);
 
-      // Build clone of canonical sections with dynamic slots
+      // Build clone of canonical sections with Garage MES dynamic Chase & Group slots
       const activeSections = CANONICAL_ASSET_SECTIONS.map(sec => {
         const sClone = { ...sec, slots: [...sec.slots] };
         if (hasChase) {
-          if (sec.id === 'sec_decals' && !sClone.slots.some(s => s.tag === 'DCL_CHASE')) {
-            sClone.slots.push({ tag: 'DCL_CHASE', label: '⚡ Chase Decals', tool: 'decal' });
-          }
-          if (sec.id === 'sec_pkg' && !sClone.slots.some(s => s.tag === 'PKG_CHASE_F')) {
-            sClone.slots.push({ tag: 'PKG_CHASE_F', label: 'Front Card (Chase)', tool: 'card' });
-          }
+          if (sec.id === 'sec_decals') sClone.slots.push({ tag: 'DCL_CHASE', label: '⚡ Chase Decals', tool: 'decal' });
+          if (sec.id === 'sec_pkg') sClone.slots.splice(1, 0, { tag: 'PKG_CHASE_F', label: 'Front Card (Chase)', tool: 'card' });
           if (sec.id === 'sec_promo') {
-            if (!sClone.slots.some(s => s.tag === 'IMG_CHASE_L')) sClone.slots.push({ tag: 'IMG_CHASE_L', label: 'Chase Loose Hero', tool: 'cam' });
-            if (!sClone.slots.some(s => s.tag === 'IMG_CHASE_P')) sClone.slots.push({ tag: 'IMG_CHASE_P', label: 'Chase Packaged', tool: 'cam' });
+            sClone.slots.push({ tag: 'IMG_CHASE_L', label: 'Chase Loose', tool: 'cam' });
+            sClone.slots.push({ tag: 'IMG_CHASE_P', label: 'Chase Pkg', tool: 'cam' });
+            sClone.slots.push({ tag: 'IMG_SET_P', label: 'Pkg Set', tool: 'cam' });
+            sClone.slots.push({ tag: 'IMG_SET_L', label: 'Loose Set', tool: 'cam' });
           }
+        }
+        if (totalCap > 1 && sec.id === 'sec_promo') {
+          sClone.slots.push({ tag: 'IMG_GROUP', label: 'Fleet / Pkg Group', tool: 'cam' });
         }
         return sClone;
       });
 
-      let totalFilled = 0;
+      let totalFilledSlots = 0;
       let totalSlots = 0;
+      const slottedUrls = new Set();
 
       // -----------------------------------------------------------------------
-      // A. RENDER VIEW 1: 14-SLOT PRODUCTION MATRIX (GARAGE MES PARITY)
+      // A. RENDER VIEW 1: CANONICAL PRODUCTION MATRIX (100% GARAGE MES PARITY)
       // -----------------------------------------------------------------------
       if (elMatrix) {
         let matrixHtml = '';
@@ -5739,29 +5944,32 @@ CORE LIVERY & PRODUCTION RULES:
           totalSlots += sec.slots.length;
           let secFilledCount = 0;
 
-          const slotCardsHtml = sec.slots.map(slot => {
-            const assetUrl = nlgResolveSlotAsset(b, st, slot.tag);
-            if (assetUrl) {
+          let slotCardsHtml = sec.slots.map(slot => {
+            const matches = nlgResolveSlotAssets(b, st, slot.tag);
+            if (matches.length > 0) {
               secFilledCount++;
-              totalFilled++;
-              allVaultAssets.push({ label: slot.label, type: slot.tag, image: assetUrl });
-              return `
-                <div class="flex-shrink-0 w-32 rounded-lg bg-slate-900 border border-emerald-500/50 p-1.5 flex flex-col justify-between relative group shadow">
-                  <div class="flex items-center justify-between text-[9px] font-mono font-bold text-emerald-400 mb-1">
-                    <span class="truncate max-w-[90px]" title="${slot.label}">✅ ${slot.label}</span>
-                    <span class="text-[8px] text-slate-500">[${slot.tag.split('_')[0]}]</span>
+              totalFilledSlots++;
+              return matches.map((assetUrl, mIdx) => {
+                slottedUrls.add(assetUrl);
+                const counterLabel = matches.length > 1 ? ` #${mIdx + 1}` : '';
+                registerVaultAsset({ label: `${slot.label}${counterLabel}`, type: slot.tag, image: assetUrl });
+                return `
+                  <div class="flex-shrink-0 w-32 rounded-lg bg-slate-900 border border-emerald-500/50 p-1.5 flex flex-col justify-between relative group shadow">
+                    <div class="flex items-center justify-between text-[9px] font-mono font-bold text-emerald-400 mb-1">
+                      <span class="truncate max-w-[92px]" title="${slot.label}${counterLabel}">✅ ${slot.label}${counterLabel}</span>
+                      <span class="text-[8px] text-slate-500">[${slot.tag.split('_')[0]}]</span>
+                    </div>
+                    <div class="w-full h-16 rounded bg-black/60 overflow-hidden cursor-zoom-in flex items-center justify-center relative" onclick="openImageLightbox('${assetUrl}', '${(b.theme + ' — ' + slot.label + counterLabel).replace(/'/g, "\'")}')" >
+                      <img src="${assetUrl}" class="w-full h-full object-contain group-hover:scale-105 transition" onerror="handleImageError(this, '${String(b.theme || '').replace(/'/g, "\'")}', '${String(b.model || '').replace(/'/g, "\'")}', '${String(b.color || '').replace(/'/g, "\'")}')" />
+                    </div>
+                    <div class="flex items-center justify-between mt-1 pt-1 border-t border-slate-800 text-[8px] font-mono">
+                      <button type="button" onclick="nlgSelectHeroPreview('${assetUrl.replace(/'/g, "\'")}', '${(slot.label + counterLabel).replace(/'/g, "\'")}')" class="text-slate-400 hover:text-cyan-300 truncate max-w-[72px]" title="Preview in Hero Frame">${slot.tag}</button>
+                      <a href="${assetUrl}" download="${(b.theme + '_' + slot.tag + (mIdx ? '_' + (mIdx + 1) : '')).toLowerCase().replace(/[^a-z0-9]+/g, '_')}.jpg" onclick="event.stopPropagation()" class="text-cyan-400 hover:text-white" title="Download Asset">⬇</a>
+                    </div>
                   </div>
-                  <div class="w-full h-16 rounded bg-black/60 overflow-hidden cursor-zoom-in flex items-center justify-center relative" onclick="openImageLightbox('${assetUrl}', '${(b.theme + ' — ' + slot.label).replace(/'/g, "\'")}')">
-                    <img src="${assetUrl}" class="w-full h-full object-contain group-hover:scale-105 transition" onerror="handleImageError(this, '${b.theme}', '${b.model}', '${b.color}')" />
-                  </div>
-                  <div class="flex items-center justify-between mt-1 pt-1 border-t border-slate-800 text-[8px] font-mono">
-                    <span class="text-slate-400 truncate max-w-[65px]">${slot.tag}</span>
-                    <a href="${assetUrl}" download="${(b.theme + '_' + slot.tag).toLowerCase().replace(/[^a-z0-9]+/g, '_')}.png" onclick="event.stopPropagation()" class="text-cyan-400 hover:text-white" title="Download Asset">⬇</a>
-                  </div>
-                </div>
-              `;
+                `;
+              }).join('');
             } else {
-              // Open relevant Studio tool for unmapped slot
               let toolAction = `openDirectSlotLinkModal('${slot.tag}', '${slot.label.replace(/'/g, "\'")}')`;
               let toolLabel = '+ Link File';
               if (slot.tool === 'decal') { toolAction = `openDecalStudioForCurrentBatch()`; toolLabel = '⚡ Decal Studio'; }
@@ -5785,7 +5993,34 @@ CORE LIVERY & PRODUCTION RULES:
             }
           }).join('');
 
+          // Append ALL remaining IMG_OTHER / unslotted R2 photos in sec_promo so ZERO assets are hidden!
+          let extraCount = 0;
+          if (sec.includeExtraImages && Array.isArray(b.images)) {
+            const extras = b.images.filter(u => u && typeof u === 'string' && !slottedUrls.has(u));
+            extraCount = extras.length;
+            slotCardsHtml += extras.map((extraUrl, eIdx) => {
+              const lbl = `Extra Angle #${eIdx + 1}`;
+              registerVaultAsset({ label: lbl, type: 'IMG_OTHER', image: extraUrl });
+              return `
+                <div class="flex-shrink-0 w-32 rounded-lg bg-slate-900 border border-cyan-500/40 p-1.5 flex flex-col justify-between relative group shadow">
+                  <div class="flex items-center justify-between text-[9px] font-mono font-bold text-cyan-300 mb-1">
+                    <span class="truncate max-w-[92px]" title="${lbl}">📸 ${lbl}</span>
+                    <span class="text-[8px] text-slate-500">[EXTRA]</span>
+                  </div>
+                  <div class="w-full h-16 rounded bg-black/60 overflow-hidden cursor-zoom-in flex items-center justify-center relative" onclick="openImageLightbox('${extraUrl}', '${(b.theme + ' — ' + lbl).replace(/'/g, "\'")}')">
+                    <img src="${extraUrl}" class="w-full h-full object-contain group-hover:scale-105 transition" onerror="handleImageError(this, '${String(b.theme || '').replace(/'/g, "\'")}', '${String(b.model || '').replace(/'/g, "\'")}', '${String(b.color || '').replace(/'/g, "\'")}')" />
+                  </div>
+                  <div class="flex items-center justify-between mt-1 pt-1 border-t border-slate-800 text-[8px] font-mono">
+                    <button type="button" onclick="nlgSelectHeroPreview('${extraUrl.replace(/'/g, "\'")}', '${lbl}')" class="text-slate-400 hover:text-cyan-300 truncate max-w-[72px]">IMG_OTHER</button>
+                    <a href="${extraUrl}" download="${(b.theme + '_img_other_' + (eIdx + 1)).toLowerCase().replace(/[^a-z0-9]+/g, '_')}.jpg" onclick="event.stopPropagation()" class="text-cyan-400 hover:text-white" title="Download Asset">⬇</a>
+                  </div>
+                </div>
+              `;
+            }).join('');
+          }
+
           const badgeColor = (secFilledCount === sec.slots.length) ? 'bg-emerald-950 text-emerald-300 border-emerald-500/50' : (secFilledCount > 0 ? 'bg-cyan-950 text-cyan-300 border-cyan-500/50' : 'bg-slate-900 text-slate-500 border-slate-800');
+          const extraText = extraCount > 0 ? ` + ${extraCount} Extra` : '';
 
           matrixHtml += `
             <div class="bg-black/50 border border-slate-800/80 rounded-xl p-2.5">
@@ -5796,7 +6031,7 @@ CORE LIVERY & PRODUCTION RULES:
                 </div>
                 <div class="flex items-center gap-2">
                   <span class="px-2 py-0.5 rounded-full border text-[9px] font-mono font-bold ${badgeColor}">
-                    ${secFilledCount} / ${sec.slots.length} Ready
+                    ${secFilledCount} / ${sec.slots.length} Slots${extraText}
                   </span>
                 </div>
               </div>
@@ -5810,53 +6045,41 @@ CORE LIVERY & PRODUCTION RULES:
         elMatrix.innerHTML = matrixHtml;
       }
 
-      // Update sticky count in header bar
-      if (badgeCount) {
-        badgeCount.innerText = totalFilled > 0 ? `${totalFilled} / ${totalSlots}` : '14';
-      }
-      if (coverageBadge) {
-        coverageBadge.innerText = `${totalFilled} / ${totalSlots} Slots Filled`;
-        coverageBadge.className = totalFilled === totalSlots ? 'px-2 py-0.5 rounded-full bg-emerald-950 border border-emerald-500/50 text-emerald-300 font-mono text-[10px] font-bold' : 'px-2 py-0.5 rounded-full bg-cyan-950 border border-cyan-500/50 text-cyan-300 font-mono text-[10px] font-bold';
-      }
-
       // -----------------------------------------------------------------------
       // B. RENDER VIEW 2: 4 GROUPED BUCKETS
       // -----------------------------------------------------------------------
-      // 1. CONCEPTS & MOCKUPS BUCKET
       if (bucketConcepts) {
         const concepts = [];
         const heroImg = b.hero || b.conceptData?.img || st?.heroMock;
-        if (heroImg) {
-          concepts.push({ label: 'Primary Hero Mock', type: 'HERO', image: heroImg, badge: 'HERO' });
-        }
+        if (heroImg) concepts.push({ label: 'Primary Hero Mock', type: 'HERO', image: heroImg });
         const subList = (b.subIdeas && Array.isArray(b.subIdeas) && b.subIdeas.length > 0) ? b.subIdeas : (st?.subIdeas || []);
         subList.forEach((si, i) => {
           if (si && si.img && !concepts.some(c => c.image === si.img)) {
-            concepts.push({ label: si.title || `Sub-Idea #${i + 1}`, type: 'SUB-IDEA', image: si.img, badge: 'SUB' });
+            concepts.push({ label: si.title || `Sub-Idea #${i + 1}`, type: 'SUB-IDEA', image: si.img });
           }
         });
+        concepts.forEach(registerVaultAsset);
 
         if (concepts.length > 0) {
           bucketConcepts.innerHTML = `
-            <div class="grid grid-cols-2 gap-1.5">
+            <div class="grid grid-cols-2 gap-1.5 max-h-56 overflow-y-auto pr-1">
               ${concepts.map(c => `
                 <div class="h-20 rounded bg-slate-900 border border-slate-800 hover:border-pink-500/50 overflow-hidden relative cursor-zoom-in group p-1 flex flex-col justify-between" onclick="openImageLightbox('${c.image}', '${(b.theme + ' — ' + c.label).replace(/'/g, "\'")}')">
                   <img src="${c.image}" class="w-full h-14 object-cover object-center group-hover:scale-105 transition" />
                   <div class="flex items-center justify-between text-[8px] font-mono text-slate-400">
                     <span class="truncate max-w-[65px] text-pink-300 font-bold">${c.label}</span>
-                    <a href="${c.image}" download="${(b.theme + '_' + c.label).toLowerCase().replace(/[^a-z0-9]+/g, '_')}.png" onclick="event.stopPropagation()" class="text-cyan-400 hover:text-white" title="Download">⬇</a>
+                    <a href="${c.image}" download="${(b.theme + '_' + c.label).toLowerCase().replace(/[^a-z0-9]+/g, '_')}.png" onclick="event.stopPropagation()" class="text-cyan-400 hover:text-white">⬇</a>
                   </div>
                 </div>
               `).join('')}
             </div>
-            <span class="text-[9px] text-pink-400 block text-center font-mono font-bold">${concepts.length} Concept Mockup${concepts.length > 1 ? 's' : ''} Attached</span>
+            <span class="text-[9px] text-pink-400 block text-center font-mono font-bold">${concepts.length} Concept File${concepts.length > 1 ? 's' : ''}</span>
           `;
         } else {
           bucketConcepts.innerHTML = `<span class="italic text-slate-500">No mockups yet</span><button type="button" onclick="openConceptGenModal()" class="px-2 py-1 rounded bg-pink-950 text-pink-300 font-bold text-[9px] border border-pink-500/40">Open Idea Lab</button>`;
         }
       }
 
-      // 2. PRINT DECALS BUCKET (CMYK + WHITE UNDERBASE)
       if (bucketDecals) {
         const decals = (st && Array.isArray(st.savedDecals) && st.savedDecals.length > 0) ? st.savedDecals : (b.savedDecals || []);
         if (decals.length > 0) {
@@ -5864,12 +6087,13 @@ CORE LIVERY & PRODUCTION RULES:
             <div class="grid grid-cols-2 gap-1.5">
               ${decals.map(d => {
                 const img = d.cmykPng || d.underbasePng;
+                registerVaultAsset({ label: d.label || d.key, type: 'DECAL CMYK', image: img, underbase: d.underbasePng });
                 return `
                   <div class="h-20 rounded bg-slate-900 border border-slate-800 hover:border-cyan-500/50 overflow-hidden relative cursor-zoom-in group p-1 flex flex-col justify-between" onclick="openImageLightbox('${img}', '${(b.theme + ' — ' + (d.label || d.key)).replace(/'/g, "\'")}')">
                     <img src="${img}" class="w-full h-14 object-contain group-hover:scale-105 transition" />
                     <div class="flex items-center justify-between text-[8px] font-mono text-slate-400">
                       <span class="truncate max-w-[65px] text-cyan-300 font-bold">${d.label || d.key}</span>
-                      <a href="${img}" download="${(b.theme + '_' + (d.label || d.key)).toLowerCase().replace(/[^a-z0-9]+/g, '_')}.png" onclick="event.stopPropagation()" class="text-cyan-400 hover:text-white" title="Download CMYK">⬇</a>
+                      <a href="${img}" download="${(b.theme + '_' + (d.label || d.key)).toLowerCase().replace(/[^a-z0-9]+/g, '_')}.png" onclick="event.stopPropagation()" class="text-cyan-400 hover:text-white">⬇</a>
                     </div>
                   </div>
                 `;
@@ -5882,19 +6106,19 @@ CORE LIVERY & PRODUCTION RULES:
           `;
         } else {
           bucketDecals.innerHTML = `
-            <span class="italic text-slate-500">Ready to extract</span>
+            <span class="italic text-slate-500">Drive decals not synced yet</span>
             <button type="button" onclick="openDecalStudioForCurrentBatch()" class="px-2 py-1 rounded bg-cyan-950 text-cyan-300 font-bold text-[9px] border border-cyan-500/40">Open Decals Studio</button>
           `;
         }
       }
 
-      // 3. BLISTER CARD BUCKET (CARD ART + AI WORDMARK)
       if (bucketBlister) {
         const cardArt = st?.cardArtDataUrl || st?.cardArt || b.cardArtDataUrl;
         const wordmark = st?.wordmarkDataUrl || b.wordmarkDataUrl;
         const blisterItems = [];
         if (cardArt) blisterItems.push({ label: '300 DPI Card Art', type: 'CARD ART', image: cardArt });
         if (wordmark) blisterItems.push({ label: 'AI Series Logo', type: 'WORDMARK', image: wordmark });
+        blisterItems.forEach(registerVaultAsset);
 
         if (blisterItems.length > 0) {
           bucketBlister.innerHTML = `
@@ -5904,7 +6128,7 @@ CORE LIVERY & PRODUCTION RULES:
                   <img src="${item.image}" class="w-full h-14 object-contain group-hover:scale-105 transition" />
                   <div class="flex items-center justify-between text-[8px] font-mono text-slate-400">
                     <span class="truncate max-w-[65px] text-purple-300 font-bold">${item.label}</span>
-                    <a href="${item.image}" download="${(b.theme + '_' + item.label).toLowerCase().replace(/[^a-z0-9]+/g, '_')}.png" onclick="event.stopPropagation()" class="text-purple-300 hover:text-white" title="Download">⬇</a>
+                    <a href="${item.image}" download="${(b.theme + '_' + item.label).toLowerCase().replace(/[^a-z0-9]+/g, '_')}.png" onclick="event.stopPropagation()" class="text-purple-300 hover:text-white">⬇</a>
                   </div>
                 </div>
               `).join('')}
@@ -5922,14 +6146,12 @@ CORE LIVERY & PRODUCTION RULES:
         }
       }
 
-      // 4. PHOTOGRAPHY / PHYSICAL DONOR & MULTI-SHOT GALLERY BUCKET
       if (bucketPhotos) {
         const photoList = [];
         if (Array.isArray(b.images) && b.images.length > 0) {
           b.images.forEach((imgUrl, idx) => {
             if (imgUrl && typeof imgUrl === 'string') {
-              const label = formatPhotoLabel(imgUrl);
-              photoList.push({ label: `${label} #${idx + 1}`, type: 'CATALOG PHOTO', image: imgUrl });
+              photoList.push({ label: `${formatPhotoLabel(imgUrl)} #${idx + 1}`, type: 'CATALOG PHOTO', image: imgUrl });
             }
           });
         }
@@ -5937,21 +6159,21 @@ CORE LIVERY & PRODUCTION RULES:
         if (donor && !photoList.some(p => p.image === donor)) {
           photoList.push({ label: 'Donor Casting', type: 'PHYSICAL DONOR', image: donor });
         }
-        const camShot = st?.heroPhotoDataUrl || b.heroPhoto || (b.hero && !b.hero.startsWith('data:') && !b.hero.includes('donor') && (b.hero.endsWith('.png') || b.hero.endsWith('.jpg') || b.hero.startsWith('http')) ? b.hero : null);
+        const camShot = st?.heroPhotoDataUrl || b.heroPhoto || (b.hero && !b.hero.startsWith('data:') && !b.hero.includes('donor') ? b.hero : null);
         if (camShot && !photoList.some(p => p.image === camShot)) {
-          const isLlamaCam = !!(st?.heroPhotoDataUrl);
-          photoList.unshift({ label: isLlamaCam ? 'Glory Shot (Cam)' : 'Loose Glory Shot', type: 'GLORY SHOT', image: camShot });
+          photoList.unshift({ label: st?.heroPhotoDataUrl ? 'Glory Shot (Cam)' : 'Loose Glory Shot', type: 'GLORY SHOT', image: camShot });
         }
+        photoList.forEach(registerVaultAsset);
 
         if (photoList.length > 0) {
           bucketPhotos.innerHTML = `
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-1.5 max-h-56 overflow-y-auto pr-1">
               ${photoList.map(item => `
                 <div class="h-20 rounded bg-slate-900 border border-slate-800 hover:border-yellow-500/50 overflow-hidden relative cursor-zoom-in group p-1 flex flex-col justify-between" onclick="openImageLightbox('${item.image}', '${(b.theme + ' — ' + item.label).replace(/'/g, "\'")}')">
-                  <img src="${item.image}" onerror="handleImageError(this, '${b.theme}', '${b.model}', '${b.color}')" class="w-full h-14 object-contain group-hover:scale-105 transition" />
+                  <img src="${item.image}" onerror="handleImageError(this, '${String(b.theme || '').replace(/'/g, "\'")}', '${String(b.model || '').replace(/'/g, "\'")}', '${String(b.color || '').replace(/'/g, "\'")}')" class="w-full h-14 object-contain group-hover:scale-105 transition" />
                   <div class="flex items-center justify-between text-[8px] font-mono text-slate-400">
                     <span class="truncate max-w-[65px] text-yellow-300 font-bold">${item.label}</span>
-                    <a href="${item.image}" download="${(b.theme + '_' + item.label).toLowerCase().replace(/[^a-z0-9]+/g, '_')}.jpg" onclick="event.stopPropagation()" class="text-yellow-400 hover:text-white" title="Download">⬇</a>
+                    <a href="${item.image}" download="${(b.theme + '_' + item.label).toLowerCase().replace(/[^a-z0-9]+/g, '_')}.jpg" onclick="event.stopPropagation()" class="text-yellow-400 hover:text-white">⬇</a>
                   </div>
                 </div>
               `).join('')}
@@ -5970,6 +6192,17 @@ CORE LIVERY & PRODUCTION RULES:
       }
 
       window.currentCarVaultAssets = allVaultAssets;
+
+      // Update Header Asset Count & Coverage Badge with ACTUAL total linked assets
+      if (badgeCount) {
+        badgeCount.innerText = allVaultAssets.length;
+      }
+      if (coverageBadge) {
+        coverageBadge.innerText = `${allVaultAssets.length} Linked Files • ${totalFilledSlots}/${totalSlots} Pipeline Slots`;
+      }
+
+      // Sync the always-visible Hero Filmstrip on the left column
+      nlgRenderHeroFilmstrip(b, st, allVaultAssets);
     }
 
     // DIRECT SLOT LINK MODAL HELPER
@@ -8600,6 +8833,7 @@ CORE LIVERY & PRODUCTION RULES:
       nlgRenderPipelineBar();
       const b = (typeof workshopBatches !== 'undefined') ? workshopBatches.find(x => x.id === batchId) : null;
       if (b && typeof renderCarAssetVault === 'function') await renderCarAssetVault(b);
+      if (b && typeof nlgRenderAssetDrawer === 'function') await nlgRenderAssetDrawer(b);
     };
 
     // Persist Card Art, Wordmark, Settings & Exports automatically!
