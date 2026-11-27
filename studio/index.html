@@ -1104,16 +1104,18 @@
               </button>
             </div>
 
-            <!-- TEXT / SYMMETRY MODE SELECTOR (EUFYMAKE FLIP OPTIMIZATION) -->
-            <div class="flex items-center justify-between flex-wrap gap-2 pt-1 border-t border-slate-800/80">
-              <label class="flex items-center gap-2 cursor-pointer select-none">
-                <input type="checkbox" id="decalHasTextToggle" onchange="nlgToggleDecalTextMode()" class="w-4 h-4 rounded bg-black border-slate-700 text-pink-500 focus:ring-0 cursor-pointer" />
-                <span id="decalTextModeLabel" class="text-xs font-orbitron font-bold text-emerald-400">
-                  ✨ NO TEXT / PURE GRAPHIC: 1 Master Side Decal (Flip in eufyMake • No 2nd Download)
-                </span>
-              </label>
-              <span class="text-[10px] font-mono text-slate-500">
-                1 Master Flank + 1 Roof • Halves AI calls & eliminates duplicate files
+            <!-- EXPLICIT SIDE MODE + DIE-CUT TRANSPARENCY CONTROLS -->
+            <div class="flex items-center justify-between flex-wrap gap-2 pt-2 border-t border-slate-800/80">
+              <div class="flex items-center gap-1.5 bg-black/90 p-1 rounded-xl border border-slate-800">
+                <button type="button" id="btnDecalModeSingle" onclick="nlgSetDecalSideMode('single')" class="px-3 py-1.5 rounded-lg bg-emerald-950 text-emerald-300 border border-emerald-500/50 font-orbitron font-bold text-[10px] transition">
+                  ✓ 1 MASTER SIDE (No Text • Flip in eufyMake)
+                </button>
+                <button type="button" id="btnDecalModeDual" onclick="nlgSetDecalSideMode('dual')" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white font-orbitron font-bold text-[10px] transition">
+                  🔤 2 SEPARATE SIDES (Has Words)
+                </button>
+              </div>
+              <span class="text-[10px] font-mono text-emerald-400/90">
+                ✓ Zero Car Parts • ✓ Isolated Die-Cut Graphic • ✓ Full Background &amp; Pocket Knockout
               </span>
             </div>
           </div>
@@ -8937,7 +8939,67 @@
     }
 
     // Flood-fill outer pure-white background to TRUE 100% alpha transparency + generate 100% Solid White Underbase PNG + optional horizontal mirror
-    function processPureFlatDecalImage(dataUrl, mirrorHorizontal = false) {
+    window.nlgDecalSideMode = 'single';
+
+    function nlgSetDecalSideMode(mode) {
+      window.nlgDecalSideMode = (mode === 'dual') ? 'dual' : 'single';
+      const bSingle = document.getElementById('btnDecalModeSingle');
+      const bDual = document.getElementById('btnDecalModeDual');
+      if (bSingle && bDual) {
+        if (window.nlgDecalSideMode === 'single') {
+          bSingle.className = 'px-3 py-1.5 rounded-lg bg-emerald-950 text-emerald-300 border border-emerald-500/50 font-orbitron font-bold text-[10px] transition';
+          bDual.className = 'px-3 py-1.5 rounded-lg text-slate-400 hover:text-white font-orbitron font-bold text-[10px] transition';
+        } else {
+          bSingle.className = 'px-3 py-1.5 rounded-lg text-slate-400 hover:text-white font-orbitron font-bold text-[10px] transition';
+          bDual.className = 'px-3 py-1.5 rounded-lg bg-pink-950 text-pink-300 border border-pink-500/50 font-orbitron font-bold text-[10px] transition';
+        }
+      }
+    }
+
+    // Extract vibrant accent palette from concept image WITHOUT passing 3D car geometry to Gemini Image!
+    function extractConceptAccentPalette(dataUrl) {
+      return new Promise((resolve) => {
+        if (!dataUrl) return resolve('');
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => {
+          try {
+            const c = document.createElement('canvas');
+            c.width = 48; c.height = 48;
+            const ctx = c.getContext('2d');
+            ctx.drawImage(img, 0, 0, 48, 48);
+            const d = ctx.getImageData(0, 0, 48, 48).data;
+            const buckets = new Map();
+            for (let i = 0; i < d.length; i += 4) {
+              const r = d[i], g = d[i+1], b = d[i+2], a = d[i+3];
+              if (a < 128) continue;
+              const maxC = Math.max(r, g, b), minC = Math.min(r, g, b);
+              // Ignore neutral white/gray/black studio background & tires
+              if (maxC - minC < 32 || maxC > 242 || maxC < 28) continue;
+              const qr = Math.round(r / 32) * 32, qg = Math.round(g / 32) * 32, qb = Math.round(b / 32) * 32;
+              const hex = '#' + [qr, qg, qb].map(v => Math.min(255, v).toString(16).padStart(2, '0')).join('').toUpperCase();
+              buckets.set(hex, (buckets.get(hex) || 0) + 1);
+            }
+            const top = [...buckets.entries()].sort((a, b) => b[1] - a[1]).slice(0, 4).map(e => e[0]);
+            resolve(top.length ? `Vibrant ink palette anchored to: ${top.join(', ')}.` : '');
+          } catch (_) { resolve(''); }
+        };
+        img.onerror = () => resolve('');
+        img.src = dataUrl;
+      });
+    }
+
+    // Strip ALL automotive/car nouns so Gemini Image NEVER draws car roofs, windows, wheels, fenders, or doors!
+    function sanitizeCarWordsFromMotif(rawText) {
+      if (!rawText) return '';
+      return String(rawText)
+        .replace(/\b(hot\s*wheels?|diecast|1[:/]64|scale|camaro|silvia|s15|gasser|silverado|porsche|935|911|skyline|chevy|truck|van|dairy\s*delivery|vw\s*bug|beetle|otto|copo|car|cars|vehicle|automotive|real\s*riders?|wheels?|tires?|rims?|fenders?|doors?|windows?|windshield|roof|hood|trunk|tailgate|bumper|headlights?|chassis|body\s*paint|base\s*coat|flank|blister|casting)\b/gi, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+
+    // v6: Auto-detects border background color + knocks out outer background AND trapped interior background pockets + de-halos edges!
+    function processPureFlatDecalImage(dataUrl, mirrorHorizontal = false, knockInnerPockets = true) {
       return new Promise((resolve) => {
         const img = new Image();
         img.crossOrigin = "anonymous";
@@ -8945,7 +9007,6 @@
           const w = img.naturalWidth || img.width;
           const h = img.naturalHeight || img.height;
 
-          // 1. Draw onto canvas (optionally mirrored for Passenger Side)
           const c = document.createElement('canvas');
           c.width = w;
           c.height = h;
@@ -8959,44 +9020,88 @@
           const imgData = ctx.getImageData(0, 0, w, h);
           const data = imgData.data;
 
-          // Edge flood-fill to strip pure white/near-white background ONLY from outside (preserves white highlights inside artwork!)
+          // 1. Sample outer 4px border to auto-detect dominant background color (handles white, off-white, gray, or dark backdrops!)
+          const borderSamples = [];
+          const pushSample = (x, y) => {
+            const o = (y * w + x) * 4;
+            if (data[o + 3] > 200) borderSamples.push([data[o], data[o + 1], data[o + 2]]);
+          };
+          for (let x = 0; x < w; x += 4) { pushSample(x, 0); pushSample(x, 2); pushSample(x, h - 1); pushSample(x, h - 3); }
+          for (let y = 0; y < h; y += 4) { pushSample(0, y); pushSample(2, y); pushSample(w - 1, y); pushSample(w - 3, y); }
+
+          let bgR = 255, bgG = 255, bgB = 255;
+          if (borderSamples.length > 0) {
+            borderSamples.sort((a, b) => (a[0] + a[1] + a[2]) - (b[0] + b[1] + b[2]));
+            const mid = borderSamples[Math.floor(borderSamples.length * 0.65)];
+            bgR = mid[0]; bgG = mid[1]; bgB = mid[2];
+          }
+
+          const colorDist = (r, g, b) => Math.hypot(r - bgR, g - bgG, b - bgB);
+          const isNeutralWhite = (r, g, b) => {
+            const mx = Math.max(r, g, b), mn = Math.min(r, g, b);
+            return (r >= 214 && g >= 214 && b >= 214 && (mx - mn) <= 26);
+          };
+          const isOuterBg = (idx) => {
+            const r = data[idx], g = data[idx + 1], b = data[idx + 2];
+            return isNeutralWhite(r, g, b) || colorDist(r, g, b) <= 44;
+          };
+
+          // 2. Perimeter Flood-Fill Background Removal
           const visited = new Uint8Array(w * h);
           const queue = new Int32Array(w * h);
           let head = 0, tail = 0;
-
-          const isBg = (idx) => {
-            const r = data[idx], g = data[idx + 1], b = data[idx + 2];
-            const maxC = Math.max(r, g, b);
-            const minC = Math.min(r, g, b);
-            // Light neutral white / off-white background with low saturation (handles JPEG/AI compression noise down to RGB 218)
-            return (r >= 218 && g >= 218 && b >= 218 && (maxC - minC) <= 22);
-          };
-
           const enqueue = (x, y) => {
             const pos = y * w + x;
             if (visited[pos]) return;
-            if (isBg(pos * 4)) {
+            if (isOuterBg(pos * 4)) {
               visited[pos] = 1;
               queue[tail++] = pos;
             }
           };
-
           for (let x = 0; x < w; x++) { enqueue(x, 0); enqueue(x, h - 1); }
           for (let y = 0; y < h; y++) { enqueue(0, y); enqueue(w - 1, y); }
 
           while (head < tail) {
             const pos = queue[head++];
-            const p4 = pos * 4;
-            data[p4 + 3] = 0; // Transparent!
-            const x = pos % w;
-            const y = (pos - x) / w;
+            data[pos * 4 + 3] = 0;
+            const x = pos % w, y = (pos - x) / w;
             if (x > 0) enqueue(x - 1, y);
             if (x < w - 1) enqueue(x + 1, y);
             if (y > 0) enqueue(x, y - 1);
             if (y < h - 1) enqueue(x, y + 1);
           }
 
-          // Auto-erase only microscopic stray dust/compression speckles (< 25px) to keep all fine splatter and livery details solid
+          // 3. Knock out trapped interior background pockets (between splatters, flames, lightning, drips, loops!)
+          if (knockInnerPockets) {
+            for (let pos = 0; pos < w * h; pos++) {
+              const p4 = pos * 4;
+              if (data[p4 + 3] === 0) continue;
+              const r = data[p4], g = data[p4 + 1], b = data[p4 + 2];
+              const mx = Math.max(r, g, b), mn = Math.min(r, g, b);
+              if ((r >= 232 && g >= 232 && b >= 232 && (mx - mn) <= 18) || colorDist(r, g, b) <= 28) {
+                data[p4 + 3] = 0;
+              }
+            }
+          }
+
+          // 4. Strip 1px bright anti-aliasing halo fringe on all transparent boundaries
+          const alphaSnap = new Uint8Array(w * h);
+          for (let i = 0; i < w * h; i++) alphaSnap[i] = data[i * 4 + 3];
+          for (let y = 1; y < h - 1; y++) {
+            for (let x = 1; x < w - 1; x++) {
+              const pos = y * w + x;
+              if (alphaSnap[pos] === 0) continue;
+              if (!alphaSnap[pos - 1] || !alphaSnap[pos + 1] || !alphaSnap[pos - w] || !alphaSnap[pos + w]) {
+                const p4 = pos * 4;
+                const r = data[p4], g = data[p4 + 1], b = data[p4 + 2];
+                if (isNeutralWhite(r, g, b) || colorDist(r, g, b) <= 58) {
+                  data[p4 + 3] = 0;
+                }
+              }
+            }
+          }
+
+          // 5. Remove stray dust specks (< 36px)
           const compId = new Int32Array(w * h);
           const compSizes = [0];
           let nextComp = 1;
@@ -9018,21 +9123,18 @@
               compSizes.push(t2);
             }
           }
-          const minKeep = 25;
           for (let pos = 0; pos < w * h; pos++) {
             const cid = compId[pos];
-            if (cid > 0 && compSizes[cid] < minKeep) {
-              data[pos * 4 + 3] = 0;
-            }
+            if (cid > 0 && compSizes[cid] < 36) data[pos * 4 + 3] = 0;
           }
 
-          // Capture clean opaque mask BEFORE bleed so White Underbase can be choked inward by 2px (prevents white halo on eufyMake!)
+          // 6. Capture clean mask BEFORE bleed for -2px choked White Underbase
           const origMask = new Uint8Array(w * h);
           for (let pIdx = 0; pIdx < w * h; pIdx++) {
             origMask[pIdx] = data[pIdx * 4 + 3] > 20 ? 1 : 0;
           }
 
-          // 1B. Apply +2px CMYK Outward Edge-Color Bleed (dilates perimeter colors outward without blurring interior!)
+          // 7. Apply +2px CMYK Outward Edge-Color Bleed
           let curData = new Uint8ClampedArray(data);
           for (let step = 0; step < 2; step++) {
             const nextData = new Uint8ClampedArray(curData);
@@ -9062,7 +9164,7 @@
           ctx.putImageData(imgData, 0, 0);
           const transparentPng = c.toDataURL('image/png');
 
-          // 2. Generate 100% Solid White Underbase PNG with -2px Inward Choke (zero white edge peek on UV printer!)
+          // 8. Generate 100% Solid White Underbase PNG with -2px Inward Choke
           let chokeMask = origMask;
           for (let step = 0; step < 2; step++) {
             const nextMask = new Uint8Array(w * h);
@@ -9077,8 +9179,7 @@
             chokeMask = nextMask;
           }
           const wc = document.createElement('canvas');
-          wc.width = w;
-          wc.height = h;
+          wc.width = w; wc.height = h;
           const wctx = wc.getContext('2d');
           const wData = wctx.createImageData(w, h);
           const wd = wData.data;
@@ -9087,7 +9188,7 @@
             if (chokeMask[pIdx]) {
               wd[o] = 255; wd[o + 1] = 255; wd[o + 2] = 255; wd[o + 3] = 255;
             } else {
-              wd[o + 3] = 0;
+              wd[o] = 0; wd[o + 1] = 0; wd[o + 2] = 0; wd[o + 3] = 0;
             }
           }
           wctx.putImageData(wData, 0, 0);
@@ -9100,93 +9201,64 @@
       });
     }
 
-    function nlgToggleDecalTextMode() {
-      const toggle = document.getElementById('decalHasTextToggle');
-      const label = document.getElementById('decalTextModeLabel');
-      if (!toggle || !label) return;
-      if (toggle.checked) {
-        label.innerText = '🔤 LIVERY HAS DIRECTIONAL TEXT: Generate Distinct Left & Right Sides';
-        label.className = 'text-xs font-orbitron font-bold text-pink-400';
-      } else {
-        label.innerText = '✨ NO TEXT / PURE GRAPHIC: 1 Master Side Decal (Flip in eufyMake • No 2nd Download)';
-        label.className = 'text-xs font-orbitron font-bold text-emerald-400';
-      }
-    }
+    // ZERO-CAR-WORD PURE DIE-CUT 2D VECTOR PROMPT BUILDER
+    function buildPureFlatDecalPrompt(panelKey, panelLabel, _casting, winVar, feedback, paletteHint = '') {
+      const cleanTitle = sanitizeCarWordsFromMotif(winVar?.title || 'Neon Custom');
+      const cleanStory = sanitizeCarWordsFromMotif(winVar?.story || '');
+      const cleanFb = sanitizeCarWordsFromMotif(feedback || '');
+      const allowText = (window.nlgDecalSideMode === 'dual');
 
-    function buildPureFlatDecalPrompt(panelKey, panelLabel, casting, winVar, feedback, hasDriverRef = false) {
-      const fbText = feedback ? `USER DIRECT TWEAK REQUEST: "${feedback}".` : '';
-      let layoutSpec = '';
+      let compositionSpec = '';
       if (panelKey === 'side_master' || panelKey === 'side_driver') {
-        const isMaster = (panelKey === 'side_master');
-        layoutSpec = `${isMaster ? 'MASTER SIDE LIVERY GRAPHIC BANNER (FLIP IN EUFYMAKE FOR OPPOSITE FLANK)' : 'DRIVER SIDE (LEFT) FLOW GRAPHIC BANNER'}:
-- Full continuous horizontal 2D livery graphic strip / pattern flow for the car's side profile.
-- Directional flow: Front of vehicle starts on the LEFT, sweeping and flowing back towards the TAIL on the RIGHT.
-- LET IT FLOW: Create a solid, rich, continuous street-art / livery design pattern (speedlines, tech patterns, graffiti, splatter, geometric motifs) that flows edge-to-edge.
-- NO CAR PROFILE CUTOUTS: Do NOT cut out wheel wells, wheel arches, or windows. Do NOT leave hollow circular bites or gaping holes in the artwork! Let the graphic artwork flow continuous and unbroken across the horizontal banner so it wraps cleanly.
-- PURE GRAPHIC / PATTERN ART ONLY: Zero text, zero fake words, zero random letters. This master decal will be horizontally mirrored directly in eufyMake for the opposite side.`;
+        compositionSpec = `SHAPE & FLOW: Elongated horizontal die-cut graphic streak (roughly 3.5:1 wide Ribbon proportion floating in the center of the canvas), sweeping dynamically from LEFT (leading nose tip) toward the RIGHT (trailing tail splashes/streaks). Organic irregular die-cut contour with dynamic negative space—NOT a rectangle!`;
       } else if (panelKey === 'side_passenger') {
-        layoutSpec = `PASSENGER SIDE (RIGHT) FLOW GRAPHIC BANNER:
-- Full continuous horizontal 2D livery graphic strip / pattern flow for the car's passenger flank.
-- MANDATORY FLOW ORIENTATION: Front of vehicle starts on the FAR RIGHT, sweeping and flowing back towards the TAIL on the FAR LEFT.
-- LET IT FLOW: Create a solid, continuous street-art / livery design pattern that flows edge-to-edge without hollow wheel holes or window voids.`;
-      } else if (panelKey === 'roof') {
-        layoutSpec = `ROOF PANEL FLOW GRAPHIC BANNER:
-- Isolated 2D top-down rectangular graphic pattern flow for the vehicle roof surface.
-- LET IT FLOW: Full longitudinal graphic stripe, dynamic symmetrical motif, or continuous surface pattern matching the vehicle livery.
-- PURE GRAPHIC ART: Do NOT draw car roof gutters, car sheet metal, glass, or gray boxes. Render only the rich flowing graphic pattern artwork.`;
-      } else if (panelKey === 'hood') {
-        layoutSpec = `HOOD PANEL FLOW GRAPHIC BANNER:
-- Isolated 2D top-down graphic pattern flow for the front hood surface.
-- Symmetrical racing chevron, aggressive tech badge, or flowing pattern art matching the livery.
-- PURE GRAPHIC ART: Render only the flat flowing graphic artwork.`;
+        compositionSpec = `SHAPE & FLOW: Elongated horizontal die-cut graphic streak floating in the center of the canvas, sweeping dynamically from RIGHT (leading nose tip) toward the LEFT (trailing tail streaks). Organic irregular die-cut contour—NOT a rectangle!`;
       } else {
-        layoutSpec = `Continuous 2D graphic livery flow for ${panelLabel}.`;
+        compositionSpec = `SHAPE & FLOW: Symmetrical centered die-cut emblem / longitudinal graphic totem floating in the middle of the canvas with organic contoured edges—NOT a solid rectangle!`;
       }
 
-      return `CONTINUOUS 2D SURFACE FLOW LIVERY GRAPHICS FOR 1:64 SCALE DIECAST (EUFYMAKE UV PRINT / WATERSLIDE DECAL). ${fbText}
-Panel: ${panelLabel}.
-Casting: 1:64 scale ${casting}.
-${layoutSpec}
+      return `ISOLATED 2D DIE-CUT VECTOR SCREENPRINT GRAPHIC ARTWORK ON SOLID PURE WHITE (#FFFFFF).
+Art Theme: "${cleanTitle}". ${cleanStory ? `Visual Motif: ${cleanStory}.` : ''} ${paletteHint} ${cleanFb ? `Art Direction: ${cleanFb}.` : ''}
+${compositionSpec}
 
-CORE LIVERY & PRODUCTION RULES:
-1. CONTINUOUS FLOW ARTWORK: Let the design flow freely across the banner as a cohesive, unbroken graphic pattern. DO NOT carve out jagged wheel arches or hollow window holes from the artwork. Builders trim decals during application—AI must deliver rich, uninterrupted surface art.
-2. PURE GRAPHIC LIVERY ONLY: Zero 3D car bodies, zero green/metallic car sheet metal, zero wheels or tires, zero bumpers or glass frames. This is a flat 2D graphic pattern banner.
-3. ZERO FAKE TEXT: Render pure abstract/geometric livery art, racing stripes, splatter, cyber motifs, or organic flows. DO NOT invent or generate random broken words, gibberish letters, or fake sponsor text.
-4. CLEAN BACKGROUND: Render the flowing graphic cleanly on a pure solid white background (#FFFFFF) with zero gray boxes, zero bounding rectangles, and zero drop shadows, so background keys cleanly for 600 DPI printing.`;
+MANDATORY PRODUCTION CONSTRAINTS (CRITICAL):
+1. 100% ISOLATED FLOATING DIE-CUT GRAPHIC: Leave at least 15% completely blank, empty, pure #FFFFFF white margin around ALL FOUR EDGES (top, bottom, left, right). The artwork MUST NOT touch the canvas borders and MUST NOT sit inside any rectangular box, card, banner, or colored backdrop!
+2. ZERO OBJECTS OR VEHICLES: Draw ONLY flat 2D graphic ink illustration (splashes, flames, cyber geometry, drips, stripes, characters, or patterns). NEVER draw any 3D objects, metal panels, doors, windows, glass, wheels, tires, headlights, grilles, or silhouettes!
+3. CRISP FLAT INK COLORS: Bold high-contrast vector screenprint / vinyl transfer style with razor-sharp outer edges, zero drop shadows, zero glow gradients fading into white, and zero gray background wash.
+4. ${allowText ? 'TEXT: Render crisp, legible typography if requested.' : 'ZERO TEXT: Pure graphic artwork ONLY—zero letters, zero numbers, zero words, zero logos.'}`;
     }
 
     async function generatePureFlatDecals() {
       const winVar = currentWinningVariation;
       if (!winVar) return;
 
-      const casting = (document.getElementById("donorCastingInput")?.value || "Hot Wheels Custom").trim();
+      const casting = (document.getElementById("donorCastingInput")?.value || "Custom").trim();
       const feedback = (document.getElementById("decalFeedbackInput")?.value || "").trim();
       const grid = document.getElementById("finalDecalsGrid");
       if (!grid) return;
 
-      const hasText = document.getElementById("decalHasTextToggle")?.checked || false;
+      const isDualSides = (window.nlgDecalSideMode === 'dual');
 
-      // Build list of active print panels: If NO text (standard), only 1 Master Side Decal is generated (flip in eufyMake, 0 redundant downloads)
+      // STRICT PANEL LIST: In default 'single' mode, NEVER generate 2 side panels!
       const panels = [];
-      if (!hasText) {
-        panels.push({ key: 'side_master', label: 'MASTER SIDE LIVERY (FLIP IN EUFYMAKE)', mode: activePrintZones.side });
+      if (!isDualSides) {
+        panels.push({ key: 'side_master', label: 'MASTER SIDE DECAL (FLIP IN EUFYMAKE)', mode: activePrintZones.side, knockInner: true });
       } else {
         panels.push(
-          { key: 'side_driver', label: 'DRIVER SIDE (LEFT)', mode: activePrintZones.side },
-          { key: 'side_passenger', label: 'PASSENGER SIDE (RIGHT)', mode: activePrintZones.side }
+          { key: 'side_driver', label: 'LEFT SIDE DECAL', mode: activePrintZones.side, knockInner: true },
+          { key: 'side_passenger', label: 'RIGHT SIDE DECAL', mode: activePrintZones.side, knockInner: true }
         );
       }
-      if (activePrintZones.roof !== 'off') panels.push({ key: 'roof', label: 'ROOF PANEL (TOP-DOWN)', mode: activePrintZones.roof });
-      if (activePrintZones.hood !== 'off') panels.push({ key: 'hood', label: 'HOOD PANEL (TOP-DOWN)', mode: activePrintZones.hood });
-      if (activePrintZones.trunk !== 'off') panels.push({ key: 'trunk', label: 'TRUNK / TAILGATE PANEL', mode: activePrintZones.trunk });
+      if (activePrintZones.roof !== 'off') panels.push({ key: 'roof', label: 'TOP / ROOF DECAL', mode: activePrintZones.roof, knockInner: true });
+      if (activePrintZones.hood !== 'off') panels.push({ key: 'hood', label: 'FRONT HOOD DECAL', mode: activePrintZones.hood, knockInner: true });
+      if (activePrintZones.trunk !== 'off') panels.push({ key: 'trunk', label: 'REAR DECK DECAL', mode: activePrintZones.trunk, knockInner: true });
 
       generatedFinalDecals = panels.map(p => ({ ...p, rawImg: null, cmykPng: null, underbasePng: null }));
       grid.innerHTML = "";
 
-      const baseRefs = [];
-      if (winVar.img && winVar.img.startsWith('data:image/')) baseRefs.push(winVar.img);
+      // Extract ONLY color palette from the concept car—NEVER pass the 3D car photo to Gemini Image!
+      const paletteHint = await extractConceptAccentPalette(winVar.img);
 
-      // Render loading cards
       generatedFinalDecals.forEach((p) => {
         const card = document.createElement('div');
         card.id = `decalCard_${p.key}`;
@@ -9195,61 +9267,39 @@ CORE LIVERY & PRODUCTION RULES:
           <div class="space-y-2.5">
             <div class="flex items-center justify-between">
               <span class="font-orbitron font-black text-xs text-white">${p.label}</span>
-              <span class="px-2 py-0.5 rounded text-[9px] font-mono bg-cyan-950 text-cyan-300 border border-cyan-500/40">${(p.mode || 'direct').toUpperCase()}</span>
+              <span class="px-2 py-0.5 rounded text-[9px] font-mono bg-cyan-950 text-cyan-300 border border-cyan-500/40">DIE-CUT PNG</span>
             </div>
             <div id="decalPreview_${p.key}" class="w-full h-52 rounded-xl border border-slate-700 flex flex-col items-center justify-center p-3 text-center space-y-2" style="background-image: linear-gradient(45deg, #1e293b 25%, transparent 25%), linear-gradient(-45deg, #1e293b 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #1e293b 75%), linear-gradient(-45deg, transparent 75%, #1e293b 75%); background-size: 16px 16px; background-position: 0 0, 0 8px, 8px -8px, -8px 0px; background-color: #0f172a;">
               <div class="w-8 h-8 rounded-full border-2 border-emerald-400 border-t-pink-500 animate-spin"></div>
-              <span class="text-[10px] font-mono text-emerald-300">${p.key === 'side_master' ? 'GENERATING 1 MASTER SIDE DECAL...' : p.key === 'side_driver' ? 'GENERATING ISOLATED DRIVER DECAL...' : 'EXTRACTING PANEL ARTWORK...'}</span>
+              <span class="text-[10px] font-mono text-emerald-300">GENERATING ISOLATED DIE-CUT ART...</span>
             </div>
           </div>
           <div id="decalActions_${p.key}" class="flex items-center gap-2 text-[10px] font-mono text-slate-500">
-            Preparing 600 DPI transparent PNG + White Underbase...
+            Knocking out background &amp; building choked White Underbase...
           </div>
         `;
         grid.appendChild(card);
       });
 
-      // 1. Generate Primary Side Decal FIRST (anchored to 3D vehicle concept)
-      const primarySidePanel = generatedFinalDecals.find(x => x.key === 'side_master' || x.key === 'side_driver');
-      if (primarySidePanel) {
-        await renderSingleDecalPanel(primarySidePanel, casting, winVar, feedback, baseRefs);
-      }
+      await Promise.all(generatedFinalDecals.map(p => renderSingleDecalPanel(p, casting, winVar, feedback, paletteHint)));
 
-      // 2. PASSENGER SIDE: ONLY when livery has text! When no text, Derek flips in eufyMake (0 extra AI calls, 0 extra downloads).
-      if (hasText) {
-        const passPanel = generatedFinalDecals.find(x => x.key === 'side_passenger');
-        if (passPanel) {
-          await renderSingleDecalPanel(passPanel, casting, winVar, feedback, baseRefs);
-        }
-      }
-
-      // 3. Generate Roof & Hood referencing ONLY the original 3D concept car
-      const topPanels = generatedFinalDecals.filter(x => x.key !== 'side_master' && x.key !== 'side_driver' && x.key !== 'side_passenger');
-
-      const parallelTasks = [];
-      topPanels.forEach(p => {
-        parallelTasks.push(renderSingleDecalPanel(p, casting, winVar, feedback, baseRefs));
-      });
-
-      if (parallelTasks.length > 0) {
-        await Promise.all(parallelTasks);
-      }
       if (typeof nlgSaveCarState === 'function') {
         await nlgSaveCarState({ savedDecals: generatedFinalDecals.filter(d => d && d.cmykPng), steps: { decalsGenerated: true } });
       }
     }
 
-    async function renderSingleDecalPanel(p, casting, winVar, feedback, refImgs) {
+    async function renderSingleDecalPanel(p, casting, winVar, feedback, paletteHint = '') {
       const previewEl = document.getElementById(`decalPreview_${p.key}`);
       if (previewEl) {
         previewEl.innerHTML = `
           <div class="w-8 h-8 rounded-full border-2 border-emerald-400 border-t-pink-500 animate-spin"></div>
-          <span class="text-[10px] font-mono text-emerald-300">GENERATING PURE FLAT ${p.label}...</span>
+          <span class="text-[10px] font-mono text-emerald-300">RENDERING DIE-CUT ${p.label}...</span>
         `;
       }
 
-      const prompt = buildPureFlatDecalPrompt(p.key, p.label, casting, winVar, feedback, refImgs.length > 1);
-      const res = await generateAiImage(prompt, refImgs, "3:2");
+      const prompt = buildPureFlatDecalPrompt(p.key, p.label, casting, winVar, feedback, paletteHint);
+      // Pass [] (ZERO 3D car reference images!) so Gemini NEVER copies car bodies, wheels, windows, or studio backgrounds!
+      const res = await generateAiImage(prompt, [], "3:2");
 
       if (!res.ok || !res.image) {
         if (previewEl) {
@@ -9262,7 +9312,8 @@ CORE LIVERY & PRODUCTION RULES:
       }
 
       p.rawImg = res.image;
-      const processed = await processPureFlatDecalImage(res.image, false);
+      if (p.knockInner === undefined) p.knockInner = true;
+      const processed = await processPureFlatDecalImage(res.image, false, p.knockInner);
       p.cmykPng = processed.transparentPng;
       p.underbasePng = processed.underbasePng;
       const validDecals = generatedFinalDecals.filter(d => d && d.cmykPng);
@@ -9277,31 +9328,38 @@ CORE LIVERY & PRODUCTION RULES:
       updateDecalCardUI(p, casting);
     }
 
+    async function toggleDecalInnerWhiteKnockout(panelKey) {
+      const p = generatedFinalDecals.find(x => x.key === panelKey);
+      if (!p || (!p.rawImg && !p.cmykPng)) return;
+      p.knockInner = !p.knockInner;
+      const casting = (document.getElementById("donorCastingInput")?.value || "Custom").trim();
+      const processed = await processPureFlatDecalImage(p.rawImg || p.cmykPng, false, p.knockInner);
+      p.cmykPng = processed.transparentPng;
+      p.underbasePng = processed.underbasePng;
+      updateDecalCardUI(p, casting);
+      showToast(p.knockInner ? 'Knocked out all interior white pockets (100% transparent)' : 'Preserved interior white details', '🧹');
+    }
+
     async function regenerateSingleDecal(panelKey) {
       const p = generatedFinalDecals.find(x => x.key === panelKey);
       const winVar = currentWinningVariation;
       if (!p || !winVar) return;
-      const casting = (document.getElementById("donorCastingInput")?.value || "Hot Wheels Custom").trim();
+      const casting = (document.getElementById("donorCastingInput")?.value || "Custom").trim();
       const feedback = (document.getElementById("decalFeedbackInput")?.value || "").trim();
-      const refImgs = [];
-      if (winVar.img && winVar.img.startsWith('data:image/')) refImgs.push(winVar.img);
-      const driverPanel = generatedFinalDecals.find(x => x.key === 'side_driver');
-      if (panelKey !== 'side_driver' && driverPanel && driverPanel.rawImg) refImgs.push(driverPanel.rawImg);
-      await renderSingleDecalPanel(p, casting, winVar, feedback, refImgs);
+      const paletteHint = await extractConceptAccentPalette(winVar.img);
+      await renderSingleDecalPanel(p, casting, winVar, feedback, paletteHint);
     }
-
-
 
     async function copyMirrorToOppositeSide(srcKey) {
       const dstKey = srcKey === 'side_driver' ? 'side_passenger' : 'side_driver';
       const src = generatedFinalDecals.find(x => x.key === srcKey);
       const dst = generatedFinalDecals.find(x => x.key === dstKey);
       if (!src || !src.cmykPng || !dst) return;
-      const casting = (document.getElementById("donorCastingInput")?.value || "Hot Wheels Custom").trim();
-      const processed = await processPureFlatDecalImage(src.cmykPng, true);
+      const casting = (document.getElementById("donorCastingInput")?.value || "Custom").trim();
+      const processed = await processPureFlatDecalImage(src.rawImg || src.cmykPng, true, src.knockInner !== false);
       dst.cmykPng = processed.transparentPng;
       dst.underbasePng = processed.underbasePng;
-      dst.rawImg = processed.transparentPng;
+      dst.rawImg = src.rawImg || processed.transparentPng;
       if (typeof nlgSaveCarState === 'function') {
         nlgSaveCarState({ savedDecals: generatedFinalDecals.filter(d => d && d.cmykPng), steps: { decalsGenerated: true } });
       }
@@ -9312,15 +9370,13 @@ CORE LIVERY & PRODUCTION RULES:
     async function flipSingleDecalHorizontal(panelKey) {
       const p = generatedFinalDecals.find(x => x.key === panelKey);
       if (!p || !p.cmykPng) return;
-      const casting = (document.getElementById("donorCastingInput")?.value || "Hot Wheels Custom").trim();
-      const processed = await processPureFlatDecalImage(p.cmykPng, true);
+      const casting = (document.getElementById("donorCastingInput")?.value || "Custom").trim();
+      p._mirrored = !p._mirrored;
+      const processed = await processPureFlatDecalImage(p.rawImg || p.cmykPng, p._mirrored, p.knockInner !== false);
       p.cmykPng = processed.transparentPng;
       p.underbasePng = processed.underbasePng;
-      p.rawImg = processed.transparentPng;
-      if (typeof nlgSaveCarState === 'function') {
-        nlgSaveCarState({ savedDecals: generatedFinalDecals.filter(d => d && d.cmykPng), steps: { decalsGenerated: true } });
-      }
       updateDecalCardUI(p, casting);
+      if (typeof showToast === 'function') showToast(`Flipped ${p.label} horizontally!`, '↔️');
     }
 
     function updateDecalCardUI(p, casting) {
@@ -9335,7 +9391,7 @@ CORE LIVERY & PRODUCTION RULES:
           <img src="${p.cmykPng}" alt="${p.label}" class="max-w-full max-h-48 object-contain drop-shadow-lg transition group-hover:scale-105">
           <span class="absolute top-2 right-2 px-1.5 py-0.5 rounded bg-black/80 border border-cyan-500/50 text-[9px] font-mono text-cyan-300">🔍 Zoom</span>
           <span class="absolute bottom-2 left-2 px-2 py-0.5 rounded bg-emerald-950/90 border border-emerald-500/50 text-[9px] font-mono font-bold text-emerald-300">
-            ${p.key === 'side_master' ? '✓ MASTER SIDE • FLIP IN EUFYMAKE' : '✓ TRANSPARENT PNG'}
+            ${p.key === 'side_master' ? '✓ 1 MASTER SIDE • FLIP IN EUFYMAKE' : '✓ DIE-CUT TRANSPARENT PNG'}
           </span>
         `;
       }
@@ -9345,17 +9401,19 @@ CORE LIVERY & PRODUCTION RULES:
           <a href="${p.cmykPng}" download="${safeName}_CMYK_transparent.png" class="flex-1 py-2 text-center rounded-lg bg-emerald-600/30 hover:bg-emerald-500/40 border border-emerald-500/50 text-emerald-200 font-orbitron font-bold text-[10px] transition" title="Download Transparent CMYK Decal">
             ⬇ CMYK
           </a>
-          <a href="${p.underbasePng}" download="${safeName}_WHITE_UNDERBASE.png" class="flex-1 py-2 text-center rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white font-orbitron font-bold text-[10px] transition" title="Download Solid White Underbase">
+          <a href="${p.underbasePng}" download="${safeName}_WHITE_UNDERBASE.png" class="flex-1 py-2 text-center rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white font-orbitron font-bold text-[10px] transition" title="Download Choked Solid White Underbase">
             ⬇ WHITE
           </a>
-          <button type="button" onclick="openImageLightbox('${p.underbasePng}', '${p.label} — 100% Solid White Underbase')" class="px-2 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 text-[10px]" title="Inspect White Underbase">
+          <button type="button" onclick="openImageLightbox('${p.underbasePng}', '${p.label} — Choked White Underbase')" class="px-2 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 text-[10px]" title="Inspect White Underbase">
             👁️
           </button>
-          <button type="button" onclick="flipSingleDecalHorizontal('${p.key}')" class="px-2.5 py-2 rounded-lg bg-cyan-950/80 hover:bg-cyan-700 border border-cyan-500/50 text-cyan-200 font-mono text-[10px] flex items-center gap-1" title="Flip Horizontally (Preview eufyMake Mirror)">
-            <span>↔</span> Flip Preview
+          <button type="button" onclick="toggleDecalInnerWhiteKnockout('${p.key}')" class="px-2 py-2 rounded-lg bg-amber-950/80 hover:bg-amber-800 border border-amber-500/50 text-amber-200 text-[10px]" title="Toggle Inner White Pocket Knockout (0¢ instant)">
+            🧹
           </button>
-          ${(p.key === 'side_driver' || p.key === 'side_passenger') ? `<button type="button" onclick="copyMirrorToOppositeSide('${p.key}')" class="px-2 py-2 rounded-lg bg-purple-950/80 hover:bg-purple-700 border border-purple-500/50 text-purple-200 text-[10px]" title="Copy & Mirror this clean side to the opposite side (0¢ — 100% exact match!)">🪞</button>` : ''}
-          <button type="button" onclick="regenerateSingleDecal('${p.key}')" class="px-2 py-2 rounded-lg bg-pink-950/80 hover:bg-pink-800 border border-pink-500/50 text-pink-200 text-[10px]" title="Regenerate Just This Panel">
+          <button type="button" onclick="flipSingleDecalHorizontal('${p.key}')" class="px-2 py-2 rounded-lg bg-cyan-950/80 hover:bg-cyan-700 border border-cyan-500/50 text-cyan-200 font-mono text-[10px]" title="Flip Horizontally">
+            ↔
+          </button>
+          <button type="button" onclick="regenerateSingleDecal('${p.key}')" class="px-2 py-2 rounded-lg bg-pink-950/80 hover:bg-pink-800 border border-pink-500/50 text-pink-200 text-[10px]" title="Redo This Panel">
             🔄
           </button>
         `;
