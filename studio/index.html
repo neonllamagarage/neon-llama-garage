@@ -188,7 +188,7 @@
           <span>🖼️</span> ALBUMS <span id="albumsCountBadge" class="px-1.5 py-0.2 rounded bg-purple-950 text-purple-200 text-[10px] font-mono border border-purple-500/40">0</span>
         </button>
         <button onclick="openConceptGenModal(true)" class="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-orbitron font-black text-xs border border-pink-400/50 shadow-lg shadow-pink-900/40 transition active:scale-95 flex items-center gap-1.5">
-          <span>✨</span> + NEW CAR (v5.2.2)
+          <span>✨</span> + NEW CAR (v5.2.3)
         </button>
         <div class="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-[10px] font-mono text-cyan-400">
           STORE: <a href="https://neonllamagarage.com" target="_blank" class="hover:underline font-bold text-white">NEONLLAMAGARAGE.COM</a>
@@ -4454,16 +4454,25 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
         up.decalDesignDone = Boolean(b.printZones || b.conceptData || up.fleetDecalsPrinted || up.decalsPrinted);
       }
 
-      // 8 Master Steps: Decal design comes AFTER paint, and only needs to be done once!
+      // 8 Master Steps: Direct 1-Click Launch into Prepress Tools!
+      // 1: Idea Lab | 3 & 4: Decal Studio | 6: Llama Cam | 7: Card Builder
       const steps = [
         {
           id: 'concept',
           num: 1,
           name: 'Concept',
-          sub: 'Design & Mockup Locked',
+          sub: 'Design & Livery Mockup Locked',
           isDone: true,
           isActionable: false,
-          isUpcoming: false
+          isUpcoming: false,
+          toolName: 'Idea Lab',
+          toolIcon: '💡',
+          toolAction: 'openIdeaToolForCurrentBatch()',
+          renderAction: () => `
+            <button type="button" onclick="openIdeaToolForCurrentBatch()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 font-orbitron font-bold text-xs border border-slate-700 transition flex items-center gap-1.5 shadow-sm">
+              <span>💡</span> Idea Lab ↗
+            </button>
+          `
         },
         {
           id: 'paint',
@@ -4496,19 +4505,18 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
           isDone: Boolean(up.decalDesignDone),
           isActionable: !up.decalDesignDone,
           isUpcoming: false,
+          toolName: 'Decal Studio',
+          toolIcon: '🖨️',
+          toolAction: 'openDecalStudioForCurrentBatch()',
           progress: up.decalDesignDone ? 100 : 0,
           renderAction: () => `
             <div class="flex items-center gap-2 flex-wrap">
-              <button type="button" onclick="openDecalStudioForCurrentBatch()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 font-orbitron font-bold text-xs border border-slate-700 transition">Open Studio</button>
-              ${!up.decalDesignDone ? `
-                <button type="button" onclick="nlgToggleDecalDesignDone()" class="px-3.5 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-black font-orbitron font-black text-xs transition active:scale-95 shadow">
-                  Mark Design Ready
-                </button>
-              ` : `
-                <button type="button" onclick="nlgToggleDecalDesignDone()" class="text-xs font-mono font-bold text-emerald-400 bg-emerald-950/80 px-2.5 py-1 rounded border border-emerald-500/40 hover:bg-emerald-900/50 transition">
-                  ✓ Design Ready
-                </button>
-              `}
+              <button type="button" onclick="openDecalStudioForCurrentBatch()" class="px-3 py-1.5 rounded-lg bg-cyan-950/80 hover:bg-cyan-900 text-cyan-300 font-orbitron font-bold text-xs border border-cyan-400/50 transition flex items-center gap-1.5 shadow">
+                <span>🖨️</span> Decal Studio ↗
+              </button>
+              <button type="button" onclick="nlgToggleDecalDesignDone()" class="px-2.5 py-1.5 rounded-lg ${up.decalDesignDone ? 'bg-emerald-950/80 text-emerald-400 border border-emerald-500/40' : 'bg-slate-800 text-slate-400 border border-slate-700'} font-bold text-xs transition active:scale-95">
+                ${up.decalDesignDone ? '✓ Design Ready' : 'Mark Ready'}
+              </button>
             </div>
           `
         },
@@ -4520,6 +4528,9 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
           isDone: up.fleetDecaled >= fleetTotal,
           isActionable: up.fleetDecaled < fleetTotal && Boolean(up.decalDesignDone),
           isUpcoming: !up.decalDesignDone,
+          toolName: 'Decal Studio',
+          toolIcon: '🖨️',
+          toolAction: 'openDecalStudioForCurrentBatch()',
           progress: Math.round((up.fleetDecaled / fleetTotal) * 100),
           renderAction: () => `
             <div class="flex items-center gap-2 flex-wrap">
@@ -4529,7 +4540,9 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
                 <button type="button" onclick="nlgAdjustFleetCounter('fleetDecaled', 1)" class="text-slate-400 hover:text-white px-1.5 font-bold transition active:scale-95">+</button>
               </div>
               <button type="button" onclick="nlgAdjustFleetCounter('fleetDecaled', 1)" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold text-xs transition active:scale-95">+1 Decaled</button>
-              <button type="button" onclick="nlgSetFleetCounterAll('fleetDecaled')" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition active:scale-95">All (${fleetTotal})</button>
+              <button type="button" onclick="openDecalStudioForCurrentBatch()" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition flex items-center gap-1" title="View & Print Decal Sheets">
+                <span>🖨️</span> Studio
+              </button>
             </div>
           `
         },
@@ -4558,17 +4571,20 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
           id: 'glory',
           num: 6,
           name: 'Glory Shot',
-          sub: 'Unit #1 Loose Turntable Photo (Done Once)',
+          sub: 'Unit #1 Loose Turntable Photo in Llama Cam',
           isDone: Boolean(up.heroPhoto),
           isActionable: !up.heroPhoto,
           isUpcoming: false,
+          toolName: 'Llama Cam',
+          toolIcon: '📸',
+          toolAction: 'openLlamaCamModal()',
           progress: up.heroPhoto ? 100 : 0,
           renderAction: () => `
             <div class="flex items-center gap-2">
               <input type="file" id="nlgMasterHeroPhotoInput" accept="image/*" class="hidden" onchange="nlgHandleQuickLooseHero(this)" />
               <button type="button" onclick="document.getElementById('nlgMasterHeroPhotoInput').click()" class="text-cyan-400 hover:text-white underline text-xs font-mono">Upload</button>
               <button type="button" onclick="openLlamaCamModal()" class="px-3.5 py-1.5 rounded-lg bg-yellow-500 hover:bg-yellow-400 text-black font-orbitron font-black text-xs transition active:scale-95 shadow flex items-center gap-1.5">
-                <span>📸</span> Shoot in Llama Cam
+                <span>📸</span> Shoot in Llama Cam ↗
               </button>
             </div>
           `
@@ -4581,6 +4597,9 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
           isDone: up.fleetPackaged >= fleetTotal,
           isActionable: up.fleetPackaged < fleetTotal && (up.fleetAssembled > 0 || Boolean(up.heroPhoto)),
           isUpcoming: up.fleetAssembled === 0 && !up.heroPhoto,
+          toolName: 'Card Builder',
+          toolIcon: '📦',
+          toolAction: 'openPackageToolForCurrentBatch()',
           progress: Math.round((up.fleetPackaged / fleetTotal) * 100),
           renderAction: () => `
             <div class="flex items-center gap-2 flex-wrap">
@@ -4589,7 +4608,9 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
                 <span class="font-bold text-cyan-300 min-w-[38px] text-center">${up.fleetPackaged} / ${fleetTotal}</span>
                 <button type="button" onclick="nlgAdjustFleetCounter('fleetPackaged', 1)" class="text-slate-400 hover:text-white px-1.5 font-bold transition active:scale-95">+</button>
               </div>
-              <button type="button" onclick="nlgAdjustFleetCounter('fleetPackaged', 1)" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold text-xs transition active:scale-95">+1 Packaged</button>
+              <button type="button" onclick="openPackageToolForCurrentBatch()" class="px-3 py-1.5 rounded-lg bg-cyan-950/80 hover:bg-cyan-900 text-cyan-300 font-orbitron font-bold text-xs border border-cyan-400/50 transition flex items-center gap-1.5 shadow">
+                <span>📦</span> Card Builder ↗
+              </button>
               <button type="button" onclick="nlgSetFleetCounterAll('fleetPackaged')" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition active:scale-95">All (${fleetTotal})</button>
             </div>
           `
@@ -4602,6 +4623,9 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
           isDone: b.section === 'active',
           isActionable: up.fleetPackaged >= fleetTotal && Boolean(up.heroPhoto) && b.section !== 'active',
           isUpcoming: up.fleetPackaged < fleetTotal || !up.heroPhoto,
+          toolName: 'Deploy',
+          toolIcon: '🚀',
+          toolAction: `nlgDeployBatchToLiveStore('${b.id}')`,
           renderAction: () => `
             <div class="flex items-center gap-2">
               <button type="button" onclick="nlgDeployBatchToLiveStore('${b.id}')" class="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-orbitron font-black text-xs transition active:scale-95 shadow flex items-center gap-1.5">
@@ -4661,26 +4685,26 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
               ${completedCount} of 8 Steps Complete (${overallPercent}%)
             </div>
           </div>
-          <!-- PIPELINE STAGE PILLS (PAINT FIRST, DECALS 1-TIME) -->
+          <!-- PIPELINE STAGE PILLS -->
           <div class="grid grid-cols-2 sm:grid-cols-5 gap-1.5 font-mono text-[10px]">
             <div class="p-1.5 rounded bg-slate-900 border ${up.fleetPrepped >= fleetTotal ? 'border-emerald-500/50 text-emerald-400 bg-emerald-950/30' : 'border-slate-800 text-cyan-300'} text-center">
               <span class="text-slate-500 block text-[9px]">1. PAINT</span>
               <span class="font-bold">${up.fleetPrepped}/${fleetTotal}</span>
             </div>
-            <div class="p-1.5 rounded bg-slate-900 border ${up.decalDesignDone ? 'border-emerald-500/50 text-emerald-400 bg-emerald-950/30' : 'border-slate-800 text-amber-300'} text-center">
-              <span class="text-slate-500 block text-[9px]">2. DECALS</span>
+            <div class="p-1.5 rounded bg-slate-900 border ${up.decalDesignDone ? 'border-emerald-500/50 text-emerald-400 bg-emerald-950/30' : 'border-slate-800 text-amber-300'} text-center cursor-pointer hover:border-cyan-400" onclick="openDecalStudioForCurrentBatch()" title="Click to open Decal Studio">
+              <span class="text-slate-500 block text-[9px]">2. DECALS ↗</span>
               <span class="font-bold">${up.decalDesignDone ? '✓ READY' : 'DESIGN'}</span>
             </div>
-            <div class="p-1.5 rounded bg-slate-900 border ${up.fleetDecaled >= fleetTotal ? 'border-emerald-500/50 text-emerald-400 bg-emerald-950/30' : 'border-slate-800 text-cyan-300'} text-center">
-              <span class="text-slate-500 block text-[9px]">3. APPLY</span>
+            <div class="p-1.5 rounded bg-slate-900 border ${up.fleetDecaled >= fleetTotal ? 'border-emerald-500/50 text-emerald-400 bg-emerald-950/30' : 'border-slate-800 text-cyan-300'} text-center cursor-pointer hover:border-cyan-400" onclick="openDecalStudioForCurrentBatch()" title="Click to open Decal Studio">
+              <span class="text-slate-500 block text-[9px]">3. APPLY ↗</span>
               <span class="font-bold">${up.fleetDecaled}/${fleetTotal}</span>
             </div>
             <div class="p-1.5 rounded bg-slate-900 border ${up.fleetAssembled >= fleetTotal ? 'border-emerald-500/50 text-emerald-400 bg-emerald-950/30' : 'border-slate-800 text-cyan-300'} text-center">
               <span class="text-slate-500 block text-[9px]">4. ASSEMBLE</span>
               <span class="font-bold">${up.fleetAssembled}/${fleetTotal}</span>
             </div>
-            <div class="p-1.5 rounded bg-slate-900 border ${up.fleetPackaged >= fleetTotal ? 'border-emerald-500/50 text-emerald-400 bg-emerald-950/30' : 'border-slate-800 text-cyan-300'} text-center">
-              <span class="text-slate-500 block text-[9px]">5. PACKAGED</span>
+            <div class="p-1.5 rounded bg-slate-900 border ${up.fleetPackaged >= fleetTotal ? 'border-emerald-500/50 text-emerald-400 bg-emerald-950/30' : 'border-slate-800 text-cyan-300'} text-center cursor-pointer hover:border-cyan-400" onclick="openPackageToolForCurrentBatch()" title="Click to open Card Builder">
+              <span class="text-slate-500 block text-[9px]">5. PACKAGED ↗</span>
               <span class="font-bold">${up.fleetPackaged}/${fleetTotal}</span>
             </div>
           </div>
@@ -4688,14 +4712,20 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
       `;
 
       steps.forEach(step => {
+        const clickHandler = step.toolAction ? `onclick="${step.toolAction}"` : '';
+        const cursorStyle = step.toolAction ? 'cursor-pointer hover:border-cyan-500/50' : '';
+
         if (step.isDone) {
           if (!nlgShowCompletedSteps) return; // HIDDEN BY DEFAULT!
           html += `
-            <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-950/40 border border-emerald-900/30 text-slate-500 opacity-60 transition">
+            <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-950/40 border border-emerald-900/30 text-slate-500 opacity-60 transition ${cursorStyle}" ${clickHandler} title="${step.toolName ? 'Click to open ' + step.toolName : ''}">
               <div class="flex items-center gap-3">
                 <div class="w-6 h-6 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-500/40 flex items-center justify-center font-mono font-bold text-xs shrink-0">✓</div>
                 <div>
-                  <div class="font-orbitron font-bold text-xs text-slate-300 line-through">${step.name}</div>
+                  <div class="font-orbitron font-bold text-xs text-slate-300 line-through flex items-center gap-1.5">
+                    <span>${step.name}</span>
+                    ${step.toolName ? `<span class="text-[9px] font-mono text-cyan-400/80 no-underline">(${step.toolName} ↗)</span>` : ''}
+                  </div>
                   <div class="text-[10px] font-mono text-slate-500">${step.sub}</div>
                 </div>
               </div>
@@ -4707,14 +4737,15 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
           html += `
             <div class="p-3.5 rounded-xl bg-gradient-to-r from-slate-900 via-[#0a1122] to-slate-900 border-2 border-cyan-400/80 shadow-lg shadow-cyan-950/40 space-y-2 transition-all">
               <div class="flex flex-wrap items-center justify-between gap-2">
-                <div class="flex items-center gap-2.5">
+                <div class="flex items-center gap-2.5 ${step.toolAction ? 'cursor-pointer group/title' : ''}" ${clickHandler} title="${step.toolName ? 'Click to open ' + step.toolName : ''}">
                   <div class="w-7 h-7 rounded-lg bg-cyan-950 text-cyan-300 border border-cyan-400/50 flex items-center justify-center font-orbitron font-black text-xs shrink-0 shadow">
                     ${step.num}
                   </div>
                   <div>
                     <div class="flex items-center gap-2">
-                      <span class="font-orbitron font-black text-sm text-white">${step.name}</span>
+                      <span class="font-orbitron font-black text-sm text-white ${step.toolAction ? 'group-hover/title:text-cyan-300 group-hover/title:underline transition' : ''}">${step.name}</span>
                       <span class="px-2 py-0.5 rounded text-[9px] font-mono font-bold bg-cyan-500 text-black uppercase tracking-wider">CAN WORK ON NOW</span>
+                      ${step.toolName ? `<span class="text-[10px] font-mono text-cyan-400 opacity-90 underline flex items-center gap-0.5"><span>${step.toolIcon || ''}</span> ${step.toolName} ↗</span>` : ''}
                     </div>
                     <div class="text-xs font-mono text-cyan-300">${step.sub}</div>
                   </div>
@@ -4732,12 +4763,15 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
           // UPCOMING TASK (GRAYED OUT)
           html += `
             <div class="flex items-center justify-between p-3 rounded-xl bg-black/40 border border-slate-800/40 opacity-40 transition">
-              <div class="flex items-center gap-2.5">
+              <div class="flex items-center gap-2.5 ${step.toolAction ? 'cursor-pointer' : ''}" ${clickHandler} title="${step.toolName ? 'Click to open ' + step.toolName : ''}">
                 <div class="w-6 h-6 rounded-lg bg-slate-900 text-slate-600 border border-slate-800 flex items-center justify-center font-mono font-bold text-xs shrink-0">
                   ${step.num}
                 </div>
                 <div>
-                  <div class="font-orbitron font-bold text-xs text-slate-500">${step.name}</div>
+                  <div class="font-orbitron font-bold text-xs text-slate-500 flex items-center gap-1.5">
+                    <span>${step.name}</span>
+                    ${step.toolName ? `<span class="text-[9px] font-mono text-slate-400">(${step.toolName} ↗)</span>` : ''}
+                  </div>
                   <div class="text-[10px] font-mono text-slate-600">${step.sub}</div>
                 </div>
               </div>
@@ -4750,6 +4784,29 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
       });
 
       container.innerHTML = html;
+    }
+
+    function openIdeaToolForCurrentBatch() {
+      const b = (typeof workshopBatches !== 'undefined') ? workshopBatches.find(x => x.id === currentActiveBatchId) : null;
+      if (b) {
+        window.pendingBatchId = b.id;
+        const inpCasting = document.getElementById('donorCastingInput');
+        if (inpCasting && b.model) inpCasting.value = b.model;
+        const inpPaint = document.getElementById('donorBodyPaintInput');
+        if (inpPaint && b.color) inpPaint.value = b.color;
+      }
+      openConceptGenModal(false);
+    }
+
+    function openPackageToolForCurrentBatch() {
+      const b = (typeof workshopBatches !== 'undefined') ? workshopBatches.find(x => x.id === currentActiveBatchId) : null;
+      openCardModal();
+      if (b) {
+        const inpCasting = document.getElementById('nlgInpCasting');
+        if (inpCasting && b.model) inpCasting.value = b.model;
+        const inpTheme = document.getElementById('nlgInpTheme');
+        if (inpTheme && b.theme) inpTheme.value = b.theme;
+      }
     }
 
     function nlgToggleDecalDesignDone() {
