@@ -978,15 +978,16 @@ Return ONLY valid JSON with this exact structure:
             messages: [
               {
                 role: "system",
-                content: "You output ONLY valid, parseable raw JSON with no markdown code fences and no commentary.",
+                content:
+                  "You are an elite collector diecast copywriter for Neon Llama Garage. Output ONLY valid raw JSON with no markdown code fences. Every Instagram and Facebook caption MUST be rich 2-3 paragraph collector storytelling (80-150 words) with bullet highlights and 6-8 collector hashtags—NEVER write generic 1-line placeholders.",
               },
               {
                 role: "user",
-                content: `${promptText}\n\n${visionNotes ? `OBSERVED PRODUCT PHOTO DETAILS:\n${visionNotes}` : ""}`,
+                content: `${promptText}\n\n${visionNotes ? `OBSERVED PRODUCT PHOTO DETAILS FROM VISION SCAN:\n${visionNotes}` : ""}`,
               },
             ],
-            max_tokens: 2600,
-            temperature: 0.65,
+            max_tokens: 3200,
+            temperature: 0.7,
           });
           const rawCf = typeof cfResp?.response === "string" ? cfResp.response : JSON.stringify(cfResp?.response || {});
           const sIdx = rawCf.indexOf("{");
