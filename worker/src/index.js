@@ -89,11 +89,20 @@ export default {
     }
 
     // -------------------------------------------------------------------------
-    // 3. UPLOAD FINAL STOREFRONT LAUNCH MEDIA ONLY TO R2 (POST /api/upload-r2)
+    // 3. UPLOAD FINAL STOREFRONT / REEL MEDIA ONLY TO R2 (/api/upload-r2)
+    //    Supports raw binary stream (?key=foo.mp4) OR JSON { key, base64/sourceUrl }
     // -------------------------------------------------------------------------
-    if (url.pathname === "/api/upload-r2" && request.method === "POST") {
+    if (url.pathname === "/api/upload-r2" && (request.method === "POST" || request.method === "PUT")) {
       try {
         if (!env.MEDIA_BUCKET) return jsonResp({ success: false, error: "MEDIA_BUCKET R2 not bound" }, 503);
+        const queryKey = url.searchParams.get("key");
+        if (queryKey) {
+          const safeKey = String(queryKey).replace(/[^a-zA-Z0-9._-]/g, "_");
+          const ct = request.headers.get("content-type") || (safeKey.endsWith(".mp4") ? "video/mp4" : "image/jpeg");
+          await env.MEDIA_BUCKET.put(safeKey, request.body, { httpMetadata: { contentType: ct } });
+          return jsonResp({ success: true, key: safeKey, url: `https://media.neonllamagarage.com/${safeKey}` });
+        }
+
         const body = await request.json();
         const key = String(body.key || "").replace(/[^a-zA-Z0-9._-]/g, "_");
         if (!key) return jsonResp({ success: false, error: "Missing key" }, 400);
@@ -193,6 +202,24 @@ export default {
           });
         }
 
+        // Provably Fair Chase SHA-256 Commitment (matches legacy Pike-XXXX Salt + Win_Num + Hash)
+        let chaseWinNum = payload.winNum || null;
+        let chaseSalt = payload.salt || null;
+        let chaseHash = payload.chaseHash || null;
+        if (plannedChase > 0 && !chaseHash) {
+          const randArr = new Uint32Array(2);
+          crypto.getRandomValues(randArr);
+          chaseWinNum = (randArr[0] % plannedTotal) + 1;
+          chaseSalt = "Pike-" + randArr[1].toString(16).toUpperCase().padStart(8, "0");
+          const digest = await crypto.subtle.digest(
+            "SHA-256",
+            new TextEncoder().encode(`Winning Unit #${chaseWinNum} | Salt: ${chaseSalt}`)
+          );
+          chaseHash = Array.from(new Uint8Array(digest))
+            .map((b) => b.toString(16).padStart(2, "0"))
+            .join("");
+        }
+
         const launchMs = payload.launchDate ? new Date(payload.launchDate).getTime() : Date.now() + 72 * 3600 * 1000;
         const launchIso = new Date(launchMs).toISOString();
 
@@ -210,6 +237,9 @@ export default {
             totalStock,
             plannedTotal,
             plannedChase,
+            winNum: chaseWinNum ?? b.winNum,
+            salt: chaseSalt ?? b.salt,
+            chaseHash: chaseHash ?? b.chaseHash,
             price: priceUsd,
             minPrice: priceUsd,
             title,

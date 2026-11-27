@@ -1171,9 +1171,35 @@
           </div>
         </div>
         <div class="flex items-center gap-2">
+          <input type="file" id="deployReelMp4Input" accept="video/mp4,video/quicktime" class="hidden" onchange="nlgHandleDeployReelUpload(event)" />
           <a id="deployCapCutFolderBtn" href="#" target="_blank" class="px-2.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-cyan-300 font-orbitron font-bold text-[10px] border border-cyan-500/40 flex items-center gap-1">
-            <span>🎬</span> Open Drive / CapCut Folder ↗
+            <span>🎬</span> Open Drive Folder ↗
           </a>
+        </div>
+      </div>
+
+      <!-- FINAL EDITED SOCIAL REELS (.MP4 FOR MAKE.COM / IG / TIKTOK / YT SHORTS) -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 bg-slate-950 p-3 rounded-xl border border-slate-800 text-[10px] font-mono">
+        <div class="p-2 rounded-lg bg-black/70 border border-slate-800 flex items-center justify-between gap-2">
+          <div class="truncate">
+            <span class="text-pink-400 font-bold block">1. TEASER REEL (.MP4)</span>
+            <span id="reelStatus_teaser" class="text-slate-500 truncate block">Optional (uses Hero JPG)</span>
+          </div>
+          <button type="button" onclick="nlgTriggerDeployReelUpload('teaser')" class="px-2 py-1 rounded bg-pink-950 text-pink-300 border border-pink-500/40 font-bold shrink-0 hover:bg-pink-900">📤 .MP4</button>
+        </div>
+        <div class="p-2 rounded-lg bg-black/70 border border-slate-800 flex items-center justify-between gap-2">
+          <div class="truncate">
+            <span class="text-cyan-400 font-bold block">2. REVEAL REEL (.MP4)</span>
+            <span id="reelStatus_reveal" class="text-slate-500 truncate block">Optional (uses Hero JPG)</span>
+          </div>
+          <button type="button" onclick="nlgTriggerDeployReelUpload('reveal')" class="px-2 py-1 rounded bg-cyan-950 text-cyan-300 border border-cyan-500/40 font-bold shrink-0 hover:bg-cyan-900">📤 .MP4</button>
+        </div>
+        <div class="p-2 rounded-lg bg-black/70 border border-slate-800 flex items-center justify-between gap-2">
+          <div class="truncate">
+            <span class="text-emerald-400 font-bold block">3. LAUNCH REEL (.MP4)</span>
+            <span id="reelStatus_launch" class="text-slate-500 truncate block">Optional (uses Hero JPG)</span>
+          </div>
+          <button type="button" onclick="nlgTriggerDeployReelUpload('launch')" class="px-2 py-1 rounded bg-emerald-950 text-emerald-300 border border-emerald-500/40 font-bold shrink-0 hover:bg-emerald-900">📤 .MP4</button>
         </div>
       </div>
 
@@ -10303,6 +10329,7 @@ MANDATORY PRODUCTION CONSTRAINTS (CRITICAL):
       };
       nlgPopulateSocialCopyInputs(defaultSc);
       nlgSwitchSocialPhaseTab('teaser');
+      nlgRefreshDeployReelBadges(b);
 
       document.getElementById('deployModal')?.classList.remove('hidden');
     }
@@ -10342,7 +10369,56 @@ MANDATORY PRODUCTION CONSTRAINTS (CRITICAL):
       }
     }
 
-    function nlgTestDeployStripeLink() {
+    window._activeReelPhase = null;
+    function nlgRefreshDeployReelBadges(b) {
+      ['teaser', 'reveal', 'launch'].forEach(ph => {
+        const el = document.getElementById('reelStatus_' + ph);
+        if (!el) return;
+        const url = b?.[ph + 'VideoUrl'] || '';
+        if (url && url.startsWith('https://media.neonllamagarage.com/')) {
+          el.innerText = '✅ R2 .MP4 Ready';
+          el.className = 'text-emerald-400 truncate block font-bold';
+        } else {
+          el.innerText = 'Optional (uses Hero JPG)';
+          el.className = 'text-slate-500 truncate block';
+        }
+      });
+    }
+
+    function nlgTriggerDeployReelUpload(phase) {
+      window._activeReelPhase = phase;
+      document.getElementById('deployReelMp4Input')?.click();
+    }
+
+    async function nlgHandleDeployReelUpload(ev) {
+      const file = ev.target?.files?.[0];
+      const phase = window._activeReelPhase;
+      ev.target.value = '';
+      if (!file || !phase) return;
+      const b = workshopBatches.find(x => x.id === currentDeployingBatchId);
+      if (!b) return;
+      const el = document.getElementById('reelStatus_' + phase);
+      if (el) { el.innerText = '⏳ Streaming to R2...'; el.className = 'text-amber-300 truncate block'; }
+      try {
+        const cleanSlug = `${b.theme}_${b.model}_VID_${phase.toUpperCase()}_${Date.now()}.mp4`.replace(/[^a-zA-Z0-9._-]/g, '_');
+        const resp = await fetch('/api/upload-r2?key=' + encodeURIComponent(cleanSlug), {
+          method: 'POST',
+          headers: { 'Content-Type': file.type || 'video/mp4' },
+          body: file
+        });
+        const data = await resp.json();
+        if (!resp.ok || !data.success) throw new Error(data.error || 'Upload failed');
+        b[phase + 'VideoUrl'] = data.url;
+        saveBatchesToStorage();
+        nlgRefreshDeployReelBadges(b);
+        showToast(`Uploaded ${phase.toUpperCase()} .MP4 reel for Make.com auto-posting!`, '🎬');
+      } catch (err) {
+        if (el) { el.innerText = '❌ Upload failed'; el.className = 'text-red-400 truncate block'; }
+        showToast('Reel upload failed: ' + err.message, '⚠️');
+      }
+    }
+
+        function nlgTestDeployStripeLink() {
       const url = document.getElementById('deployStripeLink')?.value?.trim();
       if (url && url.startsWith('http')) {
         window.open(url, '_blank');
@@ -10382,9 +10458,9 @@ MANDATORY PRODUCTION CONSTRAINTS (CRITICAL):
           body: JSON.stringify({
             ...b,
             heroImg: b.heroPhoto || b.hero,
-            teaserVideoUrl: firstOf('VID_TEASER') || firstOf('RAW_VID_CAR_MACRO') || '',
-            revealVideoUrl: firstOf('VID_REVEAL') || firstOf('RAW_VID_CARD_TT') || '',
-            launchVideoUrl: firstOf('VID_LAUNCH') || firstOf('RAW_VID_PKG_TT') || ''
+            teaserVideoUrl: b.teaserVideoUrl || '',
+            revealVideoUrl: b.revealVideoUrl || '',
+            launchVideoUrl: b.launchVideoUrl || ''
           })
         });
 
