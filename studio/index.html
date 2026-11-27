@@ -1628,7 +1628,7 @@
     const GAS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxe1WwM8zoYYR1aU4N2EcsqvAjh0PXgVzPwIh1ZnwaB4YYdfwI-fd8eJysx37lgMplHwQ/exec';
 
     // DEFAULT FLEET DATABASE
-            const defaultBatches = [
+                const defaultBatches = [
       // ROW 1: ACTIVE DROPS
       {
         id: 'D-001',
@@ -1681,23 +1681,6 @@
         hero: 'assets/ice_spider_camaro.png',
         completedSteps: [1, 2, 3, 4, 5, 6, 7, 8]
       },
-      {
-        id: 'B-024',
-        theme: 'Marbelized',
-        model: 'VW Bug',
-        color: 'Swirled Purple',
-        status: 'Live / Ready',
-        section: 'active',
-        currentStep: 8,
-        progress: 100,
-        price: 50.00,
-        qty: '1 In Stock',
-        carCost: 1.50,
-        whlCost: 3.00,
-        ovhCost: 2.00,
-        hero: 'https://media.neonllamagarage.com/Marbelized_VW_Bug_IMG_LOOSE_Marbelized_VW_Bug_1788826027622.jpg',
-        completedSteps: [1, 2, 3, 4, 5, 6, 7, 8]
-      },
 
       // ROW 2: WORK IN PROGRESS (WIP) -> Closest to sell on furthest left!
       {
@@ -1716,10 +1699,16 @@
         ovhCost: 2.00,
         hero: 'assets/camaro_acid_splash.png',
         subIdeas: [
-          { title: 'Acid Glitch Concept', img: 'assets/camaro_acid_splash.png' },
-          { title: 'Cyberpunk Neon Livery', img: 'assets/camaro_cyberpunk_neon.png' },
+          { title: 'Acid Glitch Livery', img: 'assets/camaro_acid_splash.png' },
+          { title: "'67 Chevy Camaro 8-Car Showcase", img: 'assets/showcase_camaro_green.jpg' },
           { title: 'Dual Angle Concept View', img: 'assets/camaro_dual_view.jpg' },
-          { title: 'Green Camaro Showcase', img: 'assets/showcase_camaro_green.jpg' }
+          { title: 'Cyberpunk Neon Livery', img: 'assets/camaro_cyberpunk_neon.png' },
+          { title: 'Tokyo Midnight Livery', img: 'assets/camaro_tokyo_midnight.png' },
+          { title: 'Track Day 13 Livery', img: 'assets/camaro_track_day_13.png' },
+          { title: 'Retro Horizon Livery', img: 'assets/camaro_retro_horizon.png' },
+          { title: 'Ghost Pearl Custom', img: 'assets/camaro_ghost_pearl.png' },
+          { title: 'Vintage Scallops Hot Rod', img: 'assets/camaro_vintage_scallops.png' },
+          { title: 'Raw Zamac Stealth Spec', img: 'assets/camaro_raw_stealth.png' }
         ],
         completedSteps: [1, 2]
       },
@@ -1844,6 +1833,23 @@
 
       // ROW 4: THE VAULT (SOLD OUT & ARCHIVED)
       {
+        id: 'B-024',
+        theme: 'Marbelized',
+        model: 'VW Bug',
+        color: 'Swirled Purple',
+        status: 'Sold Out (10/10)',
+        section: 'vault',
+        currentStep: 8,
+        progress: 100,
+        price: 50.00,
+        qty: '0 Available (Vaulted)',
+        carCost: 1.50,
+        whlCost: 3.00,
+        ovhCost: 2.00,
+        hero: 'https://media.neonllamagarage.com/Marbelized_VW_Bug_IMG_LOOSE_Marbelized_VW_Bug_1788826027622.jpg',
+        completedSteps: [1, 2, 3, 4, 5, 6, 7, 8]
+      },
+      {
         id: 'B-026',
         theme: 'Marbelized',
         model: 'Dairy Delivery',
@@ -1935,7 +1941,15 @@
         workshopBatches = JSON.parse(JSON.stringify(defaultBatches));
       }
 
-      // Self-heal: Ensure B-018 (Neon Freeze Ice Cream Dairy) has its hero concept, donor photo, decals, and card art
+      // SSoT LOCK 1: Ensure B-024 (Marbelized VW Bug) is PERMANENTLY LOCKED in The Vault (Sold Out)
+      const bugBatch = workshopBatches.find(b => b.id === 'B-024' || (b.model && b.model.toLowerCase().includes('bug')));
+      if (bugBatch) {
+        bugBatch.section = 'vault';
+        bugBatch.status = 'Sold Out (10/10)';
+        bugBatch.qty = '0 Available (Vaulted)';
+      }
+
+      // SSoT LOCK 2: Ensure B-018 (Neon Freeze Ice Cream Dairy) has its hero concept, donor photo, decals, and card art
       const dairyBatch = workshopBatches.find(b => b.id === 'B-018');
       if (dairyBatch) {
         dairyBatch.theme = 'Neon Freeze';
@@ -1957,7 +1971,6 @@
           { key: 'roof', label: 'ROOF PANEL (TOP-DOWN)', mode: 'direct', cmykPng: 'assets/Roof_CMYK.png', underbasePng: 'assets/Roof_White_Underbase.png' },
           { key: 'driver_clean', label: 'DRIVER CLEAN VECTOR', mode: 'direct', cmykPng: 'assets/neon_freeze_driver_decal_clean_1795718334556.jpg', underbasePng: null }
         ];
-        // Also seed into IndexedDB NeonLlamaPipelineDB
         if (typeof nlgSaveCarState === 'function') {
           setTimeout(() => {
             const oldId = currentActiveBatchId;
@@ -1969,12 +1982,25 @@
               savedDecals: dairyBatch.savedDecals,
               subIdeas: dairyBatch.subIdeas
             }).finally(() => { currentActiveBatchId = oldId; });
-          }, 400);
+          }, 300);
         }
       }
 
-      // Self-heal: Ensure B-011 Green Camaro exists in fleet with sub-ideas
-      let camaroBatch = workshopBatches.find(b => b.id === 'B-011');
+      // SSoT LOCK 3: Ensure B-011 (Green Camaro) is PERMANENTLY LOCKED in WIP with ALL 10 concept pictures
+      const allCamaroSubIdeas = [
+        { title: 'Acid Glitch Livery', img: 'assets/camaro_acid_splash.png' },
+        { title: "'67 Chevy Camaro 8-Car Showcase", img: 'assets/showcase_camaro_green.jpg' },
+        { title: 'Dual Angle Concept View', img: 'assets/camaro_dual_view.jpg' },
+        { title: 'Cyberpunk Neon Livery', img: 'assets/camaro_cyberpunk_neon.png' },
+        { title: 'Tokyo Midnight Livery', img: 'assets/camaro_tokyo_midnight.png' },
+        { title: 'Track Day 13 Livery', img: 'assets/camaro_track_day_13.png' },
+        { title: 'Retro Horizon Livery', img: 'assets/camaro_retro_horizon.png' },
+        { title: 'Ghost Pearl Custom', img: 'assets/camaro_ghost_pearl.png' },
+        { title: 'Vintage Scallops Hot Rod', img: 'assets/camaro_vintage_scallops.png' },
+        { title: 'Raw Zamac Stealth Spec', img: 'assets/camaro_raw_stealth.png' }
+      ];
+
+      let camaroBatch = workshopBatches.find(b => b.id === 'B-011' || (b.model && b.model.toLowerCase().includes('camaro') && b.section === 'wip'));
       if (!camaroBatch) {
         camaroBatch = {
           id: 'B-011',
@@ -1991,12 +2017,7 @@
           whlCost: 3.00,
           ovhCost: 2.00,
           hero: 'assets/camaro_acid_splash.png',
-          subIdeas: [
-            { title: 'Acid Glitch Concept', img: 'assets/camaro_acid_splash.png' },
-            { title: 'Cyberpunk Neon Livery', img: 'assets/camaro_cyberpunk_neon.png' },
-            { title: 'Dual Angle Concept View', img: 'assets/camaro_dual_view.jpg' },
-            { title: 'Green Camaro Showcase', img: 'assets/showcase_camaro_green.jpg' }
-          ],
+          subIdeas: allCamaroSubIdeas,
           completedSteps: [1, 2]
         };
         const firstWip = workshopBatches.findIndex(b => b.section === 'wip');
@@ -2007,17 +2028,20 @@
         }
       } else {
         camaroBatch.hero = 'assets/camaro_acid_splash.png';
-        if (!camaroBatch.subIdeas || camaroBatch.subIdeas.length === 0) {
-          camaroBatch.subIdeas = [
-            { title: 'Acid Glitch Concept', img: 'assets/camaro_acid_splash.png' },
-            { title: 'Cyberpunk Neon Livery', img: 'assets/camaro_cyberpunk_neon.png' },
-            { title: 'Dual Angle Concept View', img: 'assets/camaro_dual_view.jpg' },
-            { title: 'Green Camaro Showcase', img: 'assets/showcase_camaro_green.jpg' }
-          ];
-        }
+        camaroBatch.subIdeas = allCamaroSubIdeas;
+      }
+      if (typeof nlgSaveCarState === 'function') {
+        setTimeout(() => {
+          const oldId = currentActiveBatchId;
+          currentActiveBatchId = 'B-011';
+          nlgSaveCarState({
+            heroMock: 'assets/camaro_acid_splash.png',
+            subIdeas: allCamaroSubIdeas
+          }).finally(() => { currentActiveBatchId = oldId; });
+        }, 500);
       }
 
-      // Clean up any broken 404 images
+      // Clean up any legacy 404 image URLs
       workshopBatches.forEach(b => {
         if (!b.hero || b.hero.includes('Blue_Banana_Dairy_Delivery_HERO') || b.hero.includes('Sugar_Crash_Dairy_Delivery_HERO')) {
           if (b.model && b.model.toLowerCase().includes('dairy')) {

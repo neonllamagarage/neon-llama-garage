@@ -270,12 +270,13 @@
         
         globalBatches = data.batches || [];
 
-        // Seamlessly merge any active/deployed batches from Neon Llama Studio!
+        // Seamlessly merge any active/deployed batches and enforce SSoT Vault/Sold Out status from Studio!
         try {
           const localSaved = localStorage.getItem('neon_llama_workshop_fleet_v8');
           if (localSaved) {
             const studioBatches = JSON.parse(localSaved);
             if (Array.isArray(studioBatches)) {
+              // 1. Process active studio drops
               studioBatches.filter(b => b.section === 'active').forEach(sb => {
                 const existingIdx = globalBatches.findIndex(x => x.id === sb.id);
                 const mappedBatch = {
@@ -298,6 +299,15 @@
                   globalBatches[existingIdx] = { ...globalBatches[existingIdx], ...mappedBatch };
                 } else {
                   globalBatches.unshift(mappedBatch);
+                }
+              });
+
+              // 2. SSoT: Enforce Vaulted / Sold Out batches from Studio (e.g. B-024 VW Bug, B-026 Dairy Delivery)
+              studioBatches.filter(b => b.section === 'vault' || String(b.status || '').toLowerCase().includes('sold out') || String(b.qty || '').includes('0 Available')).forEach(vb => {
+                const existing = globalBatches.find(x => x.id === vb.id || (x.model && vb.model && x.model.toLowerCase() === vb.model.toLowerCase() && x.theme === vb.theme));
+                if (existing) {
+                  existing.totalStock = 0;
+                  existing.isSoldOut = true;
                 }
               });
             }
