@@ -35,7 +35,7 @@ export default {
       const ebay = await getEbayStatus(env);
       return jsonResp({
         status: "ok",
-        service: "Neon Llama Single-Source Studio & Chronos Engine v2.3",
+        service: "Neon Llama Single-Source Studio & Chronos Engine v2.4",
         geminiConfigured: Boolean(env.GEMINI_API_KEY),
         kvConfigured: Boolean(env.NLG_DB),
         r2Configured: Boolean(env.MEDIA_BUCKET),
@@ -1126,6 +1126,47 @@ async function processChronosQueue(env, { force = false } = {}) {
   let schedule = (await env.NLG_DB.get("schedule_v1", "json")) || [];
   let batchesChanged = false;
   let scheduleChanged = false;
+
+  // ---------------------------------------------------------------------------
+  // 0A. WRONG-ACCOUNT SILO GUARD (AUTO-UNWINDS PIKES1313 IF EVER CONNECTED)
+  // ---------------------------------------------------------------------------
+  const storedOauth = await env.NLG_DB.get("ebay_oauth_v1", "json");
+  if (storedOauth?.refresh_token && (!storedOauth.username || storedOauth.username.toLowerCase() === "pikes1313")) {
+    try {
+      const tok = await getValidEbayAccessToken(env);
+      const actualUser = await fetchTokenEbayUsername(tok);
+      if (actualUser && actualUser.toLowerCase() === "pikes1313") {
+        const endedIds = [];
+        for (const b of batches) {
+          if (b.ebayItemId) {
+            await endEbayListing(env, b.ebayItemId, "NotAvailable").catch(() => {});
+            endedIds.push(`${b.id}:${b.ebayItemId}`);
+            delete b.ebayItemId;
+            delete b.ebayUrl;
+            delete b.ebayStatus;
+            delete b.ebayPrice;
+            delete b.ebayListedAt;
+            delete b.ebayWindowEndsAt;
+            delete b.ebayLastAttemptAt;
+            delete b.ebayLastError;
+          }
+        }
+        const cleanedSched = schedule.filter((ev) => !(ev.phase === "ARCHIVE_SWEEP" && ev.status === "PENDING"));
+        await env.NLG_DB.put("batches_v1", JSON.stringify(batches));
+        await env.NLG_DB.put("schedule_v1", JSON.stringify(cleanedSched));
+        await env.NLG_DB.delete("ebay_oauth_v1");
+        await env.NLG_DB.delete("ebay_access_token_v1");
+        await sendTelegramAlert(
+          env,
+          `🛡️ *EBAY SILO GUARD*\nEnded ${endedIds.length} listing(s) on \`pikes1313\` (${endedIds.join(", ")}) and disconnected \`pikes1313\` so you can sign in with *NeonLlamaGarage*!`
+        );
+        return { processed: 0, cleanedWrongEbayAccount: actualUser, endedIds };
+      } else if (actualUser) {
+        storedOauth.username = actualUser;
+        await env.NLG_DB.put("ebay_oauth_v1", JSON.stringify(storedOauth));
+      }
+    } catch (_) {}
+  }
 
   // ---------------------------------------------------------------------------
   // 0. SYNC ACTIVE EBAY SALES & SCARCITY-DRIP 1-BY-1 RESTOCK
