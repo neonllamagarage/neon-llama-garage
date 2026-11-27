@@ -178,6 +178,9 @@
 
       <!-- GLOBAL CONTROLS -->
       <div class="flex items-center gap-2 flex-wrap">
+        <button onclick="nlgOpenChronosDrawer()" id="btnChronosTimeline" class="px-2.5 py-1.5 rounded-lg bg-pink-950/80 hover:bg-pink-900 text-pink-300 font-orbitron font-bold text-xs border border-pink-500/40 flex items-center gap-1.5 transition active:scale-95 shadow-sm" title="Open Autonomous Chronos Social Auto-Post Queue & Alerts">
+          <span>⏱️</span> <span>CHRONOS</span> <span id="chronosBadgeCount" class="px-1.5 py-0.2 rounded-full bg-pink-500/30 text-[10px] font-mono">LIVE</span>
+        </button>
         <button onclick="syncWithLiveGASFeed()" id="btnSyncSheets" class="px-2.5 py-1.5 rounded-lg bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 font-orbitron font-bold text-xs border border-emerald-500/40 flex items-center gap-1.5 transition active:scale-95 shadow-sm" title="Sync live inventory with Google Sheets">
           <span id="gasSyncIcon">📊</span> <span id="gasSyncText">SYNC SHEETS</span>
         </button>
@@ -1133,119 +1136,231 @@
   <!-- ========================================================================= -->
   <!-- 1-CLICK STOREFRONT DEPLOYMENT & CAPCUT SOCIAL STORYBOARD MODAL -->
   <!-- ========================================================================= -->
-  <div id="deployModal" class="hidden fixed inset-0 bg-black/90 backdrop-blur-md z-[90] flex items-center justify-center p-4">
-    <div class="w-full max-w-2xl bg-[#070b14] border border-cyan-500/50 rounded-2xl p-6 shadow-2xl max-h-[90vh] overflow-y-auto space-y-5">
+  <div id="deployModal" class="hidden fixed inset-0 bg-black/90 backdrop-blur-md z-[90] flex items-center justify-center p-3 sm:p-5">
+    <div class="w-full max-w-4xl bg-[#070b14] border border-cyan-500/50 rounded-2xl p-5 sm:p-6 shadow-2xl max-h-[92vh] overflow-y-auto space-y-4">
       
       <!-- HEADER -->
-      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+      <div class="flex flex-wrap items-center justify-between border-b border-slate-800 pb-3 gap-2">
         <div class="flex items-center gap-2.5">
           <span class="text-2xl">🚀</span>
           <div>
-            <h2 class="font-orbitron font-black text-base text-white">1-CLICK STOREFRONT DEPLOYMENT</h2>
-            <p class="text-xs text-slate-400">Launch drop to neonllamagarage.com, schedule countdown clock, and generate social scripts</p>
+            <h2 class="font-orbitron font-black text-base text-white">SINGLE-SOURCE DROP DEPLOY & CHRONOS AUTO-SCHEDULER</h2>
+            <p class="text-xs text-slate-400">Collision-checked launch scheduling, Hard-Capped Stripe Link, R2 shop sync & 3-phase Make.com social auto-posting</p>
           </div>
         </div>
-        <button type="button" onclick="toggleModal('deployModal')" class="text-slate-400 hover:text-white font-bold text-sm px-2 py-1 rounded">✕</button>
-      </div>
-
-      <!-- CAR RECAP -->
-      <div class="flex items-center gap-4 bg-slate-950 p-3 rounded-xl border border-slate-800">
-        <div class="w-24 h-16 rounded-lg bg-black overflow-hidden shrink-0 border border-slate-800 flex items-center justify-center">
-          <img id="deployCarImg" src="" class="w-full h-full object-contain" />
-        </div>
-        <div class="flex-grow">
-          <div class="font-orbitron font-black text-sm text-cyan-300" id="deployCarTheme">NEON FREEZE</div>
-          <div class="text-xs font-mono text-slate-400" id="deployCarModel">Dairy Delivery • 8 Units • $50.00 MSRP</div>
-        </div>
-        <div class="text-right font-mono text-xs">
-          <span class="px-2 py-1 rounded bg-emerald-950 text-emerald-400 border border-emerald-500/40 font-bold">READY TO DROP</span>
+        <div class="flex items-center gap-2">
+          <button type="button" id="btnAiOmnichannelCopy" onclick="nlgGenerateOmnichannelCopy()" class="px-3 py-1.5 rounded-lg bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-orbitron font-black text-[11px] shadow-lg transition active:scale-95 flex items-center gap-1.5">
+            <span>✨</span> AI WRITE ALL COPY & 3-PHASE SOCIALS
+          </button>
+          <button type="button" onclick="toggleModal('deployModal')" class="text-slate-400 hover:text-white font-bold text-sm px-2 py-1 rounded">✕</button>
         </div>
       </div>
 
-      <!-- DROP CONFIGURATION & STOREFRONT METADATA -->
+      <!-- CAR RECAP + MEDIA READINESS -->
+      <div class="flex flex-wrap items-center justify-between gap-4 bg-slate-950 p-3 rounded-xl border border-slate-800">
+        <div class="flex items-center gap-3">
+          <div class="w-24 h-16 rounded-lg bg-black overflow-hidden shrink-0 border border-slate-800 flex items-center justify-center">
+            <img id="deployCarImg" src="" class="w-full h-full object-contain" />
+          </div>
+          <div>
+            <div class="font-orbitron font-black text-sm text-cyan-300" id="deployCarTheme">RUBIX CUBE</div>
+            <div class="text-xs font-mono text-slate-400" id="deployCarModel">Nissan Silvia • 10 Units • $50.00 MSRP</div>
+            <div id="deployMediaReadiness" class="text-[10px] font-mono text-emerald-400 mt-0.5">Checking Drive photos & reels...</div>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <a id="deployCapCutFolderBtn" href="#" target="_blank" class="px-2.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-cyan-300 font-orbitron font-bold text-[10px] border border-cyan-500/40 flex items-center gap-1">
+            <span>🎬</span> Open Drive / CapCut Folder ↗
+          </a>
+        </div>
+      </div>
+
+      <!-- STOREFRONT, STOCK CAPS & STRIPE CONFIG -->
       <div class="space-y-3 bg-slate-950 p-4 rounded-xl border border-slate-800">
-        <div class="flex items-center justify-between pb-2 border-b border-slate-850">
-          <span class="font-orbitron font-bold text-xs text-cyan-300 uppercase tracking-wider flex items-center gap-1.5">
-            <span>🌐</span> STOREFRONT LISTING & CHECKOUT CONFIG
-          </span>
-          <span class="text-[10px] font-mono text-slate-500">Google Sheets / MES Linked</span>
-        </div>
-
-        <div>
-          <label class="text-[10px] font-mono text-slate-400 block uppercase mb-1">Collector Series Title</label>
-          <input type="text" id="deploySeriesTitle" placeholder="e.g. Neon Llama Garage '83 Silverado 'Stained Glass' Custom 1/64" class="w-full bg-black/80 border border-slate-800 focus:border-cyan-400 rounded-lg p-2 text-white font-orbitron font-bold text-xs outline-none" />
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
+          <div class="col-span-2">
+            <label class="text-[10px] font-mono text-slate-400 block uppercase mb-1">Collision-Checked Launch Date</label>
+            <input type="datetime-local" id="deployLaunchDate" onchange="nlgUpdateOmnichannelPhaseDates(this.value)" class="w-full bg-black/80 border border-slate-800 focus:border-cyan-400 rounded-lg p-2 text-white font-mono text-xs outline-none" />
+          </div>
+          <div>
+            <label class="text-[10px] font-mono text-emerald-400 block uppercase mb-1">Sellable Stock</label>
+            <input type="number" id="deployPhysicalStock" min="1" value="10" class="w-full bg-black/80 border border-slate-800 focus:border-emerald-400 rounded-lg p-2 text-emerald-400 font-mono font-bold text-xs text-center outline-none" />
+          </div>
+          <div>
+            <label class="text-[10px] font-mono text-slate-400 block uppercase mb-1">Total Cap / Chase</label>
+            <div class="grid grid-cols-2 gap-1">
+              <input type="number" id="deployPlanTotal" min="1" value="10" title="Planned Total" class="w-full bg-black/80 border border-slate-800 rounded-lg p-2 text-white font-mono text-xs text-center outline-none" />
+              <input type="number" id="deployPlanChase" min="0" value="0" title="Chase Units" class="w-full bg-black/80 border border-yellow-500/40 rounded-lg p-2 text-yellow-300 font-mono text-xs text-center outline-none" />
+            </div>
+          </div>
+          <div>
+            <label class="text-[10px] font-mono text-slate-400 block uppercase mb-1">MSRP ($)</label>
+            <input type="number" id="deployMsrp" min="1" value="50" class="w-full bg-black/80 border border-slate-800 rounded-lg p-2 text-white font-mono font-bold text-xs text-center outline-none" />
+          </div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label class="text-[10px] font-mono text-slate-400 block uppercase mb-1">Launch Date & Drop Time (CST)</label>
-            <input type="datetime-local" id="deployLaunchDate" class="w-full bg-black/80 border border-slate-800 focus:border-cyan-400 rounded-lg p-2 text-white font-mono text-xs outline-none" />
-            <span class="text-[9px] text-slate-500 block mt-1">Powers the live T-MINUS countdown clock on neonllamagarage.com</span>
+            <label class="text-[10px] font-mono text-slate-400 block uppercase mb-1">Collector Series Title</label>
+            <input type="text" id="deploySeriesTitle" class="w-full bg-black/80 border border-slate-800 focus:border-cyan-400 rounded-lg p-2 text-white font-orbitron font-bold text-xs outline-none" />
           </div>
           <div>
             <div class="flex items-center justify-between mb-1">
-              <label class="text-[10px] font-mono text-slate-400 uppercase">Stripe Checkout Link (Buy Now)</label>
-              <button type="button" onclick="nlgTestDeployStripeLink()" class="text-[9px] font-mono text-emerald-400 hover:underline font-bold">Test Stripe ↗</button>
+              <label class="text-[10px] font-mono text-slate-400 uppercase">Hard-Capped Stripe Link (Blank = Auto-Create)</label>
+              <button type="button" onclick="nlgTestDeployStripeLink()" class="text-[9px] font-mono text-emerald-400 hover:underline font-bold">Test Link ↗</button>
             </div>
-            <div class="flex items-center gap-1">
-              <input type="url" id="deployStripeLink" placeholder="https://buy.stripe.com/..." class="w-full bg-black/80 border border-slate-800 focus:border-cyan-400 rounded-lg p-2 text-cyan-300 font-mono text-xs outline-none" />
-            </div>
-            <span class="text-[9px] text-slate-500 block mt-1">Direct buy link for collectors on neonllamagarage.com</span>
+            <input type="url" id="deployStripeLink" placeholder="Leave blank to auto-generate capped Stripe link on deploy..." class="w-full bg-black/80 border border-slate-800 focus:border-cyan-400 rounded-lg p-2 text-cyan-300 font-mono text-xs outline-none" />
           </div>
         </div>
 
-        <div>
-          <div class="flex items-center justify-between mb-1">
-            <label class="text-[10px] font-mono text-slate-400 uppercase">Product Description / Collector Story</label>
-            <button type="button" onclick="copyText(document.getElementById('deployDescription').value)" class="text-[9px] text-cyan-400 hover:underline">Copy Story 📋</button>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="sm:col-span-2">
+            <label class="text-[10px] font-mono text-slate-400 block uppercase mb-1">Collector Story (HTML / Storefront Description)</label>
+            <textarea id="deployDescription" rows="3" class="w-full bg-black/80 border border-slate-800 focus:border-cyan-400 rounded-lg p-2 text-slate-300 font-sans text-xs leading-relaxed outline-none"></textarea>
           </div>
-          <textarea id="deployDescription" rows="3" placeholder="Enter product description and storytelling copy for this drop..." class="w-full bg-black/80 border border-slate-800 focus:border-cyan-400 rounded-lg p-2 text-slate-300 font-sans text-xs leading-relaxed outline-none"></textarea>
-        </div>
-
-        <div>
-          <label class="text-[10px] font-mono text-slate-400 block uppercase mb-1">SEO & Social Tags</label>
-          <input type="text" id="deployTags" placeholder="custom diecast, hot wheels custom, real riders, limited edition..." class="w-full bg-black/80 border border-slate-800 focus:border-cyan-400 rounded-lg p-2 text-slate-400 font-mono text-xs outline-none" />
+          <div>
+            <label class="text-[10px] font-mono text-slate-400 block uppercase mb-1">SEO & Marketplace Tags</label>
+            <textarea id="deployTags" rows="3" class="w-full bg-black/80 border border-slate-800 focus:border-cyan-400 rounded-lg p-2 text-slate-400 font-mono text-[11px] outline-none"></textarea>
+          </div>
         </div>
       </div>
 
-      <!-- CAPCUT SOCIAL STORYBOARD (RESTORED!) -->
-      <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-3">
-        <div class="flex items-center justify-between">
-          <h3 class="font-orbitron font-bold text-xs text-yellow-400 flex items-center gap-1.5">
-            <span>🎬</span> 3-Stage CapCut Social Storyboard & ASMR Cues
-          </h3>
-          <button type="button" onclick="copyFullSocialPack()" class="text-cyan-400 hover:underline text-[11px] font-mono font-bold">Copy All Cues 📋</button>
+      <!-- 3-PHASE OMNICHANNEL AUTO-POST COPY (IG / FB / X / TIKTOK / YT / PINTEREST) -->
+      <div class="p-4 rounded-xl bg-slate-950 border border-pink-500/30 space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2">
+          <div>
+            <h3 class="font-orbitron font-bold text-xs text-pink-400 flex items-center gap-1.5">
+              <span>📡</span> 3-PHASE OMNICHANNEL SOCIAL AUTO-POST QUEUE (MAKE.COM + BUFFER)
+            </h3>
+            <p class="text-[10px] text-slate-400 font-mono" id="deployChronosTimelineSummary">Auto-fires T-72h Teaser → T-24h Reveal → T-1h VIP → Launch → +72h eBay → +18d Vault Sweep</p>
+          </div>
+          <div class="flex items-center gap-1 bg-black p-1 rounded-lg border border-slate-800 text-[10px] font-orbitron font-bold">
+            <button type="button" id="tabBtnPhaseTeaser" onclick="nlgSwitchSocialPhaseTab('teaser')" class="px-2.5 py-1 rounded bg-pink-950 text-pink-300 border border-pink-500/40">1. TEASER (T-72h)</button>
+            <button type="button" id="tabBtnPhaseReveal" onclick="nlgSwitchSocialPhaseTab('reveal')" class="px-2.5 py-1 rounded text-slate-400 hover:text-white">2. REVEAL (T-24h)</button>
+            <button type="button" id="tabBtnPhaseLaunch" onclick="nlgSwitchSocialPhaseTab('launch')" class="px-2.5 py-1 rounded text-slate-400 hover:text-white">3. LAUNCH (LIVE)</button>
+          </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
-          <div class="p-2.5 rounded-lg bg-black/80 border border-slate-850 space-y-1">
-            <span class="text-pink-400 font-orbitron font-bold text-[10px]">T-72h TEASER</span>
-            <p class="text-slate-300 font-mono text-[10px] leading-relaxed" id="capcutTeaser">Macro headlights flare → drill rivet spin → deep synthwave bass drop.</p>
-            <button type="button" onclick="copyText(document.getElementById('capcutTeaser').innerText)" class="text-cyan-400 text-[9px] hover:underline block pt-1">Copy Teaser Cue</button>
+        <!-- PHASE 1: TEASER -->
+        <div id="socialPhasePane_teaser" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+          <div>
+            <label class="text-[9px] font-mono text-pink-300 uppercase">Instagram Teaser Caption</label>
+            <textarea id="sc_tea_ig" rows="2" class="w-full bg-black/80 border border-slate-800 rounded-lg p-2 text-slate-200 text-xs outline-none"></textarea>
           </div>
-          <div class="p-2.5 rounded-lg bg-black/80 border border-slate-850 space-y-1">
-            <span class="text-cyan-400 font-orbitron font-bold text-[10px]">T-48h PROCESS ASMR</span>
-            <p class="text-slate-300 font-mono text-[10px] leading-relaxed" id="capcutAsmr">eufyMake UV head pass sounds → waterslide float → heat press 280° clunk.</p>
-            <button type="button" onclick="copyText(document.getElementById('capcutAsmr').innerText)" class="text-cyan-400 text-[9px] hover:underline block pt-1">Copy ASMR Cue</button>
+          <div>
+            <label class="text-[9px] font-mono text-blue-300 uppercase">Facebook Teaser Post</label>
+            <textarea id="sc_tea_fb" rows="2" class="w-full bg-black/80 border border-slate-800 rounded-lg p-2 text-slate-200 text-xs outline-none"></textarea>
           </div>
-          <div class="p-2.5 rounded-lg bg-black/80 border border-slate-850 space-y-1">
-            <span class="text-yellow-400 font-orbitron font-bold text-[10px]">T-24h REVEAL</span>
-            <p class="text-slate-300 font-mono text-[10px] leading-relaxed" id="capcutReveal">360 turntable spin under blacklight → blister seal peel → drop countdown.</p>
-            <button type="button" onclick="copyText(document.getElementById('capcutReveal').innerText)" class="text-cyan-400 text-[9px] hover:underline block pt-1">Copy Reveal Cue</button>
+          <div>
+            <label class="text-[9px] font-mono text-cyan-300 uppercase">TikTok Teaser Hook</label>
+            <textarea id="sc_tea_tt" rows="2" class="w-full bg-black/80 border border-slate-800 rounded-lg p-2 text-slate-200 text-xs outline-none"></textarea>
+          </div>
+          <div>
+            <label class="text-[9px] font-mono text-slate-300 uppercase">X (Twitter) Teaser (&lt;280 chars)</label>
+            <textarea id="sc_tea_x" rows="2" class="w-full bg-black/80 border border-slate-800 rounded-lg p-2 text-slate-200 text-xs outline-none"></textarea>
+          </div>
+          <div>
+            <label class="text-[9px] font-mono text-red-400 uppercase">YouTube Shorts Title</label>
+            <input type="text" id="sc_tea_ytTitle" class="w-full bg-black/80 border border-slate-800 rounded-lg p-2 text-slate-200 text-xs outline-none" />
+          </div>
+          <div>
+            <label class="text-[9px] font-mono text-red-300 uppercase">YouTube Shorts Description</label>
+            <input type="text" id="sc_tea_ytDesc" class="w-full bg-black/80 border border-slate-800 rounded-lg p-2 text-slate-200 text-xs outline-none" />
+          </div>
+        </div>
+
+        <!-- PHASE 2: REVEAL -->
+        <div id="socialPhasePane_reveal" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+          <div>
+            <label class="text-[9px] font-mono text-pink-300 uppercase">Instagram 24h Reveal Caption</label>
+            <textarea id="sc_rev_ig" rows="2" class="w-full bg-black/80 border border-slate-800 rounded-lg p-2 text-slate-200 text-xs outline-none"></textarea>
+          </div>
+          <div>
+            <label class="text-[9px] font-mono text-blue-300 uppercase">Facebook 24h Reveal Post</label>
+            <textarea id="sc_rev_fb" rows="2" class="w-full bg-black/80 border border-slate-800 rounded-lg p-2 text-slate-200 text-xs outline-none"></textarea>
+          </div>
+          <div>
+            <label class="text-[9px] font-mono text-cyan-300 uppercase">TikTok 24h Reveal</label>
+            <textarea id="sc_rev_tt" rows="2" class="w-full bg-black/80 border border-slate-800 rounded-lg p-2 text-slate-200 text-xs outline-none"></textarea>
+          </div>
+          <div>
+            <label class="text-[9px] font-mono text-slate-300 uppercase">X (Twitter) 24h Reveal</label>
+            <textarea id="sc_rev_x" rows="2" class="w-full bg-black/80 border border-slate-800 rounded-lg p-2 text-slate-200 text-xs outline-none"></textarea>
+          </div>
+          <div>
+            <label class="text-[9px] font-mono text-red-400 uppercase">YouTube Shorts Reveal Title</label>
+            <input type="text" id="sc_rev_ytTitle" class="w-full bg-black/80 border border-slate-800 rounded-lg p-2 text-slate-200 text-xs outline-none" />
+          </div>
+          <div>
+            <label class="text-[9px] font-mono text-red-300 uppercase">YouTube Shorts Reveal Description</label>
+            <input type="text" id="sc_rev_ytDesc" class="w-full bg-black/80 border border-slate-800 rounded-lg p-2 text-slate-200 text-xs outline-none" />
+          </div>
+        </div>
+
+        <!-- PHASE 3: LAUNCH -->
+        <div id="socialPhasePane_launch" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+          <div>
+            <label class="text-[9px] font-mono text-pink-300 uppercase">Instagram LIVE Launch Caption</label>
+            <textarea id="sc_lau_ig" rows="2" class="w-full bg-black/80 border border-slate-800 rounded-lg p-2 text-slate-200 text-xs outline-none"></textarea>
+          </div>
+          <div>
+            <label class="text-[9px] font-mono text-blue-300 uppercase">Facebook LIVE Launch Post</label>
+            <textarea id="sc_lau_fb" rows="2" class="w-full bg-black/80 border border-slate-800 rounded-lg p-2 text-slate-200 text-xs outline-none"></textarea>
+          </div>
+          <div>
+            <label class="text-[9px] font-mono text-cyan-300 uppercase">TikTok LIVE Launch</label>
+            <textarea id="sc_lau_tt" rows="2" class="w-full bg-black/80 border border-slate-800 rounded-lg p-2 text-slate-200 text-xs outline-none"></textarea>
+          </div>
+          <div>
+            <label class="text-[9px] font-mono text-slate-300 uppercase">X (Twitter) LIVE Launch</label>
+            <textarea id="sc_lau_x" rows="2" class="w-full bg-black/80 border border-slate-800 rounded-lg p-2 text-slate-200 text-xs outline-none"></textarea>
+          </div>
+          <div>
+            <label class="text-[9px] font-mono text-red-400 uppercase">YouTube Shorts Title / Pinterest Pin Title</label>
+            <div class="grid grid-cols-2 gap-1">
+              <input type="text" id="sc_lau_ytTitle" placeholder="YT Title" class="w-full bg-black/80 border border-slate-800 rounded-lg p-2 text-slate-200 text-xs outline-none" />
+              <input type="text" id="sc_lau_pinTitle" placeholder="Pinterest Title" class="w-full bg-black/80 border border-slate-800 rounded-lg p-2 text-slate-200 text-xs outline-none" />
+            </div>
+          </div>
+          <div>
+            <label class="text-[9px] font-mono text-rose-300 uppercase">Pinterest SEO Description</label>
+            <input type="text" id="sc_lau_pinDesc" class="w-full bg-black/80 border border-slate-800 rounded-lg p-2 text-slate-200 text-xs outline-none" />
           </div>
         </div>
       </div>
 
       <!-- ACTION BUTTONS -->
-      <div class="flex items-center justify-between pt-2 border-t border-slate-800">
+      <div class="flex flex-wrap items-center justify-between pt-2 border-t border-slate-800 gap-2">
         <button type="button" onclick="toggleModal('deployModal')" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-orbitron font-bold text-xs transition">
           Cancel
         </button>
-        <button type="button" onclick="nlgConfirmPublishToStorefront()" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-black font-orbitron font-black text-xs shadow-lg transition active:scale-95 flex items-center gap-2">
-          <span>🚀</span> PUBLISH TO LIVE STOREFRONT (NEONLLAMAGARAGE.COM)
+        <button type="button" id="btnConfirmOmnichannelDeploy" onclick="nlgConfirmPublishToStorefront()" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-black font-orbitron font-black text-xs shadow-lg transition active:scale-95 flex items-center gap-2">
+          <span>🚀</span> SAVE COPY, CREATE STRIPE LINK &amp; ARM CHRONOS AUTO-POSTER
         </button>
       </div>
 
+    </div>
+  </div>
+
+  <!-- CHRONOS LIVE AUTO-POST QUEUE & ALERTS DRAWER -->
+  <div id="chronosDrawerModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-[95] flex justify-end">
+    <div class="w-full max-w-md bg-[#070b14] border-l border-pink-500/40 h-full flex flex-col shadow-2xl">
+      <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+        <div>
+          <h3 class="font-orbitron font-black text-sm text-pink-400 flex items-center gap-2">
+            <span>⏱️</span> CHRONOS AUTONOMOUS SCHEDULER
+          </h3>
+          <p class="text-[10px] text-slate-400 font-mono">15-Min Cloudflare Cron → Make.com + Buffer + Telegram</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="nlgRunChronosNow()" class="px-2.5 py-1 rounded bg-emerald-950 text-emerald-300 border border-emerald-500/40 font-orbitron font-bold text-[10px] hover:bg-emerald-900">⚡ Run Due</button>
+          <button type="button" onclick="document.getElementById('chronosDrawerModal').classList.add('hidden')" class="text-slate-400 hover:text-white font-bold px-2">✕</button>
+        </div>
+      </div>
+      <div id="chronosAlertsBox" class="hidden p-3 bg-red-950/30 border-b border-red-500/40 space-y-2"></div>
+      <div id="chronosEventsList" class="p-4 overflow-y-auto flex-1 space-y-2.5 text-xs font-mono text-slate-300">
+        <div class="text-center text-slate-500 py-8">Loading Chronos queue...</div>
+      </div>
     </div>
   </div>
 
@@ -9972,74 +10087,192 @@ CORE LIVERY & PRODUCTION RULES:
       }
     }
 
+    function nlgSwitchSocialPhaseTab(phase) {
+      ['teaser', 'reveal', 'launch'].forEach(p => {
+        const pane = document.getElementById('socialPhasePane_' + p);
+        if (pane) pane.classList.toggle('hidden', p !== phase);
+      });
+      const map = { teaser: 'tabBtnPhaseTeaser', reveal: 'tabBtnPhaseReveal', launch: 'tabBtnPhaseLaunch' };
+      Object.entries(map).forEach(([p, id]) => {
+        const btn = document.getElementById(id);
+        if (!btn) return;
+        btn.className = (p === phase)
+          ? 'px-2.5 py-1 rounded bg-pink-950 text-pink-300 border border-pink-500/40'
+          : 'px-2.5 py-1 rounded text-slate-400 hover:text-white';
+      });
+    }
+
+    function nlgComputeCollisionFreeLaunchDate(batch) {
+      const now = new Date();
+      const totalCap = parseFloat(batch?.plannedTotal || 10);
+      // Garage MES rule: Friday 7PM (day 5) for main drops (>5), Sunday 7PM (day 0) for micro drops (<=5)
+      const targetDow = totalCap <= 5 ? 0 : 5;
+      const target = new Date(now.getTime());
+      let daysUntil = (targetDow + 7 - now.getDay()) % 7;
+      if (daysUntil === 0) daysUntil = 7;
+      target.setDate(now.getDate() + daysUntil);
+      target.setHours(19, 0, 0, 0);
+
+      // Minimum 72h lead time so T-72h Teaser doesn't fire in the past
+      if (target.getTime() - now.getTime() < 72 * 3600 * 1000) {
+        target.setDate(target.getDate() + 7);
+      }
+
+      const dateKey = d => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().split('T')[0];
+      const takenDates = (workshopBatches || [])
+        .filter(x => x.id !== batch?.id && x.launchDate && x.section === 'active')
+        .map(x => dateKey(new Date(x.launchDate)));
+
+      while (takenDates.includes(dateKey(target))) {
+        target.setDate(target.getDate() + 7);
+      }
+      return new Date(target.getTime() - target.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    }
+
+    function nlgUpdateOmnichannelPhaseDates(localIso) {
+      const sumEl = document.getElementById('deployChronosTimelineSummary');
+      if (!sumEl || !localIso) return;
+      const lDate = new Date(localIso);
+      if (isNaN(lDate)) return;
+      const fmt = d => d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+      const t72 = new Date(lDate.getTime() - 72 * 3600 * 1000);
+      const t24 = new Date(lDate.getTime() - 24 * 3600 * 1000);
+      sumEl.innerText = `Teaser: ${fmt(t72)} → Reveal: ${fmt(t24)} → Launch: ${fmt(lDate)} (+ VIP T-1h & eBay +72h)`;
+    }
+
+    function nlgPopulateSocialCopyInputs(sc) {
+      const safe = sc || {};
+      const map = {
+        sc_tea_ig: safe.teaser?.ig, sc_tea_fb: safe.teaser?.fb, sc_tea_tt: safe.teaser?.tt, sc_tea_x: safe.teaser?.x, sc_tea_ytTitle: safe.teaser?.ytTitle, sc_tea_ytDesc: safe.teaser?.ytDesc,
+        sc_rev_ig: safe.reveal?.ig, sc_rev_fb: safe.reveal?.fb, sc_rev_tt: safe.reveal?.tt, sc_rev_x: safe.reveal?.x, sc_rev_ytTitle: safe.reveal?.ytTitle, sc_rev_ytDesc: safe.reveal?.ytDesc,
+        sc_lau_ig: safe.launch?.ig, sc_lau_fb: safe.launch?.fb, sc_lau_tt: safe.launch?.tt, sc_lau_x: safe.launch?.x, sc_lau_ytTitle: safe.launch?.ytTitle, sc_lau_pinTitle: safe.launch?.pinTitle, sc_lau_pinDesc: safe.launch?.pinDesc
+      };
+      Object.entries(map).forEach(([id, val]) => {
+        const el = document.getElementById(id);
+        if (el) el.value = val || '';
+      });
+    }
+
+    function nlgReadSocialCopyInputs() {
+      const v = id => document.getElementById(id)?.value?.trim() || '';
+      return {
+        teaser: { ig: v('sc_tea_ig'), fb: v('sc_tea_fb'), tt: v('sc_tea_tt'), x: v('sc_tea_x'), ytTitle: v('sc_tea_ytTitle'), ytDesc: v('sc_tea_ytDesc') },
+        reveal: { ig: v('sc_rev_ig'), fb: v('sc_rev_fb'), tt: v('sc_rev_tt'), x: v('sc_rev_x'), ytTitle: v('sc_rev_ytTitle'), ytDesc: v('sc_rev_ytDesc') },
+        launch: { ig: v('sc_lau_ig'), fb: v('sc_lau_fb'), tt: v('sc_lau_tt'), x: v('sc_lau_x'), ytTitle: v('sc_lau_ytTitle'), pinTitle: v('sc_lau_pinTitle'), pinDesc: v('sc_lau_pinDesc') }
+      };
+    }
+
     function nlgDeployBatchToLiveStore(batchId) {
       currentDeployingBatchId = batchId || currentActiveBatchId;
       const b = workshopBatches.find(x => x.id === currentDeployingBatchId);
       if (!b) return;
 
-      const imgEl = document.getElementById('deployCarImg');
-      if (imgEl) imgEl.src = b.hero || '';
-      const themeEl = document.getElementById('deployCarTheme');
-      if (themeEl) themeEl.innerText = `${b.theme.toUpperCase()} (${b.id})`;
-      const modelEl = document.getElementById('deployCarModel');
-      if (modelEl) modelEl.innerText = `${b.model} • ${b.qty} • $${b.price || 50} MSRP`;
+      const parsedQty = typeof nlgParseQty === 'function' ? nlgParseQty(b.qty) : { total: b.plannedTotal || 10, chase: b.plannedChase || 0 };
+      const planTotal = parseInt(b.plannedTotal ?? parsedQty.total ?? 10, 10);
+      const planChase = parseInt(b.plannedChase ?? parsedQty.chase ?? 0, 10);
 
-      // Series Title
-      const titleInp = document.getElementById('deploySeriesTitle');
-      if (titleInp) titleInp.value = b.title || `Neon Llama Garage "${b.theme}" ${b.model} Custom 1/64`;
+      document.getElementById('deployCarImg').src = b.heroPhoto || b.hero || '';
+      document.getElementById('deployCarTheme').innerText = `${b.theme.toUpperCase()} (${b.id})`;
+      document.getElementById('deployCarModel').innerText = `${b.model} • ${planTotal} Units (${planChase} Chase) • $${b.price || 50} MSRP`;
 
-      // Pre-fill launch date (default to next Friday at 7:00 PM CST if not set)
-      const dateInp = document.getElementById('deployLaunchDate');
-      if (dateInp) {
-        if (b.launchDate) {
-          const d = new Date(b.launchDate);
-          const localIso = new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-          dateInp.value = localIso;
-        } else {
-          // Upcoming Friday 19:00 CST
-          const now = new Date();
-          const day = now.getDay();
-          const diffToFri = (5 - day + 7) % 7 || 7;
-          const nextFri = new Date(now.getFullYear(), now.getMonth(), now.getDate() + diffToFri, 19, 0, 0);
-          const localIso = new Date(nextFri.getTime() - nextFri.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-          dateInp.value = localIso;
-        }
+      const capBtn = document.getElementById('deployCapCutFolderBtn');
+      if (capBtn) capBtn.href = b.folderUrl || '#';
+
+      // Check Drive media readiness
+      const pa = b.pipelineAssets || {};
+      const photoReady = ['IMG_LOOSE', 'IMG_PKG_F', 'IMG_PKG_R', 'IMG_PKG_WHT'].filter(k => (pa[k] && pa[k].length) || (b.images && b.images.some(u => u.includes(k)))).length;
+      const vidReady = ['VID_TEASER', 'VID_REVEAL', 'VID_LAUNCH', 'RAW_VID_CAR_MACRO', 'RAW_VID_CARD_TT'].filter(k => pa[k] && pa[k].length).length;
+      const readyEl = document.getElementById('deployMediaReadiness');
+      if (readyEl) {
+        readyEl.innerText = `✅ ${photoReady}/4 Core Promo Photos • 🎬 ${vidReady} Drive Video Reels Linked`;
       }
 
-      // Pre-fill Stripe link
-      const stripeInp = document.getElementById('deployStripeLink');
-      if (stripeInp) stripeInp.value = b.stripeLink || '';
+      document.getElementById('deployPhysicalStock').value = b.totalStock ?? planTotal;
+      document.getElementById('deployPlanTotal').value = planTotal;
+      document.getElementById('deployPlanChase').value = planChase;
+      document.getElementById('deployMsrp').value = b.price || 50;
+      document.getElementById('deploySeriesTitle').value = b.title || `Neon Llama Garage "${b.theme}" ${b.model} Custom 1/64`;
+      document.getElementById('deployStripeLink').value = b.stripeLink || '';
+      document.getElementById('deployTags').value = b.tags || `Neon Llama Garage, custom diecast, ${b.model}, ${b.theme}, 1 64 scale, hot wheels custom, real riders, limited edition`;
 
-      // Product Description
       const descInp = document.getElementById('deployDescription');
       if (descInp) {
-        if (b.desc) {
-          descInp.value = b.desc.replace(/<\/p>/gi, '\n\n').replace(/<br\s*[\/]?>/gi, '\n').replace(/<li\s*[\/]?>/gi, '• ').replace(/<\/li>/gi, '\n').replace(/<[^>]+>/g, '').trim();
-        } else {
-          descInp.value = `Handcrafted custom 1/64 diecast build from the father-and-son team at Neon Llama Garage. Featuring premium Real Rider rubber wheels and exclusive retro packaging. Limited edition run.`;
+        descInp.value = b.desc || `<p>Handcrafted custom 1/64 ${b.model} "${b.theme}" build from Neon Llama Garage, fitted with Real Rider rubber tires and custom collector packaging. Strictly limited to ${planTotal} numbered pieces.</p>`;
+      }
+
+      const localIso = b.launchDate
+        ? new Date(new Date(b.launchDate).getTime() - new Date(b.launchDate).getTimezoneOffset() * 60000).toISOString().slice(0, 16)
+        : nlgComputeCollisionFreeLaunchDate(b);
+      document.getElementById('deployLaunchDate').value = localIso;
+      nlgUpdateOmnichannelPhaseDates(localIso);
+
+      // Default or saved 3-phase copy
+      const defaultSc = b.socialCopy || {
+        teaser: {
+          ig: `Something wild is rolling out of the lab... 👀 Custom 1/64 "${b.theme}" ${b.model} on Real Riders. Strictly ${planTotal} units worldwide. Drops this Friday at 7PM! #neonllamagarage #hotwheelscustom #diecastcollector`,
+          fb: `Sneak peek from the Neon Llama bench! Our custom 1/64 "${b.theme}" ${b.model} (${planTotal} numbered units) drops this Friday at 7PM on neonllamagarage.com.`,
+          tt: `POV: Stripping and UV-printing a 1-of-${planTotal} "${b.theme}" ${b.model} custom Hot Wheels 🔥 #hotwheelscustom #neonllamagarage #diecast`,
+          x: `Lab leak 👀 1-of-${planTotal} custom "${b.theme}" ${b.model} on Real Riders drops Friday 7PM at neonllamagarage.com`,
+          ytTitle: `1-of-${planTotal} Custom "${b.theme}" ${b.model} Teaser | Neon Llama Garage`,
+          ytDesc: `Dropping Friday 7PM at https://neonllamagarage.com — custom 1/64 ${b.model} "${b.theme}" on Real Riders.`
+        },
+        reveal: {
+          ig: `FULL REVEAL 🔥 Meet the 1-of-${planTotal} "${b.theme}" ${b.model} in full bespoke blister art! Drops TOMORROW at 7PM sharp at neonllamagarage.com 🦙⚡ #neonllamagarage #customhotwheels`,
+          fb: `24 HOURS OUT! Full 360 reveal of our "${b.theme}" ${b.model} custom 1/64 build. Only ${planTotal} made—goes live tomorrow at 7PM on neonllamagarage.com!`,
+          tt: `Full 360 + custom blister reveal of the "${b.theme}" ${b.model}! Drops tomorrow 7PM — only ${planTotal} exist! #hotwheelscustom #diecast`,
+          x: `24 HOURS: Full reveal of the 1-of-${planTotal} "${b.theme}" ${b.model}. Vault opens tomorrow 7PM → neonllamagarage.com`,
+          ytTitle: `Full 360 Reveal: "${b.theme}" ${b.model} Custom 1/64 (Drops Tomorrow!)`,
+          ytDesc: `Only ${planTotal} units built. Set your alarm for tomorrow 7PM at https://neonllamagarage.com`
+        },
+        launch: {
+          ig: `🚨 LIVE IN THE VAULT NOW! The 1-of-${planTotal} "${b.theme}" ${b.model} custom 1/64 is officially up for grabs at neonllamagarage.com (link in bio)! Once all ${planTotal} sell out, it enters The Vault forever. 🏛️🦙`,
+          fb: `🚀 THE VAULT IS OPEN! Grab your 1-of-${planTotal} "${b.theme}" ${b.model} custom 1/64 right now at https://neonllamagarage.com before all ${planTotal} are gone!`,
+          tt: `IT'S LIVE! "${b.theme}" ${b.model} (only ${planTotal} made) just dropped at neonllamagarage.com! 🏃💨 #neonllamagarage #hotwheelscustom`,
+          x: `LIVE NOW 🚨 1-of-${planTotal} "${b.theme}" ${b.model} custom 1/64 is in the shop! Grab yours → https://neonllamagarage.com`,
+          ytTitle: `LIVE NOW: "${b.theme}" ${b.model} Custom 1/64 Drop!`,
+          pinTitle: `Custom 1/64 ${b.model} "${b.theme}" Limited Diecast — Neon Llama Garage`,
+          pinDesc: `Handcrafted 1/64 ${b.model} "${b.theme}" custom diecast with Real Riders and collector blister card by Neon Llama Garage.`
         }
-      }
+      };
+      nlgPopulateSocialCopyInputs(defaultSc);
+      nlgSwitchSocialPhaseTab('teaser');
 
-      // Tags
-      const tagsInp = document.getElementById('deployTags');
-      if (tagsInp) tagsInp.value = b.tags || 'Neon Llama Garage, custom diecast, 1 64 scale, hot wheels custom, real riders, limited edition';
+      document.getElementById('deployModal')?.classList.remove('hidden');
+    }
 
-      // Populate CapCut Social Storyboard customized for this car
-      const teaserEl = document.getElementById('capcutTeaser');
-      if (teaserEl) {
-        teaserEl.innerText = `POV: You build custom Hot Wheels. Close-up: Raw casting stripped → ${b.color || 'ice blue'} base coat → drill rivet spin → deep 80s bass drop. Drops Friday! #neonllamagarage #hotwheelscustom`;
-      }
-      const asmrEl = document.getElementById('capcutAsmr');
-      if (asmrEl) {
-        asmrEl.innerText = `ASMR custom diecast build: eufyMake UV head printing ${b.theme} livery → waterslide floating in warm bath → 280° heat press seal clunk → Real Riders wheel click. #satisfying #asmrsounds`;
-      }
-      const revealEl = document.getElementById('capcutReveal');
-      if (revealEl) {
-        revealEl.innerText = `The 1 of 8 "${b.theme}" ${b.model} is finished! 360 loose turntable blacklight spin → blister packaging peel → Live countdown: neonllamagarage.com. Only ${b.qty.split('•')[0].trim()} exist!`;
-      }
+    async function nlgGenerateOmnichannelCopy() {
+      const b = workshopBatches.find(x => x.id === currentDeployingBatchId);
+      if (!b) return;
+      const btn = document.getElementById('btnAiOmnichannelCopy');
+      const orig = btn ? btn.innerHTML : '';
+      if (btn) { btn.disabled = true; btn.innerHTML = '<span>⏳</span> WRITING 3-PHASE COPY...'; }
 
-      const modal = document.getElementById('deployModal');
-      if (modal) modal.classList.remove('hidden');
+      try {
+        const resp = await fetch('/api/generate-social-copy', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            theme: b.theme,
+            model: b.model,
+            color: b.color,
+            plannedTotal: parseInt(document.getElementById('deployPlanTotal')?.value || 10, 10),
+            plannedChase: parseInt(document.getElementById('deployPlanChase')?.value || 0, 10),
+            price: parseFloat(document.getElementById('deployMsrp')?.value || 50)
+          })
+        });
+        const data = await resp.json();
+        if (!resp.ok || !data.success) throw new Error(data.error || `API HTTP ${resp.status}`);
+
+        if (data.title) document.getElementById('deploySeriesTitle').value = data.title;
+        if (data.desc) document.getElementById('deployDescription').value = data.desc;
+        if (data.tags) document.getElementById('deployTags').value = data.tags;
+        if (data.socialCopy) nlgPopulateSocialCopyInputs(data.socialCopy);
+        showToast('AI generated Title, Collector Story, SEO Tags & all 19 social captions!', '✨');
+      } catch (err) {
+        showToast('Worker v2.0 copy endpoint pending deploy: ' + err.message, '⚠️');
+      } finally {
+        if (btn) { btn.disabled = false; btn.innerHTML = orig; }
+      }
     }
 
     function nlgTestDeployStripeLink() {
@@ -10047,59 +10280,135 @@ CORE LIVERY & PRODUCTION RULES:
       if (url && url.startsWith('http')) {
         window.open(url, '_blank');
       } else {
-        alert('Please enter a valid Stripe Checkout link first.');
+        alert('No Stripe link entered yet—leave blank on Deploy to auto-generate a hard-capped Stripe link via Worker!');
       }
     }
 
-    function nlgConfirmPublishToStorefront() {
+    async function nlgConfirmPublishToStorefront() {
       const b = workshopBatches.find(x => x.id === currentDeployingBatchId);
       if (!b) return;
+      const btn = document.getElementById('btnConfirmOmnichannelDeploy');
+      const orig = btn ? btn.innerHTML : '';
+      if (btn) { btn.disabled = true; btn.innerHTML = '<span>⏳</span> DEPLOYING TO SHOP, STRIPE &amp; CHRONOS...'; }
 
-      const titleInp = document.getElementById('deploySeriesTitle');
-      if (titleInp && titleInp.value.trim()) b.title = titleInp.value.trim();
+      try {
+        b.title = document.getElementById('deploySeriesTitle')?.value?.trim() || b.title;
+        const dateVal = document.getElementById('deployLaunchDate')?.value;
+        if (dateVal) b.launchDate = new Date(dateVal).toISOString();
+        b.totalStock = parseInt(document.getElementById('deployPhysicalStock')?.value || 10, 10);
+        b.plannedTotal = parseInt(document.getElementById('deployPlanTotal')?.value || b.totalStock, 10);
+        b.plannedChase = parseInt(document.getElementById('deployPlanChase')?.value || 0, 10);
+        b.price = parseFloat(document.getElementById('deployMsrp')?.value || 50);
+        b.stripeLink = document.getElementById('deployStripeLink')?.value?.trim() || '';
+        const rawDesc = document.getElementById('deployDescription')?.value?.trim() || '';
+        b.desc = rawDesc.startsWith('<p>') ? rawDesc : rawDesc.split('\n\n').map(p => `<p>${p.trim()}</p>`).join('');
+        b.tags = document.getElementById('deployTags')?.value?.trim() || '';
+        b.socialCopy = nlgReadSocialCopyInputs();
 
-      const dateInp = document.getElementById('deployLaunchDate');
-      if (dateInp && dateInp.value) {
-        b.launchDate = new Date(dateInp.value).toISOString();
+        const pa = b.pipelineAssets || {};
+        const firstOf = k => Array.isArray(pa[k]) ? pa[k][0] : pa[k];
+
+        // Push to Single-Source Cloudflare Worker (/api/deploy-drop)
+        const resp = await fetch('/api/deploy-drop', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            ...b,
+            heroImg: b.heroPhoto || b.hero,
+            teaserVideoUrl: firstOf('VID_TEASER') || firstOf('RAW_VID_CAR_MACRO') || '',
+            revealVideoUrl: firstOf('VID_REVEAL') || firstOf('RAW_VID_CARD_TT') || '',
+            launchVideoUrl: firstOf('VID_LAUNCH') || firstOf('RAW_VID_PKG_TT') || ''
+          })
+        });
+
+        if (!resp.ok) {
+          const errJson = await resp.json().catch(() => ({}));
+          throw new Error(errJson.error || `Backend Worker HTTP ${resp.status} (Worker v2.0 needs wrangler deploy)`);
+        }
+        const res = await resp.json();
+        if (!res.success) throw new Error(res.error || 'Deploy failed');
+
+        if (res.stripeLink) b.stripeLink = res.stripeLink;
+        b.section = 'active';
+        b.status = 'Live / Ready';
+        b.qty = `${b.totalStock} In Stock`;
+        b.progress = 100;
+        if (!b.completedSteps) b.completedSteps = [];
+        if (!b.completedSteps.includes(8)) b.completedSteps.push(8);
+
+        saveBatchesToStorage();
+        renderFleetRows();
+        renderMasterChecklist(b);
+        openBatchDetail(b.id);
+        document.getElementById('deployModal')?.classList.add('hidden');
+        showToast(`🚀 "${b.theme}" LIVE on Shop + 6 Chronos Auto-Posts Armed!`, '🎉');
+      } catch (err) {
+        alert('⚠️ Backend Deploy Not Armed Yet:\n' + err.message);
+      } finally {
+        if (btn) { btn.disabled = false; btn.innerHTML = orig; }
       }
-      const stripeInp = document.getElementById('deployStripeLink');
-      if (stripeInp) {
-        b.stripeLink = stripeInp.value.trim();
-      }
-
-      const descInp = document.getElementById('deployDescription');
-      if (descInp && descInp.value.trim()) {
-        const val = descInp.value.trim();
-        b.desc = val.startsWith('<p>') ? val : val.split('\n\n').map(p => `<p>${p.trim()}</p>`).join('');
-      }
-
-      const tagsInp = document.getElementById('deployTags');
-      if (tagsInp && tagsInp.value.trim()) b.tags = tagsInp.value.trim();
-
-      b.section = 'active';
-      b.status = 'Live Drop on Storefront';
-      b.progress = 100;
-      if (!b.completedSteps) b.completedSteps = [];
-      if (!b.completedSteps.includes(8)) b.completedSteps.push(8);
-
-      saveBatchesToStorage();
-      renderFleetRows();
-      renderMasterChecklist(b);
-      openBatchDetail(b.id);
-
-      const modal = document.getElementById('deployModal');
-      if (modal) modal.classList.add('hidden');
-
-      showToast(`🚀 "${b.theme}" successfully published to live storefront with countdown timer!`, '🎉');
     }
 
-    function copyFullSocialPack() {
-      const t = document.getElementById('capcutTeaser')?.innerText || '';
-      const a = document.getElementById('capcutAsmr')?.innerText || '';
-      const r = document.getElementById('capcutReveal')?.innerText || '';
-      const full = `=== T-72h TEASER ===\n${t}\n\n=== T-48h PROCESS ASMR ===\n${a}\n\n=== T-24h REVEAL ===\n${r}`;
-      copyText(full);
-      showToast('All 3 social storyboard cues copied to clipboard!', '📋');
+    async function nlgOpenChronosDrawer() {
+      const modal = document.getElementById('chronosDrawerModal');
+      const listEl = document.getElementById('chronosEventsList');
+      const alertEl = document.getElementById('chronosAlertsBox');
+      if (!modal || !listEl) return;
+      modal.classList.remove('hidden');
+      listEl.innerHTML = '<div class="text-center text-cyan-400 py-8">Syncing Chronos Queue...</div>';
+
+      try {
+        const resp = await fetch('/api/chronos-timeline');
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const data = await resp.json();
+        const alerts = data.alerts || [];
+        const timeline = data.timeline || [];
+
+        if (alertEl) {
+          if (alerts.length > 0) {
+            alertEl.classList.remove('hidden');
+            alertEl.innerHTML = `<div class="text-red-400 font-orbitron font-bold text-xs">🚨 ${alerts.length} FAILED POST ALERT(S)</div>` +
+              alerts.map(a => `<div class="p-2 rounded bg-black/60 border border-red-500/40 text-[10px] text-red-200">${a.batchId} • ${a.phase}: ${a.error || 'Failed'}</div>`).join('');
+          } else {
+            alertEl.classList.add('hidden');
+          }
+        }
+
+        if (timeline.length === 0) {
+          listEl.innerHTML = '<div class="text-center text-slate-500 py-8">No Chronos events queued yet. Deploy a drop to arm 6 automatic posts!</div>';
+          return;
+        }
+
+        listEl.innerHTML = timeline.map(ev => {
+          const badge = ev.status === 'SUCCESS'
+            ? 'bg-emerald-950 text-emerald-400 border-emerald-500/40'
+            : (ev.status === 'FAILED' ? 'bg-red-950 text-red-400 border-red-500/40' : 'bg-cyan-950 text-cyan-300 border-cyan-500/40');
+          const dStr = new Date(ev.scheduledAt).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+          return `
+            <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
+              <div class="flex items-center justify-between">
+                <span class="font-orbitron font-bold text-white text-xs">${ev.batchId} • ${ev.phase}</span>
+                <span class="px-2 py-0.5 rounded border text-[9px] font-bold ${badge}">${ev.status}</span>
+              </div>
+              <div class="text-[11px] text-slate-400">${ev.theme || ''} ${ev.model || ''}</div>
+              <div class="text-[10px] text-cyan-400">⏰ ${dStr}</div>
+            </div>
+          `;
+        }).join('');
+      } catch (err) {
+        listEl.innerHTML = `<div class="p-4 rounded-xl bg-amber-950/30 border border-amber-500/40 text-amber-200 text-xs">Chronos Worker v2.0 is staged and awaiting <code>CLOUDFLARE_API_TOKEN</code> to deploy live on <code>neonllamagarage.com/api/*</code>.</div>`;
+      }
+    }
+
+    async function nlgRunChronosNow() {
+      try {
+        const r = await fetch('/api/chronos-run-now', { method: 'POST' });
+        const d = await r.json();
+        showToast(`Chronos executed ${d.processed || 0} due event(s)!`, '⚡');
+        nlgOpenChronosDrawer();
+      } catch (e) {
+        showToast('Chronos Worker v2.0 awaiting deploy', '⚠️');
+      }
     }
 
     window.addEventListener('DOMContentLoaded', async () => {

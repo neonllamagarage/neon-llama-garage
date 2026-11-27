@@ -260,8 +260,20 @@
     const tabList = document.getElementById('seriesTabs');
 
     try {
-        const res = await fetch(GAS_ENDPOINT + '?feed=public');
-        const data = await res.json();
+        let data = null;
+        try {
+            const wRes = await fetch('/api/storefront-feed');
+            if (wRes.ok) {
+                const wJson = await wRes.json();
+                if (wJson && wJson.success && Array.isArray(wJson.batches) && wJson.batches.length > 0) {
+                    data = wJson;
+                }
+            }
+        } catch (_wErr) {}
+        if (!data) {
+            const res = await fetch(GAS_ENDPOINT + '?feed=public');
+            data = await res.json();
+        }
         
         if(!data.success) {
             grid.innerHTML = `<div class="text-center w-100"><h4 class="text-danger" style="font-family:'Orbitron';">SYSTEM ERROR: Failed to parse inventory.</h4></div>`;
