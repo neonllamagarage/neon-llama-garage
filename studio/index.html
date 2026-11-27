@@ -158,7 +158,7 @@
     </div>
 
     <!-- TOP APP BAR -->
-    <header class="w-full bg-[#0b101d] border border-slate-800 rounded-xl px-4 py-3 mb-5 flex flex-wrap items-center justify-between gap-3 shadow-2xl">
+    <header id="globalHeader" class="w-full bg-[#0b101d] border border-slate-800 rounded-xl px-4 py-3 mb-5 flex flex-wrap items-center justify-between gap-3 shadow-2xl">
       <div class="flex items-center gap-3">
         <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-pink-600 to-cyan-400 flex items-center justify-center font-orbitron font-black text-black text-lg shadow-lg">
           🦙
@@ -188,7 +188,7 @@
           <span>🖼️</span> ALBUMS <span id="albumsCountBadge" class="px-1.5 py-0.2 rounded bg-purple-950 text-purple-200 text-[10px] font-mono border border-purple-500/40">0</span>
         </button>
         <button onclick="openConceptGenModal(true)" class="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-orbitron font-black text-xs border border-pink-400/50 shadow-lg shadow-pink-900/40 transition active:scale-95 flex items-center gap-1.5">
-          <span>✨</span> + NEW CAR (v5.1.2)
+          <span>✨</span> + NEW CAR (v5.1.3)
         </button>
         <div class="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-[10px] font-mono text-cyan-400">
           STORE: <a href="https://neonllamagarage.com" target="_blank" class="hover:underline font-bold text-white">NEONLLAMAGARAGE.COM</a>
@@ -271,22 +271,20 @@
     <!-- VIEW 2: BATCH DETAIL COCKPIT (INTERACTIVE SPECIFICATIONS & QUICK ACTIONS) -->
     <main id="batchCockpitView" class="hidden max-w-[1800px] mx-auto space-y-4">
       
-      <!-- SUB-NAV / BREADCRUMB WITH QUICK MOVE ACTIONS -->
-      <div class="flex flex-wrap items-center justify-between bg-[#0b101d] border border-slate-800 rounded-xl p-3 gap-3">
-        <div class="flex items-center gap-3">
+      <!-- STICKY TOP COCKPIT CONTROL BAR (FROZEN ON SCROLL) -->
+      <div id="cockpitStickyNav" class="sticky top-0 z-40 backdrop-blur-md bg-[#070b14]/95 border-b border-slate-800/90 rounded-2xl p-3 shadow-2xl flex flex-wrap items-center justify-between gap-3 mb-2">
+        <!-- LEFT: BACK + BATCH IDENTITY & LANE -->
+        <div class="flex items-center gap-2.5 flex-wrap">
           <button onclick="showFleetView()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-orbitron font-bold text-xs flex items-center gap-1.5 transition active:scale-95">
             <span>←</span> ALL BATCHES
           </button>
-          <span class="text-slate-600">|</span>
+          <span class="text-slate-700">|</span>
           <div class="flex items-center gap-2 flex-wrap">
-            <span id="detailBatchBadge" class="px-2 py-0.5 rounded bg-cyan-950 border border-cyan-500 text-cyan-300 font-orbitron font-black text-xs">B-021</span>
-            <span id="detailBatchTheme" class="font-orbitron font-black text-white text-base">CYBER BANANA</span>
-            <span id="detailBatchModel" class="text-slate-400 text-xs">DAIRY DELIVERY</span>
+            <span id="detailBatchBadge" class="px-2 py-0.5 rounded bg-cyan-950 border border-cyan-500 text-cyan-300 font-orbitron font-black text-xs">B-019</span>
+            <span id="detailBatchTheme" class="font-orbitron font-black text-white text-base">NEON FREEZE</span>
+            <span id="detailBatchModel" class="text-slate-400 text-xs font-mono uppercase bg-slate-900/80 px-2 py-0.5 rounded border border-slate-800">DAIRY DELIVERY</span>
           </div>
-        </div>
 
-        <!-- QUICK STATUS & VAULT MOVER CONTROLS -->
-        <div class="flex items-center gap-2 flex-wrap">
           <div class="flex items-center gap-1.5 bg-black/60 border border-slate-800 px-2.5 py-1 rounded-lg">
             <span class="text-[10px] text-slate-400 font-mono">LANE:</span>
             <select id="detailSectionSelect" onchange="changeBatchSection(this.value)" class="bg-transparent text-white font-bold text-xs outline-none cursor-pointer">
@@ -296,44 +294,31 @@
               <option value="vault" class="bg-slate-900 text-purple-400">🏛️ 4. The Vault (Sold Out)</option>
             </select>
           </div>
-
-          <button onclick="markBatchSoldOut()" id="btnMarkSoldOut" class="px-3 py-1.5 rounded-lg bg-purple-950/80 hover:bg-purple-900/90 text-purple-300 font-orbitron font-bold text-xs border border-purple-500/50 transition active:scale-95 flex items-center gap-1">
-            <span>🏷️</span> MARK SOLD OUT
-          </button>
-
-          <button onclick="openConceptGenModal()" class="px-3.5 py-1.5 rounded-lg bg-pink-600/30 hover:bg-pink-500/40 text-pink-300 font-orbitron font-bold text-xs border border-pink-500/50 shadow-lg shadow-pink-900/30 flex items-center gap-1.5 transition active:scale-95">
-            <span>🎨</span> AI 8-TO-3 IDEA LAB
-          </button>
-          <button onclick="openDecalStudioForCurrentBatch()" class="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-emerald-600/80 to-cyan-600/80 hover:from-emerald-500 hover:to-cyan-500 text-white font-orbitron font-black text-xs border border-cyan-400/60 shadow-lg transition active:scale-95 flex items-center gap-1.5">
-            <span>🖨️</span> GENERATE PRINT-READY DECALS
-          </button>
-          <button onclick="openCardModal()" class="px-3 py-1.5 rounded-lg bg-purple-600/30 hover:bg-purple-500/40 text-purple-300 font-orbitron font-bold text-xs border border-purple-500/40">
-            📦 Blister Card Builder
-          </button>
-          <button onclick="deployStorefront()" id="btnLockDeploy" class="px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-black font-orbitron font-black text-xs shadow-lg shadow-emerald-900/40 transition active:scale-95">
-            🔒 DEPLOY STOREFRONT
-          </button>
         </div>
-      </div>
 
-      <!-- ===================================================================== -->
-      <!-- v5.1.0 GUIDED 5-STEP VERIFIED PRODUCTION PIPELINE BAR                 -->
-      <!-- ===================================================================== -->
-      <div id="nlgPipelineBar" class="bg-gradient-to-r from-[#0b1020] via-[#10162b] to-[#0b1020] border border-cyan-500/40 rounded-2xl p-3.5 shadow-xl space-y-3">
-        <div class="flex items-center justify-between flex-wrap gap-2">
-          <div class="flex items-center gap-2">
-            <span class="px-2 py-0.5 rounded bg-cyan-950 border border-cyan-400/50 text-[10px] font-mono text-cyan-300 font-black">PRODUCTION PIPELINE</span>
-            <span id="nlgPipelineSummary" class="text-xs font-bold text-slate-200">Step-by-step verified workflow — everything auto-saved per car</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <input type="file" id="nlgQuickLooseHeroInput" accept="image/*" class="hidden" onchange="nlgHandleQuickLooseHero(this)" />
-            <button type="button" id="nlgBtnPipelineNext" onclick="nlgRunNextPipelineStep()" class="px-4 py-1.5 rounded-xl bg-gradient-to-r from-pink-600 to-cyan-500 hover:from-pink-500 hover:to-cyan-400 text-white font-orbitron font-black text-xs shadow-lg transition active:scale-95">
-              NEXT STEP →
-            </button>
-          </div>
-        </div>
-        <div id="nlgPipelineStepsGrid" class="grid grid-cols-2 sm:grid-cols-5 gap-2">
-          <!-- Dynamically rendered per active car batch -->
+        <!-- RIGHT: 1-CLICK WORKBENCH & ASSET LAUNCHERS -->
+        <div class="flex items-center gap-2 flex-wrap">
+          <button onclick="scrollToCarAssetVault()" id="btnStickyAssetVault" class="px-3 py-1.5 rounded-lg bg-cyan-950/80 hover:bg-cyan-900 text-cyan-300 font-orbitron font-bold text-xs border border-cyan-400/60 flex items-center gap-1.5 transition active:scale-95 shadow" title="Jump directly to all saved files for this car">
+            <span>📁</span> ASSET VAULT (<span id="stickyAssetCount">0</span>)
+          </button>
+          <button onclick="openConceptGenModal()" class="px-3 py-1.5 rounded-lg bg-pink-600/30 hover:bg-pink-500/40 text-pink-300 font-orbitron font-bold text-xs border border-pink-500/50 flex items-center gap-1.5 transition active:scale-95" title="Generate new ideas or variations">
+            <span>🎨</span> IDEA LAB
+          </button>
+          <button onclick="openDecalStudioForCurrentBatch()" class="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-emerald-600/80 to-cyan-600/80 hover:from-emerald-500 hover:to-cyan-500 text-white font-orbitron font-black text-xs border border-cyan-400/60 shadow-lg transition active:scale-95 flex items-center gap-1.5" title="Print-ready 2D graphics with solid white underbase">
+            <span>🖨️</span> PRINT DECALS
+          </button>
+          <button onclick="openCardModal()" class="px-3 py-1.5 rounded-lg bg-purple-600/30 hover:bg-purple-500/40 text-purple-300 font-orbitron font-bold text-xs border border-purple-500/40 flex items-center gap-1 transition active:scale-95" title="Blister card art & wordmark">
+            <span>📦</span> BLISTER CARD
+          </button>
+          <button onclick="openLlamaCamModal()" class="px-3 py-1.5 rounded-lg bg-yellow-600/20 hover:bg-yellow-500/30 text-yellow-300 font-orbitron font-bold text-xs border border-yellow-500/40 flex items-center gap-1 transition active:scale-95" title="Studio photography turntable">
+            <span>📸</span> LLAMA CAM
+          </button>
+          <button onclick="markBatchSoldOut()" id="btnMarkSoldOut" class="px-2.5 py-1.5 rounded-lg bg-slate-900 hover:bg-purple-950 text-slate-400 hover:text-purple-300 font-orbitron font-bold text-xs border border-slate-800 hover:border-purple-500/50 transition">
+            🏷️ SOLD OUT
+          </button>
+          <button onclick="deployStorefront()" id="btnLockDeploy" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-black font-orbitron font-black text-xs shadow-lg transition active:scale-95">
+            🔒 DEPLOY
+          </button>
         </div>
       </div>
 
@@ -438,7 +423,12 @@
                   <p class="text-[10px] text-slate-400">All sub-ideas, print decals & card art saved for this car</p>
                 </div>
               </div>
-              <span id="detailCarAssetCount" class="text-[10px] font-mono text-cyan-400 bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-500/40">0 FILES</span>
+              <div class="flex items-center gap-2">
+                <span id="detailCarAssetCount" class="text-[10px] font-mono text-cyan-400 bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-500/40">0 FILES</span>
+                <button type="button" onclick="nlgDownloadAllCarAssets()" class="px-2.5 py-1 rounded-lg bg-emerald-950/80 hover:bg-emerald-800 text-emerald-300 font-orbitron font-bold text-[10px] border border-emerald-500/50 flex items-center gap-1 transition shadow active:scale-95" title="Download all decals, underbases, card art & wordmarks">
+                  <span>⬇</span> Download All Files
+                </button>
+              </div>
             </div>
             <div id="detailCarAssetGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
               <!-- Dynamically populated per active car -->
@@ -447,66 +437,227 @@
 
         </div>
 
-        <!-- RIGHT COLUMN: THE HERO PRODUCTION CHECKLIST ("WHAT'S NEXT" ENGINE) (7 Cols) -->
+        <!-- RIGHT COLUMN: WORKSHOP PRODUCTION COMMAND & TWO-TRACK RUN TRACKER (7 Cols) -->
         <div class="lg:col-span-7 space-y-3">
           
-          <!-- "WHAT'S NEXT" BANNER -->
-          <div class="p-3.5 rounded-2xl bg-gradient-to-r from-cyan-950/60 to-slate-900 border border-cyan-500/60 flex items-center justify-between shadow-lg">
-            <div class="flex items-center gap-3">
-              <div class="w-8 h-8 rounded-full bg-cyan-500/20 border border-cyan-400 flex items-center justify-center text-cyan-300 font-bold text-sm animate-pulse">
+          <!-- HIGH-IMPACT "CURRENT NEXT STEP" COMMAND BANNER -->
+          <div class="p-4 rounded-2xl bg-gradient-to-r from-[#0c1326] via-[#101b38] to-[#0c1326] border border-cyan-500/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xl">
+            <div class="flex items-start gap-3">
+              <div class="w-9 h-9 rounded-xl bg-cyan-500/20 border border-cyan-400 flex items-center justify-center text-cyan-300 font-bold text-lg animate-pulse shrink-0 mt-0.5">
                 ⚡
               </div>
-              <div>
-                <div class="text-[10px] font-orbitron font-bold text-cyan-400 uppercase tracking-widest">NEXT ACTION REQUIRED:</div>
-                <div id="whatsNextActionTitle" class="font-orbitron font-black text-white text-sm">
-                  STEP 5: CLEAR COAT & M2 HEX THREAD CHASSIS ASSEMBLY
+              <div class="space-y-1">
+                <div class="text-[10px] font-orbitron font-bold text-cyan-400 uppercase tracking-widest flex items-center gap-2">
+                  <span>CURRENT PRIORITY OBJECTIVE</span>
+                  <button type="button" onclick="nlgEditNextActionPrompt()" class="text-slate-400 hover:text-white text-[10px] underline font-sans font-normal">✎ Edit Custom Action</button>
+                </div>
+                <div id="whatsNextActionTitle" class="font-orbitron font-black text-white text-sm sm:text-base leading-snug">
+                  Take loose glory shots of Unit #1 (Hero) • Print decals for the other 7
                 </div>
               </div>
             </div>
-            <button onclick="workOnCurrentNextStep()" class="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-orbitron font-black text-xs shadow-lg transition active:scale-95">
-              START STEP
-            </button>
-          </div>
-
-          <!-- INTERACTIVE 11-STEP CHECKLIST CONTAINER -->
-          <div class="bg-[#0b101d] border border-slate-800 rounded-2xl p-4 space-y-2.5">
-            <div class="flex items-center justify-between pb-2 border-b border-slate-800">
-              <div>
-                <span class="font-orbitron font-black text-xs text-white uppercase">11-STEP PRODUCTION PIPELINE</span>
-                <p class="text-[10px] text-slate-400">Click any step row to open its dedicated workbench tool or toggle unit completion.</p>
-              </div>
-              <div class="flex items-center gap-4 text-xs font-mono">
-                <span class="text-slate-400">BATCH PROGRESS: <strong id="batchProgressPercent" class="text-emerald-400 text-sm">45%</strong></span>
-              </div>
-            </div>
-
-            <!-- STEP 1 PROMPT BANNER (SHOWN WHEN CURRENT STEP IS 1) -->
-            <div id="step1Banner" class="hidden mb-3 p-3.5 rounded-xl bg-gradient-to-r from-pink-950/80 via-purple-950/70 to-slate-900 border border-pink-500/60 flex items-center justify-between gap-3 shadow-xl">
-              <div class="flex items-center gap-3">
-                <span class="text-2xl p-2 rounded-lg bg-pink-500/20 border border-pink-500/40">🎨</span>
-                <div>
-                  <div class="font-orbitron font-black text-xs text-pink-300 tracking-wide">STEP 1: REAL-TIME AI 8-TO-3 DESIGN LAB</div>
-                  <div class="text-[11px] text-slate-300">Tell it what you have on hand → Real-time AI synthesizes 8 unique concepts & creates the big showcase → Pick 1 for 3 sub-idea images!</div>
-                </div>
-              </div>
-              <button onclick="openConceptGenModal()" class="px-4 py-2 rounded-xl bg-pink-600 hover:bg-pink-500 text-white font-orbitron font-black text-xs shadow-lg shadow-pink-900/50 transition active:scale-95 flex items-center gap-1.5 whitespace-nowrap">
-                <span>✨</span> LAUNCH AI LAB
+            
+            <div class="flex items-center gap-2 shrink-0 self-end sm:self-center flex-wrap" id="whatsNextActionButtons">
+              <button type="button" onclick="openLlamaCamModal()" class="px-3 py-1.5 rounded-xl bg-yellow-500 hover:bg-yellow-400 text-black font-orbitron font-black text-xs shadow-lg transition active:scale-95 flex items-center gap-1">
+                <span>📸</span> SHOOT GLORY (1)
+              </button>
+              <button type="button" onclick="openDecalStudioForCurrentBatch()" class="px-3 py-1.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-orbitron font-black text-xs shadow-lg transition active:scale-95 flex items-center gap-1">
+                <span>🖨️</span> PRINT DECALS (7)
               </button>
             </div>
+          </div>
 
-            <!-- APPLIED CONCEPT BLUEPRINT BADGE (SHOWN IF BATCH HAS CONCEPT DATA) -->
-            <div id="appliedConceptCard" class="hidden mb-3 p-3 rounded-xl bg-slate-950 border border-cyan-500/40 space-y-2">
-              <div class="flex items-center justify-between">
-                <span class="font-orbitron font-black text-xs text-cyan-400 flex items-center gap-1.5">
-                  <span>⚡</span> ACTIVE LIVERY BLUEPRINT
+          <!-- QUICK OBJECTIVE PRESETS SELECTOR -->
+          <div class="flex items-center justify-between gap-2 px-3 py-2 bg-slate-950/70 border border-slate-800 rounded-xl text-xs font-mono text-slate-400">
+            <span class="font-bold text-slate-300 flex items-center gap-1.5 shrink-0">
+              <span>🎯</span> QUICK PRESET:
+            </span>
+            <select id="selNextActionPreset" onchange="nlgSelectNextActionPreset(this.value)" class="bg-black border border-slate-800 rounded-lg px-2.5 py-1 text-cyan-300 text-xs font-sans font-bold outline-none cursor-pointer flex-1 max-w-md truncate">
+              <option value="Take loose glory shots of Unit #1 (Hero) • Print decals for the other 7">📸 Shoot glory for #1 & Print decals for other 7 (Current)</option>
+              <option value="Generate Print-Ready Decals (Driver, Passenger, Roof) + Underbase">🖨️ Generate pure flat 2D decals with white underbase</option>
+              <option value="Take loose 360 photography of Unit #1 in Llama Cam">📸 Shoot loose glory photos in Llama Cam</option>
+              <option value="Design 300 DPI Blister Card Art & AI Wordmark">📦 Build card art & bespoke AI wordmark logo</option>
+              <option value="Strip, prep & paint base body coat for remaining 7 donor castings">🎨 Strip & paint base coat for other 7 units</option>
+              <option value="Apply waterslide decals to all remaining 7 production units">⚡ Apply waterslide decals to all other 7 units</option>
+              <option value="Clear coat, swap Real Riders & M2 hex chassis assembly on all units">🔧 Clear coat, Real Riders & M2 chassis assembly</option>
+              <option value="PET Blister heat seal packaging (280°F for 10s)">🏷️ PET Blister heat sealing & packaged studio photo</option>
+              <option value="Batch Complete — Deploy live to neonllamagarage.com!">🚀 Batch Complete — Deploy live to neonllamagarage.com!</option>
+            </select>
+          </div>
+
+          <!-- STREAMLINED TWO-TRACK PRODUCTION COMMAND -->
+          <div class="bg-[#0b101d] border border-slate-800 rounded-2xl p-4 space-y-4">
+            
+            <div class="flex items-center justify-between pb-3 border-b border-slate-800 flex-wrap gap-2">
+              <div>
+                <span class="font-orbitron font-black text-xs text-white uppercase tracking-wider flex items-center gap-1.5">
+                  <span>🏎️</span> BATCH PRODUCTION TRACKER
                 </span>
-                <button onclick="openConceptGenModal()" class="text-[10px] text-pink-400 hover:text-pink-300 font-bold underline">Re-open AI Lab ↗</button>
+                <p class="text-[10px] text-slate-400">Track Unit #1 prototype verification and remaining fleet production in real time.</p>
               </div>
-              <div class="text-[11px] text-slate-300 space-y-1" id="appliedConceptDetails"></div>
+              <div class="flex items-center gap-3 text-xs font-mono">
+                <span class="text-slate-400">BATCH RUN PROGRESS: <strong id="batchProgressPercent" class="text-emerald-400 text-sm font-orbitron">45%</strong></span>
+              </div>
             </div>
 
-            <!-- THE 11 ACTIONABLE STEPS -->
-            <div class="space-y-1.5 text-xs font-bold" id="interactiveStepRows"></div>
+            <!-- TRACK 1: PROTOTYPE / HERO CAR (UNIT #1) -->
+            <div class="p-3.5 rounded-xl bg-slate-950/80 border border-purple-500/40 space-y-2.5">
+              <div class="flex items-center justify-between">
+                <span class="font-orbitron font-bold text-xs text-purple-300 flex items-center gap-2">
+                  <span class="px-1.5 py-0.5 rounded bg-purple-950 border border-purple-500/60 text-[10px] text-purple-200">UNIT #1</span>
+                  <span>PROTOTYPE / HERO UNIT (VERIFICATION RUN)</span>
+                </span>
+                <span id="unit1StatusBadge" class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-950/80 text-amber-300 border border-amber-500/40">
+                  📸 GLORY SHOTS NEEDED
+                </span>
+              </div>
+
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                <!-- Unit 1 Checkpoint 1 -->
+                <button type="button" onclick="nlgToggleUnit1Step('heroPrep')" id="btnU1Prep" class="p-2 rounded-lg border text-left transition flex items-center justify-between bg-emerald-950/40 border-emerald-500/50 text-emerald-300">
+                  <span>1. Body Stripped & Painted</span>
+                  <span id="icoU1Prep" class="font-bold">✓</span>
+                </button>
+                <!-- Unit 1 Checkpoint 2 -->
+                <button type="button" onclick="nlgToggleUnit1Step('heroDecal')" id="btnU1Decal" class="p-2 rounded-lg border text-left transition flex items-center justify-between bg-emerald-950/40 border-emerald-500/50 text-emerald-300">
+                  <span>2. Decals Applied</span>
+                  <span id="icoU1Decal" class="font-bold">✓</span>
+                </button>
+                <!-- Unit 1 Checkpoint 3 -->
+                <button type="button" onclick="nlgToggleUnit1Step('heroAssemble')" id="btnU1Assemble" class="p-2 rounded-lg border text-left transition flex items-center justify-between bg-emerald-950/40 border-emerald-500/50 text-emerald-300">
+                  <span>3. M2 Hex Assembled</span>
+                  <span id="icoU1Assemble" class="font-bold">✓</span>
+                </button>
+                <!-- Unit 1 Checkpoint 4: Glory Photo -->
+                <button type="button" onclick="openLlamaCamModal()" id="btnU1Photo" class="p-2 rounded-lg border text-left transition flex items-center justify-between bg-amber-950/40 border-amber-500/50 text-amber-300 hover:border-amber-400">
+                  <span class="truncate">4. Loose Glory Shot</span>
+                  <span id="icoU1Photo" class="text-sm">📸</span>
+                </button>
+              </div>
+
+              <!-- Glory Shot Quick Preview / Upload Prompt if not taken -->
+              <div id="unit1PhotoBar" class="pt-1 flex items-center justify-between text-[11px] font-mono text-slate-400">
+                <span id="unit1PhotoNotice">Unit #1 assembled • Shoot 360 turntable in Llama Cam to verify graphics and unlock marketing.</span>
+                <div class="flex items-center gap-1.5">
+                  <input type="file" id="nlgQuickLooseHeroInput" accept="image/*" class="hidden" onchange="nlgHandleQuickLooseHero(this)" />
+                  <button type="button" onclick="document.getElementById('nlgQuickLooseHeroInput').click()" class="text-cyan-400 hover:text-white underline text-[10px]">Upload Photo</button>
+                  <button type="button" onclick="openLlamaCamModal()" class="px-2 py-0.5 rounded bg-yellow-500 hover:bg-yellow-400 text-black font-bold text-[10px]">Open Llama Cam ↗</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- TRACK 2: REMAINING PRODUCTION FLEET (THE OTHER 7 UNITS) -->
+            <div class="p-3.5 rounded-xl bg-slate-950/80 border border-cyan-500/40 space-y-3">
+              <div class="flex items-center justify-between flex-wrap gap-2">
+                <span class="font-orbitron font-bold text-xs text-cyan-300 flex items-center gap-2">
+                  <span class="px-1.5 py-0.5 rounded bg-cyan-950 border border-cyan-500/60 text-[10px] text-cyan-200">FLEET</span>
+                  <span>PRODUCTION RUN (<span id="fleetQtyLabel">7 REMAINING CARS</span>)</span>
+                </span>
+                <span id="fleetOverallBadge" class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-cyan-950/80 text-cyan-300 border border-cyan-500/40">
+                  DECALS NEEDED
+                </span>
+              </div>
+
+              <!-- Fleet Production Milestones List -->
+              <div class="space-y-2 text-xs">
+                
+                <!-- Fleet Step 1: Print Decal Sheet -->
+                <div class="flex items-center justify-between p-2.5 rounded-xl bg-black/60 border border-slate-800">
+                  <div class="flex items-center gap-2.5">
+                    <span id="iconFleetDecals" class="w-6 h-6 rounded-md bg-amber-950 border border-amber-500/50 text-amber-300 font-bold text-xs flex items-center justify-center">🖨️</span>
+                    <div>
+                      <div class="text-white font-bold flex items-center gap-2">
+                        <span>1. Print Decal Batch Sheet</span>
+                        <span id="badgeFleetDecals" class="text-[9px] px-1.5 py-0.2 rounded bg-amber-900/60 text-amber-200 border border-amber-600/40">READY TO PRINT</span>
+                      </div>
+                      <div class="text-[10px] text-slate-400">Driver, passenger & roof pure flat decals with solid white underbase</div>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <button type="button" onclick="openDecalStudioForCurrentBatch()" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold text-[10px] border border-slate-700">Open Studio</button>
+                    <button type="button" onclick="nlgMarkFleetDecalsDone()" id="btnMarkFleetDecals" class="px-2.5 py-1 rounded bg-cyan-500 hover:bg-cyan-400 text-black font-black text-[10px] transition">Mark Printed</button>
+                  </div>
+                </div>
+
+                <!-- Fleet Step 2: Prep & Paint Remaining Castings -->
+                <div class="flex items-center justify-between p-2.5 rounded-xl bg-black/60 border border-slate-800">
+                  <div class="flex items-center gap-2.5">
+                    <span class="w-6 h-6 rounded-md bg-slate-900 border border-slate-700 text-slate-300 font-bold text-xs flex items-center justify-center">🎨</span>
+                    <div>
+                      <div class="text-white font-bold">2. Strip & Base Paint Castings</div>
+                      <div class="text-[10px] text-slate-400">Drill rivets, strip paint, primer & high-gloss base coat</div>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-1 bg-slate-900 px-2 py-0.5 rounded-lg border border-slate-800 font-mono text-xs">
+                      <button type="button" onclick="nlgAdjustFleetCounter('fleetPrepped', -1)" class="text-slate-400 hover:text-white px-1 font-bold">-</button>
+                      <span id="lblFleetPrepped" class="font-bold text-cyan-300 min-w-[28px] text-center">0 / 7</span>
+                      <button type="button" onclick="nlgAdjustFleetCounter('fleetPrepped', 1)" class="text-slate-400 hover:text-white px-1 font-bold">+</button>
+                    </div>
+                    <button type="button" onclick="nlgSetFleetCounterAll('fleetPrepped')" class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-[10px]">All Done</button>
+                  </div>
+                </div>
+
+                <!-- Fleet Step 3: Decals Applied -->
+                <div class="flex items-center justify-between p-2.5 rounded-xl bg-black/60 border border-slate-800">
+                  <div class="flex items-center gap-2.5">
+                    <span class="w-6 h-6 rounded-md bg-slate-900 border border-slate-700 text-slate-300 font-bold text-xs flex items-center justify-center">⚡</span>
+                    <div>
+                      <div class="text-white font-bold">3. Apply Waterslide Decals</div>
+                      <div class="text-[10px] text-slate-400">Micro-Set & Micro-Sol softened waterslide application</div>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-1 bg-slate-900 px-2 py-0.5 rounded-lg border border-slate-800 font-mono text-xs">
+                      <button type="button" onclick="nlgAdjustFleetCounter('fleetDecaled', -1)" class="text-slate-400 hover:text-white px-1 font-bold">-</button>
+                      <span id="lblFleetDecaled" class="font-bold text-cyan-300 min-w-[28px] text-center">0 / 7</span>
+                      <button type="button" onclick="nlgAdjustFleetCounter('fleetDecaled', 1)" class="text-slate-400 hover:text-white px-1 font-bold">+</button>
+                    </div>
+                    <button type="button" onclick="nlgSetFleetCounterAll('fleetDecaled')" class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-[10px]">All Done</button>
+                  </div>
+                </div>
+
+                <!-- Fleet Step 4: Clear Coat & Assembly -->
+                <div class="flex items-center justify-between p-2.5 rounded-xl bg-black/60 border border-slate-800">
+                  <div class="flex items-center gap-2.5">
+                    <span class="w-6 h-6 rounded-md bg-slate-900 border border-slate-700 text-slate-300 font-bold text-xs flex items-center justify-center">🔧</span>
+                    <div>
+                      <div class="text-white font-bold">4. Clear Coat & M2 Hex Assembly</div>
+                      <div class="text-[10px] text-slate-400">Protective lacquer, tap M2 threads & install Real Riders</div>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-1 bg-slate-900 px-2 py-0.5 rounded-lg border border-slate-800 font-mono text-xs">
+                      <button type="button" onclick="nlgAdjustFleetCounter('fleetAssembled', -1)" class="text-slate-400 hover:text-white px-1 font-bold">-</button>
+                      <span id="lblFleetAssembled" class="font-bold text-cyan-300 min-w-[28px] text-center">0 / 7</span>
+                      <button type="button" onclick="nlgAdjustFleetCounter('fleetAssembled', 1)" class="text-slate-400 hover:text-white px-1 font-bold">+</button>
+                    </div>
+                    <button type="button" onclick="nlgSetFleetCounterAll('fleetAssembled')" class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-[10px]">All Done</button>
+                  </div>
+                </div>
+
+                <!-- Fleet Step 5: Packaging -->
+                <div class="flex items-center justify-between p-2.5 rounded-xl bg-black/60 border border-slate-800">
+                  <div class="flex items-center gap-2.5">
+                    <span class="w-6 h-6 rounded-md bg-slate-900 border border-slate-700 text-slate-300 font-bold text-xs flex items-center justify-center">📦</span>
+                    <div>
+                      <div class="text-white font-bold">5. PET Blister Heat Seal Packaging</div>
+                      <div class="text-[10px] text-slate-400">Cardback print, blister mount at 280°F for 10s & collector numbering</div>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-1 bg-slate-900 px-2 py-0.5 rounded-lg border border-slate-800 font-mono text-xs">
+                      <button type="button" onclick="nlgAdjustFleetCounter('fleetPackaged', -1)" class="text-slate-400 hover:text-white px-1 font-bold">-</button>
+                      <span id="lblFleetPackaged" class="font-bold text-cyan-300 min-w-[28px] text-center">0 / 7</span>
+                      <button type="button" onclick="nlgAdjustFleetCounter('fleetPackaged', 1)" class="text-slate-400 hover:text-white px-1 font-bold">+</button>
+                    </div>
+                    <button type="button" onclick="nlgSetFleetCounterAll('fleetPackaged')" class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-[10px]">All Done</button>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
           </div>
 
         </div>
@@ -3898,7 +4049,10 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
         });
       }
 
+      window.currentCarVaultAssets = assets;
       if (countEl) countEl.innerText = `${assets.length} SAVED FILE${assets.length === 1 ? '' : 'S'}`;
+      const stickyAssetCountEl = document.getElementById('stickyAssetCount');
+      if (stickyAssetCountEl) stickyAssetCountEl.innerText = assets.length;
 
       if (assets.length === 0) {
         grid.innerHTML = `
@@ -4225,6 +4379,8 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
       currentActiveBatchId = batchId;
       const b = workshopBatches.find(x => x.id === batchId) || workshopBatches[0];
 
+      const gh = document.getElementById('globalHeader');
+      if (gh) gh.classList.add('hidden');
       document.getElementById('fleetView').classList.add('hidden');
       document.getElementById('batchCockpitView').classList.remove('hidden');
       document.getElementById('navFleetBtn').className = 'px-3.5 py-1.5 rounded-lg bg-slate-800 text-slate-300 font-orbitron font-bold text-xs border border-slate-700 hover:text-white';
@@ -4364,65 +4520,315 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
       showToast(b.theme + ' (' + b.model + ') marked SOLD OUT and moved to The Vault! 🏛️', '🏷️');
     }
 
-    // CHECKLIST RENDERER
-    function renderChecklist(b) {
-      const container = document.getElementById('interactiveStepRows');
-      container.innerHTML = '';
+    // =========================================================================
+    // PRODUCTION RUN & UNIT TRACKER (HERO UNIT #1 VS PRODUCTION FLEET)
+    // =========================================================================
+    function scrollToCarAssetVault() {
+      const vault = document.getElementById('detailCarAssetVault');
+      if (!vault) return;
+      vault.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      vault.classList.add('ring-4', 'ring-cyan-400', 'shadow-[0_0_30px_rgba(6,182,212,0.6)]');
+      setTimeout(() => {
+        vault.classList.remove('ring-4', 'ring-cyan-400', 'shadow-[0_0_30px_rgba(6,182,212,0.6)]');
+      }, 2500);
+    }
 
-      const nextStepDef = stepDefinitions.find(x => x.id === b.currentStep) || stepDefinitions[10];
-      document.getElementById('whatsNextActionTitle').innerText = "STEP " + nextStepDef.id + ": " + nextStepDef.name.toUpperCase();
+    function nlgDownloadAllCarAssets() {
+      const assets = window.currentCarVaultAssets || [];
+      if (!assets.length) {
+        showToast('No assets to download yet for this car.', '⚠️');
+        return;
+      }
+      showToast(`Downloading ${assets.length} car files...`, '⬇️');
+      const b = (typeof workshopBatches !== 'undefined') ? workshopBatches.find(x => x.id === currentActiveBatchId) : null;
+      const prefix = (b ? (b.theme + '_' + b.model) : 'car_asset').toLowerCase().replace(/[^a-z0-9]+/g, '_');
 
-      stepDefinitions.forEach(step => {
-        const isDone = b.completedSteps.includes(step.id);
-        const isNext = (step.id === b.currentStep);
-
-        const row = document.createElement('div');
-        row.className = "step-row flex items-center justify-between p-2.5 rounded-xl border border-slate-800/80 cursor-pointer";
-        if (isNext) row.classList.add('step-next');
-
-        row.onclick = () => workOnStep(step.id);
-
-        row.innerHTML = `
-          <div class="flex items-center gap-2.5">
-            <span class="w-6 h-6 rounded-md ${isDone ? 'bg-emerald-950 border border-emerald-500/60 text-emerald-400' : (isNext ? 'bg-cyan-950 border border-cyan-400 text-cyan-300 animate-pulse' : 'bg-black border border-slate-700 text-slate-400')} font-mono text-[11px] flex items-center justify-center font-bold">
-              ${isDone ? '✓' : step.id}
-            </span>
-            <div>
-              <div class="${isDone ? 'text-slate-200' : (isNext ? 'text-cyan-300 flex items-center gap-2' : 'text-slate-300')}">
-                ${step.name}
-                ${isNext ? '<span class="px-1.5 py-0.2 rounded bg-cyan-900 text-cyan-200 text-[9px]">NEXT ACTION</span>' : ''}
-              </div>
-              <div class="text-[10px] text-slate-500 font-normal">${step.desc}</div>
-            </div>
-          </div>
-          <div class="flex items-center gap-2" onclick="event.stopPropagation()">
-            ${isDone ? '<span class="px-2.5 py-1 rounded-md bg-emerald-950/80 text-emerald-400 font-mono text-[10px]">10/10 COMPLETE</span>' : `
-              <button onclick="toggleStepDone(${step.id})" class="px-2.5 py-1 rounded ${isNext ? 'bg-cyan-500 text-black font-black' : 'bg-slate-800 text-slate-300'} hover:bg-emerald-500 hover:text-black font-bold text-[10px] transition">
-                ${isNext ? 'START' : 'COMPLETE'}
-              </button>
-            `}
-          </div>
-        `;
-        container.appendChild(row);
+      assets.forEach((a, idx) => {
+        setTimeout(() => {
+          const link = document.createElement('a');
+          link.href = a.image;
+          link.download = `${prefix}_${a.type.toLowerCase().replace(/[^a-z0-9]+/g, '_')}_${a.label.toLowerCase().replace(/[^a-z0-9]+/g, '_')}.png`;
+          link.click();
+          if (a.underbase && a.underbase !== a.image) {
+            setTimeout(() => {
+              const uLink = document.createElement('a');
+              uLink.href = a.underbase;
+              uLink.download = `${prefix}_${a.label.toLowerCase().replace(/[^a-z0-9]+/g, '_')}_white_underbase.png`;
+              uLink.click();
+            }, 120);
+          }
+        }, idx * 250);
       });
+    }
+
+    function renderProductionTracker(b) {
+      if (!b) return;
+
+      // Extract batch quantity (e.g. "8 Reg • 1 Chase" -> 8 total, so fleet = 7)
+      const qtyMatch = String(b.qty || '').match(/(\d+)/);
+      const totalUnits = qtyMatch ? Math.max(2, parseInt(qtyMatch[1])) : 8;
+      const fleetTotal = Math.max(1, totalUnits - 1);
+
+      // Default unit progress tracking
+      if (!b.unitProgress) {
+        const isDairy = String(b.model || '').toLowerCase().includes('dairy') || String(b.theme || '').toLowerCase().includes('freeze');
+        b.unitProgress = {
+          heroPrep: true,
+          heroDecal: true,
+          heroAssemble: true,
+          heroPhoto: isDairy ? false : Boolean(b.heroPhoto || (typeof currentCarPipelineState !== 'undefined' && currentCarPipelineState?.heroPhotoDataUrl)),
+          fleetDecalsPrinted: false,
+          fleetPrepped: isDairy ? 0 : 2,
+          fleetDecaled: 0,
+          fleetAssembled: 0,
+          fleetPackaged: 0
+        };
+      }
+
+      const up = b.unitProgress;
+      // Clamp fleet counters
+      ['fleetPrepped', 'fleetDecaled', 'fleetAssembled', 'fleetPackaged'].forEach(k => {
+        if (typeof up[k] !== 'number' || isNaN(up[k])) up[k] = 0;
+        up[k] = Math.max(0, Math.min(fleetTotal, up[k]));
+      });
+
+      // Default smart next action
+      if (!b.nextAction) {
+        const isDairy = String(b.model || '').toLowerCase().includes('dairy') || String(b.theme || '').toLowerCase().includes('freeze');
+        if (isDairy) {
+          b.nextAction = 'Take loose glory shots of Unit #1 (Hero) • Print decals for the other 7';
+        } else if (!up.heroPhoto) {
+          b.nextAction = 'Take loose glory shots of Unit #1 in Llama Cam';
+        } else if (!up.fleetDecalsPrinted) {
+          b.nextAction = `Generate & Print Decals for remaining ${fleetTotal} fleet units`;
+        } else if (up.fleetPrepped < fleetTotal) {
+          b.nextAction = `Strip, prep & base paint remaining ${fleetTotal - up.fleetPrepped} castings`;
+        } else if (up.fleetDecaled < fleetTotal) {
+          b.nextAction = `Apply waterslide decals to remaining ${fleetTotal - up.fleetDecaled} units`;
+        } else if (up.fleetAssembled < fleetTotal) {
+          b.nextAction = `Clear coat & assemble chassis for remaining ${fleetTotal - up.fleetAssembled} units`;
+        } else if (up.fleetPackaged < fleetTotal) {
+          b.nextAction = `Heat seal blister packaging for remaining ${fleetTotal - up.fleetPackaged} units`;
+        } else {
+          b.nextAction = 'Batch Complete — Deploy live to neonllamagarage.com!';
+        }
+      }
+
+      // Update Next Action Banner
+      const titleEl = document.getElementById('whatsNextActionTitle');
+      if (titleEl) titleEl.innerText = b.nextAction;
+
+      const presetSel = document.getElementById('selNextActionPreset');
+      if (presetSel) {
+        let found = false;
+        for (let i = 0; i < presetSel.options.length; i++) {
+          if (presetSel.options[i].value === b.nextAction) {
+            presetSel.selectedIndex = i;
+            found = true;
+            break;
+          }
+        }
+        if (!found) presetSel.value = '';
+      }
+
+      // Update Unit 1 Hero Track
+      const btnU1Prep = document.getElementById('btnU1Prep');
+      const btnU1Decal = document.getElementById('btnU1Decal');
+      const btnU1Assemble = document.getElementById('btnU1Assemble');
+      const btnU1Photo = document.getElementById('btnU1Photo');
+      const u1StatusBadge = document.getElementById('unit1StatusBadge');
+      const u1Notice = document.getElementById('unit1PhotoNotice');
+
+      if (btnU1Prep) {
+        btnU1Prep.className = `p-2 rounded-lg border text-left transition flex items-center justify-between ${up.heroPrep ? 'bg-emerald-950/40 border-emerald-500/50 text-emerald-300' : 'bg-slate-900 border-slate-700 text-slate-400'}`;
+        const ico = document.getElementById('icoU1Prep');
+        if (ico) ico.innerText = up.heroPrep ? '✓' : '○';
+      }
+      if (btnU1Decal) {
+        btnU1Decal.className = `p-2 rounded-lg border text-left transition flex items-center justify-between ${up.heroDecal ? 'bg-emerald-950/40 border-emerald-500/50 text-emerald-300' : 'bg-slate-900 border-slate-700 text-slate-400'}`;
+        const ico = document.getElementById('icoU1Decal');
+        if (ico) ico.innerText = up.heroDecal ? '✓' : '○';
+      }
+      if (btnU1Assemble) {
+        btnU1Assemble.className = `p-2 rounded-lg border text-left transition flex items-center justify-between ${up.heroAssemble ? 'bg-emerald-950/40 border-emerald-500/50 text-emerald-300' : 'bg-slate-900 border-slate-700 text-slate-400'}`;
+        const ico = document.getElementById('icoU1Assemble');
+        if (ico) ico.innerText = up.heroAssemble ? '✓' : '○';
+      }
+      if (btnU1Photo) {
+        btnU1Photo.className = `p-2 rounded-lg border text-left transition flex items-center justify-between ${up.heroPhoto ? 'bg-emerald-950/40 border-emerald-500/50 text-emerald-300' : 'bg-amber-950/40 border-amber-500/50 text-amber-300 animate-pulse'}`;
+        const ico = document.getElementById('icoU1Photo');
+        if (ico) ico.innerText = up.heroPhoto ? '✓' : '📸';
+      }
+      if (u1StatusBadge) {
+        if (up.heroPhoto) {
+          u1StatusBadge.innerText = '✓ GLORY SHOT VERIFIED';
+          u1StatusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-500/40';
+          if (u1Notice) u1Notice.innerText = '✓ Unit #1 loose glory photo verified & saved in Asset Vault.';
+        } else {
+          u1StatusBadge.innerText = '📸 GLORY SHOTS NEEDED';
+          u1StatusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-950/80 text-amber-300 border border-amber-500/40';
+          if (u1Notice) u1Notice.innerText = 'Unit #1 assembled • Shoot 360 turntable in Llama Cam to verify graphics and unlock marketing.';
+        }
+      }
+
+      // Update Track 2: Production Fleet
+      const fleetQtyLabel = document.getElementById('fleetQtyLabel');
+      if (fleetQtyLabel) fleetQtyLabel.innerText = `${fleetTotal} REMAINING CARS`;
+
+      // Milestone 1: Decals Printed
+      const badgeFleetDecals = document.getElementById('badgeFleetDecals');
+      const iconFleetDecals = document.getElementById('iconFleetDecals');
+      const btnMarkFleetDecals = document.getElementById('btnMarkFleetDecals');
+      if (badgeFleetDecals) {
+        if (up.fleetDecalsPrinted) {
+          badgeFleetDecals.innerText = `✓ ${fleetTotal}/${fleetTotal} PRINTED`;
+          badgeFleetDecals.className = 'text-[9px] px-1.5 py-0.2 rounded bg-emerald-900/60 text-emerald-200 border border-emerald-500/40 font-mono';
+          if (iconFleetDecals) {
+            iconFleetDecals.className = 'w-6 h-6 rounded-md bg-emerald-950 border border-emerald-500/50 text-emerald-300 font-bold text-xs flex items-center justify-center';
+            iconFleetDecals.innerText = '✓';
+          }
+          if (btnMarkFleetDecals) {
+            btnMarkFleetDecals.innerText = '✓ Done';
+            btnMarkFleetDecals.className = 'px-2.5 py-1 rounded bg-slate-800 text-slate-400 font-bold text-[10px]';
+          }
+        } else {
+          badgeFleetDecals.innerText = 'PRINTING NEEDED';
+          badgeFleetDecals.className = 'text-[9px] px-1.5 py-0.2 rounded bg-amber-900/60 text-amber-200 border border-amber-600/40 font-mono';
+          if (iconFleetDecals) {
+            iconFleetDecals.className = 'w-6 h-6 rounded-md bg-amber-950 border border-amber-500/50 text-amber-300 font-bold text-xs flex items-center justify-center';
+            iconFleetDecals.innerText = '🖨️';
+          }
+          if (btnMarkFleetDecals) {
+            btnMarkFleetDecals.innerText = 'Mark Printed';
+            btnMarkFleetDecals.className = 'px-2.5 py-1 rounded bg-cyan-500 hover:bg-cyan-400 text-black font-black text-[10px] transition';
+          }
+        }
+      }
+
+      // Milestones 2-5: Counters
+      const setCounterLabel = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.innerText = `${val} / ${fleetTotal}`;
+          el.className = `font-bold min-w-[28px] text-center ${val === fleetTotal ? 'text-emerald-400' : 'text-cyan-300'}`;
+        }
+      };
+      setCounterLabel('lblFleetPrepped', up.fleetPrepped);
+      setCounterLabel('lblFleetDecaled', up.fleetDecaled);
+      setCounterLabel('lblFleetAssembled', up.fleetAssembled);
+      setCounterLabel('lblFleetPackaged', up.fleetPackaged);
+
+      // Fleet Overall Badge
+      const overallBadge = document.getElementById('fleetOverallBadge');
+      if (overallBadge) {
+        if (up.fleetPackaged === fleetTotal) {
+          overallBadge.innerText = `✓ ALL ${fleetTotal} PACKAGED`;
+          overallBadge.className = 'px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-500/40';
+        } else if (!up.fleetDecalsPrinted) {
+          overallBadge.innerText = 'DECALS NEEDED';
+          overallBadge.className = 'px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-950/80 text-amber-300 border border-amber-500/40';
+        } else {
+          overallBadge.innerText = `${up.fleetPackaged}/${fleetTotal} COMPLETED`;
+          overallBadge.className = 'px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-cyan-950/80 text-cyan-300 border border-cyan-500/40';
+        }
+      }
+
+      // Calculate Weighted Progress:
+      // Unit 1 (Hero): 40% (10% each for Prep, Decal, Assemble, Glory Photo)
+      // Fleet Units: 60% (12% each for Decals, Prepped, Decaled, Assembled, Packaged)
+      let u1Pts = (up.heroPrep ? 1 : 0) + (up.heroDecal ? 1 : 0) + (up.heroAssemble ? 1 : 0) + (up.heroPhoto ? 1 : 0);
+      let u1Percent = (u1Pts / 4) * 40;
+
+      let fleetPts = (up.fleetDecalsPrinted ? 1 : 0) +
+                     (up.fleetPrepped / fleetTotal) +
+                     (up.fleetDecaled / fleetTotal) +
+                     (up.fleetAssembled / fleetTotal) +
+                     (up.fleetPackaged / fleetTotal);
+      let fleetPercent = (fleetPts / 5) * 60;
+
+      b.progress = Math.min(100, Math.round(u1Percent + fleetPercent));
+      const progEl = document.getElementById('batchProgressPercent');
+      if (progEl) progEl.innerText = `${b.progress}%`;
+    }
+
+    function renderChecklist(b) {
+      renderProductionTracker(b);
+    }
+
+    function nlgEditNextActionPrompt() {
+      const b = (typeof workshopBatches !== 'undefined') ? workshopBatches.find(x => x.id === currentActiveBatchId) : null;
+      if (!b) return;
+      const current = b.nextAction || 'Take loose glory shots of Unit #1 (Hero) • Print decals for the other 7';
+      const userText = prompt('Enter Priority Next Action for this car:', current);
+      if (userText && userText.trim()) {
+        b.nextAction = userText.trim();
+        saveBatchesToStorage();
+        renderProductionTracker(b);
+        showToast('Next Action updated! 🎯', '✓');
+      }
+    }
+
+    function nlgSelectNextActionPreset(val) {
+      const b = (typeof workshopBatches !== 'undefined') ? workshopBatches.find(x => x.id === currentActiveBatchId) : null;
+      if (!b || !val) return;
+      b.nextAction = val;
+      saveBatchesToStorage();
+      renderProductionTracker(b);
+      showToast('Updated Next Action! 🎯', '✓');
+    }
+
+    function nlgToggleUnit1Step(key) {
+      const b = (typeof workshopBatches !== 'undefined') ? workshopBatches.find(x => x.id === currentActiveBatchId) : null;
+      if (!b || !b.unitProgress) return;
+      b.unitProgress[key] = !b.unitProgress[key];
+      saveBatchesToStorage();
+      renderProductionTracker(b);
+      renderFleetRows();
+    }
+
+    function nlgAdjustFleetCounter(key, delta) {
+      const b = (typeof workshopBatches !== 'undefined') ? workshopBatches.find(x => x.id === currentActiveBatchId) : null;
+      if (!b || !b.unitProgress) return;
+      const qtyMatch = String(b.qty || '').match(/(\d+)/);
+      const fleetTotal = Math.max(1, (qtyMatch ? parseInt(qtyMatch[1]) : 8) - 1);
+      const current = b.unitProgress[key] || 0;
+      b.unitProgress[key] = Math.max(0, Math.min(fleetTotal, current + delta));
+      saveBatchesToStorage();
+      renderProductionTracker(b);
+      renderFleetRows();
+    }
+
+    function nlgSetFleetCounterAll(key) {
+      const b = (typeof workshopBatches !== 'undefined') ? workshopBatches.find(x => x.id === currentActiveBatchId) : null;
+      if (!b || !b.unitProgress) return;
+      const qtyMatch = String(b.qty || '').match(/(\d+)/);
+      const fleetTotal = Math.max(1, (qtyMatch ? parseInt(qtyMatch[1]) : 8) - 1);
+      b.unitProgress[key] = fleetTotal;
+      saveBatchesToStorage();
+      renderProductionTracker(b);
+      renderFleetRows();
+      showToast('Marked all units complete! 🎉', '✓');
+    }
+
+    function nlgMarkFleetDecalsDone() {
+      const b = (typeof workshopBatches !== 'undefined') ? workshopBatches.find(x => x.id === currentActiveBatchId) : null;
+      if (!b || !b.unitProgress) return;
+      b.unitProgress.fleetDecalsPrinted = !b.unitProgress.fleetDecalsPrinted;
+      saveBatchesToStorage();
+      renderProductionTracker(b);
+      renderFleetRows();
+      showToast(b.unitProgress.fleetDecalsPrinted ? 'Decals marked printed for fleet!' : 'Decals marked unprinted', '🖨️');
     }
 
     function toggleStepDone(stepId) {
       const b = workshopBatches.find(x => x.id === currentActiveBatchId);
       if (!b) return;
-
-      if (!b.completedSteps.includes(stepId)) {
-        b.completedSteps.push(stepId);
-        if (b.currentStep === stepId) b.currentStep++;
-        b.progress = Math.min(100, Math.round((b.completedSteps.length / 11) * 100));
-        saveBatchesToStorage();
-        showToast('Step ' + stepId + ' marked complete for ' + b.id, '✓');
-      }
-      openBatchDetail(currentActiveBatchId);
-      renderFleetRows();
+      renderProductionTracker(b);
     }
 
     function showFleetView() {
+      const gh = document.getElementById('globalHeader');
+      if (gh) gh.classList.remove('hidden');
       document.getElementById('fleetView').classList.remove('hidden');
       document.getElementById('batchCockpitView').classList.add('hidden');
       document.getElementById('navFleetBtn').className = 'px-3.5 py-1.5 rounded-lg bg-cyan-600/30 text-cyan-300 font-orbitron font-bold text-xs border border-cyan-500/50 shadow-lg';
@@ -5717,12 +6123,13 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
 
     // 5-Step Verified Production Pipeline Renderer
     function nlgRenderPipelineBar() {
+      const b = (typeof workshopBatches !== 'undefined') ? workshopBatches.find(x => x.id === currentActiveBatchId) : null;
+      if (b && typeof renderProductionTracker === 'function') renderProductionTracker(b);
+
       const grid = document.getElementById('nlgPipelineStepsGrid');
       const nextBtn = document.getElementById('nlgBtnPipelineNext');
       const summary = document.getElementById('nlgPipelineSummary');
       if (!grid) return;
-
-      const b = (typeof workshopBatches !== 'undefined') ? workshopBatches.find(x => x.id === currentActiveBatchId) : null;
       const st = (currentCarPipelineState && currentCarPipelineState.batchId === currentActiveBatchId) ? currentCarPipelineState : null;
       const steps = st?.steps || {};
 
