@@ -188,7 +188,7 @@
           <span>🖼️</span> ALBUMS <span id="albumsCountBadge" class="px-1.5 py-0.2 rounded bg-purple-950 text-purple-200 text-[10px] font-mono border border-purple-500/40">0</span>
         </button>
         <button onclick="openConceptGenModal(true)" class="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-orbitron font-black text-xs border border-pink-400/50 shadow-lg shadow-pink-900/40 transition active:scale-95 flex items-center gap-1.5">
-          <span>✨</span> + NEW CAR (v5.2.1)
+          <span>✨</span> + NEW CAR (v5.2.2)
         </button>
         <div class="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-[10px] font-mono text-cyan-400">
           STORE: <a href="https://neonllamagarage.com" target="_blank" class="hover:underline font-bold text-white">NEONLLAMAGARAGE.COM</a>
@@ -4442,8 +4442,7 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
           heroDecal: true,
           heroAssemble: true,
           heroPhoto: isDairy ? false : Boolean(b.heroPhoto),
-          decalsPrinted: isDairy ? 1 : 0,
-          fleetDecalsPrinted: false,
+          decalDesignDone: true,
           fleetPrepped: isDairy ? 0 : 2,
           fleetDecaled: 0,
           fleetAssembled: 0,
@@ -4451,13 +4450,11 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
         };
       }
       const up = b.unitProgress;
-      if (up.decalsPrinted === undefined) {
-        up.decalsPrinted = up.fleetDecalsPrinted ? totalUnits : (String(b.model || '').toLowerCase().includes('dairy') ? 1 : 0);
+      if (up.decalDesignDone === undefined) {
+        up.decalDesignDone = Boolean(b.printZones || b.conceptData || up.fleetDecalsPrinted || up.decalsPrinted);
       }
-      const printedDecals = up.decalsPrinted;
-      const decalsDone = printedDecals >= totalUnits || Boolean(up.fleetDecalsPrinted);
 
-      // 8 Master Steps
+      // 8 Master Steps: Decal design comes AFTER paint, and only needs to be done once!
       const steps = [
         {
           id: 'concept',
@@ -4469,54 +4466,8 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
           isUpcoming: false
         },
         {
-          id: 'decals',
-          num: 2,
-          name: 'Decals',
-          sub: `CMYK + White Underbase (${printedDecals}/${totalUnits} Printed • ${printedDecals > 0 ? (printedDecals >= totalUnits ? 'All Printed ✓' : 'Hero Done, ' + (totalUnits - printedDecals) + ' Fleet Needed') : totalUnits + ' Sheets Needed'})`,
-          isDone: decalsDone,
-          isActionable: !decalsDone,
-          isUpcoming: false,
-          progress: Math.round((printedDecals / totalUnits) * 100),
-          renderAction: () => `
-            <div class="flex items-center gap-2 flex-wrap">
-              <div class="flex items-center gap-1 bg-slate-900 px-2.5 py-1 rounded-lg border border-slate-800 font-mono text-xs" title="Track Printed Decal Sheets">
-                <button type="button" onclick="nlgAdjustDecalCounter(-1)" class="text-slate-400 hover:text-white px-1.5 font-bold transition active:scale-95">-</button>
-                <span class="font-bold text-cyan-300 min-w-[38px] text-center">${printedDecals} / ${totalUnits}</span>
-                <button type="button" onclick="nlgAdjustDecalCounter(1)" class="text-slate-400 hover:text-white px-1.5 font-bold transition active:scale-95">+</button>
-              </div>
-              <button type="button" onclick="openDecalStudioForCurrentBatch()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 font-orbitron font-bold text-xs border border-slate-700 transition">Open Studio</button>
-              ${printedDecals < totalUnits ? `
-                <button type="button" onclick="nlgSetDecalsAll()" class="px-3.5 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-black font-orbitron font-black text-xs transition active:scale-95 shadow">
-                  ${printedDecals === 0 ? `Print All (${totalUnits})` : `Print Fleet (${totalUnits - printedDecals})`}
-                </button>
-              ` : `
-                <span class="text-xs font-mono font-bold text-emerald-400 bg-emerald-950/80 px-2.5 py-1 rounded border border-emerald-500/40">✓ All Printed</span>
-              `}
-            </div>
-          `
-        },
-        {
-          id: 'glory',
-          num: 3,
-          name: 'Glory Shot',
-          sub: 'Unit #1 Loose Turntable Photo',
-          isDone: Boolean(up.heroPhoto),
-          isActionable: !up.heroPhoto && Boolean(up.heroAssemble),
-          isUpcoming: !up.heroAssemble,
-          progress: up.heroPhoto ? 100 : 0,
-          renderAction: () => `
-            <div class="flex items-center gap-2">
-              <input type="file" id="nlgMasterHeroPhotoInput" accept="image/*" class="hidden" onchange="nlgHandleQuickLooseHero(this)" />
-              <button type="button" onclick="document.getElementById('nlgMasterHeroPhotoInput').click()" class="text-cyan-400 hover:text-white underline text-xs font-mono">Upload</button>
-              <button type="button" onclick="openLlamaCamModal()" class="px-3.5 py-1.5 rounded-lg bg-yellow-500 hover:bg-yellow-400 text-black font-orbitron font-black text-xs transition active:scale-95 shadow flex items-center gap-1.5">
-                <span>📸</span> Shoot in Llama Cam
-              </button>
-            </div>
-          `
-        },
-        {
           id: 'paint',
-          num: 4,
+          num: 2,
           name: 'Strip & Paint',
           sub: `Base Coat (${up.fleetPrepped}/${fleetTotal} Fleet Prepped)`,
           isDone: up.fleetPrepped >= fleetTotal,
@@ -4525,7 +4476,7 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
           progress: Math.round((up.fleetPrepped / fleetTotal) * 100),
           renderAction: () => `
             <div class="flex items-center gap-2 flex-wrap">
-              <div class="flex items-center gap-1 bg-slate-900 px-2.5 py-1 rounded-lg border border-slate-800 font-mono text-xs" title="Track Stripped & Painted Cars">
+              <div class="flex items-center gap-1 bg-slate-900 px-2.5 py-1 rounded-lg border border-slate-800 font-mono text-xs" title="Track Stripped & Painted Donor Cars">
                 <button type="button" onclick="nlgAdjustFleetCounter('fleetPrepped', -1)" class="text-slate-400 hover:text-white px-1.5 font-bold transition active:scale-95">-</button>
                 <span class="font-bold text-cyan-300 min-w-[38px] text-center">${up.fleetPrepped} / ${fleetTotal}</span>
                 <button type="button" onclick="nlgAdjustFleetCounter('fleetPrepped', 1)" class="text-slate-400 hover:text-white px-1.5 font-bold transition active:scale-95">+</button>
@@ -4536,13 +4487,39 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
           `
         },
         {
+          id: 'decals',
+          num: 3,
+          name: 'Decals',
+          sub: up.decalDesignDone
+            ? 'CMYK + Solid White Underbase (Design Ready ✓)'
+            : '2D Graphics & White Underbase (Done Once in Decal Studio)',
+          isDone: Boolean(up.decalDesignDone),
+          isActionable: !up.decalDesignDone,
+          isUpcoming: false,
+          progress: up.decalDesignDone ? 100 : 0,
+          renderAction: () => `
+            <div class="flex items-center gap-2 flex-wrap">
+              <button type="button" onclick="openDecalStudioForCurrentBatch()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 font-orbitron font-bold text-xs border border-slate-700 transition">Open Studio</button>
+              ${!up.decalDesignDone ? `
+                <button type="button" onclick="nlgToggleDecalDesignDone()" class="px-3.5 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-black font-orbitron font-black text-xs transition active:scale-95 shadow">
+                  Mark Design Ready
+                </button>
+              ` : `
+                <button type="button" onclick="nlgToggleDecalDesignDone()" class="text-xs font-mono font-bold text-emerald-400 bg-emerald-950/80 px-2.5 py-1 rounded border border-emerald-500/40 hover:bg-emerald-900/50 transition">
+                  ✓ Design Ready
+                </button>
+              `}
+            </div>
+          `
+        },
+        {
           id: 'applyDecals',
-          num: 5,
+          num: 4,
           name: 'Apply Decals',
           sub: `Waterslide Application (${up.fleetDecaled}/${fleetTotal} Fleet Decaled)`,
           isDone: up.fleetDecaled >= fleetTotal,
-          isActionable: up.fleetDecaled < fleetTotal && up.fleetPrepped > 0,
-          isUpcoming: up.fleetPrepped === 0,
+          isActionable: up.fleetDecaled < fleetTotal && Boolean(up.decalDesignDone),
+          isUpcoming: !up.decalDesignDone,
           progress: Math.round((up.fleetDecaled / fleetTotal) * 100),
           renderAction: () => `
             <div class="flex items-center gap-2 flex-wrap">
@@ -4558,7 +4535,7 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
         },
         {
           id: 'assemble',
-          num: 6,
+          num: 5,
           name: 'Assemble',
           sub: `Real Riders & M2 Screws (${up.fleetAssembled}/${fleetTotal} Fleet Assembled)`,
           isDone: up.fleetAssembled >= fleetTotal,
@@ -4578,13 +4555,32 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
           `
         },
         {
+          id: 'glory',
+          num: 6,
+          name: 'Glory Shot',
+          sub: 'Unit #1 Loose Turntable Photo (Done Once)',
+          isDone: Boolean(up.heroPhoto),
+          isActionable: !up.heroPhoto,
+          isUpcoming: false,
+          progress: up.heroPhoto ? 100 : 0,
+          renderAction: () => `
+            <div class="flex items-center gap-2">
+              <input type="file" id="nlgMasterHeroPhotoInput" accept="image/*" class="hidden" onchange="nlgHandleQuickLooseHero(this)" />
+              <button type="button" onclick="document.getElementById('nlgMasterHeroPhotoInput').click()" class="text-cyan-400 hover:text-white underline text-xs font-mono">Upload</button>
+              <button type="button" onclick="openLlamaCamModal()" class="px-3.5 py-1.5 rounded-lg bg-yellow-500 hover:bg-yellow-400 text-black font-orbitron font-black text-xs transition active:scale-95 shadow flex items-center gap-1.5">
+                <span>📸</span> Shoot in Llama Cam
+              </button>
+            </div>
+          `
+        },
+        {
           id: 'packaging',
           num: 7,
           name: 'Packaging',
           sub: `Blister Seal & Pack (${up.fleetPackaged}/${fleetTotal} Fleet Boxed)`,
           isDone: up.fleetPackaged >= fleetTotal,
-          isActionable: up.fleetPackaged < fleetTotal && up.fleetAssembled > 0,
-          isUpcoming: up.fleetAssembled === 0,
+          isActionable: up.fleetPackaged < fleetTotal && (up.fleetAssembled > 0 || Boolean(up.heroPhoto)),
+          isUpcoming: up.fleetAssembled === 0 && !up.heroPhoto,
           progress: Math.round((up.fleetPackaged / fleetTotal) * 100),
           renderAction: () => `
             <div class="flex items-center gap-2 flex-wrap">
@@ -4665,26 +4661,26 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
               ${completedCount} of 8 Steps Complete (${overallPercent}%)
             </div>
           </div>
-          <!-- PIPELINE STAGE PILLS -->
+          <!-- PIPELINE STAGE PILLS (PAINT FIRST, DECALS 1-TIME) -->
           <div class="grid grid-cols-2 sm:grid-cols-5 gap-1.5 font-mono text-[10px]">
-            <div class="p-1.5 rounded bg-slate-900 border ${printedDecals >= totalUnits ? 'border-emerald-500/50 text-emerald-400 bg-emerald-950/30' : 'border-slate-800 text-cyan-300'} text-center">
-              <span class="text-slate-500 block text-[9px]">DECALS</span>
-              <span class="font-bold">${printedDecals}/${totalUnits}</span>
-            </div>
             <div class="p-1.5 rounded bg-slate-900 border ${up.fleetPrepped >= fleetTotal ? 'border-emerald-500/50 text-emerald-400 bg-emerald-950/30' : 'border-slate-800 text-cyan-300'} text-center">
-              <span class="text-slate-500 block text-[9px]">PAINT</span>
+              <span class="text-slate-500 block text-[9px]">1. PAINT</span>
               <span class="font-bold">${up.fleetPrepped}/${fleetTotal}</span>
             </div>
+            <div class="p-1.5 rounded bg-slate-900 border ${up.decalDesignDone ? 'border-emerald-500/50 text-emerald-400 bg-emerald-950/30' : 'border-slate-800 text-amber-300'} text-center">
+              <span class="text-slate-500 block text-[9px]">2. DECALS</span>
+              <span class="font-bold">${up.decalDesignDone ? '✓ READY' : 'DESIGN'}</span>
+            </div>
             <div class="p-1.5 rounded bg-slate-900 border ${up.fleetDecaled >= fleetTotal ? 'border-emerald-500/50 text-emerald-400 bg-emerald-950/30' : 'border-slate-800 text-cyan-300'} text-center">
-              <span class="text-slate-500 block text-[9px]">DECALED</span>
+              <span class="text-slate-500 block text-[9px]">3. APPLY</span>
               <span class="font-bold">${up.fleetDecaled}/${fleetTotal}</span>
             </div>
             <div class="p-1.5 rounded bg-slate-900 border ${up.fleetAssembled >= fleetTotal ? 'border-emerald-500/50 text-emerald-400 bg-emerald-950/30' : 'border-slate-800 text-cyan-300'} text-center">
-              <span class="text-slate-500 block text-[9px]">ASSEMBLED</span>
+              <span class="text-slate-500 block text-[9px]">4. ASSEMBLE</span>
               <span class="font-bold">${up.fleetAssembled}/${fleetTotal}</span>
             </div>
             <div class="p-1.5 rounded bg-slate-900 border ${up.fleetPackaged >= fleetTotal ? 'border-emerald-500/50 text-emerald-400 bg-emerald-950/30' : 'border-slate-800 text-cyan-300'} text-center">
-              <span class="text-slate-500 block text-[9px]">PACKAGED</span>
+              <span class="text-slate-500 block text-[9px]">5. PACKAGED</span>
               <span class="font-bold">${up.fleetPackaged}/${fleetTotal}</span>
             </div>
           </div>
@@ -4754,6 +4750,17 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
       });
 
       container.innerHTML = html;
+    }
+
+    function nlgToggleDecalDesignDone() {
+      const b = (typeof workshopBatches !== 'undefined') ? workshopBatches.find(x => x.id === currentActiveBatchId) : null;
+      if (!b) return;
+      if (!b.unitProgress) b.unitProgress = {};
+      b.unitProgress.decalDesignDone = !b.unitProgress.decalDesignDone;
+      saveBatchesToStorage();
+      renderMasterChecklist(b);
+      renderFleetRows();
+      showToast(b.unitProgress.decalDesignDone ? 'Decal design marked ready! ✓' : 'Decal design marked pending', '🎨');
     }
 
     function openBatchDetail(batchId) {
