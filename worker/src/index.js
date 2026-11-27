@@ -35,7 +35,7 @@ export default {
       const ebay = await getEbayStatus(env);
       return jsonResp({
         status: "ok",
-        service: "Neon Llama Single-Source Studio & Chronos Engine v2.2",
+        service: "Neon Llama Single-Source Studio & Chronos Engine v2.3",
         geminiConfigured: Boolean(env.GEMINI_API_KEY),
         kvConfigured: Boolean(env.NLG_DB),
         r2Configured: Boolean(env.MEDIA_BUCKET),
@@ -44,6 +44,7 @@ export default {
         telegramConfigured: Boolean(env.TELEGRAM_BOT_TOKEN && env.TELEGRAM_CHAT_ID),
         ebayClientConfigured: ebay.clientConfigured,
         ebayOAuthReady: ebay.oauthReady,
+        ebayConnectedUser: ebay.username || null,
         gasEmailRelay: true,
         vision2Sweep: true,
         timestamp: new Date().toISOString(),
@@ -51,7 +52,7 @@ export default {
     }
 
     // -------------------------------------------------------------------------
-    // 0B. EBAY OAUTH 2.0 SETUP & ONE-OFF LIVE INVENTORY CATCH-UP
+    // 0B. EBAY OAUTH 2.0 SETUP, ACCOUNT GUARD & CLEANUP
     // -------------------------------------------------------------------------
     if (url.pathname === "/api/ebay/auth-url" && request.method === "GET") {
       try {
@@ -84,25 +85,80 @@ export default {
         if (ebay.oauthReady && (!expectedSecret || provided !== expectedSecret)) {
           return jsonResp({ success: false, error: "eBay OAuth is already locked & active." }, 403);
         }
-        await exchangeEbayAuthCode(env, code);
+        const authResult = await exchangeEbayAuthCode(env, code);
+        if (authResult.blockedWrongAccount) {
+          return new Response(
+            `<html><body style="background:#0f172a;color:#f8fafc;font-family:sans-serif;padding:40px;text-align:center;max-width:640px;margin:0 auto;">
+              <h1 style="color:#f59e0b;">⚠️ Blocked Wrong eBay Account (${authResult.username})</h1>
+              <p>Your browser automatically signed in with <strong>${authResult.username}</strong> instead of your Neon Llama Garage eBay account, so we blocked it before saving!</p>
+              <p style="background:#1e293b;padding:16px;border-radius:8px;line-height:1.6;">
+                Right-click and open <strong><code>https://neonllamagarage.com/api/ebay/auth-url</code></strong> in an <strong>Incognito / Private Window</strong> so eBay asks you to log into <strong>NeonLlamaGarage</strong>.
+              </p>
+            </body></html>`,
+            { status: 400, headers: { "Content-Type": "text/html; charset=utf-8" } }
+          );
+        }
+
         // Immediately fire Chronos catch-up in background so D-001, D-002 & B-010 list right away!
         ctx.waitUntil(
           (async () => {
             await sendTelegramAlert(
               env,
-              `🟢 *EBAY OAUTH CONNECTED*\n18-month token saved in SSoT KV — launching +72h catch-up listings now!`
+              `🟢 *EBAY OAUTH CONNECTED (${authResult.username || "NLG"})*\n18-month token saved in SSoT KV — launching +72h catch-up listings now!`
             );
             await processChronosQueue(env, { force: true });
           })()
         );
         return new Response(
           `<html><body style="background:#0f172a;color:#f8fafc;font-family:sans-serif;padding:40px;text-align:center;">
-            <h1 style="color:#22d3ee;">✅ Neon Llama Garage eBay Connected &amp; Auto-Listing Triggered!</h1>
+            <h1 style="color:#22d3ee;">✅ Connected eBay Seller: ${authResult.username || "NeonLlamaGarage"}!</h1>
             <p>Your 18-month OAuth Refresh Token is saved in Cloudflare KV (<code>NLG_DB</code>), and Chronos is now pushing <strong>D-001</strong>, <strong>D-002</strong>, and <strong>B-010</strong> to eBay ($59.99 + Free Shipping from 76052).</p>
             <p style="color:#94a3b8;font-size:14px;">Watch Telegram for your 3 live eBay links in ~10 seconds!</p>
           </body></html>`,
           { headers: { "Content-Type": "text/html; charset=utf-8" } }
         );
+      } catch (err) {
+        return jsonResp({ success: false, error: err.message }, 500);
+      }
+    }
+
+    if (url.pathname === "/api/ebay/reset-account" && request.method === "POST") {
+      try {
+        const expectedSecret = env.EBAY_ADMIN_KEY || env.EBAY_CLIENT_SECRET;
+        const provided = request.headers.get("x-admin-secret") || "";
+        if (!expectedSecret || provided !== expectedSecret) {
+          return jsonResp({ success: false, error: "Unauthorized" }, 401);
+        }
+        const batches = (await env.NLG_DB.get("batches_v1", "json")) || [];
+        const schedule = (await env.NLG_DB.get("schedule_v1", "json")) || [];
+        const endedItems = [];
+
+        for (const b of batches) {
+          if (b.ebayItemId) {
+            try {
+              const res = await endEbayListing(env, b.ebayItemId, "NotAvailable");
+              endedItems.push({ batchId: b.id, itemId: b.ebayItemId, ...res });
+            } catch (err) {
+              endedItems.push({ batchId: b.id, itemId: b.ebayItemId, error: err.message });
+            }
+            delete b.ebayItemId;
+            delete b.ebayUrl;
+            delete b.ebayStatus;
+            delete b.ebayPrice;
+            delete b.ebayListedAt;
+            delete b.ebayWindowEndsAt;
+            delete b.ebayLastAttemptAt;
+            delete b.ebayLastError;
+          }
+        }
+
+        const cleanedSchedule = schedule.filter((ev) => !(ev.phase === "ARCHIVE_SWEEP" && ev.status === "PENDING"));
+        await env.NLG_DB.put("batches_v1", JSON.stringify(batches));
+        await env.NLG_DB.put("schedule_v1", JSON.stringify(cleanedSchedule));
+        await env.NLG_DB.delete("ebay_oauth_v1");
+        await env.NLG_DB.delete("ebay_access_token_v1");
+
+        return jsonResp({ success: true, endedItems, resetComplete: true });
       } catch (err) {
         return jsonResp({ success: false, error: err.message }, 500);
       }
@@ -1424,13 +1480,16 @@ export async function getEbayStatus(env) {
   const clientId = env.EBAY_CLIENT_ID || DEFAULT_EBAY_CLIENT_ID;
   const clientConfigured = Boolean(clientId && env.EBAY_CLIENT_SECRET);
   let hasRefreshToken = Boolean(env.EBAY_REFRESH_TOKEN);
-  if (!hasRefreshToken && env.NLG_DB) {
+  let username = null;
+  if (env.NLG_DB) {
     const stored = await env.NLG_DB.get("ebay_oauth_v1", "json");
-    hasRefreshToken = Boolean(stored?.refresh_token);
+    if (stored?.refresh_token) hasRefreshToken = true;
+    if (stored?.username) username = stored.username;
   }
   return {
     clientConfigured,
     oauthReady: clientConfigured && hasRefreshToken,
+    username,
     postalCodeConfigured: true,
   };
 }
@@ -1444,8 +1503,29 @@ export function buildEbayConsentUrl(env, state = "nlg_ebay_setup") {
     redirect_uri: ruName,
     scope: EBAY_SCOPES,
     state,
+    prompt: "login",
   });
   return `${EBAY_OAUTH_AUTHORIZE_URL}?${params.toString()}`;
+}
+
+async function fetchTokenEbayUsername(accessToken) {
+  try {
+    const resp = await fetch(EBAY_TRADING_API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "text/xml; charset=utf-8",
+        "X-EBAY-API-SITEID": "0",
+        "X-EBAY-API-COMPATIBILITY-LEVEL": EBAY_COMPATIBILITY_LEVEL,
+        "X-EBAY-API-CALL-NAME": "GetUser",
+        "X-EBAY-API-IAF-TOKEN": accessToken,
+      },
+      body: `<?xml version="1.0" encoding="utf-8"?><GetUserRequest xmlns="urn:ebay:apis:eBLBaseComponents"></GetUserRequest>`,
+    });
+    const xml = await resp.text();
+    return extractXmlTag(xml, "UserID") || "";
+  } catch (_) {
+    return "";
+  }
 }
 
 export async function exchangeEbayAuthCode(env, code) {
@@ -1474,11 +1554,17 @@ export async function exchangeEbayAuthCode(env, code) {
     throw new Error(`eBay OAuth exchange failed (${resp.status}): ${JSON.stringify(data)}`);
   }
 
+  const username = await fetchTokenEbayUsername(data.access_token);
+  if (username && username.toLowerCase() === "pikes1313") {
+    return { blockedWrongAccount: true, username };
+  }
+
   const now = Date.now();
   if (env.NLG_DB) {
     await env.NLG_DB.put(
       "ebay_oauth_v1",
       JSON.stringify({
+        username: username || "NeonLlamaGarage",
         refresh_token: data.refresh_token,
         refresh_expires_at: now + (data.refresh_token_expires_in || 47304000) * 1000,
         updated_at: new Date(now).toISOString(),
@@ -1492,7 +1578,7 @@ export async function exchangeEbayAuthCode(env, code) {
       })
     );
   }
-  return data;
+  return { ...data, username };
 }
 
 export async function getValidEbayAccessToken(env) {
