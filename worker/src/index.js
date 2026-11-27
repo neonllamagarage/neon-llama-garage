@@ -35,7 +35,7 @@ export default {
       const ebay = await getEbayStatus(env);
       return jsonResp({
         status: "ok",
-        service: "Neon Llama Single-Source Studio & Chronos Engine v2.6",
+        service: "Neon Llama Single-Source Studio & Chronos Engine v2.7",
         geminiConfigured: Boolean(env.GEMINI_API_KEY),
         kvConfigured: Boolean(env.NLG_DB),
         r2Configured: Boolean(env.MEDIA_BUCKET),
@@ -393,18 +393,27 @@ export default {
 
         const r2Gallery = [];
         let promotedHero = mergedInput.heroImg || mergedInput.hero || "";
+        let driveFetchCount = 0;
+        const seenDriveIds = new Set();
+
         for (const item of candidatePhotos) {
           if (item.url.startsWith("https://media.neonllamagarage.com/")) {
             if (!r2Gallery.includes(item.url)) r2Gallery.push(item.url);
             if ((item.tag === "IMG_PKG_WHT" || item.tag === "IMG_LOOSE") && !promotedHero.startsWith("https://media.")) {
               promotedHero = item.url;
             }
-          } else if (env.MEDIA_BUCKET && item.url.includes("drive.google.com/thumbnail")) {
+          } else if (env.MEDIA_BUCKET && item.url.includes("drive.google.com/thumbnail") && driveFetchCount < 10) {
+            const idMatch = item.url.match(/[?&]id=([^&]+)/);
+            const driveId = idMatch ? idMatch[1] : item.url;
+            if (seenDriveIds.has(driveId)) continue;
+            seenDriveIds.add(driveId);
+            driveFetchCount++;
+
             try {
               const hiResUrl = item.url.replace(/sz=w\d+/, "sz=w1600");
               const imgResp = await fetch(hiResUrl);
               if (imgResp.ok && (imgResp.headers.get("content-type") || "").startsWith("image/")) {
-                const key = `${cleanSlug}_${item.tag}_${item.idx + 1}.jpg`;
+                const key = `${cleanSlug}_${item.tag}_${driveId.slice(0, 8)}.jpg`;
                 await env.MEDIA_BUCKET.put(key, await imgResp.arrayBuffer(), {
                   httpMetadata: { contentType: imgResp.headers.get("content-type") || "image/jpeg" },
                 });
@@ -868,6 +877,7 @@ export default {
         };
 
         const visionParts = [];
+        const rawImageArrays = [];
         for (const rawUrl of candidateUrls.slice(0, 3)) {
           try {
             const fetchUrl = String(rawUrl).includes("drive.google.com/thumbnail")
@@ -877,7 +887,9 @@ export default {
             const imgRes = await fetch(fetchUrl);
             const ct = imgRes.headers.get("content-type") || "image/jpeg";
             if (imgRes.ok && ct.startsWith("image/")) {
-              const b64 = arrayBufToBase64(await imgRes.arrayBuffer());
+              const buf = await imgRes.arrayBuffer();
+              if (rawImageArrays.length < 2) rawImageArrays.push(Array.from(new Uint8Array(buf)));
+              const b64 = arrayBufToBase64(buf);
               visionParts.push({ inlineData: { mimeType: ct.split(";")[0], data: b64 } });
             }
           } catch (_) {}
@@ -926,6 +938,9 @@ Return ONLY valid JSON with this exact structure:
   }
 }`;
 
+        let parsed = null;
+        let engineUsed = "gemini-2.5-flash-vision";
+
         const resp = await fetch(
           `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`,
           {
@@ -938,18 +953,54 @@ Return ONLY valid JSON with this exact structure:
           }
         );
 
-        if (!resp.ok) {
+        if (resp.ok) {
+          const gData = await resp.json();
+          const rawText = gData.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
+          const cleaned = rawText.replace(/```json/gi, "").replace(/```/gi, "").trim();
+          parsed = JSON.parse(cleaned);
+        } else if (env.AI) {
+          // Automatic zero-downtime fallback to Cloudflare Workers AI Vision + Llama 3.3 70B when Gemini spend cap hits 429!
+          engineUsed = "cloudflare-workers-ai-vision+llama-3.3-70b";
+          let visionNotes = "";
+          for (const imgArr of rawImageArrays) {
+            try {
+              const vOut = await env.AI.run("@cf/llava-hf/llava-1.5-7b-hf", {
+                image: imgArr,
+                prompt:
+                  "Describe this custom 1:64 diecast car and blister card in detail: exact body color, decal graphics/text, wheel rim color & tire lettering, window tint, and blister card illustration.",
+                max_tokens: 220,
+              });
+              if (vOut?.description) visionNotes += ` • ${vOut.description.trim()}\n`;
+            } catch (_) {}
+          }
+
+          const cfResp = await env.AI.run("@cf/meta/llama-3.3-70b-instruct-fp8-fast", {
+            messages: [
+              {
+                role: "system",
+                content: "You output ONLY valid, parseable raw JSON with no markdown code fences and no commentary.",
+              },
+              {
+                role: "user",
+                content: `${promptText}\n\n${visionNotes ? `OBSERVED PRODUCT PHOTO DETAILS:\n${visionNotes}` : ""}`,
+              },
+            ],
+            max_tokens: 2600,
+            temperature: 0.65,
+          });
+          const rawCf = typeof cfResp?.response === "string" ? cfResp.response : JSON.stringify(cfResp?.response || {});
+          const sIdx = rawCf.indexOf("{");
+          const eIdx = rawCf.lastIndexOf("}");
+          parsed = JSON.parse(sIdx !== -1 && eIdx !== -1 ? rawCf.slice(sIdx, eIdx + 1) : rawCf);
+        } else {
           const t = await resp.text();
           return jsonResp({ success: false, error: `Gemini ${resp.status}: ${t.slice(0, 200)}` }, 500);
         }
-        const gData = await resp.json();
-        const rawText = gData.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
-        const cleaned = rawText.replace(/```json/gi, "").replace(/```/gi, "").trim();
-        const parsed = JSON.parse(cleaned);
+
         if (parsed.ebayTitle && parsed.ebayTitle.length > 80) {
           parsed.ebayTitle = parsed.ebayTitle.slice(0, 80).trim();
         }
-        return jsonResp({ success: true, photosAnalyzed: visionParts.length, ...parsed });
+        return jsonResp({ success: true, engine: engineUsed, photosAnalyzed: visionParts.length, ...parsed });
       } catch (err) {
         return jsonResp({ success: false, error: err.message }, 500);
       }
