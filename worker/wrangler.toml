@@ -1,0 +1,23 @@
+name = "neon-llama-api"
+main = "src/index.js"
+compatibility_date = "2024-11-01"
+compatibility_flags = [ "nodejs_compat" ]
+account_id = "735e20df74349e1213f0929eb06f19ac"
+
+routes = [
+  { pattern = "neonllamagarage.com/api/*", zone_name = "neonllamagarage.com" }
+]
+
+[ai]
+binding = "AI"
+
+[[kv_namespaces]]
+binding = "NLG_DB"
+id = "79443b5ded504b0dbe091265c0d73ad2"
+
+[[r2_buckets]]
+binding = "MEDIA_BUCKET"
+bucket_name = "neon-llama-media"
+
+[triggers]
+crons = [ "*/15 * * * *" ]
