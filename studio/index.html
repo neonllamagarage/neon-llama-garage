@@ -1602,20 +1602,29 @@
     function handleImageError(imgEl, theme, model, color) {
       imgEl.onerror = null;
       const m = (model || '').toLowerCase();
+      const t = (theme || '').toLowerCase();
       if (m.includes('dairy')) {
-        imgEl.src = 'assets/dairy_donor_side_cutout.png';
+        if (t.includes('marbel')) {
+          imgEl.src = 'https://media.neonllamagarage.com/Marbelized_Dairy_Delivery_HERO.jpg';
+        } else {
+          imgEl.src = 'assets/neon_freeze_ice_cream_hero.png';
+        }
         return;
       }
       if (m.includes('camaro')) {
-        imgEl.src = 'assets/camaro_acid_splash.png';
+        if (t.includes('spider')) {
+          imgEl.src = 'https://media.neonllamagarage.com/Ice_Spider_14_Camaro__IMG_PKG_WHT__PXL_20260816_104255638.jpg';
+        } else {
+          imgEl.src = 'assets/camaro_pixel_glitch_hero.png';
+        }
         return;
       }
       if (m.includes('silverado')) {
-        imgEl.src = 'assets/stained_glass_83_silverado.png';
+        imgEl.src = 'https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_LOOSE_SINGLE.jpg';
         return;
       }
       if (m.includes('gasser')) {
-        imgEl.src = 'assets/stained_glass_55_gasser.png';
+        imgEl.src = 'https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_LOOSE_PXL_20260816_104313748.jpg';
         return;
       }
       if (m.includes('bug')) {
@@ -1628,7 +1637,7 @@
     const GAS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxe1WwM8zoYYR1aU4N2EcsqvAjh0PXgVzPwIh1ZnwaB4YYdfwI-fd8eJysx37lgMplHwQ/exec';
 
     // DEFAULT FLEET DATABASE
-                const defaultBatches = [
+    const defaultBatches = [
       // ROW 1: ACTIVE DROPS
       {
         id: 'D-001',
@@ -1644,7 +1653,20 @@
         carCost: 1.50,
         whlCost: 3.00,
         ovhCost: 2.00,
-        hero: 'assets/stained_glass_83_silverado.png',
+        hero: 'https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_LOOSE_SINGLE.jpg',
+        images: [
+          'https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_OTHER_PXL_20260708_001631566.jpg',
+          'https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_OTHER_PXL_20260708_010622199.jpg',
+          'https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_CHASE_P_PXL_20260708_001440542.jpg',
+          'https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_CHASE_P_PXL_20260708_010452254.jpg',
+          'https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_CHASE_P_PXL_20260708_010614929.jpg',
+          'https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_PKG_F_Stained_Glass_83_Silverado_1788780176579.jpg',
+          'https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_GROUP_PXL_20260708_010437684.jpg',
+          'https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_SET_L_PXL_20260708_001545268.jpg',
+          'https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_SET_P_PXL_20260708_010606013.jpg',
+          'https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_CHASE_L_PXL_20260701_215849992.jpg',
+          'https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_LOOSE_PXL_20260628_190929312.jpg'
+        ],
         completedSteps: [1, 2, 3, 4, 5, 6, 7, 8]
       },
       {
@@ -1661,7 +1683,26 @@
         carCost: 1.50,
         whlCost: 3.00,
         ovhCost: 2.00,
-        hero: 'assets/stained_glass_55_gasser.png',
+        hero: 'https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_LOOSE_PXL_20260816_104313748.jpg',
+        images: [
+          'https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_PKG_R_Stained_Glass_55_Gasser_1791031506000.jpg',
+          'https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_TOP_Stained_Glass_55_Gasser_PXL_20260917_192357122.jpg',
+          'https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_DCL_CU_Stained_Glass_55_Gasser_PXL_20260917_192335629.jpg',
+          'https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_PKG_GRP_Stained_Glass_55_Gasser_PXL_20260917_192056620.jpg',
+          'https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_PKG_CU_Stained_Glass_55_Gasser_PXL_20260917_192252408.jpg',
+          'https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_PKG_F_Stained_Glass_55_Gasser_PXL_20260917_191845947.jpg',
+          'https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_CHASE_P_Stained_Glass_55_Gasser_PXL_20260917_191937365.jpg',
+          'https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_OTHER_PXL_20260823_163126583.jpg',
+          'https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_OTHER_PXL_20260823_163106178.jpg',
+          'https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_PKG_WHT_PXL_20260823_162940269.jpg',
+          'https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_OTHER_PXL_20260823_162820856.jpg',
+          'https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_OTHER_PXL_20260823_162945176.jpg',
+          'https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_GROUP_PXL_20260823_163103470.jpg',
+          'https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_CHASE_L_PXL_20260816_104326413.jpg',
+          'https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_LOOSE_PXL_20260816_104313748.jpg',
+          'https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_CHASE_P_PXL_20260823_162812683.jpg',
+          'https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_SET_P_PXL_20260823_162930668.jpg'
+        ],
         completedSteps: [1, 2, 3, 4, 5, 6, 7, 8]
       },
       {
@@ -1678,7 +1719,19 @@
         carCost: 1.50,
         whlCost: 3.00,
         ovhCost: 2.00,
-        hero: 'assets/ice_spider_camaro.png',
+        hero: 'https://media.neonllamagarage.com/Ice_Spider_14_Camaro__IMG_PKG_WHT__PXL_20260816_104255638.jpg',
+        images: [
+          'https://media.neonllamagarage.com/Ice_Spider_14_Camaro__IMG_PKG_WHT__PXL_20260816_104255638.jpg',
+          'https://media.neonllamagarage.com/Ice_Spider_14_Camaro__IMG_OTHER__PXL_20260823_162659039.jpg',
+          'https://media.neonllamagarage.com/Ice_Spider_14_Camaro__IMG_OTHER__PXL_20260823_162711292.jpg',
+          'https://media.neonllamagarage.com/Ice_Spider_14_Camaro__IMG_OTHER__PXL_20260823_162718133.jpg',
+          'https://media.neonllamagarage.com/Ice_Spider_14_Camaro__IMG_PKG_R__PXL_20260823_162217462.jpg',
+          'https://media.neonllamagarage.com/Ice_Spider_14_Camaro__IMG_SET_P__PXL_20260823_162628078.jpg',
+          'https://media.neonllamagarage.com/Ice_Spider_14_Camaro__IMG_CHASE_L__PXL_20260816_104303691.jpg',
+          'https://media.neonllamagarage.com/Ice_Spider_14_Camaro__IMG_PKG_F__PXL_20260823_162642780.jpg',
+          'https://media.neonllamagarage.com/Ice_Spider_14_Camaro__IMG_GROUP__PXL_20260823_162550935.jpg',
+          'https://media.neonllamagarage.com/Ice_Spider_14_Camaro__IMG_CHASE_P__PXL_20260823_162616296.jpg'
+        ],
         completedSteps: [1, 2, 3, 4, 5, 6, 7, 8]
       },
 
@@ -1697,8 +1750,9 @@
         carCost: 1.50,
         whlCost: 3.00,
         ovhCost: 2.00,
-        hero: 'assets/camaro_acid_splash.png',
+        hero: 'assets/camaro_pixel_glitch_hero.png',
         subIdeas: [
+          { title: 'Pixel Glitch Livery (Hero Spec)', img: 'assets/camaro_pixel_glitch_hero.png' },
           { title: 'Acid Glitch Livery', img: 'assets/camaro_acid_splash.png' },
           { title: "'67 Chevy Camaro 8-Car Showcase", img: 'assets/showcase_camaro_green.jpg' },
           { title: 'Dual Angle Concept View', img: 'assets/camaro_dual_view.jpg' },
@@ -1726,12 +1780,13 @@
         carCost: 1.50,
         whlCost: 3.00,
         ovhCost: 2.00,
-        hero: 'assets/dairy_donor_side_cutout.png',
+        hero: 'assets/neon_freeze_ice_cream_hero.png',
         donorPhoto: 'assets/dairy_donor_side_cutout.png',
-        heroPhotoDataUrl: 'assets/dairy_donor_side_cutout.png',
+        heroPhotoDataUrl: 'assets/neon_freeze_ice_cream_hero.png',
         cardArtDataUrl: 'assets/neon_freeze_card_bg_art_1795718086574.jpg',
         wordmarkDataUrl: 'assets/neon_freeze_title_logo_clean.png',
         subIdeas: [
+          { title: 'Neon Freeze Ice Cream Truck', img: 'assets/neon_freeze_ice_cream_hero.png' },
           { title: 'Ice Cream Dairy Donor', img: 'assets/dairy_donor_side_cutout.png' },
           { title: 'Cyber Ice Cream Track', img: 'assets/sub_idea_dairy_track.jpg' },
           { title: 'Neon Drip Tuner', img: 'assets/sub_idea_dairy_tuner.jpg' },
@@ -1830,6 +1885,18 @@
         whlCost: 3.00,
         ovhCost: 2.00,
         hero: 'https://media.neonllamagarage.com/Marbelized_VW_Bug_IMG_LOOSE_Marbelized_VW_Bug_1788826027622.jpg',
+        images: [
+          'https://media.neonllamagarage.com/Marbelized_VW_Bug_IMG_TOP_Marbelized_VW_Bug_1788828140185.jpg',
+          'https://media.neonllamagarage.com/Marbelized_VW_Bug_IMG_PKG_WHT_Marbelized_VW_Bug_1788828095532.jpg',
+          'https://media.neonllamagarage.com/Marbelized_VW_Bug_IMG_TOP_Marbelized_VW_Bug_1788826183828.jpg',
+          'https://media.neonllamagarage.com/Marbelized_VW_Bug_IMG_DCL_CU_Marbelized_VW_Bug_1788826156527.jpg',
+          'https://media.neonllamagarage.com/Marbelized_VW_Bug_IMG_PKG_WHT_Marbelized_VW_Bug_1788826139307.jpg',
+          'https://media.neonllamagarage.com/Marbelized_VW_Bug_IMG_PKG_CU_Marbelized_VW_Bug_1788826123955.jpg',
+          'https://media.neonllamagarage.com/Marbelized_VW_Bug_IMG_LOOSE_Marbelized_VW_Bug_1788826027622.jpg',
+          'https://media.neonllamagarage.com/Marbelized_VW_Bug_IMG_PKG_WHT_Marbelized_VW_Bug_PXL_20260823_164157096.jpg',
+          'https://media.neonllamagarage.com/Marbelized_VW_Bug_IMG_PKG_CU_Marbelized_VW_Bug_PXL_20260823_164204246.jpg',
+          'https://media.neonllamagarage.com/Marbelized_VW_Bug_IMG_PKG_F_Marbelized_VW_Bug_1788825263746.jpg'
+        ],
         completedSteps: [1, 2, 3, 4, 5, 6, 7, 8]
       },
       {
@@ -1847,6 +1914,15 @@
         whlCost: 3.00,
         ovhCost: 2.00,
         hero: 'https://media.neonllamagarage.com/Marbelized_Dairy_Delivery_HERO.jpg',
+        images: [
+          'https://media.neonllamagarage.com/Marbelized_Dairy_Delivery_IMG_PKG_F_Marbelized_Dairy_Delivery_1788780604445.jpg',
+          'https://media.neonllamagarage.com/Marbelized_Dairy_Delivery_IMG_PKG_F_Marbelized_Dairy_Delivery_1788780027384.jpg',
+          'https://media.neonllamagarage.com/Marbelized_Dairy_Delivery_IMG_OTHER_Marbelized_Dairy_Delivery_1788780034098.jpg',
+          'https://media.neonllamagarage.com/Marbelized_Dairy_Delivery_IMG_PKG_WHT_PXL_20260823_164338127.jpg',
+          'https://media.neonllamagarage.com/Marbelized_Dairy_Delivery_IMG_OTHER_PXL_20260823_164350867.jpg',
+          'https://media.neonllamagarage.com/Marbelized_Dairy_Delivery_IMG_PKG_R_PXL_20260823_164344200.jpg',
+          'https://media.neonllamagarage.com/Marbelized_Dairy_Delivery_IMG_LOOSE_PXL_20260627_130053134.jpg'
+        ],
         completedSteps: [1, 2, 3, 4, 5, 6, 7, 8]
       }
     ];
@@ -1944,12 +2020,35 @@
       // Purge any [In Design Lab] / Dairy Showcase placeholder batches
       workshopBatches = workshopBatches.filter(b => b.id !== 'B-025' && b.theme !== '[In Design Lab]' && b.theme !== 'Dairy Showcase');
 
+      // SSoT LOCK: Ensure Active Drops (D-001, D-002, B-010) use authentic high-res media CDN images and have full photography gallery
+      const s1 = workshopBatches.find(b => b.id === 'D-001');
+      if (s1) {
+        s1.hero = 'https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_LOOSE_SINGLE.jpg';
+        const def = defaultBatches.find(d => d.id === 'D-001');
+        if (def && def.images) s1.images = def.images;
+      }
+      const s2 = workshopBatches.find(b => b.id === 'D-002');
+      if (s2) {
+        s2.hero = 'https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_LOOSE_PXL_20260816_104313748.jpg';
+        const def = defaultBatches.find(d => d.id === 'D-002');
+        if (def && def.images) s2.images = def.images;
+      }
+      const s3 = workshopBatches.find(b => b.id === 'B-010');
+      if (s3) {
+        s3.hero = 'https://media.neonllamagarage.com/Ice_Spider_14_Camaro__IMG_PKG_WHT__PXL_20260816_104255638.jpg';
+        const def = defaultBatches.find(d => d.id === 'B-010');
+        if (def && def.images) s3.images = def.images;
+      }
+
       // SSoT LOCK 1: Ensure B-024 (Marbelized VW Bug) is PERMANENTLY LOCKED in The Vault (Sold Out)
       const bugBatch = workshopBatches.find(b => b.id === 'B-024' || (b.model && b.model.toLowerCase().includes('bug')));
       if (bugBatch) {
         bugBatch.section = 'vault';
         bugBatch.status = 'Sold Out (10/10)';
         bugBatch.qty = '0 Available (Vaulted)';
+        bugBatch.hero = 'https://media.neonllamagarage.com/Marbelized_VW_Bug_IMG_LOOSE_Marbelized_VW_Bug_1788826027622.jpg';
+        const def = defaultBatches.find(d => d.id === 'B-024');
+        if (def && def.images) bugBatch.images = def.images;
       }
 
       // SSoT LOCK 1B: Ensure B-026 (Marbelized Dairy Delivery) is PERMANENTLY LOCKED in The Vault (Sold Out)
@@ -1959,6 +2058,8 @@
         marbleDairy.status = 'Sold Out (10/10)';
         marbleDairy.qty = '0 Available (Vaulted)';
         marbleDairy.hero = 'https://media.neonllamagarage.com/Marbelized_Dairy_Delivery_HERO.jpg';
+        const def = defaultBatches.find(d => d.id === 'B-026');
+        if (def && def.images) marbleDairy.images = def.images;
       }
 
       // SSoT LOCK 2: Ensure B-018 (Neon Freeze Ice Cream Dairy) has its hero concept, donor photo, decals, and card art
@@ -1966,12 +2067,13 @@
       if (dairyBatch) {
         dairyBatch.theme = 'Neon Freeze';
         dairyBatch.model = 'Dairy Delivery';
-        dairyBatch.hero = 'assets/dairy_donor_side_cutout.png';
+        dairyBatch.hero = 'assets/neon_freeze_ice_cream_hero.png';
         dairyBatch.donorPhoto = 'assets/dairy_donor_side_cutout.png';
-        dairyBatch.heroPhotoDataUrl = 'assets/dairy_donor_side_cutout.png';
+        dairyBatch.heroPhotoDataUrl = 'assets/neon_freeze_ice_cream_hero.png';
         dairyBatch.cardArtDataUrl = 'assets/neon_freeze_card_bg_art_1795718086574.jpg';
         dairyBatch.wordmarkDataUrl = 'assets/neon_freeze_title_logo_clean.png';
         dairyBatch.subIdeas = [
+          { title: 'Neon Freeze Ice Cream Truck', img: 'assets/neon_freeze_ice_cream_hero.png' },
           { title: 'Ice Cream Dairy Donor', img: 'assets/dairy_donor_side_cutout.png' },
           { title: 'Cyber Ice Cream Track', img: 'assets/sub_idea_dairy_track.jpg' },
           { title: 'Neon Drip Tuner', img: 'assets/sub_idea_dairy_tuner.jpg' },
@@ -1988,7 +2090,7 @@
             const oldId = currentActiveBatchId;
             currentActiveBatchId = 'B-018';
             nlgSaveCarState({
-              heroPhotoDataUrl: 'assets/dairy_donor_side_cutout.png',
+              heroPhotoDataUrl: 'assets/neon_freeze_ice_cream_hero.png',
               cardArtDataUrl: 'assets/neon_freeze_card_bg_art_1795718086574.jpg',
               wordmarkDataUrl: 'assets/neon_freeze_title_logo_clean.png',
               savedDecals: dairyBatch.savedDecals,
@@ -2000,6 +2102,7 @@
 
       // SSoT LOCK 3: Ensure B-011 (Green Camaro) is PERMANENTLY LOCKED in WIP with ALL 10 concept pictures
       const allCamaroSubIdeas = [
+        { title: 'Pixel Glitch Livery (Hero Spec)', img: 'assets/camaro_pixel_glitch_hero.png' },
         { title: 'Acid Glitch Livery', img: 'assets/camaro_acid_splash.png' },
         { title: "'67 Chevy Camaro 8-Car Showcase", img: 'assets/showcase_camaro_green.jpg' },
         { title: 'Dual Angle Concept View', img: 'assets/camaro_dual_view.jpg' },
@@ -2028,7 +2131,7 @@
           carCost: 1.50,
           whlCost: 3.00,
           ovhCost: 2.00,
-          hero: 'assets/camaro_acid_splash.png',
+          hero: 'assets/camaro_pixel_glitch_hero.png',
           subIdeas: allCamaroSubIdeas,
           completedSteps: [1, 2]
         };
@@ -2039,7 +2142,7 @@
           workshopBatches.push(camaroBatch);
         }
       } else {
-        camaroBatch.hero = 'assets/camaro_acid_splash.png';
+        camaroBatch.hero = 'assets/camaro_pixel_glitch_hero.png';
         camaroBatch.subIdeas = allCamaroSubIdeas;
       }
       if (typeof nlgSaveCarState === 'function') {
@@ -2047,7 +2150,7 @@
           const oldId = currentActiveBatchId;
           currentActiveBatchId = 'B-011';
           nlgSaveCarState({
-            heroMock: 'assets/camaro_acid_splash.png',
+            heroMock: 'assets/camaro_pixel_glitch_hero.png',
             subIdeas: allCamaroSubIdeas
           }).finally(() => { currentActiveBatchId = oldId; });
         }, 500);
@@ -2057,9 +2160,9 @@
       workshopBatches.forEach(b => {
         if (!b.hero || b.hero.includes('Blue_Banana_Dairy_Delivery_HERO') || b.hero.includes('Sugar_Crash_Dairy_Delivery_HERO')) {
           if (b.model && b.model.toLowerCase().includes('dairy')) {
-            b.hero = 'assets/dairy_donor_side_cutout.png';
+            b.hero = 'assets/neon_freeze_ice_cream_hero.png';
           } else if (b.model && b.model.toLowerCase().includes('camaro')) {
-            b.hero = 'assets/camaro_acid_splash.png';
+            b.hero = 'assets/camaro_pixel_glitch_hero.png';
           } else {
             b.hero = 'assets/showcase_purple_haze.png';
           }
@@ -4484,7 +4587,10 @@ ABSOLUTE STRICT ZERO-CAR-BODY & ZERO-SILHOUETTE CONSTRAINTS (MANDATORY):
               if (remote.desc) local.desc = remote.desc;
               if (remote.tags) local.tags = remote.tags;
               if (remote.totalStock !== undefined) local.totalStock = remote.totalStock;
-              if (remote.heroImg && !local.hero) local.hero = remote.heroImg;
+              if (Array.isArray(remote.images) && remote.images.length > 0) local.images = remote.images;
+              if (remote.heroImg && (remote.heroImg.includes('media.neonllamagarage.com') || !local.hero || local.hero.startsWith('assets/stained_glass'))) {
+                local.hero = remote.heroImg;
+              }
               mergedCount++;
             }
           });
@@ -4779,6 +4885,25 @@ ABSOLUTE STRICT ZERO-CAR-BODY & ZERO-SILHOUETTE CONSTRAINTS (MANDATORY):
       }
     }
 
+    function formatPhotoLabel(url) {
+      if (!url) return 'Studio Shot';
+      const u = url.toUpperCase();
+      if (u.includes('LOOSE_SINGLE') || u.includes('_LOOSE_')) return 'Loose Shot';
+      if (u.includes('_PKG_F_') || u.includes('PKG_F')) return 'Card Front';
+      if (u.includes('_PKG_R_') || u.includes('PKG_R')) return 'Card Back';
+      if (u.includes('_PKG_WHT_') || u.includes('PKG_WHT')) return 'White Studio';
+      if (u.includes('_CHASE_P_') || u.includes('CHASE_P')) return 'Chase Pack';
+      if (u.includes('_CHASE_L_') || u.includes('CHASE_L')) return 'Chase Loose';
+      if (u.includes('_CHASE_')) return 'Chase Variant';
+      if (u.includes('_SET_P_') || u.includes('_SET_L_') || u.includes('_SET_')) return 'Set Box';
+      if (u.includes('_GROUP_') || u.includes('PKG_GRP') || u.includes('GRP')) return 'Fleet Group';
+      if (u.includes('_TOP_')) return 'Top Down';
+      if (u.includes('_DCL_CU_') || u.includes('PKG_CU') || u.includes('CU_')) return 'Macro Close-Up';
+      if (u.includes('HERO')) return 'Hero Shot';
+      if (u.includes('DONOR') || u.includes('CUTOUT')) return 'Donor Casting';
+      return 'Physical Shot';
+    }
+
     async function nlgRenderAssetDrawer(b) {
       if (!b) return;
       const bucketConcepts = document.getElementById('assetBucketConcepts');
@@ -4897,21 +5022,45 @@ ABSOLUTE STRICT ZERO-CAR-BODY & ZERO-SILHOUETTE CONSTRAINTS (MANDATORY):
         }
       }
 
-      // 4. PHOTOGRAPHY / PHYSICAL DONOR CAR BUCKET
+      // 4. PHOTOGRAPHY / PHYSICAL DONOR & MULTI-SHOT GALLERY BUCKET
       if (bucketPhotos) {
-        const photo = st?.heroPhotoDataUrl || b.donorPhoto || b.heroPhoto || (String(b.model || '').toLowerCase().includes('dairy') ? 'assets/dairy_donor_side_cutout.png' : null);
-        if (photo) {
-          allVaultAssets.push({ label: 'Physical Car Photo', type: 'GLORY PHOTO', image: photo });
+        const photoList = [];
+        // Gather full photography array from GAS catalog / b.images
+        if (Array.isArray(b.images) && b.images.length > 0) {
+          b.images.forEach((imgUrl, idx) => {
+            if (imgUrl && typeof imgUrl === 'string') {
+              const label = formatPhotoLabel(imgUrl);
+              photoList.push({ label: `${label} #${idx + 1}`, type: 'CATALOG PHOTO', image: imgUrl });
+            }
+          });
+        }
+        // Include physical donor photo if defined
+        const donor = b.donorPhoto || (String(b.model || '').toLowerCase().includes('dairy') ? 'assets/dairy_donor_side_cutout.png' : null);
+        if (donor && !photoList.some(p => p.image === donor)) {
+          photoList.push({ label: 'Donor Casting', type: 'PHYSICAL DONOR', image: donor });
+        }
+        // Include user camera capture or hero photo
+        const camShot = st?.heroPhotoDataUrl || b.heroPhoto;
+        if (camShot && !photoList.some(p => p.image === camShot)) {
+          photoList.unshift({ label: 'Glory Shot (Cam)', type: 'GLORY SHOT', image: camShot });
+        }
+
+        if (photoList.length > 0) {
+          photoList.forEach(p => allVaultAssets.push(p));
           bucketPhotos.innerHTML = `
-            <div class="h-20 rounded bg-slate-900 border border-slate-800 hover:border-yellow-500/50 overflow-hidden relative cursor-zoom-in group p-1 flex flex-col justify-between" onclick="openImageLightbox('${photo}', '${(b.theme + ' — Physical Car').replace(/'/g, "\'")}')">
-              <img src="${photo}" class="w-full h-14 object-contain group-hover:scale-105 transition" />
-              <div class="flex items-center justify-between text-[8px] font-mono text-slate-400">
-                <span class="truncate max-w-[80px] text-yellow-300 font-bold">Physical Donor</span>
-                <a href="${photo}" download="${(b.theme + '_physical_donor').toLowerCase().replace(/[^a-z0-9]+/g, '_')}.png" onclick="event.stopPropagation()" class="text-yellow-400 hover:text-white" title="Download">⬇</a>
-              </div>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-1.5 max-h-56 overflow-y-auto pr-1">
+              ${photoList.map(item => `
+                <div class="h-20 rounded bg-slate-900 border border-slate-800 hover:border-yellow-500/50 overflow-hidden relative cursor-zoom-in group p-1 flex flex-col justify-between" onclick="openImageLightbox('${item.image}', '${(b.theme + ' — ' + item.label).replace(/'/g, "\'")}')">
+                  <img src="${item.image}" onerror="handleImageError(this, '${b.theme}', '${b.model}', '${b.color}')" class="w-full h-14 object-contain group-hover:scale-105 transition" />
+                  <div class="flex items-center justify-between text-[8px] font-mono text-slate-400">
+                    <span class="truncate max-w-[65px] text-yellow-300 font-bold">${item.label}</span>
+                    <a href="${item.image}" download="${(b.theme + '_' + item.label).toLowerCase().replace(/[^a-z0-9]+/g, '_')}.jpg" onclick="event.stopPropagation()" class="text-yellow-400 hover:text-white" title="Download">⬇</a>
+                  </div>
+                </div>
+              `).join('')}
             </div>
             <div class="flex items-center justify-between pt-1">
-              <span class="text-[9px] text-yellow-400 font-mono font-bold">1 Shot • 7 To Decal</span>
+              <span class="text-[9px] text-yellow-400 font-mono font-bold">${photoList.length} Physical Photo${photoList.length > 1 ? 's' : ''} Mapped</span>
               <button type="button" onclick="openLlamaCamModal()" class="text-[9px] text-yellow-300 underline">Llama Cam ↗</button>
             </div>
           `;
@@ -6100,7 +6249,8 @@ ABSOLUTE STRICT ZERO-CAR-BODY & ZERO-SILHOUETTE CONSTRAINTS (MANDATORY):
           data.batches.forEach(lb => {
             const existing = workshopBatches.find(x => x.id === lb.id);
             if (existing) {
-              if (lb.heroImg && lb.heroImg.startsWith('http')) existing.hero = lb.heroImg;
+              if (Array.isArray(lb.images) && lb.images.length > 0) existing.images = lb.images;
+              if (lb.heroImg && lb.heroImg.includes('media.neonllamagarage.com')) existing.hero = lb.heroImg;
               existing.price = lb.minPrice || 50;
               existing.qty = (lb.totalStock || 0) + ' In Stock';
             }
