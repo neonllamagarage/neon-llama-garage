@@ -1057,6 +1057,19 @@
                 🖨️ GENERATE PRINT-READY DECALS →
               </button>
             </div>
+
+            <!-- TEXT / SYMMETRY MODE SELECTOR (EUFYMAKE FLIP OPTIMIZATION) -->
+            <div class="flex items-center justify-between flex-wrap gap-2 pt-1 border-t border-slate-800/80">
+              <label class="flex items-center gap-2 cursor-pointer select-none">
+                <input type="checkbox" id="decalHasTextToggle" onchange="nlgToggleDecalTextMode()" class="w-4 h-4 rounded bg-black border-slate-700 text-pink-500 focus:ring-0 cursor-pointer" />
+                <span id="decalTextModeLabel" class="text-xs font-orbitron font-bold text-emerald-400">
+                  ✨ NO TEXT / PURE GRAPHIC: 1 Master Side Decal (Flip in eufyMake • No 2nd Download)
+                </span>
+              </label>
+              <span class="text-[10px] font-mono text-slate-500">
+                1 Master Flank + 1 Roof • Halves AI calls & eliminates duplicate files
+              </span>
+            </div>
           </div>
         </div>
 
@@ -4064,15 +4077,30 @@
       });
     }
 
+    function nlgToggleDecalTextMode() {
+      const toggle = document.getElementById('decalHasTextToggle');
+      const label = document.getElementById('decalTextModeLabel');
+      if (!toggle || !label) return;
+      if (toggle.checked) {
+        label.innerText = '🔤 LIVERY HAS DIRECTIONAL TEXT: Generate Distinct Left & Right Sides';
+        label.className = 'text-xs font-orbitron font-bold text-pink-400';
+      } else {
+        label.innerText = '✨ NO TEXT / PURE GRAPHIC: 1 Master Side Decal (Flip in eufyMake • No 2nd Download)';
+        label.className = 'text-xs font-orbitron font-bold text-emerald-400';
+      }
+    }
+
     function buildPureFlatDecalPrompt(panelKey, panelLabel, casting, winVar, feedback, hasDriverRef = false) {
       const fbText = feedback ? `USER DIRECT TWEAK REQUEST: "${feedback}".` : '';
       let layoutSpec = '';
-      if (panelKey === 'side_driver') {
-        layoutSpec = `DRIVER SIDE (LEFT) FLOW GRAPHIC BANNER:
-- Full continuous horizontal 2D livery graphic strip / pattern flow for the car's driver flank.
+      if (panelKey === 'side_master' || panelKey === 'side_driver') {
+        const isMaster = (panelKey === 'side_master');
+        layoutSpec = `${isMaster ? 'MASTER SIDE LIVERY GRAPHIC BANNER (FLIP IN EUFYMAKE FOR OPPOSITE FLANK)' : 'DRIVER SIDE (LEFT) FLOW GRAPHIC BANNER'}:
+- Full continuous horizontal 2D livery graphic strip / pattern flow for the car's side profile.
 - Directional flow: Front of vehicle starts on the LEFT, sweeping and flowing back towards the TAIL on the RIGHT.
 - LET IT FLOW: Create a solid, rich, continuous street-art / livery design pattern (speedlines, tech patterns, graffiti, splatter, geometric motifs) that flows edge-to-edge.
-- NO CAR PROFILE CUTOUTS: Do NOT cut out wheel wells, wheel arches, or windows. Do NOT leave hollow circular bites or gaping holes in the artwork! Let the graphic artwork flow continuous and unbroken across the horizontal banner so it wraps cleanly.`;
+- NO CAR PROFILE CUTOUTS: Do NOT cut out wheel wells, wheel arches, or windows. Do NOT leave hollow circular bites or gaping holes in the artwork! Let the graphic artwork flow continuous and unbroken across the horizontal banner so it wraps cleanly.
+- PURE GRAPHIC / PATTERN ART ONLY: Zero text, zero fake words, zero random letters. This master decal will be horizontally mirrored directly in eufyMake for the opposite side.`;
       } else if (panelKey === 'side_passenger') {
         layoutSpec = `PASSENGER SIDE (RIGHT) FLOW GRAPHIC BANNER:
 - Full continuous horizontal 2D livery graphic strip / pattern flow for the car's passenger flank.
@@ -4113,11 +4141,18 @@ CORE LIVERY & PRODUCTION RULES:
       const grid = document.getElementById("finalDecalsGrid");
       if (!grid) return;
 
-      // Build list of active print panels from Step 1 toggles
-      const panels = [
-        { key: 'side_driver', label: 'DRIVER SIDE (LEFT)', mode: activePrintZones.side },
-        { key: 'side_passenger', label: 'PASSENGER SIDE (RIGHT)', mode: activePrintZones.side }
-      ];
+      const hasText = document.getElementById("decalHasTextToggle")?.checked || false;
+
+      // Build list of active print panels: If NO text (standard), only 1 Master Side Decal is generated (flip in eufyMake, 0 redundant downloads)
+      const panels = [];
+      if (!hasText) {
+        panels.push({ key: 'side_master', label: 'MASTER SIDE LIVERY (FLIP IN EUFYMAKE)', mode: activePrintZones.side });
+      } else {
+        panels.push(
+          { key: 'side_driver', label: 'DRIVER SIDE (LEFT)', mode: activePrintZones.side },
+          { key: 'side_passenger', label: 'PASSENGER SIDE (RIGHT)', mode: activePrintZones.side }
+        );
+      }
       if (activePrintZones.roof !== 'off') panels.push({ key: 'roof', label: 'ROOF PANEL (TOP-DOWN)', mode: activePrintZones.roof });
       if (activePrintZones.hood !== 'off') panels.push({ key: 'hood', label: 'HOOD PANEL (TOP-DOWN)', mode: activePrintZones.hood });
       if (activePrintZones.trunk !== 'off') panels.push({ key: 'trunk', label: 'TRUNK / TAILGATE PANEL', mode: activePrintZones.trunk });
@@ -4141,7 +4176,7 @@ CORE LIVERY & PRODUCTION RULES:
             </div>
             <div id="decalPreview_${p.key}" class="w-full h-52 rounded-xl border border-slate-700 flex flex-col items-center justify-center p-3 text-center space-y-2" style="background-image: linear-gradient(45deg, #1e293b 25%, transparent 25%), linear-gradient(-45deg, #1e293b 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #1e293b 75%), linear-gradient(-45deg, transparent 75%, #1e293b 75%); background-size: 16px 16px; background-position: 0 0, 0 8px, 8px -8px, -8px 0px; background-color: #0f172a;">
               <div class="w-8 h-8 rounded-full border-2 border-emerald-400 border-t-pink-500 animate-spin"></div>
-              <span class="text-[10px] font-mono text-emerald-300">${p.key === 'side_driver' ? 'GENERATING ISOLATED DRIVER DECAL...' : 'EXTRACTING PANEL ARTWORK...'}</span>
+              <span class="text-[10px] font-mono text-emerald-300">${p.key === 'side_master' ? 'GENERATING 1 MASTER SIDE DECAL...' : p.key === 'side_driver' ? 'GENERATING ISOLATED DRIVER DECAL...' : 'EXTRACTING PANEL ARTWORK...'}</span>
             </div>
           </div>
           <div id="decalActions_${p.key}" class="flex items-center gap-2 text-[10px] font-mono text-slate-500">
@@ -4151,24 +4186,22 @@ CORE LIVERY & PRODUCTION RULES:
         grid.appendChild(card);
       });
 
-      // 1. Generate Driver Side FIRST (anchored to 3D vehicle concept)
-      const driverPanel = generatedFinalDecals.find(x => x.key === 'side_driver');
-      if (driverPanel) {
-        await renderSingleDecalPanel(driverPanel, casting, winVar, feedback, baseRefs);
+      // 1. Generate Primary Side Decal FIRST (anchored to 3D vehicle concept)
+      const primarySidePanel = generatedFinalDecals.find(x => x.key === 'side_master' || x.key === 'side_driver');
+      if (primarySidePanel) {
+        await renderSingleDecalPanel(primarySidePanel, casting, winVar, feedback, baseRefs);
       }
 
-      // 2. PASSENGER SIDE: In diecast livery production, the passenger side is the horizontal mirror of the driver side (0¢, instant, 100% identical pattern match, properly oriented nose-to-right / tail-to-left)!
-      const passPanel = generatedFinalDecals.find(x => x.key === 'side_passenger');
-      if (passPanel && driverPanel && driverPanel.cmykPng) {
-        const processed = await processPureFlatDecalImage(driverPanel.cmykPng, true);
-        passPanel.cmykPng = processed.transparentPng;
-        passPanel.underbasePng = processed.underbasePng;
-        passPanel.rawImg = processed.transparentPng;
-        updateDecalCardUI(passPanel, casting);
+      // 2. PASSENGER SIDE: ONLY when livery has text! When no text, Derek flips in eufyMake (0 extra AI calls, 0 extra downloads).
+      if (hasText) {
+        const passPanel = generatedFinalDecals.find(x => x.key === 'side_passenger');
+        if (passPanel) {
+          await renderSingleDecalPanel(passPanel, casting, winVar, feedback, baseRefs);
+        }
       }
 
-      // 3. Generate Roof & Hood referencing ONLY the original 3D concept car (NEVER driver side decal, preventing identical clone bug!)
-      const topPanels = generatedFinalDecals.filter(x => x.key !== 'side_driver' && x.key !== 'side_passenger');
+      // 3. Generate Roof & Hood referencing ONLY the original 3D concept car
+      const topPanels = generatedFinalDecals.filter(x => x.key !== 'side_master' && x.key !== 'side_driver' && x.key !== 'side_passenger');
 
       const parallelTasks = [];
       topPanels.forEach(p => {
@@ -4278,23 +4311,25 @@ CORE LIVERY & PRODUCTION RULES:
         previewEl.innerHTML = `
           <img src="${p.cmykPng}" alt="${p.label}" class="max-w-full max-h-48 object-contain drop-shadow-lg transition group-hover:scale-105">
           <span class="absolute top-2 right-2 px-1.5 py-0.5 rounded bg-black/80 border border-cyan-500/50 text-[9px] font-mono text-cyan-300">🔍 Zoom</span>
-          <span class="absolute bottom-2 left-2 px-1.5 py-0.5 rounded bg-black/80 border border-emerald-500/50 text-[9px] font-mono text-emerald-300">✓ TRANSPARENT PNG</span>
+          <span class="absolute bottom-2 left-2 px-2 py-0.5 rounded bg-emerald-950/90 border border-emerald-500/50 text-[9px] font-mono font-bold text-emerald-300">
+            ${p.key === 'side_master' ? '✓ MASTER SIDE • FLIP IN EUFYMAKE' : '✓ TRANSPARENT PNG'}
+          </span>
         `;
       }
 
       if (actionsEl) {
         actionsEl.innerHTML = `
-          <a href="${p.cmykPng}" download="${safeName}_CMYK_transparent.png" class="flex-1 py-2 text-center rounded-lg bg-emerald-600/30 hover:bg-emerald-500/40 border border-emerald-500/50 text-emerald-200 font-orbitron font-bold text-[10px] transition">
+          <a href="${p.cmykPng}" download="${safeName}_CMYK_transparent.png" class="flex-1 py-2 text-center rounded-lg bg-emerald-600/30 hover:bg-emerald-500/40 border border-emerald-500/50 text-emerald-200 font-orbitron font-bold text-[10px] transition" title="Download Transparent CMYK Decal">
             ⬇ CMYK
           </a>
-          <a href="${p.underbasePng}" download="${safeName}_WHITE_UNDERBASE.png" class="flex-1 py-2 text-center rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white font-orbitron font-bold text-[10px] transition">
+          <a href="${p.underbasePng}" download="${safeName}_WHITE_UNDERBASE.png" class="flex-1 py-2 text-center rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white font-orbitron font-bold text-[10px] transition" title="Download Solid White Underbase">
             ⬇ WHITE
           </a>
           <button type="button" onclick="openImageLightbox('${p.underbasePng}', '${p.label} — 100% Solid White Underbase')" class="px-2 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 text-[10px]" title="Inspect White Underbase">
             👁️
           </button>
-          <button type="button" onclick="flipSingleDecalHorizontal('${p.key}')" class="px-2 py-2 rounded-lg bg-cyan-950/80 hover:bg-cyan-700 border border-cyan-500/50 text-cyan-200 text-[10px]" title="Flip This Panel Horizontally (0¢)">
-            ↔
+          <button type="button" onclick="flipSingleDecalHorizontal('${p.key}')" class="px-2.5 py-2 rounded-lg bg-cyan-950/80 hover:bg-cyan-700 border border-cyan-500/50 text-cyan-200 font-mono text-[10px] flex items-center gap-1" title="Flip Horizontally (Preview eufyMake Mirror)">
+            <span>↔</span> Flip Preview
           </button>
           ${(p.key === 'side_driver' || p.key === 'side_passenger') ? `<button type="button" onclick="copyMirrorToOppositeSide('${p.key}')" class="px-2 py-2 rounded-lg bg-purple-950/80 hover:bg-purple-700 border border-purple-500/50 text-purple-200 text-[10px]" title="Copy & Mirror this clean side to the opposite side (0¢ — 100% exact match!)">🪞</button>` : ''}
           <button type="button" onclick="regenerateSingleDecal('${p.key}')" class="px-2 py-2 rounded-lg bg-pink-950/80 hover:bg-pink-800 border border-pink-500/50 text-pink-200 text-[10px]" title="Regenerate Just This Panel">
@@ -4328,7 +4363,12 @@ CORE LIVERY & PRODUCTION RULES:
           document.body.removeChild(a2);
         }, i * 350);
       });
-      showToast(`Exporting ${ready.length * 2} print-ready PNG files (CMYK + White Underbase)!`, '📦');
+      const isMasterOnly = ready.some(p => p.key === 'side_master');
+      if (isMasterOnly) {
+        showToast(`Exporting ${ready.length * 2} print-ready PNG files (Master Side for eufyMake flip + Top Surfaces)!`, '📦');
+      } else {
+        showToast(`Exporting ${ready.length * 2} print-ready PNG files (CMYK + White Underbase)!`, '📦');
+      }
     }
 
     // =========================================================================
