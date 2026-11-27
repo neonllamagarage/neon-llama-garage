@@ -35,7 +35,7 @@ export default {
       const ebay = await getEbayStatus(env);
       return jsonResp({
         status: "ok",
-        service: "Neon Llama Single-Source Studio & Chronos Engine v2.4",
+        service: "Neon Llama Single-Source Studio & Chronos Engine v2.5",
         geminiConfigured: Boolean(env.GEMINI_API_KEY),
         kvConfigured: Boolean(env.NLG_DB),
         r2Configured: Boolean(env.MEDIA_BUCKET),
@@ -287,6 +287,9 @@ export default {
         const body = await request.json();
         if (!Array.isArray(body.batches)) return jsonResp({ success: false, error: "batches array required" }, 400);
         await env.NLG_DB.put("batches_v1", JSON.stringify(body.batches));
+        if (env.STRIPE_SECRET_KEY) {
+          ctx.waitUntil(syncAllActiveStripeCaps(env.STRIPE_SECRET_KEY, body.batches));
+        }
         return jsonResp({ success: true, count: body.batches.length });
       } catch (err) {
         return jsonResp({ success: false, error: err.message }, 500);
@@ -773,6 +776,7 @@ Return ONLY valid JSON with this exact structure:
   "tags": "10 comma-separated SEO keywords",
   "socialCopy": {
     "teaser": { "ig": "T-72h moody macro teaser caption w/ hashtags", "fb": "FB teaser post", "x": "Punchy X teaser (<260 chars)", "tt": "TikTok hook caption", "ytTitle": "YT Shorts Teaser Title (<70 chars)", "ytDesc": "YT Shorts description" },
+    "process": { "ig": "T-48h workshop custom build / UV decal / Real Riders ASMR caption w/ hashtags", "fb": "FB behind-the-build process post", "x": "Punchy X build process post (<260 chars)", "tt": "TikTok custom Hot Wheels build ASMR caption", "ytTitle": "YT Shorts Custom Build Process Title (<70 chars)", "ytDesc": "YT Shorts build description" },
     "reveal": { "ig": "T-24h full 360 reveal + blister card drop tomorrow 7PM caption", "fb": "FB reveal post", "x": "X 24h reveal (<260 chars)", "tt": "TikTok reveal caption", "ytTitle": "YT Shorts Reveal Title (<70 chars)", "ytDesc": "YT Shorts reveal description" },
     "launch": { "ig": "LIVE NOW in the Vault! Link in bio / neonllamagarage.com caption", "fb": "FB LIVE NOW launch post with neonllamagarage.com", "x": "X LIVE NOW post (<260 chars)", "tt": "TikTok LIVE NOW caption", "ytTitle": "YT Shorts Launch Title (<70 chars)", "pinTitle": "Pinterest Pin Title", "pinDesc": "Pinterest SEO description" }
   }
@@ -950,23 +954,31 @@ async function createHardCappedStripePaymentLink(stripeKey, { batchId, title, pr
 }
 
 // =============================================================================
-// HELPER: DEACTIVATE STRIPE PAYMENT LINK WHEN EBAY SELLS FINAL UNIT
+// HELPER: ENFORCE EXACT REMAINING-STOCK HARD CAP ON STRIPE PAYMENT LINKS
 // =============================================================================
-async function deactivateStripeLinkForBatch(stripeKey, batch) {
+async function syncStripeCapForBatch(stripeKey, batch, prefetchedLinks = null) {
   if (!stripeKey || !batch?.stripeLink) return;
   try {
     const cleanTarget = batch.stripeLink.split("?")[0];
-    const listResp = await fetch("https://api.stripe.com/v1/payment_links?active=true&limit=100", {
-      headers: { Authorization: `Bearer ${stripeKey}` },
-    });
-    if (!listResp.ok) return;
-    const listData = await listResp.json();
-    const match = (listData.data || []).find(
+    let links = prefetchedLinks;
+    if (!links) {
+      const listResp = await fetch("https://api.stripe.com/v1/payment_links?active=true&limit=100", {
+        headers: { Authorization: `Bearer ${stripeKey}` },
+      });
+      if (!listResp.ok) return;
+      const listData = await listResp.json();
+      links = listData.data || [];
+    }
+
+    const match = links.find(
       (pl) =>
         pl.metadata?.batchId === batch.id ||
         (pl.url && pl.url.split("?")[0] === cleanTarget)
     );
-    if (match?.id) {
+    if (!match?.id) return;
+
+    const remaining = Math.max(0, parseInt(batch.totalStock ?? 0, 10) || 0);
+    if (remaining <= 0 || batch.section === "vault" || batch.status === "Sold") {
       await fetch(`https://api.stripe.com/v1/payment_links/${match.id}`, {
         method: "POST",
         headers: {
@@ -975,16 +987,62 @@ async function deactivateStripeLinkForBatch(stripeKey, batch) {
         },
         body: "active=false",
       });
+      return;
+    }
+
+    // Count already-completed checkout sessions on this Payment Link so total limit = completed + remaining!
+    let completedCount = 0;
+    const sessResp = await fetch(
+      `https://api.stripe.com/v1/checkout/sessions?payment_link=${encodeURIComponent(match.id)}&status=complete&limit=100`,
+      { headers: { Authorization: `Bearer ${stripeKey}` } }
+    );
+    if (sessResp.ok) {
+      const sessData = await sessResp.json();
+      completedCount = Array.isArray(sessData.data) ? sessData.data.length : 0;
+    }
+
+    const newLimit = Math.max(1, completedCount + remaining);
+    const params = new URLSearchParams({
+      "restrictions[completed_sessions][limit]": String(newLimit),
+      "metadata[batchId]": String(batch.id),
+    });
+
+    await fetch(`https://api.stripe.com/v1/payment_links/${match.id}`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${stripeKey}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: params.toString(),
+    });
+  } catch (_) {}
+}
+
+async function syncAllActiveStripeCaps(stripeKey, batches) {
+  if (!stripeKey || !Array.isArray(batches)) return;
+  try {
+    const listResp = await fetch("https://api.stripe.com/v1/payment_links?active=true&limit=100", {
+      headers: { Authorization: `Bearer ${stripeKey}` },
+    });
+    if (!listResp.ok) return;
+    const listData = await listResp.json();
+    const links = listData.data || [];
+    for (const b of batches) {
+      if (b.stripeLink && (b.section === "active" || b.section === "vault")) {
+        await syncStripeCapForBatch(stripeKey, b, links);
+      }
     }
   } catch (_) {}
 }
 
 // =============================================================================
-// HELPER: VISION 2.0 SOLD-OUT SOCIAL CELEBRATION BLAST
+// HELPER: VISION 2.0 SOLD-OUT SOCIAL CELEBRATION BLAST (LEGACY + V2 MAKE KEYS)
 // =============================================================================
 async function fireSoldOutSocialBlast(env, soldBatch) {
   if (!env.MAKE_WEBHOOK_URL || !soldBatch) return;
   const soldOutText = `🏛️ OFFICIALLY SOLD OUT! Every single 1-of-${soldBatch.plannedTotal || 10} "${soldBatch.theme}" ${soldBatch.model} has been claimed and locked in The Vault forever. Huge thank you to our collectors—make sure you're on the VIP list at neonllamagarage.com so you don't miss Friday's drop! 🦙🔥 #neonllamagarage #soldout #hotwheelscustom`;
+  const xText = soldOutText.slice(0, 275);
+  const heroMedia = soldBatch.heroImg || soldBatch.hero || "";
   try {
     await fetch(env.MAKE_WEBHOOK_URL, {
       method: "POST",
@@ -997,9 +1055,20 @@ async function fireSoldOutSocialBlast(env, soldBatch) {
         phase: "SOLD_OUT",
         postType: 5,
         mediaType: "image",
-        mediaUrl: soldBatch.heroImg || soldBatch.hero || "",
+        mediaUrl: heroMedia,
+        carouselStack: Array.isArray(soldBatch.images) ? soldBatch.images.slice(0, 6) : [],
+        flashbackUrl: "",
         storeUrl: "https://neonllamagarage.com",
-        copy: { ig: soldOutText, fb: soldOutText, x: soldOutText.slice(0, 275), tt: soldOutText },
+        storeLink: "https://neonllamagarage.com",
+        igCopy: soldOutText,
+        fbCopy: soldOutText,
+        xCopy: xText,
+        ttCopy: soldOutText,
+        ytTitle: `SOLD OUT: "${soldBatch.theme}" ${soldBatch.model} Custom 1/64 #Shorts`.slice(0, 70),
+        ytDesc: soldOutText,
+        pinTitle: `SOLD OUT — Neon Llama Garage "${soldBatch.theme}" ${soldBatch.model}`,
+        pinDesc: soldOutText,
+        copy: { ig: soldOutText, fb: soldOutText, x: xText, tt: soldOutText },
       }),
     });
   } catch (_) {}
@@ -1059,7 +1128,7 @@ async function syncActiveEbayOrders(env, batches, now) {
       batch.soldOutAt = new Date(now).toISOString();
       batch.ebayStatus = "ENDED_SOLDOUT";
 
-      await deactivateStripeLinkForBatch(env.STRIPE_SECRET_KEY, batch);
+      await syncStripeCapForBatch(env.STRIPE_SECRET_KEY, batch);
       await endEbayListing(env, batch.ebayItemId, "NotAvailable").catch(() => {});
       await fireSoldOutSocialBlast(env, batch);
 
@@ -1068,6 +1137,9 @@ async function syncActiveEbayOrders(env, batches, now) {
         `💰 *EBAY SALE — FINAL UNIT SOLD OUT!* (${batch.id})\n*${batch.theme} — ${batch.model}*\n• Buyer: ${sale.buyerUserId} (${sale.shipTo || "US"})\n• Paid: $${sale.amountPaid || batch.ebayPrice || "59.99"}\n• Remaining Stock: *0*\n🏛️ *Auto-vaulted on NLG.com & Stripe link deactivated!*`
       );
     } else {
+      // Immediately lower Stripe's hard session cap to match the new lower physical count!
+      await syncStripeCapForBatch(env.STRIPE_SECRET_KEY, batch);
+
       const windowOpen = !batch.ebayWindowEndsAt || now < new Date(batch.ebayWindowEndsAt).getTime();
       let dripNote = "• 18-day eBay window elapsed — keeping remaining stock on NLG.com only.";
 
@@ -1095,7 +1167,7 @@ async function syncActiveEbayOrders(env, batches, now) {
 
       await sendTelegramAlert(
         env,
-        `💰 *EBAY SALE CONFIRMED!* (${batch.id})\n*${batch.theme} — ${batch.model}*\n• Buyer: ${sale.buyerUserId} (${sale.shipTo || "US"})\n• Paid: $${sale.amountPaid || batch.ebayPrice || "59.99"} (Qty: ${sale.qtyPurchased})\n• Remaining Stock: *${remaining}*\n${dripNote}`
+        `💰 *EBAY SALE CONFIRMED!* (${batch.id})\n*${batch.theme} — ${batch.model}*\n• Buyer: ${sale.buyerUserId} (${sale.shipTo || "US"})\n• Paid: $${sale.amountPaid || batch.ebayPrice || "59.99"} (Qty: ${sale.qtyPurchased})\n• Remaining Stock: *${remaining}* (Stripe cap synced)\n${dripNote}`
       );
     }
   }
@@ -1378,6 +1450,11 @@ async function processChronosQueue(env, { force = false } = {}) {
         env.MAKE_WEBHOOK_URL
       ) {
         const postTypeMap = { TEASER: 1, PROCESS: 2, REVEAL: 3, OMNI_LAUNCH: 4, FLASHBACK: 6 };
+        const cp = ev.copy || {};
+        const targetStoreLink =
+          ev.phase === "OMNI_LAUNCH" && ev.stripeLink
+            ? ev.stripeLink
+            : `https://neonllamagarage.com/#${ev.batchId}`;
         const makeResp = await fetch(env.MAKE_WEBHOOK_URL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -1390,17 +1467,44 @@ async function processChronosQueue(env, { force = false } = {}) {
             postType: postTypeMap[ev.phase] || 4,
             mediaType: String(ev.mediaUrl || "").endsWith(".mp4") ? "video" : "image",
             mediaUrl: ev.mediaUrl || "",
+            carouselStack: Array.isArray(batch?.images) ? batch.images.slice(0, 6) : [],
+            flashbackUrl: ev.phase === "FLASHBACK" ? ev.mediaUrl || "" : "",
             stripeLink: ev.stripeLink || "",
             storeUrl: "https://neonllamagarage.com",
-            copy: ev.copy || {},
+            storeLink: targetStoreLink,
+            igCopy: cp.ig || "",
+            fbCopy: cp.fb || "",
+            xCopy: cp.x || "",
+            ttCopy: cp.tt || "",
+            ytTitle: cp.ytTitle || `${ev.theme} ${ev.model} Custom 1/64 #Shorts`.slice(0, 70),
+            ytDesc: cp.ytDesc || cp.ig || "",
+            pinTitle: cp.pinTitle || `Neon Llama Garage "${ev.theme}" ${ev.model} 1/64 Custom`,
+            pinDesc: cp.pinDesc || cp.fb || cp.ig || "",
+            copy: cp,
           }),
         });
         if (!makeResp.ok) throw new Error(`Make.com HTTP ${makeResp.status}`);
       } else if (ev.phase === "T-1h_VIP") {
         const crm = (await env.NLG_DB.get("crm_v1", "json")) || [];
+        const emails = crm.map((x) => x.email).filter(Boolean);
+        if (emails.length > 0) {
+          await fetch(LEGACY_GAS_EMAIL_RELAY, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify({
+              type: "vip_blast",
+              template: "VIP_Early_Access",
+              batchId: ev.batchId,
+              title: ev.title || `${ev.theme} ${ev.model}`,
+              link: ev.stripeLink || `https://neonllamagarage.com/#${ev.batchId}`,
+              heroImg: ev.heroImg || batch?.hero || "",
+              recipients: emails,
+            }),
+          }).catch(() => {});
+        }
         await sendTelegramAlert(
           env,
-          `👑 *T-1h VIP EARLY ACCESS WINDOW*\n*${ev.batchId}: ${ev.theme} (${ev.model})*\n• VIP List: ${crm.length} Collectors\n• Checkout: ${ev.stripeLink || "https://neonllamagarage.com"}`
+          `👑 *T-1h VIP EARLY ACCESS WINDOW*\n*${ev.batchId}: ${ev.theme} (${ev.model})*\n• VIP List Emailed: ${emails.length} Collectors\n• Checkout: ${ev.stripeLink || "https://neonllamagarage.com"}`
         );
       } else if (ev.phase === "MARKETPLACE_SYNC") {
         if (!batch) throw new Error(`Batch ${ev.batchId} not found in batches_v1`);
