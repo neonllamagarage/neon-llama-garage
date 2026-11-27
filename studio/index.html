@@ -326,6 +326,14 @@
               <button type="button" id="btnAssetViewBuckets" onclick="nlgToggleAssetMatrixView('buckets')" class="px-2.5 py-1 rounded-md text-slate-400 hover:text-white transition">📦 4 Buckets</button>
             </div>
 
+            <!-- HIDDEN DIRECT SLOT DRIVE UPLOADER -->
+            <input type="file" id="directDriveSlotFileInput" accept="image/*,video/*" class="hidden" onchange="nlgHandleDirectDriveSlotFile(event)">
+
+            <!-- SYNC STUDIO ASSETS TO GOOGLE DRIVE (DirectMediaUpload) -->
+            <button type="button" id="btnSyncCarToDrive" onclick="nlgSyncCurrentCarAssetsToDrive()" class="px-2.5 py-1 rounded-lg bg-indigo-950/80 hover:bg-indigo-800 text-indigo-300 font-orbitron font-bold text-[10px] border border-indigo-500/50 flex items-center gap-1 transition shadow active:scale-95" title="Save all local Studio decals, card art & concepts straight to Google Drive (0 Cloudflare cost)">
+              <span>☁️</span> Save to Drive
+            </button>
+
             <!-- DRIVE BATCH FOLDER LINK -->
             <a id="drawerDriveFolderBtn" href="#" target="_blank" class="px-2.5 py-1 rounded-lg bg-blue-950/80 hover:bg-blue-800 text-blue-300 font-orbitron font-bold text-[10px] border border-blue-500/50 flex items-center gap-1 transition shadow active:scale-95" title="Open Google Drive Batch Folder">
               <span>📁</span> Drive Folder ↗
@@ -5162,6 +5170,23 @@ CORE LIVERY & PRODUCTION RULES:
       if (syncIcon) syncIcon.innerText = '⏳';
 
       try {
+        // Try ?feed=studio first (full Sheet rows + Drive folderUrls) before falling back to ?feed=public
+        try {
+          const studioRes = await fetch(GAS_ENDPOINT + '?feed=studio');
+          const studioCt = studioRes.headers?.get?.('content-type') || '';
+          if (studioCt.includes('json')) {
+            const sData = await studioRes.json();
+            if (sData && Array.isArray(sData.batches)) {
+              sData.batches.forEach(sb => {
+                const loc = workshopBatches.find(x => x.id === sb.id || (x.theme?.toLowerCase() === sb.theme?.toLowerCase() && x.model?.toLowerCase().includes(sb.model?.toLowerCase())));
+                if (loc) {
+                  if (sb.folderUrl) loc.folderUrl = sb.folderUrl;
+                  if (sb.rowIndex) loc.rowIndex = sb.rowIndex;
+                }
+              });
+            }
+          }
+        } catch (_studioErr) {}
         const res = await fetch(GAS_ENDPOINT + '?feed=public');
         const data = await res.json();
         if (data && data.success && Array.isArray(data.batches)) {
@@ -6203,22 +6228,251 @@ CORE LIVERY & PRODUCTION RULES:
 
       // Sync the always-visible Hero Filmstrip on the left column
       nlgRenderHeroFilmstrip(b, st, allVaultAssets);
+
+      // Background live sync from Google Drive batch folder (?feed=assets)
+      if (typeof nlgFetchLiveDriveAssetsForBatch === 'function') {
+        nlgFetchLiveDriveAssetsForBatch(b).then(updated => {
+          if (updated && currentActiveBatchId === b.id) {
+            nlgRenderAssetDrawer(b);
+          }
+        });
+      }
     }
 
-    // DIRECT SLOT LINK MODAL HELPER
+    // =========================================================================
+    // GOOGLE DRIVE SSoT BRIDGE (READS VIA ?feed=assets & WRITES VIA DirectMediaUpload)
+    // Storage Rule: 100% of working assets (Masks, Concepts, Decals, Card Masters,
+    // Raw Photos & Video B-Roll) live in Google Drive. ONLY final website product
+    // photos go to Cloudflare R2 on storefront launch.
+    // =========================================================================
+    window.nlgDriveAssetCache = {};
+    window.nlgActiveUploadSlotTag = null;
+
+    // Upload a single DataURL / File directly into the car's Google Drive Batch Folder
+    async function nlgPushAssetToDrive(b, slotTag, dataUrl, customExt) {
+      if (!b || !slotTag || !dataUrl || !dataUrl.startsWith('data:')) {
+        return { success: false, error: 'Requires a valid data URL to upload to Drive' };
+      }
+      const mimeMatch = dataUrl.match(/^data:([^;]+);base64,/);
+      const mimeType = mimeMatch ? mimeMatch[1] : 'image/png';
+      const ext = customExt || (mimeType.includes('mp4') ? 'mp4' : (mimeType.includes('jpeg') || mimeType.includes('jpg') ? 'jpg' : 'png'));
+      const cleanPrefix = `${b.theme || 'Batch'}_${b.model || 'Car'}`.replace(/[^a-zA-Z0-9]/g, '_');
+      const filename = `[${slotTag}]_${cleanPrefix}_${Date.now()}.${ext}`;
+
+      const postPayload = {
+        type: 'DirectMediaUpload',
+        folderUrl: String(b.folderUrl && !b.folderUrl.includes('/drive/search') ? b.folderUrl : ''),
+        theme: b.theme,
+        model: b.model,
+        rowIndex: b.rowIndex || null,
+        classification: slotTag,
+        base64: dataUrl,
+        mimeType: mimeType,
+        filename: filename
+      };
+
+      const resp = await fetch(GAS_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(postPayload)
+      });
+      const res = await resp.json();
+      if (res && res.success && res.fileId) {
+        const isVid = mimeType.startsWith('video/');
+        const driveUrl = isVid
+          ? (res.url || `https://drive.google.com/file/d/${res.fileId}/view`)
+          : `https://drive.google.com/thumbnail?id=${res.fileId}&sz=w1200`;
+        if (!b.pipelineAssets) b.pipelineAssets = {};
+        b.pipelineAssets[slotTag] = driveUrl;
+        if (!b.driveFileLinks) b.driveFileLinks = {};
+        b.driveFileLinks[slotTag] = res.url || `https://drive.google.com/file/d/${res.fileId}/view`;
+        saveBatchesToStorage();
+        return { success: true, fileId: res.fileId, url: driveUrl, rawUrl: res.url };
+      }
+      return { success: false, error: res?.error || 'Drive upload rejected' };
+    }
+
+    // Push all unsynced local Studio decals, card art & concepts for current car straight to Google Drive
+    async function nlgSyncCurrentCarAssetsToDrive() {
+      const b = (typeof workshopBatches !== 'undefined') ? workshopBatches.find(x => x.id === currentActiveBatchId) : null;
+      if (!b) return;
+      const btn = document.getElementById('btnSyncCarToDrive');
+      const origHtml = btn ? btn.innerHTML : '';
+      if (btn) { btn.disabled = true; btn.innerHTML = '<span>⏳</span> Uploading to Drive...'; }
+
+      try {
+        const st = (typeof nlgLoadCarState === 'function') ? await nlgLoadCarState(b.id) : null;
+        const queue = [];
+
+        const cardArt = st?.cardArtDataUrl || b.cardArtDataUrl;
+        if (cardArt && cardArt.startsWith('data:')) queue.push({ tag: 'ART_CARD', data: cardArt });
+
+        const wordmark = st?.wordmarkDataUrl || b.wordmarkDataUrl;
+        if (wordmark && wordmark.startsWith('data:')) queue.push({ tag: 'ART_LOGO', data: wordmark });
+
+        const heroMock = st?.heroMock || (b.hero && b.hero.startsWith('data:') ? b.hero : null);
+        if (heroMock && heroMock.startsWith('data:')) queue.push({ tag: 'ART_SIDE', data: heroMock });
+
+        const heroPhoto = st?.heroPhotoDataUrl;
+        if (heroPhoto && heroPhoto.startsWith('data:')) queue.push({ tag: 'IMG_LOOSE', data: heroPhoto });
+
+        const decals = (st && Array.isArray(st.savedDecals)) ? st.savedDecals : [];
+        for (const d of decals) {
+          const k = String(d.key || d.label || '').toLowerCase();
+          const png = d.cmykPng || d.underbasePng;
+          if (!png || !png.startsWith('data:')) continue;
+          if (k.includes('roof')) queue.push({ tag: 'DCL_ROOF', data: png });
+          else if (k.includes('hood')) queue.push({ tag: 'DCL_HOOD', data: png });
+          else if (k.includes('pass')) queue.push({ tag: 'DCL_SIDE_P', data: png });
+          else queue.push({ tag: 'DCL_SIDE_D', data: png });
+        }
+
+        if (queue.length === 0) {
+          showToast('No local base64 files queued — click any slot to upload a file directly to Google Drive!', '☁️');
+          const slotTag = prompt('Upload a file from your device directly into Google Drive slot (e.g. DCL_SIDE_D, DCL_ROOF, PKG_MASTER_F, MASK_SIDE, IMG_LOOSE):', 'DCL_SIDE_D');
+          if (slotTag && slotTag.trim()) {
+            window.nlgActiveUploadSlotTag = slotTag.trim().toUpperCase();
+            document.getElementById('directDriveSlotFileInput')?.click();
+          }
+          return;
+        }
+
+        let uploaded = 0;
+        for (const item of queue) {
+          const r = await nlgPushAssetToDrive(b, item.tag, item.data);
+          if (r.success) uploaded++;
+        }
+        await nlgRenderAssetDrawer(b);
+        showToast(`Saved ${uploaded}/${queue.length} Studio assets directly to Google Drive!`, '☁️');
+      } catch (err) {
+        console.warn('Drive sync error:', err);
+        showToast('Drive upload error: ' + err.message, '⚠️');
+      } finally {
+        if (btn) { btn.disabled = false; btn.innerHTML = origHtml; }
+      }
+    }
+
+    function nlgTriggerDirectDriveSlotUpload(slotTag) {
+      window.nlgActiveUploadSlotTag = slotTag;
+      document.getElementById('directDriveSlotFileInput')?.click();
+    }
+
+    function nlgHandleDirectDriveSlotFile(event) {
+      const file = event.target?.files?.[0];
+      const slotTag = window.nlgActiveUploadSlotTag;
+      event.target.value = '';
+      if (!file || !slotTag) return;
+      const b = (typeof workshopBatches !== 'undefined') ? workshopBatches.find(x => x.id === currentActiveBatchId) : null;
+      if (!b) return;
+
+      showToast(`Uploading [${slotTag}] to Google Drive...`, '⏳');
+      const reader = new FileReader();
+      reader.onload = async (ev) => {
+        try {
+          const dataUrl = ev.target.result;
+          const res = await nlgPushAssetToDrive(b, slotTag, dataUrl);
+          if (res.success) {
+            showToast(`Saved [${slotTag}] straight to Google Drive!`, '✅');
+            await nlgRenderAssetDrawer(b);
+          } else {
+            showToast(`Drive upload failed: ${res.error}`, '⚠️');
+          }
+        } catch (err) {
+          showToast(`Upload error: ${err.message}`, '⚠️');
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Live Google Drive Folder Reader (calls ?feed=assets&theme=...&model=... when exposed in GAS doGet)
+    async function nlgFetchLiveDriveAssetsForBatch(b) {
+      if (!b || !b.theme || !b.model) return false;
+      const cacheKey = `${b.id}::${b.theme}::${b.model}`;
+      if (window.nlgDriveAssetCache[cacheKey]) return false;
+      window.nlgDriveAssetCache[cacheKey] = 'fetching';
+
+      try {
+        const url = `${GAS_ENDPOINT}?feed=assets&theme=${encodeURIComponent(b.theme)}&model=${encodeURIComponent(b.model)}`;
+        const resp = await fetch(url);
+        const contentType = resp.headers?.get?.('content-type') || '';
+        if (!contentType.includes('json')) {
+          // GAS doGet doesn't have ?feed=assets added yet
+          window.nlgDriveAssetCache[cacheKey] = 'needs_gas_route';
+          return false;
+        }
+        const data = await resp.json();
+        if (!data || !data.success || !Array.isArray(data.files)) {
+          window.nlgDriveAssetCache[cacheKey] = 'empty';
+          return false;
+        }
+
+        if (data.folderUrl && (!b.folderUrl || b.folderUrl.includes('/drive/search'))) {
+          b.folderUrl = data.folderUrl;
+        }
+        if (!b.pipelineAssets) b.pipelineAssets = {};
+
+        let added = 0;
+        data.files.forEach(f => {
+          if (!f || !f.name) return;
+          const imgUrl = f.thumb ? f.thumb.replace('sz=w400', 'sz=w1200') : f.url;
+          if (!imgUrl) return;
+          const tagMatch = f.name.match(/\[([A-Z0-9_]+)\]/i);
+          if (tagMatch) {
+            const tag = tagMatch[1].toUpperCase();
+            const cur = b.pipelineAssets[tag];
+            if (!cur) {
+              b.pipelineAssets[tag] = [imgUrl];
+              added++;
+            } else if (Array.isArray(cur)) {
+              if (!cur.includes(imgUrl)) { cur.push(imgUrl); added++; }
+            } else if (cur !== imgUrl) {
+              b.pipelineAssets[tag] = [cur, imgUrl];
+              added++;
+            }
+          } else {
+            if (!Array.isArray(b.images)) b.images = [];
+            if (!b.images.includes(imgUrl)) { b.images.push(imgUrl); added++; }
+          }
+        });
+
+        window.nlgDriveAssetCache[cacheKey] = 'synced';
+        if (added > 0) {
+          saveBatchesToStorage();
+          return true;
+        }
+      } catch (e) {
+        window.nlgDriveAssetCache[cacheKey] = 'offline';
+      }
+      return false;
+    }
+
+    // DIRECT SLOT LINK / UPLOAD HELPER
     function openDirectSlotLinkModal(slotTag, slotLabel) {
       const b = (typeof workshopBatches !== 'undefined') ? workshopBatches.find(x => x.id === currentActiveBatchId) : null;
-      const url = prompt(`Link asset URL or file path for [${slotTag}] - ${slotLabel}:\n\nPaste Google Drive / R2 URL, or local assets/ path:`, b?.pipelineAssets?.[slotTag] || '');
-      if (url && url.trim()) {
-        if (!b.pipelineAssets) b.pipelineAssets = {};
-        b.pipelineAssets[slotTag] = url.trim();
-        saveBatchesToStorage();
-        if (typeof nlgSaveCarState === 'function') {
-          nlgSaveCarState(b.id, { pipelineAssets: b.pipelineAssets });
-        }
-        nlgRenderAssetDrawer(b);
-        showToast(`Linked [${slotTag}] for ${b.theme}!`, '🔗');
+      const choice = prompt(
+        `[${slotTag}] — ${slotLabel}\n\n` +
+        `• Type "UPLOAD" (or leave blank + press OK) to upload a file straight to Google Drive\n` +
+        `• Or paste an existing Google Drive / R2 URL:`,
+        'UPLOAD'
+      );
+      if (choice === null) return;
+      if (!choice.trim() || choice.trim().toUpperCase() === 'UPLOAD') {
+        nlgTriggerDirectDriveSlotUpload(slotTag);
+        return;
       }
+      let finalUrl = choice.trim();
+      const driveIdMatch = finalUrl.match(/\/d\/([a-zA-Z0-9_-]+)/) || finalUrl.match(/id=([a-zA-Z0-9_-]+)/);
+      if (driveIdMatch && finalUrl.includes('drive.google.com') && !finalUrl.includes('thumbnail')) {
+        finalUrl = `https://drive.google.com/thumbnail?id=${driveIdMatch[1]}&sz=w1200`;
+      }
+      if (!b.pipelineAssets) b.pipelineAssets = {};
+      b.pipelineAssets[slotTag] = finalUrl;
+      saveBatchesToStorage();
+      if (typeof nlgSaveCarState === 'function') {
+        nlgSaveCarState(b.id, { pipelineAssets: b.pipelineAssets });
+      }
+      nlgRenderAssetDrawer(b);
+      showToast(`Linked [${slotTag}] for ${b.theme}!`, '🔗');
     }
 
     function nlgArchiveCurrentCar() {
