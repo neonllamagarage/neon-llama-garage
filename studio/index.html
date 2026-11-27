@@ -307,24 +307,47 @@
 
       <!-- EXPANDABLE ASSET MENU DRAWER (BUCKETS OF ASSETS) -->
       <div id="cockpitAssetDrawer" class="hidden mb-3 bg-[#0a0f1d] border border-cyan-500/40 rounded-2xl p-4 shadow-2xl space-y-3 transition">
-        <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+        <!-- TOP CONTROL BAR -->
+        <div class="flex flex-wrap items-center justify-between pb-3 border-b border-slate-800 gap-3">
           <div class="flex items-center gap-2">
             <span class="text-base">📁</span>
             <div>
-              <h3 class="font-orbitron font-bold text-xs text-cyan-300 uppercase tracking-wider">EXPANDED ASSET BUCKETS</h3>
-              <p class="text-[10px] text-slate-400">All design mockups, print decals, blister card art & glory photos for this car</p>
+              <div class="flex items-center gap-2">
+                <h3 class="font-orbitron font-bold text-xs text-cyan-300 uppercase tracking-wider">PRODUCTION ASSET MATRIX</h3>
+                <span id="drawerSlotCoverageBadge" class="px-2 py-0.5 rounded-full bg-cyan-950 border border-cyan-500/50 text-cyan-300 font-mono text-[10px] font-bold">14 Canonical Slots</span>
+              </div>
+              <p class="text-[10px] text-slate-400">Authentic pipeline parity with Garage MES — Casting Masks, Concept Art, Decals, Packaging Masters, Core Promo & Video</p>
             </div>
           </div>
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-2 flex-wrap">
+            <!-- VIEW MODE TOGGLE -->
+            <div class="bg-black/80 p-0.5 rounded-lg border border-slate-800 flex items-center text-[10px] font-orbitron font-bold">
+              <button type="button" id="btnAssetViewMatrix" onclick="nlgToggleAssetMatrixView('matrix')" class="px-2.5 py-1 rounded-md bg-cyan-950 text-cyan-300 border border-cyan-500/40 transition">📑 14 Slots</button>
+              <button type="button" id="btnAssetViewBuckets" onclick="nlgToggleAssetMatrixView('buckets')" class="px-2.5 py-1 rounded-md text-slate-400 hover:text-white transition">📦 4 Buckets</button>
+            </div>
+
+            <!-- DRIVE BATCH FOLDER LINK -->
+            <a id="drawerDriveFolderBtn" href="#" target="_blank" class="px-2.5 py-1 rounded-lg bg-blue-950/80 hover:bg-blue-800 text-blue-300 font-orbitron font-bold text-[10px] border border-blue-500/50 flex items-center gap-1 transition shadow active:scale-95" title="Open Google Drive Batch Folder">
+              <span>📁</span> Drive Folder ↗
+            </a>
+
+            <!-- DOWNLOAD ALL FILES -->
             <button type="button" onclick="nlgDownloadAllCarAssets()" class="px-2.5 py-1 rounded-lg bg-emerald-950/80 hover:bg-emerald-800 text-emerald-300 font-orbitron font-bold text-[10px] border border-emerald-500/50 flex items-center gap-1 transition shadow active:scale-95">
-              <span>⬇</span> Download All Files
+              <span>⬇</span> Download All Mapped
             </button>
+
+            <!-- CLOSE DRAWER -->
             <button type="button" onclick="nlgToggleAssetDrawer()" class="text-slate-400 hover:text-white font-bold text-xs px-2 py-1">✕</button>
           </div>
         </div>
 
-        <!-- 4 CLEAN ASSET BUCKETS -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <!-- VIEW 1: 14-SLOT PRODUCTION MATRIX (CANONICAL 6 SECTIONS) -->
+        <div id="assetMatrix14Slots" class="space-y-2">
+          <!-- Dynamically populated by nlgRenderAssetDrawer -->
+        </div>
+
+        <!-- VIEW 2: 4 GROUPED BUCKETS -->
+        <div id="assetBuckets4Group" class="hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           <!-- BUCKET 1: CONCEPTS & MOCKUPS -->
           <div class="bg-black/60 border border-slate-800 rounded-xl p-3 space-y-2">
             <div class="flex items-center justify-between">
@@ -334,7 +357,6 @@
               <button type="button" onclick="openConceptGenModal()" class="text-[10px] text-pink-400 hover:text-pink-300 underline">Idea Lab ↗</button>
             </div>
             <div id="assetBucketConcepts" class="space-y-1.5 min-h-[60px] flex flex-col justify-center text-center text-[10px] text-slate-500">
-              <!-- Dynamically populated -->
             </div>
           </div>
 
@@ -347,7 +369,6 @@
               <button type="button" onclick="openDecalStudioForCurrentBatch()" class="text-[10px] text-cyan-400 hover:text-cyan-300 underline">Decals Studio ↗</button>
             </div>
             <div id="assetBucketDecals" class="space-y-1.5 min-h-[60px] flex flex-col justify-center text-center text-[10px] text-slate-500">
-              <!-- Dynamically populated -->
             </div>
           </div>
 
@@ -360,7 +381,6 @@
               <button type="button" onclick="openCardModal()" class="text-[10px] text-purple-400 hover:text-purple-300 underline">Card Builder ↗</button>
             </div>
             <div id="assetBucketBlister" class="space-y-1.5 min-h-[60px] flex flex-col justify-center text-center text-[10px] text-slate-500">
-              <!-- Dynamically populated -->
             </div>
           </div>
 
@@ -373,7 +393,6 @@
               <button type="button" onclick="openLlamaCamModal()" class="text-[10px] text-yellow-400 hover:text-yellow-300 underline">Llama Cam ↗</button>
             </div>
             <div id="assetBucketPhotos" class="space-y-1.5 min-h-[60px] flex flex-col justify-center text-center text-[10px] text-slate-500">
-              <!-- Dynamically populated -->
             </div>
           </div>
         </div>
@@ -1807,7 +1826,22 @@
                   6,
                   7,
                   8
-            ]
+            ],
+            "folderUrl": "https://drive.google.com/drive/search?q=Stained%20Glass%20'83%20Silverado",
+            "pipelineAssets": {
+                  "ART_SIDE": "https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_LOOSE_SINGLE.jpg",
+                  "ART_CARD": "assets/card_art_stained_glass_silverado.jpg",
+                  "PKG_MASTER_F": "assets/card_art_stained_glass_silverado.jpg",
+                  "IMG_LOOSE": "https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_LOOSE_SINGLE.jpg",
+                  "IMG_PKG_F": "https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_PKG_F_Stained_Glass_83_Silverado_1788780176579.jpg",
+                  "IMG_PKG_R": "https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_OTHER_PXL_20260708_001631566.jpg",
+                  "IMG_CHASE_L": "https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_CHASE_L_PXL_20260701_215849992.jpg",
+                  "IMG_CHASE_P": "https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_CHASE_P_PXL_20260708_001440542.jpg",
+                  "IMG_GROUP": "https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_GROUP_PXL_20260708_010437684.jpg",
+                  "IMG_SET_L": "https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_SET_L_PXL_20260708_001545268.jpg",
+                  "IMG_SET_P": "https://media.neonllamagarage.com/Stained_Glass_83_Silverado_IMG_SET_P_PXL_20260708_010606013.jpg"
+            },
+            "cardArtDataUrl": "assets/card_art_stained_glass_silverado.jpg"
       },
       {
             "id": "D-002",
@@ -1859,7 +1893,22 @@
                   6,
                   7,
                   8
-            ]
+            ],
+            "folderUrl": "https://drive.google.com/drive/search?q=Stained%20Glass%20'55%20Gasser",
+            "pipelineAssets": {
+                  "ART_SIDE": "https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_LOOSE_PXL_20260816_104313748.jpg",
+                  "ART_CARD": "assets/card_art_stained_glass_gasser.jpg",
+                  "PKG_MASTER_F": "assets/card_art_stained_glass_gasser.jpg",
+                  "PKG_MASTER_R": "https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_PKG_R_Stained_Glass_55_Gasser_1791031506000.jpg",
+                  "IMG_LOOSE": "https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_LOOSE_PXL_20260816_104313748.jpg",
+                  "IMG_PKG_F": "https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_PKG_F_Stained_Glass_55_Gasser_PXL_20260917_191845947.jpg",
+                  "IMG_PKG_R": "https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_PKG_R_Stained_Glass_55_Gasser_1791031506000.jpg",
+                  "IMG_PKG_WHT": "https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_PKG_WHT_PXL_20260823_162940269.jpg",
+                  "IMG_CHASE_L": "https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_CHASE_L_PXL_20260816_104326413.jpg",
+                  "IMG_CHASE_P": "https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_CHASE_P_PXL_20260823_162812683.jpg",
+                  "IMG_TOP": "https://media.neonllamagarage.com/Stained_Glass_55_Gasser_IMG_TOP_Stained_Glass_55_Gasser_PXL_20260917_192357122.jpg"
+            },
+            "cardArtDataUrl": "assets/card_art_stained_glass_gasser.jpg"
       },
       {
             "id": "B-010",
@@ -1904,7 +1953,19 @@
                   6,
                   7,
                   8
-            ]
+            ],
+            "folderUrl": "https://drive.google.com/drive/search?q=Ice%20Spider%20'14%20Camaro",
+            "pipelineAssets": {
+                  "ART_SIDE": "https://media.neonllamagarage.com/Ice_Spider_14_Camaro__IMG_PKG_WHT__PXL_20260816_104255638.jpg",
+                  "IMG_LOOSE": "https://drive.google.com/thumbnail?id=1Mh3pPloEah-3ICvybdF8EYBx45aask9I&sz=w400",
+                  "IMG_PKG_WHT": "https://media.neonllamagarage.com/Ice_Spider_14_Camaro__IMG_PKG_WHT__PXL_20260816_104255638.jpg",
+                  "IMG_PKG_F": "https://media.neonllamagarage.com/Ice_Spider_14_Camaro__IMG_PKG_F__PXL_20260823_162642780.jpg",
+                  "IMG_PKG_R": "https://media.neonllamagarage.com/Ice_Spider_14_Camaro__IMG_PKG_R__PXL_20260823_162217462.jpg",
+                  "IMG_CHASE_L": "https://media.neonllamagarage.com/Ice_Spider_14_Camaro__IMG_CHASE_L__PXL_20260816_104303691.jpg",
+                  "IMG_CHASE_P": "https://media.neonllamagarage.com/Ice_Spider_14_Camaro__IMG_CHASE_P__PXL_20260823_162616296.jpg",
+                  "IMG_GROUP": "https://media.neonllamagarage.com/Ice_Spider_14_Camaro__IMG_GROUP__PXL_20260823_162550935.jpg",
+                  "IMG_SET_P": "https://media.neonllamagarage.com/Ice_Spider_14_Camaro__IMG_SET_P__PXL_20260823_162628078.jpg"
+            }
       },
       {
             "id": "B-011",
@@ -1976,7 +2037,14 @@
             "completedSteps": [
                   1,
                   2
-            ]
+            ],
+            "folderUrl": "https://drive.google.com/drive/search?q=Pixel%20Glitch%20'67%20Chevy%20Camaro",
+            "pipelineAssets": {
+                  "ART_SIDE": "assets/camaro_pixel_glitch_hero.png",
+                  "ART_TOP": "assets/camaro_dual_view.jpg",
+                  "IMG_LOOSE": "assets/catalog_angle_poc.jpg"
+            },
+            "heroPhoto": "assets/catalog_angle_poc.jpg"
       },
       {
             "id": "B-018",
@@ -2058,7 +2126,21 @@
             "completedSteps": [
                   1,
                   2
-            ]
+            ],
+            "folderUrl": "https://drive.google.com/drive/search?q=Neon%20Freeze%20Dairy%20Delivery",
+            "pipelineAssets": {
+                  "ART_SIDE": "assets/neon_freeze_ice_cream_hero.png",
+                  "ART_CARD": "assets/neon_freeze_card_bg_art_1795718086574.jpg",
+                  "ART_LOGO": "assets/neon_freeze_title_logo_clean.png",
+                  "DCL_ROOF": "assets/Roof_CMYK.png",
+                  "DCL_SIDE_D": "assets/Side_Driver_CMYK.png",
+                  "DCL_SIDE_P": "assets/Side_Passenger_CMYK.png",
+                  "PKG_MASTER_F": "assets/neon_freeze_card_bg_art_1795718086574.jpg",
+                  "IMG_LOOSE": "assets/dairy_acid_catalog.jpg",
+                  "IMG_PKG_WHT": "assets/dairy_white_catalog.jpg",
+                  "IMG_TOP": "assets/dairy_pxl_top.jpg"
+            },
+            "heroPhoto": "assets/dairy_acid_catalog.jpg"
       },
       {
             "id": "B-006",
@@ -2105,7 +2187,19 @@
                   2,
                   3,
                   4
-            ]
+            ],
+            "folderUrl": "https://drive.google.com/drive/search?q=Acid%20Llama%20Porsche%20935",
+            "pipelineAssets": {
+                  "ART_SIDE": "assets/acid_llama_935.png",
+                  "ART_CARD": "assets/acid_llama_card_art.jpg",
+                  "ART_LOGO": "assets/acid_llama_logo.jpg",
+                  "DCL_SIDE_D": "assets/acid_llama_decal_master.jpg",
+                  "DCL_SIDE_P": "assets/acid_llama_decal_master.jpg",
+                  "PKG_MASTER_F": "assets/acid_llama_card_art.jpg",
+                  "IMG_LOOSE": "assets/acid_llama_935.png"
+            },
+            "cardArtDataUrl": "assets/acid_llama_card_art.jpg",
+            "wordmarkDataUrl": "assets/acid_llama_logo.jpg"
       },
       {
             "id": "B-020",
@@ -2135,7 +2229,13 @@
                   4,
                   5,
                   6
-            ]
+            ],
+            "folderUrl": "https://drive.google.com/drive/search?q=Rubix%20Cube%20Nissan%20Silvia%20S15",
+            "pipelineAssets": {
+                  "ART_SIDE": "assets/rubix_cube_silvia.png",
+                  "IMG_LOOSE": "assets/rubix_cube_silvia.png"
+            },
+            "heroPhoto": "assets/rubix_cube_silvia.png"
       },
       {
             "id": "B-015",
@@ -2163,7 +2263,13 @@
                   2,
                   3,
                   4
-            ]
+            ],
+            "folderUrl": "https://drive.google.com/drive/search?q=Acid%20Bone%20'82%20Nissan%20Skyline",
+            "pipelineAssets": {
+                  "ART_SIDE": "assets/acid_bone_skyline.png",
+                  "IMG_LOOSE": "assets/skyline_white_poc.jpg"
+            },
+            "heroPhoto": "assets/skyline_white_poc.jpg"
       },
       {
             "id": "B-003",
@@ -2191,7 +2297,13 @@
                   2,
                   3,
                   4
-            ]
+            ],
+            "folderUrl": "https://drive.google.com/drive/search?q=Iron%20Talon%20'62%20Chevy%20Truck",
+            "pipelineAssets": {
+                  "ART_SIDE": "assets/iron_talon_62_chevy.png",
+                  "IMG_LOOSE": "assets/iron_talon_62_chevy.png"
+            },
+            "heroPhoto": "assets/iron_talon_62_chevy.png"
       },
       {
             "id": "B-024",
@@ -2237,7 +2349,15 @@
                   6,
                   7,
                   8
-            ]
+            ],
+            "folderUrl": "https://drive.google.com/drive/search?q=Marbelized%20VW%20Bug",
+            "pipelineAssets": {
+                  "ART_SIDE": "assets/marbelized_67_camaro.png",
+                  "IMG_LOOSE": "https://media.neonllamagarage.com/Marbelized_VW_Bug_IMG_LOOSE_Marbelized_VW_Bug_1788826027622.jpg",
+                  "IMG_PKG_F": "https://media.neonllamagarage.com/Marbelized_VW_Bug_IMG_PKG_F_Marbelized_VW_Bug_1788825263746.jpg",
+                  "IMG_PKG_WHT": "https://media.neonllamagarage.com/Marbelized_VW_Bug_IMG_PKG_WHT_Marbelized_VW_Bug_1788826139307.jpg",
+                  "IMG_TOP": "https://media.neonllamagarage.com/Marbelized_VW_Bug_IMG_TOP_Marbelized_VW_Bug_1788826183828.jpg"
+            }
       },
       {
             "id": "B-026",
@@ -2280,7 +2400,14 @@
                   6,
                   7,
                   8
-            ]
+            ],
+            "folderUrl": "https://drive.google.com/drive/search?q=Marbelized%20Dairy%20Delivery",
+            "pipelineAssets": {
+                  "IMG_LOOSE": "https://media.neonllamagarage.com/Marbelized_Dairy_Delivery_HERO.jpg",
+                  "IMG_PKG_F": "https://media.neonllamagarage.com/Marbelized_Dairy_Delivery_IMG_PKG_F_Marbelized_Dairy_Delivery_1788780027384.jpg",
+                  "IMG_PKG_R": "https://media.neonllamagarage.com/Marbelized_Dairy_Delivery_IMG_PKG_R_PXL_20260823_164344200.jpg",
+                  "IMG_PKG_WHT": "https://media.neonllamagarage.com/Marbelized_Dairy_Delivery_IMG_PKG_WHT_PXL_20260823_164338127.jpg"
+            }
       }
 ];
 
@@ -5392,17 +5519,309 @@ CORE LIVERY & PRODUCTION RULES:
       return 'Physical Shot';
     }
 
+    async // CANONICAL 14-SLOT PRODUCTION MATRIX DEFINITION (GARAGE MES PARITY)
+    const CANONICAL_ASSET_SECTIONS = [
+      {
+        id: 'sec_masks',
+        title: '🎭 Casting Masks (Shared Library)',
+        sub: '1-Mask Outlines',
+        slots: [
+          { tag: 'MASK_SIDE', label: 'Side Mask', tool: 'mask' },
+          { tag: 'MASK_TOP', label: 'Top Mask (Roof/Hood)', tool: 'mask' }
+        ]
+      },
+      {
+        id: 'sec_art',
+        title: '🎨 Raw Concept Art',
+        sub: 'Batch Folder & Idea Lab',
+        slots: [
+          { tag: 'ART_SIDE', label: 'Side Art', tool: 'concept' },
+          { tag: 'ART_TOP', label: 'Top Art', tool: 'concept' },
+          { tag: 'ART_CARD', label: 'Card Art', tool: 'card' },
+          { tag: 'ART_LOGO', label: 'Logo / Wordmark Art', tool: 'card' }
+        ]
+      },
+      {
+        id: 'sec_decals',
+        title: '⚡ Decal System (CMYK + White Underbase)',
+        sub: 'eufyMake UV Prepress',
+        slots: [
+          { tag: 'DCL_ROOF', label: 'Roof Decal', tool: 'decal' },
+          { tag: 'DCL_HOOD', label: 'Hood Decal', tool: 'decal' },
+          { tag: 'DCL_SIDE_D', label: 'Driver Side', tool: 'decal' },
+          { tag: 'DCL_SIDE_P', label: 'Pass Side', tool: 'decal' }
+        ]
+      },
+      {
+        id: 'sec_pkg',
+        title: '📦 Packaging WIP & Masters',
+        sub: 'Mattel 300 DPI Cards',
+        slots: [
+          { tag: 'PKG_MASTER_F', label: 'Front Card Master', tool: 'card' },
+          { tag: 'PKG_MASTER_R', label: 'Rear Card Master', tool: 'card' }
+        ]
+      },
+      {
+        id: 'sec_promo',
+        title: '📸 Core Promotional Images',
+        sub: 'Turntable & Studio R2',
+        slots: [
+          { tag: 'IMG_LOOSE', label: '1) Loose Hero', tool: 'cam' },
+          { tag: 'IMG_PKG_F', label: '2) Pkg Front', tool: 'cam' },
+          { tag: 'IMG_PKG_R', label: '3) Pkg Rear', tool: 'cam' },
+          { tag: 'IMG_PKG_WHT', label: '4) Pkg White BG', tool: 'cam' }
+        ]
+      },
+      {
+        id: 'sec_video',
+        title: '🎬 Video Pipeline & Raw B-Roll',
+        sub: 'CapCut / Socials',
+        slots: [
+          { tag: 'RAW_VID_CAR_MACRO', label: '📹 Macro: Car', tool: 'cam' },
+          { tag: 'RAW_VID_PKG_MACRO', label: '📹 Macro: Pkg', tool: 'cam' },
+          { tag: 'RAW_VID_PKG_TT', label: '📹 Pkg Close TT', tool: 'cam' },
+          { tag: 'RAW_VID_CARD_TT', label: '📹 Full Card TT', tool: 'cam' }
+        ]
+      }
+    ];
+
+    window.nlgAssetMatrixView = 'matrix';
+
+    function nlgToggleAssetMatrixView(mode) {
+      window.nlgAssetMatrixView = mode;
+      const elMatrix = document.getElementById('assetMatrix14Slots');
+      const elBuckets = document.getElementById('assetBuckets4Group');
+      const btnMatrix = document.getElementById('btnAssetViewMatrix');
+      const btnBuckets = document.getElementById('btnAssetViewBuckets');
+
+      if (mode === 'matrix') {
+        if (elMatrix) elMatrix.classList.remove('hidden');
+        if (elBuckets) elBuckets.classList.add('hidden');
+        if (btnMatrix) btnMatrix.className = 'px-2.5 py-1 rounded-md bg-cyan-950 text-cyan-300 border border-cyan-500/40 transition';
+        if (btnBuckets) btnBuckets.className = 'px-2.5 py-1 rounded-md text-slate-400 hover:text-white transition';
+      } else {
+        if (elMatrix) elMatrix.classList.add('hidden');
+        if (elBuckets) elBuckets.classList.remove('hidden');
+        if (btnMatrix) btnMatrix.className = 'px-2.5 py-1 rounded-md text-slate-400 hover:text-white transition';
+        if (btnBuckets) btnBuckets.className = 'px-2.5 py-1 rounded-md bg-cyan-950 text-cyan-300 border border-cyan-500/40 transition';
+      }
+    }
+
+    function nlgResolveSlotAsset(b, st, tag) {
+      if (!b) return null;
+      // 1. Explicit override in st or batch pipelineAssets
+      if (st?.pipelineAssets && st.pipelineAssets[tag]) return st.pipelineAssets[tag];
+      if (b.pipelineAssets && b.pipelineAssets[tag]) return b.pipelineAssets[tag];
+
+      // Helper: search decal panels
+      const findDecal = (term) => {
+        const decals = (st && Array.isArray(st.savedDecals) && st.savedDecals.length > 0) ? st.savedDecals : (b.savedDecals || []);
+        for (const d of decals) {
+          const k = String(d.key || d.label || '').toLowerCase();
+          if (k.includes(term)) return d.cmykPng || d.underbasePng;
+        }
+        return null;
+      };
+
+      // Helper: search image array for bracket or token match
+      const findImageMatch = (tokens) => {
+        const list = Array.isArray(b.images) ? b.images : [];
+        for (const url of list) {
+          if (typeof url !== 'string') continue;
+          for (const t of tokens) {
+            if (url.includes(`[${t}]`) || url.includes(`_${t}_`) || url.includes(`_${t}.`)) return url;
+          }
+        }
+        return null;
+      };
+
+      // 2. Smart tag fallback
+      switch (tag) {
+        case 'MASK_SIDE':
+          return b.castingMaskSide || null;
+        case 'MASK_TOP':
+          return b.castingMaskTop || null;
+        case 'ART_SIDE':
+          return b.hero || st?.heroMock || null;
+        case 'ART_TOP':
+          return (b.subIdeas && b.subIdeas[0]?.img) || null;
+        case 'ART_CARD':
+          return st?.cardArtDataUrl || b.cardArtDataUrl || null;
+        case 'ART_LOGO':
+          return st?.wordmarkDataUrl || b.wordmarkDataUrl || null;
+        case 'DCL_ROOF':
+          return findDecal('roof');
+        case 'DCL_HOOD':
+          return findDecal('hood') || findDecal('roof');
+        case 'DCL_SIDE_D':
+          return findDecal('driver') || findDecal('side');
+        case 'DCL_SIDE_P':
+          return findDecal('pass') || findDecal('side');
+        case 'DCL_CHASE':
+          return findDecal('chase');
+        case 'PKG_MASTER_F':
+          return st?.cardArtDataUrl || b.cardArtDataUrl || null;
+        case 'PKG_MASTER_R':
+          return findImageMatch(['IMG_PKG_R', 'PKG_MASTER_R', 'PKG_R']);
+        case 'PKG_CHASE_F':
+          return findImageMatch(['PKG_CHASE_F', 'CHASE_P']);
+        case 'IMG_LOOSE':
+          return st?.heroPhotoDataUrl || b.heroPhoto || findImageMatch(['IMG_LOOSE']) || b.hero || null;
+        case 'IMG_PKG_F':
+          return findImageMatch(['IMG_PKG_F', 'IMG_PKG']);
+        case 'IMG_PKG_R':
+          return findImageMatch(['IMG_PKG_R']);
+        case 'IMG_PKG_WHT':
+          return findImageMatch(['IMG_PKG_WHT']);
+        case 'IMG_CHASE_L':
+          return findImageMatch(['IMG_CHASE_L']);
+        case 'IMG_CHASE_P':
+          return findImageMatch(['IMG_CHASE_P']);
+        case 'IMG_GROUP':
+          return findImageMatch(['IMG_GROUP']);
+        case 'IMG_TOP':
+          return findImageMatch(['IMG_TOP']);
+        default:
+          return null;
+      }
+    }
+
     async function nlgRenderAssetDrawer(b) {
       if (!b) return;
+      const elMatrix = document.getElementById('assetMatrix14Slots');
       const bucketConcepts = document.getElementById('assetBucketConcepts');
       const bucketDecals = document.getElementById('assetBucketDecals');
       const bucketBlister = document.getElementById('assetBucketBlister');
       const bucketPhotos = document.getElementById('assetBucketPhotos');
       const badgeCount = document.getElementById('stickyAssetCount');
+      const coverageBadge = document.getElementById('drawerSlotCoverageBadge');
+      const driveBtn = document.getElementById('drawerDriveFolderBtn');
 
       const st = (typeof nlgLoadCarState === 'function') ? await nlgLoadCarState(b.id) : null;
       const allVaultAssets = [];
 
+      // Link Drive Batch Folder button
+      if (driveBtn) {
+        const folder = b.folderUrl || `https://drive.google.com/drive/search?q=${encodeURIComponent(b.theme + ' ' + b.model)}`;
+        driveBtn.href = folder;
+      }
+
+      // Check for chase capability
+      const hasChase = parseFloat(b.plannedChase || b.chaseStock || 0) > 0;
+
+      // Build clone of canonical sections with dynamic slots
+      const activeSections = CANONICAL_ASSET_SECTIONS.map(sec => {
+        const sClone = { ...sec, slots: [...sec.slots] };
+        if (hasChase) {
+          if (sec.id === 'sec_decals' && !sClone.slots.some(s => s.tag === 'DCL_CHASE')) {
+            sClone.slots.push({ tag: 'DCL_CHASE', label: '⚡ Chase Decals', tool: 'decal' });
+          }
+          if (sec.id === 'sec_pkg' && !sClone.slots.some(s => s.tag === 'PKG_CHASE_F')) {
+            sClone.slots.push({ tag: 'PKG_CHASE_F', label: 'Front Card (Chase)', tool: 'card' });
+          }
+          if (sec.id === 'sec_promo') {
+            if (!sClone.slots.some(s => s.tag === 'IMG_CHASE_L')) sClone.slots.push({ tag: 'IMG_CHASE_L', label: 'Chase Loose Hero', tool: 'cam' });
+            if (!sClone.slots.some(s => s.tag === 'IMG_CHASE_P')) sClone.slots.push({ tag: 'IMG_CHASE_P', label: 'Chase Packaged', tool: 'cam' });
+          }
+        }
+        return sClone;
+      });
+
+      let totalFilled = 0;
+      let totalSlots = 0;
+
+      // -----------------------------------------------------------------------
+      // A. RENDER VIEW 1: 14-SLOT PRODUCTION MATRIX (GARAGE MES PARITY)
+      // -----------------------------------------------------------------------
+      if (elMatrix) {
+        let matrixHtml = '';
+        activeSections.forEach(sec => {
+          totalSlots += sec.slots.length;
+          let secFilledCount = 0;
+
+          const slotCardsHtml = sec.slots.map(slot => {
+            const assetUrl = nlgResolveSlotAsset(b, st, slot.tag);
+            if (assetUrl) {
+              secFilledCount++;
+              totalFilled++;
+              allVaultAssets.push({ label: slot.label, type: slot.tag, image: assetUrl });
+              return `
+                <div class="flex-shrink-0 w-32 rounded-lg bg-slate-900 border border-emerald-500/50 p-1.5 flex flex-col justify-between relative group shadow">
+                  <div class="flex items-center justify-between text-[9px] font-mono font-bold text-emerald-400 mb-1">
+                    <span class="truncate max-w-[90px]" title="${slot.label}">✅ ${slot.label}</span>
+                    <span class="text-[8px] text-slate-500">[${slot.tag.split('_')[0]}]</span>
+                  </div>
+                  <div class="w-full h-16 rounded bg-black/60 overflow-hidden cursor-zoom-in flex items-center justify-center relative" onclick="openImageLightbox('${assetUrl}', '${(b.theme + ' — ' + slot.label).replace(/'/g, "\'")}')">
+                    <img src="${assetUrl}" class="w-full h-full object-contain group-hover:scale-105 transition" onerror="handleImageError(this, '${b.theme}', '${b.model}', '${b.color}')" />
+                  </div>
+                  <div class="flex items-center justify-between mt-1 pt-1 border-t border-slate-800 text-[8px] font-mono">
+                    <span class="text-slate-400 truncate max-w-[65px]">${slot.tag}</span>
+                    <a href="${assetUrl}" download="${(b.theme + '_' + slot.tag).toLowerCase().replace(/[^a-z0-9]+/g, '_')}.png" onclick="event.stopPropagation()" class="text-cyan-400 hover:text-white" title="Download Asset">⬇</a>
+                  </div>
+                </div>
+              `;
+            } else {
+              // Open relevant Studio tool for unmapped slot
+              let toolAction = `openDirectSlotLinkModal('${slot.tag}', '${slot.label.replace(/'/g, "\'")}')`;
+              let toolLabel = '+ Link File';
+              if (slot.tool === 'decal') { toolAction = `openDecalStudioForCurrentBatch()`; toolLabel = '⚡ Decal Studio'; }
+              else if (slot.tool === 'card') { toolAction = `openCardModal()`; toolLabel = '📦 Card Builder'; }
+              else if (slot.tool === 'cam') { toolAction = `openLlamaCamModal()`; toolLabel = '📸 Llama Cam'; }
+              else if (slot.tool === 'concept' || slot.tool === 'mask') { toolAction = `openConceptGenModal()`; toolLabel = '💡 Idea Lab'; }
+
+              return `
+                <div class="flex-shrink-0 w-32 rounded-lg bg-slate-950/70 border border-dashed border-red-500/40 p-1.5 flex flex-col justify-between">
+                  <div class="text-[9px] font-mono font-bold text-red-400 truncate mb-1" title="${slot.label}">❌ ${slot.label}</div>
+                  <div class="w-full h-16 rounded bg-red-950/10 border border-red-900/20 flex flex-col items-center justify-center p-1 text-center cursor-pointer hover:bg-red-950/20 transition" onclick="${toolAction}">
+                    <span class="text-sm">📤</span>
+                    <span class="text-[8px] text-red-300 font-bold mt-0.5">${toolLabel}</span>
+                  </div>
+                  <div class="flex items-center justify-between mt-1 text-[8px] font-mono">
+                    <span class="text-slate-600 truncate">[${slot.tag}]</span>
+                    <button type="button" onclick="openDirectSlotLinkModal('${slot.tag}', '${slot.label.replace(/'/g, "\'")}')" class="text-cyan-400 hover:underline">Link ↗</button>
+                  </div>
+                </div>
+              `;
+            }
+          }).join('');
+
+          const badgeColor = (secFilledCount === sec.slots.length) ? 'bg-emerald-950 text-emerald-300 border-emerald-500/50' : (secFilledCount > 0 ? 'bg-cyan-950 text-cyan-300 border-cyan-500/50' : 'bg-slate-900 text-slate-500 border-slate-800');
+
+          matrixHtml += `
+            <div class="bg-black/50 border border-slate-800/80 rounded-xl p-2.5">
+              <div class="flex items-center justify-between pb-1.5 border-b border-slate-800/60 mb-2">
+                <div class="flex items-center gap-2">
+                  <span class="font-orbitron font-bold text-xs text-white">${sec.title}</span>
+                  <span class="text-[9px] text-slate-500 font-mono">(${sec.sub})</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="px-2 py-0.5 rounded-full border text-[9px] font-mono font-bold ${badgeColor}">
+                    ${secFilledCount} / ${sec.slots.length} Ready
+                  </span>
+                </div>
+              </div>
+              <div class="flex gap-2 overflow-x-auto pb-1.5 custom-scrollbar">
+                ${slotCardsHtml}
+              </div>
+            </div>
+          `;
+        });
+
+        elMatrix.innerHTML = matrixHtml;
+      }
+
+      // Update sticky count in header bar
+      if (badgeCount) {
+        badgeCount.innerText = totalFilled > 0 ? `${totalFilled} / ${totalSlots}` : '14';
+      }
+      if (coverageBadge) {
+        coverageBadge.innerText = `${totalFilled} / ${totalSlots} Slots Filled`;
+        coverageBadge.className = totalFilled === totalSlots ? 'px-2 py-0.5 rounded-full bg-emerald-950 border border-emerald-500/50 text-emerald-300 font-mono text-[10px] font-bold' : 'px-2 py-0.5 rounded-full bg-cyan-950 border border-cyan-500/50 text-cyan-300 font-mono text-[10px] font-bold';
+      }
+
+      // -----------------------------------------------------------------------
+      // B. RENDER VIEW 2: 4 GROUPED BUCKETS
+      // -----------------------------------------------------------------------
       // 1. CONCEPTS & MOCKUPS BUCKET
       if (bucketConcepts) {
         const concepts = [];
@@ -5420,18 +5839,15 @@ CORE LIVERY & PRODUCTION RULES:
         if (concepts.length > 0) {
           bucketConcepts.innerHTML = `
             <div class="grid grid-cols-2 gap-1.5">
-              ${concepts.map(c => {
-                allVaultAssets.push(c);
-                return `
-                  <div class="h-20 rounded bg-slate-900 border border-slate-800 hover:border-pink-500/50 overflow-hidden relative cursor-zoom-in group p-1 flex flex-col justify-between" onclick="openImageLightbox('${c.image}', '${(b.theme + ' — ' + c.label).replace(/'/g, "\'")}')">
-                    <img src="${c.image}" class="w-full h-14 object-cover object-center group-hover:scale-105 transition" />
-                    <div class="flex items-center justify-between text-[8px] font-mono text-slate-400">
-                      <span class="truncate max-w-[65px] text-pink-300 font-bold">${c.label}</span>
-                      <a href="${c.image}" download="${(b.theme + '_' + c.label).toLowerCase().replace(/[^a-z0-9]+/g, '_')}.png" onclick="event.stopPropagation()" class="text-cyan-400 hover:text-white" title="Download">⬇</a>
-                    </div>
+              ${concepts.map(c => `
+                <div class="h-20 rounded bg-slate-900 border border-slate-800 hover:border-pink-500/50 overflow-hidden relative cursor-zoom-in group p-1 flex flex-col justify-between" onclick="openImageLightbox('${c.image}', '${(b.theme + ' — ' + c.label).replace(/'/g, "\'")}')">
+                  <img src="${c.image}" class="w-full h-14 object-cover object-center group-hover:scale-105 transition" />
+                  <div class="flex items-center justify-between text-[8px] font-mono text-slate-400">
+                    <span class="truncate max-w-[65px] text-pink-300 font-bold">${c.label}</span>
+                    <a href="${c.image}" download="${(b.theme + '_' + c.label).toLowerCase().replace(/[^a-z0-9]+/g, '_')}.png" onclick="event.stopPropagation()" class="text-cyan-400 hover:text-white" title="Download">⬇</a>
                   </div>
-                `;
-              }).join('')}
+                </div>
+              `).join('')}
             </div>
             <span class="text-[9px] text-pink-400 block text-center font-mono font-bold">${concepts.length} Concept Mockup${concepts.length > 1 ? 's' : ''} Attached</span>
           `;
@@ -5448,7 +5864,6 @@ CORE LIVERY & PRODUCTION RULES:
             <div class="grid grid-cols-2 gap-1.5">
               ${decals.map(d => {
                 const img = d.cmykPng || d.underbasePng;
-                allVaultAssets.push({ label: d.label || d.key, type: 'DECAL CMYK', image: d.cmykPng, underbase: d.underbasePng });
                 return `
                   <div class="h-20 rounded bg-slate-900 border border-slate-800 hover:border-cyan-500/50 overflow-hidden relative cursor-zoom-in group p-1 flex flex-col justify-between" onclick="openImageLightbox('${img}', '${(b.theme + ' — ' + (d.label || d.key)).replace(/'/g, "\'")}')">
                     <img src="${img}" class="w-full h-14 object-contain group-hover:scale-105 transition" />
@@ -5484,18 +5899,15 @@ CORE LIVERY & PRODUCTION RULES:
         if (blisterItems.length > 0) {
           bucketBlister.innerHTML = `
             <div class="grid grid-cols-2 gap-1.5">
-              ${blisterItems.map(item => {
-                allVaultAssets.push(item);
-                return `
-                  <div class="h-20 rounded bg-slate-900 border border-slate-800 hover:border-purple-500/50 overflow-hidden relative cursor-zoom-in group p-1 flex flex-col justify-between" onclick="openImageLightbox('${item.image}', '${(b.theme + ' — ' + item.label).replace(/'/g, "\'")}')">
-                    <img src="${item.image}" class="w-full h-14 object-contain group-hover:scale-105 transition" />
-                    <div class="flex items-center justify-between text-[8px] font-mono text-slate-400">
-                      <span class="truncate max-w-[65px] text-purple-300 font-bold">${item.label}</span>
-                      <a href="${item.image}" download="${(b.theme + '_' + item.label).toLowerCase().replace(/[^a-z0-9]+/g, '_')}.png" onclick="event.stopPropagation()" class="text-purple-300 hover:text-white" title="Download">⬇</a>
-                    </div>
+              ${blisterItems.map(item => `
+                <div class="h-20 rounded bg-slate-900 border border-slate-800 hover:border-purple-500/50 overflow-hidden relative cursor-zoom-in group p-1 flex flex-col justify-between" onclick="openImageLightbox('${item.image}', '${(b.theme + ' — ' + item.label).replace(/'/g, "\'")}')">
+                  <img src="${item.image}" class="w-full h-14 object-contain group-hover:scale-105 transition" />
+                  <div class="flex items-center justify-between text-[8px] font-mono text-slate-400">
+                    <span class="truncate max-w-[65px] text-purple-300 font-bold">${item.label}</span>
+                    <a href="${item.image}" download="${(b.theme + '_' + item.label).toLowerCase().replace(/[^a-z0-9]+/g, '_')}.png" onclick="event.stopPropagation()" class="text-purple-300 hover:text-white" title="Download">⬇</a>
                   </div>
-                `;
-              }).join('')}
+                </div>
+              `).join('')}
             </div>
             <div class="flex items-center justify-between pt-1">
               <span class="text-[9px] text-purple-400 font-mono font-bold">${blisterItems.length} Packaging File${blisterItems.length > 1 ? 's' : ''}</span>
@@ -5513,7 +5925,6 @@ CORE LIVERY & PRODUCTION RULES:
       // 4. PHOTOGRAPHY / PHYSICAL DONOR & MULTI-SHOT GALLERY BUCKET
       if (bucketPhotos) {
         const photoList = [];
-        // Gather full photography array from GAS catalog / b.images
         if (Array.isArray(b.images) && b.images.length > 0) {
           b.images.forEach((imgUrl, idx) => {
             if (imgUrl && typeof imgUrl === 'string') {
@@ -5522,12 +5933,10 @@ CORE LIVERY & PRODUCTION RULES:
             }
           });
         }
-        // Include physical donor photo if defined
         const donor = b.donorPhoto || (String(b.model || '').toLowerCase().includes('dairy') ? 'assets/dairy_donor_side_cutout.png' : null);
         if (donor && !photoList.some(p => p.image === donor)) {
           photoList.push({ label: 'Donor Casting', type: 'PHYSICAL DONOR', image: donor });
         }
-        // Include user camera capture, glory shot photo, or hero photograph
         const camShot = st?.heroPhotoDataUrl || b.heroPhoto || (b.hero && !b.hero.startsWith('data:') && !b.hero.includes('donor') && (b.hero.endsWith('.png') || b.hero.endsWith('.jpg') || b.hero.startsWith('http')) ? b.hero : null);
         if (camShot && !photoList.some(p => p.image === camShot)) {
           const isLlamaCam = !!(st?.heroPhotoDataUrl);
@@ -5535,7 +5944,6 @@ CORE LIVERY & PRODUCTION RULES:
         }
 
         if (photoList.length > 0) {
-          photoList.forEach(p => allVaultAssets.push(p));
           bucketPhotos.innerHTML = `
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-1.5 max-h-56 overflow-y-auto pr-1">
               ${photoList.map(item => `
@@ -5562,8 +5970,21 @@ CORE LIVERY & PRODUCTION RULES:
       }
 
       window.currentCarVaultAssets = allVaultAssets;
-      if (badgeCount) {
-        badgeCount.innerText = allVaultAssets.length;
+    }
+
+    // DIRECT SLOT LINK MODAL HELPER
+    function openDirectSlotLinkModal(slotTag, slotLabel) {
+      const b = (typeof workshopBatches !== 'undefined') ? workshopBatches.find(x => x.id === currentActiveBatchId) : null;
+      const url = prompt(`Link asset URL or file path for [${slotTag}] - ${slotLabel}:\n\nPaste Google Drive / R2 URL, or local assets/ path:`, b?.pipelineAssets?.[slotTag] || '');
+      if (url && url.trim()) {
+        if (!b.pipelineAssets) b.pipelineAssets = {};
+        b.pipelineAssets[slotTag] = url.trim();
+        saveBatchesToStorage();
+        if (typeof nlgSaveCarState === 'function') {
+          nlgSaveCarState(b.id, { pipelineAssets: b.pipelineAssets });
+        }
+        nlgRenderAssetDrawer(b);
+        showToast(`Linked [${slotTag}] for ${b.theme}!`, '🔗');
       }
     }
 
