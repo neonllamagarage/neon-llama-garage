@@ -188,7 +188,7 @@
           <span>🖼️</span> ALBUMS <span id="albumsCountBadge" class="px-1.5 py-0.2 rounded bg-purple-950 text-purple-200 text-[10px] font-mono border border-purple-500/40">0</span>
         </button>
         <button onclick="openConceptGenModal(true)" class="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-orbitron font-black text-xs border border-pink-400/50 shadow-lg shadow-pink-900/40 transition active:scale-95 flex items-center gap-1.5">
-          <span>✨</span> + NEW CAR (v5.2.0)
+          <span>✨</span> + NEW CAR (v5.2.1)
         </button>
         <div class="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-[10px] font-mono text-cyan-400">
           STORE: <a href="https://neonllamagarage.com" target="_blank" class="hover:underline font-bold text-white">NEONLLAMAGARAGE.COM</a>
@@ -413,8 +413,28 @@
                 <input type="text" id="inputBatchColor" oninput="saveBatchesToStorage()" class="w-full bg-black/70 border border-slate-800 rounded-lg p-1.5 text-center text-white font-bold text-xs focus:border-cyan-400 outline-none">
               </div>
               <div>
-                <label class="text-[9px] text-slate-400 block uppercase mb-1">Total Units</label>
-                <input type="text" id="inputBatchQty" oninput="saveBatchesToStorage()" class="w-full bg-black/70 border border-slate-800 rounded-lg p-1.5 text-center text-cyan-300 font-mono font-bold text-xs focus:border-cyan-400 outline-none">
+                <div class="flex items-center justify-between mb-1">
+                  <label class="text-[9px] text-slate-400 uppercase">Run Qty</label>
+                  <span id="batchQtyTotalBadge" class="text-[9px] font-mono font-bold text-cyan-300 bg-cyan-950/80 px-1 rounded border border-cyan-500/40">8 Total</span>
+                </div>
+                <div class="flex items-center justify-center gap-1 bg-black/80 border border-slate-800 rounded-lg p-1">
+                  <!-- Reg Stepper -->
+                  <div class="flex items-center gap-0.5" title="Regular Units">
+                    <button type="button" onclick="nlgAdjustRunQty('reg', -1)" class="w-5 h-5 flex items-center justify-center rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs active:scale-95 transition">-</button>
+                    <span id="displayRegQty" class="min-w-[18px] text-center font-mono font-bold text-xs text-white">8</span>
+                    <button type="button" onclick="nlgAdjustRunQty('reg', 1)" class="w-5 h-5 flex items-center justify-center rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs active:scale-95 transition">+</button>
+                    <span class="text-[8px] font-mono text-slate-500 uppercase">Reg</span>
+                  </div>
+                  <span class="text-slate-700 text-xs">|</span>
+                  <!-- Chase Stepper -->
+                  <div class="flex items-center gap-0.5" title="Chase Units">
+                    <button type="button" onclick="nlgAdjustRunQty('chase', -1)" class="w-5 h-5 flex items-center justify-center rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs active:scale-95 transition">-</button>
+                    <span id="displayChaseQty" class="min-w-[14px] text-center font-mono font-bold text-xs text-amber-400">0</span>
+                    <button type="button" onclick="nlgAdjustRunQty('chase', 1)" class="w-5 h-5 flex items-center justify-center rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs active:scale-95 transition">+</button>
+                    <span class="text-[8px] font-mono text-amber-500 uppercase">Chs</span>
+                  </div>
+                </div>
+                <input type="hidden" id="inputBatchQty" value="8 Reg • 0 Chase" />
               </div>
               <div>
                 <label class="text-[9px] text-slate-400 block uppercase mb-1">MSRP ($)</label>
@@ -451,6 +471,13 @@
                     <input type="number" step="0.25" id="inputOvhCost" value="2.00" oninput="recalcMargins()" class="w-12 bg-transparent text-white font-bold text-center outline-none">
                   </div>
                 </div>
+              </div>
+              <div id="batchEconomicsSummary" class="flex items-center justify-between text-[11px] pt-1.5 border-t border-slate-850">
+                <span class="text-slate-400 font-mono text-[10px]">RUN REVENUE:</span>
+                <span class="text-white font-bold font-mono text-xs">$400</span>
+                <span class="text-slate-600">•</span>
+                <span class="text-slate-400 font-mono text-[10px]">NET PROFIT:</span>
+                <span class="text-emerald-400 font-bold font-mono text-xs">+$348.00 (87%)</span>
               </div>
             </div>
 
@@ -4404,9 +4431,9 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
       const laneBadge = document.getElementById('headerLaneBadge');
       if (!container) return;
 
-      const qtyMatch = String(b.qty || '').match(/(\d+)/);
-      const totalUnits = qtyMatch ? Math.max(2, parseInt(qtyMatch[1])) : 8;
-      const fleetTotal = Math.max(1, totalUnits - 1);
+      const parsed = nlgParseQty(b.qty);
+      const totalUnits = parsed.total;
+      const fleetTotal = parsed.fleetTotal;
 
       if (!b.unitProgress) {
         const isDairy = String(b.model || '').toLowerCase().includes('dairy') || String(b.theme || '').toLowerCase().includes('freeze');
@@ -4415,6 +4442,7 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
           heroDecal: true,
           heroAssemble: true,
           heroPhoto: isDairy ? false : Boolean(b.heroPhoto),
+          decalsPrinted: isDairy ? 1 : 0,
           fleetDecalsPrinted: false,
           fleetPrepped: isDairy ? 0 : 2,
           fleetDecaled: 0,
@@ -4423,6 +4451,11 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
         };
       }
       const up = b.unitProgress;
+      if (up.decalsPrinted === undefined) {
+        up.decalsPrinted = up.fleetDecalsPrinted ? totalUnits : (String(b.model || '').toLowerCase().includes('dairy') ? 1 : 0);
+      }
+      const printedDecals = up.decalsPrinted;
+      const decalsDone = printedDecals >= totalUnits || Boolean(up.fleetDecalsPrinted);
 
       // 8 Master Steps
       const steps = [
@@ -4439,14 +4472,26 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
           id: 'decals',
           num: 2,
           name: 'Decals',
-          sub: `CMYK + White Underbase (${totalUnits} Units)`,
-          isDone: Boolean(up.fleetDecalsPrinted),
-          isActionable: !up.fleetDecalsPrinted,
+          sub: `CMYK + White Underbase (${printedDecals}/${totalUnits} Printed • ${printedDecals > 0 ? (printedDecals >= totalUnits ? 'All Printed ✓' : 'Hero Done, ' + (totalUnits - printedDecals) + ' Fleet Needed') : totalUnits + ' Sheets Needed'})`,
+          isDone: decalsDone,
+          isActionable: !decalsDone,
           isUpcoming: false,
+          progress: Math.round((printedDecals / totalUnits) * 100),
           renderAction: () => `
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 flex-wrap">
+              <div class="flex items-center gap-1 bg-slate-900 px-2.5 py-1 rounded-lg border border-slate-800 font-mono text-xs" title="Track Printed Decal Sheets">
+                <button type="button" onclick="nlgAdjustDecalCounter(-1)" class="text-slate-400 hover:text-white px-1.5 font-bold transition active:scale-95">-</button>
+                <span class="font-bold text-cyan-300 min-w-[38px] text-center">${printedDecals} / ${totalUnits}</span>
+                <button type="button" onclick="nlgAdjustDecalCounter(1)" class="text-slate-400 hover:text-white px-1.5 font-bold transition active:scale-95">+</button>
+              </div>
               <button type="button" onclick="openDecalStudioForCurrentBatch()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 font-orbitron font-bold text-xs border border-slate-700 transition">Open Studio</button>
-              <button type="button" onclick="nlgMarkFleetDecalsDone()" class="px-3.5 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-black font-orbitron font-black text-xs transition active:scale-95 shadow">Mark Printed</button>
+              ${printedDecals < totalUnits ? `
+                <button type="button" onclick="nlgSetDecalsAll()" class="px-3.5 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-black font-orbitron font-black text-xs transition active:scale-95 shadow">
+                  ${printedDecals === 0 ? `Print All (${totalUnits})` : `Print Fleet (${totalUnits - printedDecals})`}
+                </button>
+              ` : `
+                <span class="text-xs font-mono font-bold text-emerald-400 bg-emerald-950/80 px-2.5 py-1 rounded border border-emerald-500/40">✓ All Printed</span>
+              `}
             </div>
           `
         },
@@ -4458,6 +4503,7 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
           isDone: Boolean(up.heroPhoto),
           isActionable: !up.heroPhoto && Boolean(up.heroAssemble),
           isUpcoming: !up.heroAssemble,
+          progress: up.heroPhoto ? 100 : 0,
           renderAction: () => `
             <div class="flex items-center gap-2">
               <input type="file" id="nlgMasterHeroPhotoInput" accept="image/*" class="hidden" onchange="nlgHandleQuickLooseHero(this)" />
@@ -4472,18 +4518,20 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
           id: 'paint',
           num: 4,
           name: 'Strip & Paint',
-          sub: `Base Coat (${up.fleetPrepped}/${fleetTotal} Units)`,
-          isDone: up.fleetPrepped === fleetTotal,
-          isActionable: up.fleetPrepped < fleetTotal && Boolean(up.fleetDecalsPrinted),
-          isUpcoming: !up.fleetDecalsPrinted,
+          sub: `Base Coat (${up.fleetPrepped}/${fleetTotal} Fleet Prepped)`,
+          isDone: up.fleetPrepped >= fleetTotal,
+          isActionable: up.fleetPrepped < fleetTotal,
+          isUpcoming: false,
+          progress: Math.round((up.fleetPrepped / fleetTotal) * 100),
           renderAction: () => `
-            <div class="flex items-center gap-2">
-              <div class="flex items-center gap-1 bg-slate-900 px-2.5 py-1 rounded-lg border border-slate-800 font-mono text-xs">
-                <button type="button" onclick="nlgAdjustFleetCounter('fleetPrepped', -1)" class="text-slate-400 hover:text-white px-1.5 font-bold">-</button>
-                <span class="font-bold text-cyan-300 min-w-[36px] text-center">${up.fleetPrepped} / ${fleetTotal}</span>
-                <button type="button" onclick="nlgAdjustFleetCounter('fleetPrepped', 1)" class="text-slate-400 hover:text-white px-1.5 font-bold">+</button>
+            <div class="flex items-center gap-2 flex-wrap">
+              <div class="flex items-center gap-1 bg-slate-900 px-2.5 py-1 rounded-lg border border-slate-800 font-mono text-xs" title="Track Stripped & Painted Cars">
+                <button type="button" onclick="nlgAdjustFleetCounter('fleetPrepped', -1)" class="text-slate-400 hover:text-white px-1.5 font-bold transition active:scale-95">-</button>
+                <span class="font-bold text-cyan-300 min-w-[38px] text-center">${up.fleetPrepped} / ${fleetTotal}</span>
+                <button type="button" onclick="nlgAdjustFleetCounter('fleetPrepped', 1)" class="text-slate-400 hover:text-white px-1.5 font-bold transition active:scale-95">+</button>
               </div>
-              <button type="button" onclick="nlgSetFleetCounterAll('fleetPrepped')" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition">All Done</button>
+              <button type="button" onclick="nlgAdjustFleetCounter('fleetPrepped', 1)" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold text-xs transition active:scale-95">+1 Prepped</button>
+              <button type="button" onclick="nlgSetFleetCounterAll('fleetPrepped')" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition active:scale-95">All (${fleetTotal})</button>
             </div>
           `
         },
@@ -4491,18 +4539,20 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
           id: 'applyDecals',
           num: 5,
           name: 'Apply Decals',
-          sub: `Waterslide Application (${up.fleetDecaled}/${fleetTotal} Units)`,
-          isDone: up.fleetDecaled === fleetTotal,
+          sub: `Waterslide Application (${up.fleetDecaled}/${fleetTotal} Fleet Decaled)`,
+          isDone: up.fleetDecaled >= fleetTotal,
           isActionable: up.fleetDecaled < fleetTotal && up.fleetPrepped > 0,
           isUpcoming: up.fleetPrepped === 0,
+          progress: Math.round((up.fleetDecaled / fleetTotal) * 100),
           renderAction: () => `
-            <div class="flex items-center gap-2">
-              <div class="flex items-center gap-1 bg-slate-900 px-2.5 py-1 rounded-lg border border-slate-800 font-mono text-xs">
-                <button type="button" onclick="nlgAdjustFleetCounter('fleetDecaled', -1)" class="text-slate-400 hover:text-white px-1.5 font-bold">-</button>
-                <span class="font-bold text-cyan-300 min-w-[36px] text-center">${up.fleetDecaled} / ${fleetTotal}</span>
-                <button type="button" onclick="nlgAdjustFleetCounter('fleetDecaled', 1)" class="text-slate-400 hover:text-white px-1.5 font-bold">+</button>
+            <div class="flex items-center gap-2 flex-wrap">
+              <div class="flex items-center gap-1 bg-slate-900 px-2.5 py-1 rounded-lg border border-slate-800 font-mono text-xs" title="Track Decaled Cars">
+                <button type="button" onclick="nlgAdjustFleetCounter('fleetDecaled', -1)" class="text-slate-400 hover:text-white px-1.5 font-bold transition active:scale-95">-</button>
+                <span class="font-bold text-cyan-300 min-w-[38px] text-center">${up.fleetDecaled} / ${fleetTotal}</span>
+                <button type="button" onclick="nlgAdjustFleetCounter('fleetDecaled', 1)" class="text-slate-400 hover:text-white px-1.5 font-bold transition active:scale-95">+</button>
               </div>
-              <button type="button" onclick="nlgSetFleetCounterAll('fleetDecaled')" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition">All Done</button>
+              <button type="button" onclick="nlgAdjustFleetCounter('fleetDecaled', 1)" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold text-xs transition active:scale-95">+1 Decaled</button>
+              <button type="button" onclick="nlgSetFleetCounterAll('fleetDecaled')" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition active:scale-95">All (${fleetTotal})</button>
             </div>
           `
         },
@@ -4510,18 +4560,20 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
           id: 'assemble',
           num: 6,
           name: 'Assemble',
-          sub: `Real Riders & M2 Chassis (${up.fleetAssembled}/${fleetTotal} Units)`,
-          isDone: up.fleetAssembled === fleetTotal,
+          sub: `Real Riders & M2 Screws (${up.fleetAssembled}/${fleetTotal} Fleet Assembled)`,
+          isDone: up.fleetAssembled >= fleetTotal,
           isActionable: up.fleetAssembled < fleetTotal && up.fleetDecaled > 0,
           isUpcoming: up.fleetDecaled === 0,
+          progress: Math.round((up.fleetAssembled / fleetTotal) * 100),
           renderAction: () => `
-            <div class="flex items-center gap-2">
-              <div class="flex items-center gap-1 bg-slate-900 px-2.5 py-1 rounded-lg border border-slate-800 font-mono text-xs">
-                <button type="button" onclick="nlgAdjustFleetCounter('fleetAssembled', -1)" class="text-slate-400 hover:text-white px-1.5 font-bold">-</button>
-                <span class="font-bold text-cyan-300 min-w-[36px] text-center">${up.fleetAssembled} / ${fleetTotal}</span>
-                <button type="button" onclick="nlgAdjustFleetCounter('fleetAssembled', 1)" class="text-slate-400 hover:text-white px-1.5 font-bold">+</button>
+            <div class="flex items-center gap-2 flex-wrap">
+              <div class="flex items-center gap-1 bg-slate-900 px-2.5 py-1 rounded-lg border border-slate-800 font-mono text-xs" title="Track Assembled Cars">
+                <button type="button" onclick="nlgAdjustFleetCounter('fleetAssembled', -1)" class="text-slate-400 hover:text-white px-1.5 font-bold transition active:scale-95">-</button>
+                <span class="font-bold text-cyan-300 min-w-[38px] text-center">${up.fleetAssembled} / ${fleetTotal}</span>
+                <button type="button" onclick="nlgAdjustFleetCounter('fleetAssembled', 1)" class="text-slate-400 hover:text-white px-1.5 font-bold transition active:scale-95">+</button>
               </div>
-              <button type="button" onclick="nlgSetFleetCounterAll('fleetAssembled')" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition">All Done</button>
+              <button type="button" onclick="nlgAdjustFleetCounter('fleetAssembled', 1)" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold text-xs transition active:scale-95">+1 Assembled</button>
+              <button type="button" onclick="nlgSetFleetCounterAll('fleetAssembled')" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition active:scale-95">All (${fleetTotal})</button>
             </div>
           `
         },
@@ -4529,19 +4581,20 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
           id: 'packaging',
           num: 7,
           name: 'Packaging',
-          sub: `Blister Card Heat Seal (${up.fleetPackaged}/${fleetTotal} Units)`,
-          isDone: up.fleetPackaged === fleetTotal,
+          sub: `Blister Seal & Pack (${up.fleetPackaged}/${fleetTotal} Fleet Boxed)`,
+          isDone: up.fleetPackaged >= fleetTotal,
           isActionable: up.fleetPackaged < fleetTotal && up.fleetAssembled > 0,
           isUpcoming: up.fleetAssembled === 0,
+          progress: Math.round((up.fleetPackaged / fleetTotal) * 100),
           renderAction: () => `
-            <div class="flex items-center gap-2">
-              <button type="button" onclick="openCardModal()" class="px-2.5 py-1 rounded bg-slate-800 text-purple-300 font-bold text-xs">Card Builder</button>
-              <div class="flex items-center gap-1 bg-slate-900 px-2 py-0.5 rounded-lg border border-slate-800 font-mono text-xs">
-                <button type="button" onclick="nlgAdjustFleetCounter('fleetPackaged', -1)" class="text-slate-400 hover:text-white px-1 font-bold">-</button>
-                <span class="font-bold text-cyan-300 min-w-[32px] text-center">${up.fleetPackaged} / ${fleetTotal}</span>
-                <button type="button" onclick="nlgAdjustFleetCounter('fleetPackaged', 1)" class="text-slate-400 hover:text-white px-1 font-bold">+</button>
+            <div class="flex items-center gap-2 flex-wrap">
+              <div class="flex items-center gap-1 bg-slate-900 px-2.5 py-1 rounded-lg border border-slate-800 font-mono text-xs" title="Track Boxed / Packaged Cars">
+                <button type="button" onclick="nlgAdjustFleetCounter('fleetPackaged', -1)" class="text-slate-400 hover:text-white px-1.5 font-bold transition active:scale-95">-</button>
+                <span class="font-bold text-cyan-300 min-w-[38px] text-center">${up.fleetPackaged} / ${fleetTotal}</span>
+                <button type="button" onclick="nlgAdjustFleetCounter('fleetPackaged', 1)" class="text-slate-400 hover:text-white px-1.5 font-bold transition active:scale-95">+</button>
               </div>
-              <button type="button" onclick="nlgSetFleetCounterAll('fleetPackaged')" class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs">All Done</button>
+              <button type="button" onclick="nlgAdjustFleetCounter('fleetPackaged', 1)" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold text-xs transition active:scale-95">+1 Packaged</button>
+              <button type="button" onclick="nlgSetFleetCounterAll('fleetPackaged')" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition active:scale-95">All (${fleetTotal})</button>
             </div>
           `
         },
@@ -4549,19 +4602,21 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
           id: 'storefront',
           num: 8,
           name: 'Storefront',
-          sub: b.section === 'active' ? 'Live on Store' : 'Ready to Drop',
+          sub: 'Live on Neon Llama Shop',
           isDone: b.section === 'active',
-          isActionable: b.section !== 'active' && (up.fleetPackaged === fleetTotal || up.heroPhoto),
-          isUpcoming: b.section !== 'active' && !up.heroPhoto && up.fleetPackaged < fleetTotal,
+          isActionable: up.fleetPackaged >= fleetTotal && Boolean(up.heroPhoto) && b.section !== 'active',
+          isUpcoming: up.fleetPackaged < fleetTotal || !up.heroPhoto,
           renderAction: () => `
-            <button type="button" onclick="deployStorefront()" class="px-4 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-orbitron font-black text-xs shadow-lg transition active:scale-95">
-              🚀 DEPLOY LIVE TO STORE
-            </button>
+            <div class="flex items-center gap-2">
+              <button type="button" onclick="nlgDeployBatchToLiveStore('${b.id}')" class="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-orbitron font-black text-xs transition active:scale-95 shadow flex items-center gap-1.5">
+                <span>🚀</span> Deploy Drop to Shop
+              </button>
+            </div>
           `
         }
       ];
 
-      // Lane automatically driven by checklist state
+      // Checklist drives lane automatically
       if (b.section === 'vault') {
         if (laneBadge) {
           laneBadge.className = 'px-2.5 py-1 rounded-lg text-xs font-orbitron font-bold bg-purple-950/80 text-purple-300 border border-purple-500/40';
@@ -4580,80 +4635,119 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
           laneBadge.innerText = '⚡ WIP';
         }
       }
+      saveBatchesToStorage();
 
-      // Calculate progress percentage
       const completedCount = steps.filter(s => s.isDone).length;
-      let u1Pts = (up.heroPrep ? 1 : 0) + (up.heroDecal ? 1 : 0) + (up.heroAssemble ? 1 : 0) + (up.heroPhoto ? 1 : 0);
-      let fleetPts = (up.fleetDecalsPrinted ? 1 : 0) +
-                     (up.fleetPrepped / fleetTotal) +
-                     (up.fleetDecaled / fleetTotal) +
-                     (up.fleetAssembled / fleetTotal) +
-                     (up.fleetPackaged / fleetTotal);
-      b.progress = Math.min(100, Math.round(((u1Pts / 4) * 40) + ((fleetPts / 5) * 60)));
-      const progEl = document.getElementById('batchProgressPercent');
-      if (progEl) progEl.innerText = `${b.progress}%`;
+      const overallPercent = Math.round((completedCount / steps.length) * 100);
+      b.progress = overallPercent;
 
-      // Update toggle button text
+      const percentEl = document.getElementById('batchProgressPercent');
+      if (percentEl) percentEl.innerText = `${overallPercent}%`;
+
       if (toggleBtn) {
         toggleBtn.innerText = nlgShowCompletedSteps 
-          ? `Hide Completed Steps (${completedCount})` 
+          ? `Hide Completed Steps (${completedCount})`
           : `Show Completed Steps (${completedCount})`;
       }
 
-      // Render items according to Derek's rules:
-      // 1. Anything totally done for all is hidden (unless user toggled show)
-      // 2. Active tasks clearly highlighted
-      // 3. Upcoming tasks grayed out
-      let html = '';
+      // BUILD HTML: Visual Run Pipeline Summary Bar + Steps
+      let html = `
+        <div class="bg-black/80 border border-slate-800 rounded-xl p-3 space-y-2 mb-3 shadow-lg">
+          <div class="flex items-center justify-between flex-wrap gap-2">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-orbitron font-bold text-slate-300">BATCH RUN:</span>
+              <span class="px-2 py-0.5 rounded bg-cyan-950/80 border border-cyan-500/50 text-cyan-300 font-mono font-bold text-xs">
+                ${parsed.reg} REG${parsed.chase > 0 ? ` • ${parsed.chase} CHASE` : ''} (${totalUnits} TOTAL)
+              </span>
+              <span class="text-[10px] font-mono text-slate-500">(1 Hero Prototype + ${fleetTotal} Fleet)</span>
+            </div>
+            <div class="text-[11px] font-mono text-emerald-400 font-bold">
+              ${completedCount} of 8 Steps Complete (${overallPercent}%)
+            </div>
+          </div>
+          <!-- PIPELINE STAGE PILLS -->
+          <div class="grid grid-cols-2 sm:grid-cols-5 gap-1.5 font-mono text-[10px]">
+            <div class="p-1.5 rounded bg-slate-900 border ${printedDecals >= totalUnits ? 'border-emerald-500/50 text-emerald-400 bg-emerald-950/30' : 'border-slate-800 text-cyan-300'} text-center">
+              <span class="text-slate-500 block text-[9px]">DECALS</span>
+              <span class="font-bold">${printedDecals}/${totalUnits}</span>
+            </div>
+            <div class="p-1.5 rounded bg-slate-900 border ${up.fleetPrepped >= fleetTotal ? 'border-emerald-500/50 text-emerald-400 bg-emerald-950/30' : 'border-slate-800 text-cyan-300'} text-center">
+              <span class="text-slate-500 block text-[9px]">PAINT</span>
+              <span class="font-bold">${up.fleetPrepped}/${fleetTotal}</span>
+            </div>
+            <div class="p-1.5 rounded bg-slate-900 border ${up.fleetDecaled >= fleetTotal ? 'border-emerald-500/50 text-emerald-400 bg-emerald-950/30' : 'border-slate-800 text-cyan-300'} text-center">
+              <span class="text-slate-500 block text-[9px]">DECALED</span>
+              <span class="font-bold">${up.fleetDecaled}/${fleetTotal}</span>
+            </div>
+            <div class="p-1.5 rounded bg-slate-900 border ${up.fleetAssembled >= fleetTotal ? 'border-emerald-500/50 text-emerald-400 bg-emerald-950/30' : 'border-slate-800 text-cyan-300'} text-center">
+              <span class="text-slate-500 block text-[9px]">ASSEMBLED</span>
+              <span class="font-bold">${up.fleetAssembled}/${fleetTotal}</span>
+            </div>
+            <div class="p-1.5 rounded bg-slate-900 border ${up.fleetPackaged >= fleetTotal ? 'border-emerald-500/50 text-emerald-400 bg-emerald-950/30' : 'border-slate-800 text-cyan-300'} text-center">
+              <span class="text-slate-500 block text-[9px]">PACKAGED</span>
+              <span class="font-bold">${up.fleetPackaged}/${fleetTotal}</span>
+            </div>
+          </div>
+        </div>
+      `;
 
       steps.forEach(step => {
         if (step.isDone) {
           if (!nlgShowCompletedSteps) return; // HIDDEN BY DEFAULT!
           html += `
-            <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-950/40 border border-slate-800 text-slate-500 text-xs">
+            <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-950/40 border border-emerald-900/30 text-slate-500 opacity-60 transition">
               <div class="flex items-center gap-3">
-                <span class="w-6 h-6 rounded-md bg-emerald-950/60 border border-emerald-500/40 text-emerald-400 font-bold text-xs flex items-center justify-center">✓</span>
+                <div class="w-6 h-6 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-500/40 flex items-center justify-center font-mono font-bold text-xs shrink-0">✓</div>
                 <div>
-                  <span class="font-bold text-slate-400 line-through">${step.name}</span>
-                  <span class="text-[10px] text-slate-600 ml-2">• ${step.sub}</span>
+                  <div class="font-orbitron font-bold text-xs text-slate-300 line-through">${step.name}</div>
+                  <div class="text-[10px] font-mono text-slate-500">${step.sub}</div>
                 </div>
               </div>
-              <span class="text-[10px] font-mono text-emerald-500/70 font-bold">DONE</span>
+              <span class="text-[10px] font-mono text-emerald-500/80 font-bold">DONE</span>
             </div>
           `;
         } else if (step.isActionable) {
-          // PROMINENTLY HIGHLIGHTED (WHAT WE CAN WORK ON NOW)
+          // HIGHLIGHTED TASK (CAN WORK ON NOW)
           html += `
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-2xl bg-gradient-to-r from-[#0b1426] via-[#0f1b36] to-[#0b1426] border-2 border-cyan-400 shadow-xl shadow-cyan-950/30">
-              <div class="flex items-start gap-3">
-                <div class="w-8 h-8 rounded-xl bg-cyan-500/20 border border-cyan-400 text-cyan-300 font-bold text-base flex items-center justify-center shrink-0 mt-0.5 animate-pulse">
-                  ⚡
-                </div>
-                <div>
-                  <div class="flex items-center gap-2">
-                    <span class="font-orbitron font-black text-sm text-white">${step.name}</span>
-                    <span class="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-400/50">CAN WORK ON NOW</span>
+            <div class="p-3.5 rounded-xl bg-gradient-to-r from-slate-900 via-[#0a1122] to-slate-900 border-2 border-cyan-400/80 shadow-lg shadow-cyan-950/40 space-y-2 transition-all">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-7 h-7 rounded-lg bg-cyan-950 text-cyan-300 border border-cyan-400/50 flex items-center justify-center font-orbitron font-black text-xs shrink-0 shadow">
+                    ${step.num}
                   </div>
-                  <p class="text-xs text-slate-300 font-medium mt-0.5">${step.sub}</p>
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <span class="font-orbitron font-black text-sm text-white">${step.name}</span>
+                      <span class="px-2 py-0.5 rounded text-[9px] font-mono font-bold bg-cyan-500 text-black uppercase tracking-wider">CAN WORK ON NOW</span>
+                    </div>
+                    <div class="text-xs font-mono text-cyan-300">${step.sub}</div>
+                  </div>
                 </div>
-              </div>
-              <div class="shrink-0 self-end sm:self-center">
                 ${step.renderAction ? step.renderAction() : ''}
               </div>
+              ${typeof step.progress === 'number' && step.progress > 0 && step.progress < 100 ? `
+                <div class="w-full bg-slate-950 rounded-full h-1.5 overflow-hidden border border-slate-800">
+                  <div class="h-full bg-gradient-to-r from-cyan-400 to-emerald-400 transition-all duration-300" style="width: ${step.progress}%;"></div>
+                </div>
+              ` : ''}
             </div>
           `;
         } else {
-          // UPCOMING (GRAYED OUT)
+          // UPCOMING TASK (GRAYED OUT)
           html += `
-            <div class="flex items-center justify-between p-2.5 rounded-xl bg-black/30 border border-slate-900 opacity-35 select-none text-xs">
-              <div class="flex items-center gap-3">
-                <span class="w-6 h-6 rounded-md bg-slate-900 border border-slate-800 text-slate-600 font-bold text-xs flex items-center justify-center">🔒</span>
+            <div class="flex items-center justify-between p-3 rounded-xl bg-black/40 border border-slate-800/40 opacity-40 transition">
+              <div class="flex items-center gap-2.5">
+                <div class="w-6 h-6 rounded-lg bg-slate-900 text-slate-600 border border-slate-800 flex items-center justify-center font-mono font-bold text-xs shrink-0">
+                  ${step.num}
+                </div>
                 <div>
-                  <span class="font-bold text-slate-500">${step.name}</span>
-                  <span class="text-[10px] text-slate-600 ml-2">• ${step.sub}</span>
+                  <div class="font-orbitron font-bold text-xs text-slate-500">${step.name}</div>
+                  <div class="text-[10px] font-mono text-slate-600">${step.sub}</div>
                 </div>
               </div>
-              <span class="text-[9px] font-mono text-slate-600">UPCOMING</span>
+              <div class="flex items-center gap-2">
+                ${step.renderAction ? step.renderAction() : ''}
+              </div>
             </div>
           `;
         }
@@ -4661,7 +4755,7 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
 
       container.innerHTML = html;
     }
-    
+
     function openBatchDetail(batchId) {
       currentActiveBatchId = batchId;
       const b = workshopBatches.find(x => x.id === batchId) || workshopBatches[0];
@@ -4698,6 +4792,14 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
       if (inputColor) inputColor.value = b.color;
       const inputQty = document.getElementById('inputBatchQty');
       if (inputQty) inputQty.value = b.qty;
+
+      const parsedQty = nlgParseQty(b.qty);
+      const dispReg = document.getElementById('displayRegQty');
+      if (dispReg) dispReg.innerText = parsedQty.reg;
+      const dispChase = document.getElementById('displayChaseQty');
+      if (dispChase) dispChase.innerText = parsedQty.chase;
+      const badgeTotal = document.getElementById('batchQtyTotalBadge');
+      if (badgeTotal) badgeTotal.innerText = `${parsedQty.total} Total`;
       const inputPrice = document.getElementById('inputBatchPrice');
       if (inputPrice) inputPrice.value = typeof b.price === 'number' ? b.price : parseFloat(String(b.price).replace(/[^0-9.]/g, '')) || 50;
 
@@ -4723,22 +4825,43 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
 
     // RECALCULATE GROSS PROFIT MARGIN IN REAL TIME
     function recalcMargins() {
-      const price = parseFloat(document.getElementById('inputBatchPrice').value) || 50;
-      const car = parseFloat(document.getElementById('inputCarCost').value) || 0;
-      const whl = parseFloat(document.getElementById('inputWhlCost').value) || 0;
-      const ovh = parseFloat(document.getElementById('inputOvhCost').value) || 0;
+      const price = parseFloat(document.getElementById('inputBatchPrice')?.value) || 50;
+      const car = parseFloat(document.getElementById('inputCarCost')?.value) || 0;
+      const whl = parseFloat(document.getElementById('inputWhlCost')?.value) || 0;
+      const ovh = parseFloat(document.getElementById('inputOvhCost')?.value) || 0;
 
-      const totalCost = car + whl + ovh;
-      const margin = price > 0 ? Math.round(((price - totalCost) / price) * 100) : 0;
+      const totalUnitCost = car + whl + ovh;
+      const margin = price > 0 ? Math.round(((price - totalUnitCost) / price) * 100) : 0;
 
       const badge = document.getElementById('calcMarginBadge');
-      badge.innerText = margin + '% MARGIN';
-      if (margin >= 80) {
-        badge.className = 'px-2 py-0.5 rounded bg-emerald-950 border border-emerald-500/50 text-emerald-400 font-bold text-xs';
-      } else if (margin >= 60) {
-        badge.className = 'px-2 py-0.5 rounded bg-cyan-950 border border-cyan-500/50 text-cyan-400 font-bold text-xs';
-      } else {
-        badge.className = 'px-2 py-0.5 rounded bg-yellow-950 border border-yellow-500/50 text-yellow-400 font-bold text-xs';
+      if (badge) {
+        badge.innerText = margin + '% MARGIN';
+        if (margin >= 80) {
+          badge.className = 'px-2 py-0.5 rounded bg-emerald-950 border border-emerald-500/50 text-emerald-400 font-bold text-xs';
+        } else if (margin >= 60) {
+          badge.className = 'px-2 py-0.5 rounded bg-cyan-950 border border-cyan-500/50 text-cyan-400 font-bold text-xs';
+        } else {
+          badge.className = 'px-2 py-0.5 rounded bg-yellow-950 border border-yellow-500/50 text-yellow-400 font-bold text-xs';
+        }
+      }
+
+      // Update Run Financials
+      const b = (typeof workshopBatches !== 'undefined') ? workshopBatches.find(x => x.id === currentActiveBatchId) : null;
+      if (b) {
+        const parsed = nlgParseQty(b.qty);
+        const grossRev = price * parsed.total;
+        const totalCost = totalUnitCost * parsed.total;
+        const netProfit = grossRev - totalCost;
+        const batchEconEl = document.getElementById('batchEconomicsSummary');
+        if (batchEconEl) {
+          batchEconEl.innerHTML = `
+            <span class="text-slate-400 font-mono text-[10px]">RUN REVENUE:</span>
+            <span class="text-white font-bold font-mono text-xs">$${grossRev.toLocaleString()}</span>
+            <span class="text-slate-600">•</span>
+            <span class="text-slate-400 font-mono text-[10px]">NET PROFIT:</span>
+            <span class="text-emerald-400 font-bold font-mono text-xs">+$${netProfit.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+          `;
+        }
       }
     }
 
@@ -4751,21 +4874,30 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
 
     // SAVE BATCH SPECIFICATIONS & PERSIST TO LOCALSTORAGE
     function saveCurrentBatchSpecs() {
-      const b = workshopBatches.find(x => x.id === currentActiveBatchId);
+      const b = (typeof workshopBatches !== 'undefined') ? workshopBatches.find(x => x.id === currentActiveBatchId) : null;
       if (!b) return;
 
-      b.theme = document.getElementById('inputBatchTheme').value.trim() || b.theme;
-      b.model = document.getElementById('inputBatchModel').value.trim() || b.model;
-      b.color = document.getElementById('inputBatchColor').value.trim() || b.color;
-      b.qty = document.getElementById('inputBatchQty').value.trim() || b.qty;
-      b.price = parseFloat(document.getElementById('inputBatchPrice').value) || 50;
+      const headerTheme = document.getElementById('headerBatchTheme');
+      if (headerTheme && headerTheme.value.trim()) b.theme = headerTheme.value.trim();
+      const headerModel = document.getElementById('headerBatchModel');
+      if (headerModel && headerModel.value.trim()) b.model = headerModel.value.trim();
+
+      const colorInput = document.getElementById('inputBatchColor');
+      if (colorInput) b.color = colorInput.value.trim() || b.color;
       
-      b.carCost = parseFloat(document.getElementById('inputCarCost').value) || 1.50;
-      b.whlCost = parseFloat(document.getElementById('inputWhlCost').value) || 3.00;
-      b.ovhCost = parseFloat(document.getElementById('inputOvhCost').value) || 2.00;
+      const priceInput = document.getElementById('inputBatchPrice');
+      if (priceInput) b.price = parseFloat(priceInput.value) || 50;
+
+      const carInput = document.getElementById('inputCarCost');
+      if (carInput) b.carCost = parseFloat(carInput.value) || 1.50;
+      const whlInput = document.getElementById('inputWhlCost');
+      if (whlInput) b.whlCost = parseFloat(whlInput.value) || 3.00;
+      const ovhInput = document.getElementById('inputOvhCost');
+      if (ovhInput) b.ovhCost = parseFloat(ovhInput.value) || 2.00;
 
       saveBatchesToStorage();
       renderFleetRows();
+      renderMasterChecklist(b);
       showToast('Specifications saved for ' + b.id + ' (' + b.theme + ')', '💾');
     }
 
@@ -5077,38 +5209,192 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
       renderFleetRows();
     }
 
+    // =========================================================================
+    // ENHANCED QUANTITY PARSING, STEPPING & ECONOMICS HELPERS
+    // =========================================================================
+    function nlgParseQty(qtyStr) {
+      const str = String(qtyStr || '8 Reg • 0 Chase');
+      const regMatch = str.match(/(\d+)\s*(?:reg|regular)/i);
+      const chaseMatch = str.match(/(\d+)\s*chase/i);
+      
+      let reg = regMatch ? parseInt(regMatch[1]) : null;
+      let chase = chaseMatch ? parseInt(chaseMatch[1]) : 0;
+      
+      if (reg === null) {
+        const numbers = str.match(/\d+/g);
+        if (numbers && numbers.length > 0) {
+          reg = parseInt(numbers[0]);
+          if (numbers.length > 1 && !chaseMatch) chase = parseInt(numbers[1]);
+        } else {
+          reg = 8;
+        }
+      }
+      reg = Math.max(1, reg);
+      chase = Math.max(0, chase);
+      const total = reg + chase;
+      const fleetTotal = Math.max(1, total - 1);
+      return { reg, chase, total, fleetTotal };
+    }
+
+    function nlgAdjustRunQty(type, delta) {
+      const b = (typeof workshopBatches !== 'undefined') ? workshopBatches.find(x => x.id === currentActiveBatchId) : null;
+      if (!b) return;
+      const parsed = nlgParseQty(b.qty);
+      if (type === 'reg') {
+        parsed.reg = Math.max(1, parsed.reg + delta);
+      } else if (type === 'chase') {
+        parsed.chase = Math.max(0, parsed.chase + delta);
+      }
+      b.qty = `${parsed.reg} Reg • ${parsed.chase} Chase`;
+      
+      const inputQty = document.getElementById('inputBatchQty');
+      if (inputQty) inputQty.value = b.qty;
+      const dispReg = document.getElementById('displayRegQty');
+      if (dispReg) dispReg.innerText = parsed.reg;
+      const dispChase = document.getElementById('displayChaseQty');
+      if (dispChase) dispChase.innerText = parsed.chase;
+      const badgeTotal = document.getElementById('batchQtyTotalBadge');
+      if (badgeTotal) badgeTotal.innerText = `${parsed.reg + parsed.chase} Total`;
+      
+      recalcMargins();
+      saveBatchesToStorage();
+      renderMasterChecklist(b);
+      renderFleetRows();
+      showToast(`Updated Run Qty to ${b.qty}`, '🔢');
+    }
+
+    function nlgAdjustDecalCounter(delta) {
+      const b = (typeof workshopBatches !== 'undefined') ? workshopBatches.find(x => x.id === currentActiveBatchId) : null;
+      if (!b) return;
+      if (!b.unitProgress) b.unitProgress = {};
+      const parsed = nlgParseQty(b.qty);
+      const current = b.unitProgress.decalsPrinted !== undefined ? b.unitProgress.decalsPrinted : (b.unitProgress.fleetDecalsPrinted ? parsed.total : 0);
+      b.unitProgress.decalsPrinted = Math.max(0, Math.min(parsed.total, current + delta));
+      b.unitProgress.fleetDecalsPrinted = (b.unitProgress.decalsPrinted >= parsed.total);
+      saveBatchesToStorage();
+      renderMasterChecklist(b);
+      renderFleetRows();
+    }
+
+    function nlgSetDecalsAll() {
+      const b = (typeof workshopBatches !== 'undefined') ? workshopBatches.find(x => x.id === currentActiveBatchId) : null;
+      if (!b) return;
+      if (!b.unitProgress) b.unitProgress = {};
+      const parsed = nlgParseQty(b.qty);
+      b.unitProgress.decalsPrinted = parsed.total;
+      b.unitProgress.fleetDecalsPrinted = true;
+      saveBatchesToStorage();
+      renderMasterChecklist(b);
+      renderFleetRows();
+      showToast(`All ${parsed.total} decal sheets marked printed! 🖨️`, '✓');
+    }
+
+    // =========================================================================
+    // ENHANCED QUANTITY PARSING, STEPPING & ECONOMICS HELPERS
+    // =========================================================================
+    function nlgParseQty(qtyStr) {
+      const str = String(qtyStr || '8 Reg • 0 Chase');
+      const regMatch = str.match(/(\d+)\s*(?:reg|regular)/i);
+      const chaseMatch = str.match(/(\d+)\s*chase/i);
+      
+      let reg = regMatch ? parseInt(regMatch[1]) : null;
+      let chase = chaseMatch ? parseInt(chaseMatch[1]) : 0;
+      
+      if (reg === null) {
+        const numbers = str.match(/\d+/g);
+        if (numbers && numbers.length > 0) {
+          reg = parseInt(numbers[0]);
+          if (numbers.length > 1 && !chaseMatch) chase = parseInt(numbers[1]);
+        } else {
+          reg = 8;
+        }
+      }
+      reg = Math.max(1, reg);
+      chase = Math.max(0, chase);
+      const total = reg + chase;
+      const fleetTotal = Math.max(1, total - 1);
+      return { reg, chase, total, fleetTotal };
+    }
+
+    function nlgAdjustRunQty(type, delta) {
+      const b = (typeof workshopBatches !== 'undefined') ? workshopBatches.find(x => x.id === currentActiveBatchId) : null;
+      if (!b) return;
+      const parsed = nlgParseQty(b.qty);
+      if (type === 'reg') {
+        parsed.reg = Math.max(1, parsed.reg + delta);
+      } else if (type === 'chase') {
+        parsed.chase = Math.max(0, parsed.chase + delta);
+      }
+      b.qty = `${parsed.reg} Reg • ${parsed.chase} Chase`;
+      
+      const inputQty = document.getElementById('inputBatchQty');
+      if (inputQty) inputQty.value = b.qty;
+      const dispReg = document.getElementById('displayRegQty');
+      if (dispReg) dispReg.innerText = parsed.reg;
+      const dispChase = document.getElementById('displayChaseQty');
+      if (dispChase) dispChase.innerText = parsed.chase;
+      const badgeTotal = document.getElementById('batchQtyTotalBadge');
+      if (badgeTotal) badgeTotal.innerText = `${parsed.reg + parsed.chase} Total`;
+      
+      recalcMargins();
+      saveBatchesToStorage();
+      renderMasterChecklist(b);
+      renderFleetRows();
+      showToast(`Updated Run Qty to ${b.qty}`, '🔢');
+    }
+
+    function nlgAdjustDecalCounter(delta) {
+      const b = (typeof workshopBatches !== 'undefined') ? workshopBatches.find(x => x.id === currentActiveBatchId) : null;
+      if (!b) return;
+      if (!b.unitProgress) b.unitProgress = {};
+      const parsed = nlgParseQty(b.qty);
+      const current = b.unitProgress.decalsPrinted !== undefined ? b.unitProgress.decalsPrinted : (b.unitProgress.fleetDecalsPrinted ? parsed.total : 0);
+      b.unitProgress.decalsPrinted = Math.max(0, Math.min(parsed.total, current + delta));
+      b.unitProgress.fleetDecalsPrinted = (b.unitProgress.decalsPrinted >= parsed.total);
+      saveBatchesToStorage();
+      renderMasterChecklist(b);
+      renderFleetRows();
+    }
+
+    function nlgSetDecalsAll() {
+      const b = (typeof workshopBatches !== 'undefined') ? workshopBatches.find(x => x.id === currentActiveBatchId) : null;
+      if (!b) return;
+      if (!b.unitProgress) b.unitProgress = {};
+      const parsed = nlgParseQty(b.qty);
+      b.unitProgress.decalsPrinted = parsed.total;
+      b.unitProgress.fleetDecalsPrinted = true;
+      saveBatchesToStorage();
+      renderMasterChecklist(b);
+      renderFleetRows();
+      showToast(`All ${parsed.total} decal sheets marked printed! 🖨️`, '✓');
+    }
+
     function nlgAdjustFleetCounter(key, delta) {
       const b = (typeof workshopBatches !== 'undefined') ? workshopBatches.find(x => x.id === currentActiveBatchId) : null;
-      if (!b || !b.unitProgress) return;
-      const qtyMatch = String(b.qty || '').match(/(\d+)/);
-      const fleetTotal = Math.max(1, (qtyMatch ? parseInt(qtyMatch[1]) : 8) - 1);
+      if (!b) return;
+      if (!b.unitProgress) b.unitProgress = {};
+      const parsed = nlgParseQty(b.qty);
       const current = b.unitProgress[key] || 0;
-      b.unitProgress[key] = Math.max(0, Math.min(fleetTotal, current + delta));
+      b.unitProgress[key] = Math.max(0, Math.min(parsed.fleetTotal, current + delta));
       saveBatchesToStorage();
-      renderProductionTracker(b);
+      renderMasterChecklist(b);
       renderFleetRows();
     }
 
     function nlgSetFleetCounterAll(key) {
       const b = (typeof workshopBatches !== 'undefined') ? workshopBatches.find(x => x.id === currentActiveBatchId) : null;
-      if (!b || !b.unitProgress) return;
-      const qtyMatch = String(b.qty || '').match(/(\d+)/);
-      const fleetTotal = Math.max(1, (qtyMatch ? parseInt(qtyMatch[1]) : 8) - 1);
-      b.unitProgress[key] = fleetTotal;
+      if (!b) return;
+      if (!b.unitProgress) b.unitProgress = {};
+      const parsed = nlgParseQty(b.qty);
+      b.unitProgress[key] = parsed.fleetTotal;
       saveBatchesToStorage();
-      renderProductionTracker(b);
+      renderMasterChecklist(b);
       renderFleetRows();
       showToast('Marked all units complete! 🎉', '✓');
     }
 
     function nlgMarkFleetDecalsDone() {
-      const b = (typeof workshopBatches !== 'undefined') ? workshopBatches.find(x => x.id === currentActiveBatchId) : null;
-      if (!b || !b.unitProgress) return;
-      b.unitProgress.fleetDecalsPrinted = !b.unitProgress.fleetDecalsPrinted;
-      saveBatchesToStorage();
-      renderProductionTracker(b);
-      renderFleetRows();
-      showToast(b.unitProgress.fleetDecalsPrinted ? 'Decals marked printed for fleet!' : 'Decals marked unprinted', '🖨️');
+      nlgSetDecalsAll();
     }
 
     function toggleStepDone(stepId) {
