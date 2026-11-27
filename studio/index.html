@@ -961,7 +961,7 @@
 
         <!-- SELECTED WINNER PREVIEW + PRE-DECAL / FINAL TWEAK FEEDBACK BAR -->
         <div class="bg-slate-950/95 border border-cyan-500/50 rounded-2xl p-4 grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
-          <div id="decalWinnerPreviewBox" class="h-32 rounded-xl bg-white border border-slate-700 flex items-center justify-center overflow-hidden cursor-zoom-in p-1">
+          <div id="decalWinnerPreviewBox" class="h-32 sm:h-36 rounded-xl bg-slate-900 border border-slate-700 flex items-center justify-center overflow-hidden cursor-zoom-in p-0">
             <span class="text-xs text-slate-500 font-mono">Winning Variation</span>
           </div>
           <div class="md:col-span-3 space-y-2.5">
@@ -1950,6 +1950,15 @@
         bugBatch.section = 'vault';
         bugBatch.status = 'Sold Out (10/10)';
         bugBatch.qty = '0 Available (Vaulted)';
+      }
+
+      // SSoT LOCK 1B: Ensure B-026 (Marbelized Dairy Delivery) is PERMANENTLY LOCKED in The Vault (Sold Out)
+      const marbleDairy = workshopBatches.find(b => b.id === 'B-026' || (b.theme && b.theme.toLowerCase().includes('marbel') && b.model && b.model.toLowerCase().includes('dairy')));
+      if (marbleDairy) {
+        marbleDairy.section = 'vault';
+        marbleDairy.status = 'Sold Out (10/10)';
+        marbleDairy.qty = '0 Available (Vaulted)';
+        marbleDairy.hero = 'https://media.neonllamagarage.com/Marbelized_Dairy_Delivery_HERO.jpg';
       }
 
       // SSoT LOCK 2: Ensure B-018 (Neon Freeze Ice Cream Dairy) has its hero concept, donor photo, decals, and card art
@@ -3338,7 +3347,7 @@
       if (previewBox) {
         if (v.img) {
           previewBox.onclick = () => openImageLightbox(v.img, v.title);
-          previewBox.innerHTML = `<img src="${v.img}" alt="${v.title}" class="w-full h-full object-contain">`;
+          previewBox.innerHTML = `<img src="${v.img}" alt="${v.title}" class="w-full h-full object-cover object-center transform hover:scale-105 transition duration-300">`;
         } else {
           previewBox.innerHTML = `<span class="text-xs font-orbitron font-bold text-slate-600">${v.title}</span>`;
         }
@@ -3395,7 +3404,10 @@
 
           const isBg = (idx) => {
             const r = data[idx], g = data[idx + 1], b = data[idx + 2];
-            return r > 236 && g > 236 && b > 236;
+            const maxC = Math.max(r, g, b);
+            const minC = Math.min(r, g, b);
+            // Light neutral white / off-white background with low saturation (handles JPEG/AI compression noise down to RGB 218)
+            return (r >= 218 && g >= 218 && b >= 218 && (maxC - minC) <= 22);
           };
 
           const enqueue = (x, y) => {
@@ -3422,7 +3434,31 @@
             if (y < h - 1) enqueue(x, y + 1);
           }
 
-          // (Note: Removed destructive interior window knockout loop that was severing decals in half)
+          // Knock out trapped interior pure-white background voids (RGB >= 240, sat <= 12)
+          for (let pos = 0; pos < w * h; pos++) {
+            const p4 = pos * 4;
+            if (data[p4 + 3] > 0) {
+              const r = data[p4], g = data[p4 + 1], b = data[p4 + 2];
+              const maxC = Math.max(r, g, b);
+              const minC = Math.min(r, g, b);
+              if (r >= 240 && g >= 240 && b >= 240 && (maxC - minC) <= 12) {
+                const x = pos % w;
+                const y = (pos - x) / w;
+                if (x > 2 && x < w - 3 && y > 2 && y < h - 3) {
+                  let transparentOrWhiteNeighbors = 0;
+                  const offsets = [p4 - 12, p4 + 12, p4 - w * 12, p4 + w * 12];
+                  for (const o of offsets) {
+                    if (data[o + 3] === 0 || (data[o] >= 235 && data[o + 1] >= 235 && data[o + 2] >= 235)) {
+                      transparentOrWhiteNeighbors++;
+                    }
+                  }
+                  if (transparentOrWhiteNeighbors >= 3) {
+                    data[p4 + 3] = 0;
+                  }
+                }
+              }
+            }
+          }
 
           // Auto-erase tiny disconnected floating specks / stray captions (e.g. tire text, footer labels < 1.5% of main decal area)
           const compId = new Int32Array(w * h);
@@ -3537,22 +3573,24 @@
         layoutSpec = `DRIVER SIDE (LEFT) DECAL STICKER:
 - Isolated horizontal 2D livery graphic strip for the DRIVER side.
 - Flow direction: NOSE / FRONT of vehicle is on the LEFT, REAR / TAIL is on the RIGHT.
-- If there is text or logos (like numbers, sponsor names, or words), render text crisp and strictly readable left-to-right.`;
+- STRICT NO-TEXT RULE: Render pure graphic livery artwork only (racing stripes, cyber circuits, flames, tech patterns, geometric shapes). DO NOT INVENT OR GENERATE ANY RANDOM WORDS, LETTERS, SLOGANS, OR PHONIC GIBBERISH (no fake sponsor text, no random gibberish words).`;
       } else if (panelKey === 'side_passenger') {
         layoutSpec = `PASSENGER SIDE (RIGHT) DECAL STICKER:
 - Isolated horizontal 2D livery graphic strip for the PASSENGER (RIGHT) side.
-- Flow direction is REVERSED: NOSE / FRONT is on the FAR RIGHT, REAR / TAIL is on the FAR LEFT.
-- CRITICAL TEXT INTEGRITY RULE: Any words, letters, logos, or numbers MUST BE DRAWN FORWARD AND FULLY LEGIBLE READING FROM LEFT TO RIGHT! DO NOT MIRROR OR REVERSE THE LETTERS! Under NO circumstances should text be drawn backwards!`;
+- MANDATORY REVERSED ORIENTATION: NOSE / FRONT is on the FAR RIGHT, REAR / TAIL is on the FAR LEFT. (Flows opposite of driver side so front faces forward on the car's right flank).
+- STRICT NO-TEXT RULE: Render pure graphic livery artwork only. DO NOT INVENT OR GENERATE ANY RANDOM WORDS, LETTERS, SLOGANS, OR PHONIC GIBBERISH.`;
       } else if (panelKey === 'roof') {
         layoutSpec = `ROOF PANEL DECAL:
 - Isolated top-down rectangular 2D decal artwork that sits directly on top of the vehicle roof.
-- DO NOT draw the car, windshield, windows, or roof pillars. Only the flat graphic pattern / livery design.`;
+- DO NOT draw the car, windshield, windows, or roof pillars. Only the flat graphic pattern / livery design.
+- STRICT NO-TEXT RULE: Render pure graphic artwork only. No fake sponsor words.`;
       } else if (panelKey === 'hood') {
         layoutSpec = `HOOD PANEL DECAL:
 - Isolated top-down 2D decal artwork that sits directly on top of the front hood.
-- DO NOT draw headlights, grille, bumper, or car body. Only the flat graphic pattern / livery design.`;
+- DO NOT draw headlights, grille, bumper, or car body. Only the flat graphic pattern / livery design.
+- STRICT NO-TEXT RULE: Render pure graphic artwork only. No fake sponsor words.`;
       } else {
-        layoutSpec = `Isolated 2D decal graphic for ${panelLabel}.`;
+        layoutSpec = `Isolated 2D decal graphic for ${panelLabel}. STRICT NO-TEXT RULE: Render pure graphic artwork only.`;
       }
 
       return `ISOLATED 2D VECTOR DECAL STICKER GRAPHICS ONLY FOR DIECAST PREPRESS (EUFYMAKE UV PRINT). ${fbText}
@@ -3564,7 +3602,8 @@ ABSOLUTE STRICT ZERO-CAR-BODY & ZERO-SILHOUETTE CONSTRAINTS (MANDATORY):
 - DO NOT DRAW ANY VEHICLE! ABSOLUTELY ZERO CAR BODY, ZERO GREEN SHEET METAL, ZERO CAR SILHOUETTES, ZERO 3D SHADING!
 - DO NOT DRAW WHEELS, TIRES, WINDOWS, WINDSHIELDS, LIGHTS, BUMPERS, OR SEAMS!
 - THIS IS NOT A 3D CAR RENDER. THIS IS NOT A FLATTENED UV CAR MESH.
-- Draw ONLY the isolated graphic decals / stickers (illustrations, typography, stripes, flames, sponsor marks) centered on a 100% PURE SOLID WHITE (#FFFFFF) BACKGROUND.
+- STRICT NO-TEXT & NO-SPONSOR RULE: DO NOT DRAW ANY WORDS, LETTERS, SPONSOR LOGOS, SLOGANS, OR BROKEN TYPOGRAPHY UNLESS EXPLICITLY TYPED IN USER DIRECT TWEAK REQUEST! Render pure graphic livery art only!
+- ZERO WHITE HALOS, ZERO WHITE BOXES: All graphics MUST be drawn cleanly directly against the pure solid white background (#FFFFFF). DO NOT put white rectangles, white bounding boxes, or white borders behind graphics!
 - Keep edges crisp and vector-sharp so the pure white background can be keyed out to a 100% transparent PNG.`;
     }
 
@@ -3621,23 +3660,27 @@ ABSOLUTE STRICT ZERO-CAR-BODY & ZERO-SILHOUETTE CONSTRAINTS (MANDATORY):
         await renderSingleDecalPanel(driverPanel, casting, winVar, feedback, baseRefs);
       }
 
-      // 2. Generate Passenger Side with Driver Side reference to match style, but with strict forward-text rule
+      // 2. PASSENGER SIDE: In diecast livery production, the passenger side is the horizontal mirror of the driver side (0¢, instant, 100% identical pattern match, properly oriented nose-to-right / tail-to-left)!
       const passPanel = generatedFinalDecals.find(x => x.key === 'side_passenger');
-      const sideRefs = [...baseRefs];
-      if (driverPanel && driverPanel.rawImg) sideRefs.push(driverPanel.rawImg);
+      if (passPanel && driverPanel && driverPanel.cmykPng) {
+        const processed = await processPureFlatDecalImage(driverPanel.cmykPng, true);
+        passPanel.cmykPng = processed.transparentPng;
+        passPanel.underbasePng = processed.underbasePng;
+        passPanel.rawImg = processed.transparentPng;
+        updateDecalCardUI(passPanel, casting);
+      }
 
       // 3. Generate Roof & Hood referencing ONLY the original 3D concept car (NEVER driver side decal, preventing identical clone bug!)
       const topPanels = generatedFinalDecals.filter(x => x.key !== 'side_driver' && x.key !== 'side_passenger');
 
       const parallelTasks = [];
-      if (passPanel) {
-        parallelTasks.push(renderSingleDecalPanel(passPanel, casting, winVar, feedback, sideRefs));
-      }
       topPanels.forEach(p => {
         parallelTasks.push(renderSingleDecalPanel(p, casting, winVar, feedback, baseRefs));
       });
 
-      await Promise.all(parallelTasks);
+      if (parallelTasks.length > 0) {
+        await Promise.all(parallelTasks);
+      }
       if (typeof nlgSaveCarState === 'function') {
         await nlgSaveCarState({ savedDecals: generatedFinalDecals.filter(d => d && d.cmykPng), steps: { decalsGenerated: true } });
       }
@@ -4280,7 +4323,7 @@ ABSOLUTE STRICT ZERO-CAR-BODY & ZERO-SILHOUETTE CONSTRAINTS (MANDATORY):
       if (previewBox) {
         if (currentWinningVariation.img) {
           previewBox.onclick = () => openImageLightbox(currentWinningVariation.img, title);
-          previewBox.innerHTML = `<img src="${currentWinningVariation.img}" alt="${title}" class="w-full h-full object-contain">`;
+          previewBox.innerHTML = `<img src="${currentWinningVariation.img}" alt="${title}" class="w-full h-full object-cover object-center transform hover:scale-105 transition duration-300">`;
         } else {
           previewBox.innerHTML = `<span class="text-xs font-orbitron font-bold text-slate-600">${title}</span>`;
         }
@@ -4603,16 +4646,19 @@ ABSOLUTE STRICT ZERO-CAR-BODY & ZERO-SILHOUETTE CONSTRAINTS (MANDATORY):
       const row1El = document.getElementById('row1List');
       const row2El = document.getElementById('row2List');
       const row3El = document.getElementById('row3List');
+      const row4El = document.getElementById('row4List');
 
       if (row1El) row1El.innerHTML = '';
       if (row2El) row2El.innerHTML = '';
       if (row3El) row3El.innerHTML = '';
+      if (row4El) row4El.innerHTML = '';
 
-      let c1 = 0, c2 = 0, c3 = 0;
+      let c1 = 0, c2 = 0, c3 = 0, c4 = 0;
 
-      // Group and sort into 3 active production lanes
+      // Group and sort into production lanes
       const activeBatches = workshopBatches.filter(b => b.section === 'active');
       const wipBatches = workshopBatches.filter(b => b.section === 'wip').sort((a,b) => b.progress - a.progress || b.currentStep - a.currentStep);
+      const ideaBatches = workshopBatches.filter(b => b.section === 'ideas' || b.section === 'idea');
       const vaultBatches = workshopBatches.filter(b => b.section === 'vault');
 
       function makeCard(b) {
@@ -4630,6 +4676,9 @@ ABSOLUTE STRICT ZERO-CAR-BODY & ZERO-SILHOUETTE CONSTRAINTS (MANDATORY):
         } else if (b.section === 'vault') {
           badgeColor = 'text-purple-300 border-purple-400';
           statusBadge = `<span class="text-purple-400 font-bold">VAULT ARCHIVED</span>`;
+        } else if (b.section === 'ideas' || b.section === 'idea') {
+          badgeColor = 'text-yellow-300 border-yellow-400';
+          statusBadge = `<span class="text-yellow-400 font-bold">STAGE ${b.currentStep || 1}: CONCEPT</span>`;
         }
 
         const heroSrc = (b && b.hero && typeof b.hero === 'string' && b.hero.length > 0) ? b.hero : 'assets/showcase_purple_haze.png';
@@ -4638,8 +4687,8 @@ ABSOLUTE STRICT ZERO-CAR-BODY & ZERO-SILHOUETTE CONSTRAINTS (MANDATORY):
 
         card.innerHTML = `
           <div>
-            <div class="h-32 sm:h-36 rounded-lg ${imgBg} overflow-hidden relative mb-2.5 flex items-center justify-center p-2">
-              <img src="${heroSrc}" onerror="handleImageError(this, '${b.theme}', '${b.model}', '${b.color}')" class="w-full h-full object-contain">
+            <div class="h-32 sm:h-36 rounded-lg ${imgBg} overflow-hidden relative mb-2.5 flex items-center justify-center p-0">
+              <img src="${heroSrc}" onerror="handleImageError(this, '${b.theme}', '${b.model}', '${b.color}')" class="w-full h-full object-cover object-center transform hover:scale-105 transition duration-300">
               <span class="absolute top-2 left-2 px-2 py-0.5 rounded bg-black/85 border ${badgeColor} text-[10px] font-orbitron font-black shadow-lg">${b.id}</span>
               <span class="absolute bottom-2 right-2 px-1.5 py-0.5 rounded bg-slate-900/90 text-[9px] font-mono text-slate-300 font-bold shadow-lg">${b.qty}</span>
             </div>
@@ -4661,14 +4710,21 @@ ABSOLUTE STRICT ZERO-CAR-BODY & ZERO-SILHOUETTE CONSTRAINTS (MANDATORY):
 
       if (row1El) activeBatches.forEach(b => { row1El.appendChild(makeCard(b)); c1++; });
       if (row2El) wipBatches.forEach(b => { row2El.appendChild(makeCard(b)); c2++; });
-      if (row3El) vaultBatches.forEach(b => { row3El.appendChild(makeCard(b)); c3++; });
+      if (row3El) ideaBatches.forEach(b => { row3El.appendChild(makeCard(b)); c3++; });
+      if (row4El) vaultBatches.forEach(b => { row4El.appendChild(makeCard(b)); c4++; });
 
       const elC1 = document.getElementById('row1Count');
       if (elC1) elC1.innerText = c1 + ' DROPS AVAILABLE';
       const elC2 = document.getElementById('row2Count');
       if (elC2) elC2.innerText = c2 + ' BATCHES ACTIVE';
       const elC3 = document.getElementById('row3Count');
-      if (elC3) elC3.innerText = c3 + ' ARCHIVED DROP' + (c3 === 1 ? '' : 'S');
+      if (elC3) {
+        elC3.innerText = c3 + ' CONCEPTS';
+        const sec3 = elC3.closest('section');
+        if (sec3) sec3.style.display = c3 > 0 ? '' : 'none';
+      }
+      const elC4 = document.getElementById('row4Count');
+      if (elC4) elC4.innerText = c4 + ' ARCHIVED DROP' + (c4 === 1 ? '' : 'S');
 
       const totalEl = document.getElementById('totalBatchesCount');
       if (totalEl) totalEl.innerText = workshopBatches.length;
@@ -4755,7 +4811,7 @@ ABSOLUTE STRICT ZERO-CAR-BODY & ZERO-SILHOUETTE CONSTRAINTS (MANDATORY):
                 allVaultAssets.push(c);
                 return `
                   <div class="h-20 rounded bg-slate-900 border border-slate-800 hover:border-pink-500/50 overflow-hidden relative cursor-zoom-in group p-1 flex flex-col justify-between" onclick="openImageLightbox('${c.image}', '${(b.theme + ' — ' + c.label).replace(/'/g, "\'")}')">
-                    <img src="${c.image}" class="w-full h-14 object-contain group-hover:scale-105 transition" />
+                    <img src="${c.image}" class="w-full h-14 object-cover object-center group-hover:scale-105 transition" />
                     <div class="flex items-center justify-between text-[8px] font-mono text-slate-400">
                       <span class="truncate max-w-[65px] text-pink-300 font-bold">${c.label}</span>
                       <a href="${c.image}" download="${(b.theme + '_' + c.label).toLowerCase().replace(/[^a-z0-9]+/g, '_')}.png" onclick="event.stopPropagation()" class="text-cyan-400 hover:text-white" title="Download">⬇</a>
