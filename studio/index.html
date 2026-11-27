@@ -387,8 +387,8 @@
           
           <!-- PROMINENT BEST HERO IMAGE -->
           <div class="bg-[#0b101d] border border-slate-800 rounded-2xl p-3 overflow-hidden shadow-2xl">
-            <div class="relative w-full h-80 rounded-xl bg-gradient-to-b from-slate-100 to-slate-200 border border-slate-300/40 overflow-hidden flex items-center justify-center group p-3">
-              <img id="detailHeroImg" src="" class="w-full h-full object-contain cursor-zoom-in" onclick="openImageLightbox(this.src, document.getElementById('headerBatchTheme')?.value || 'Hero')">
+            <div class="relative w-full h-80 rounded-xl bg-gradient-to-b from-slate-100 to-slate-200 border border-slate-300/40 overflow-hidden flex items-center justify-center group p-0">
+              <img id="detailHeroImg" src="" class="w-full h-full object-cover object-center cursor-zoom-in hover:scale-105 transition duration-300" onclick="openImageLightbox(this.src, document.getElementById('headerBatchTheme')?.value || 'Hero')">
               <div class="absolute top-3 left-3 px-2.5 py-1 rounded-lg bg-black/80 backdrop-blur border border-slate-700 text-xs font-orbitron font-black text-white flex items-center gap-1.5">
                 <span>📸</span> HERO SHOT
               </div>
@@ -1815,6 +1815,14 @@
         whlCost: 3.50,
         ovhCost: 2.00,
         hero: 'assets/acid_llama_935.png',
+        heroPhoto: 'assets/acid_llama_935.png',
+        heroPhotoDataUrl: 'assets/acid_llama_935.png',
+        images: ['assets/acid_llama_935.png'],
+        subIdeas: [
+          { title: 'Acid Llama Finished Prototype', img: 'assets/acid_llama_935.png' },
+          { title: 'Purple Haze Acid Splatter', img: 'assets/showcase_purple_haze.png' },
+          { title: 'Acid Splatter Livery Concept', img: 'assets/camaro_acid_splash.png' }
+        ],
         completedSteps: [1, 2, 3, 4]
       },
       {
@@ -2154,6 +2162,33 @@
             subIdeas: allCamaroSubIdeas
           }).finally(() => { currentActiveBatchId = oldId; });
         }, 500);
+      }
+
+      // SSoT LOCK 4: Ensure B-006 (Acid Llama Porsche 935) has authentic physical assets mapped
+      const acidBatch = workshopBatches.find(b => b.id === 'B-006' || (b.theme && b.theme.toLowerCase().includes('acid llama')));
+      if (acidBatch) {
+        acidBatch.theme = 'Acid Llama';
+        acidBatch.model = 'Porsche 935';
+        acidBatch.color = 'Hot Pink & Cyan';
+        acidBatch.hero = 'assets/acid_llama_935.png';
+        acidBatch.heroPhoto = 'assets/acid_llama_935.png';
+        acidBatch.heroPhotoDataUrl = 'assets/acid_llama_935.png';
+        acidBatch.images = ['assets/acid_llama_935.png'];
+        acidBatch.subIdeas = [
+          { title: 'Acid Llama Finished Prototype', img: 'assets/acid_llama_935.png' },
+          { title: 'Purple Haze Acid Splatter', img: 'assets/showcase_purple_haze.png' },
+          { title: 'Acid Splatter Livery Concept', img: 'assets/camaro_acid_splash.png' }
+        ];
+        if (typeof nlgSaveCarState === 'function') {
+          setTimeout(() => {
+            const oldId = currentActiveBatchId;
+            currentActiveBatchId = 'B-006';
+            nlgSaveCarState({
+              heroPhotoDataUrl: 'assets/acid_llama_935.png',
+              subIdeas: acidBatch.subIdeas
+            }).finally(() => { currentActiveBatchId = oldId; });
+          }, 350);
+        }
       }
 
       // Clean up any legacy 404 image URLs
@@ -3537,33 +3572,7 @@
             if (y < h - 1) enqueue(x, y + 1);
           }
 
-          // Knock out trapped interior pure-white background voids (RGB >= 240, sat <= 12)
-          for (let pos = 0; pos < w * h; pos++) {
-            const p4 = pos * 4;
-            if (data[p4 + 3] > 0) {
-              const r = data[p4], g = data[p4 + 1], b = data[p4 + 2];
-              const maxC = Math.max(r, g, b);
-              const minC = Math.min(r, g, b);
-              if (r >= 240 && g >= 240 && b >= 240 && (maxC - minC) <= 12) {
-                const x = pos % w;
-                const y = (pos - x) / w;
-                if (x > 2 && x < w - 3 && y > 2 && y < h - 3) {
-                  let transparentOrWhiteNeighbors = 0;
-                  const offsets = [p4 - 12, p4 + 12, p4 - w * 12, p4 + w * 12];
-                  for (const o of offsets) {
-                    if (data[o + 3] === 0 || (data[o] >= 235 && data[o + 1] >= 235 && data[o + 2] >= 235)) {
-                      transparentOrWhiteNeighbors++;
-                    }
-                  }
-                  if (transparentOrWhiteNeighbors >= 3) {
-                    data[p4 + 3] = 0;
-                  }
-                }
-              }
-            }
-          }
-
-          // Auto-erase tiny disconnected floating specks / stray captions (e.g. tire text, footer labels < 1.5% of main decal area)
+          // Auto-erase only microscopic stray dust/compression speckles (< 25px) to keep all fine splatter and livery details solid
           const compId = new Int32Array(w * h);
           const compSizes = [0];
           let nextComp = 1;
@@ -3585,9 +3594,7 @@
               compSizes.push(t2);
             }
           }
-          let maxComp = 0;
-          for (let cIdx = 1; cIdx < compSizes.length; cIdx++) if (compSizes[cIdx] > maxComp) maxComp = compSizes[cIdx];
-          const minKeep = Math.max(120, Math.floor(maxComp * 0.015));
+          const minKeep = 25;
           for (let pos = 0; pos < w * h; pos++) {
             const cid = compId[pos];
             if (cid > 0 && compSizes[cid] < minKeep) {
@@ -3673,41 +3680,40 @@
       const fbText = feedback ? `USER DIRECT TWEAK REQUEST: "${feedback}".` : '';
       let layoutSpec = '';
       if (panelKey === 'side_driver') {
-        layoutSpec = `DRIVER SIDE (LEFT) DECAL STICKER:
-- Isolated horizontal 2D livery graphic strip for the DRIVER side.
-- Flow direction: NOSE / FRONT of vehicle is on the LEFT, REAR / TAIL is on the RIGHT.
-- STRICT NO-TEXT RULE: Render pure graphic livery artwork only (racing stripes, cyber circuits, flames, tech patterns, geometric shapes). DO NOT INVENT OR GENERATE ANY RANDOM WORDS, LETTERS, SLOGANS, OR PHONIC GIBBERISH (no fake sponsor text, no random gibberish words).`;
+        layoutSpec = `DRIVER SIDE (LEFT) FLOW GRAPHIC BANNER:
+- Full continuous horizontal 2D livery graphic strip / pattern flow for the car's driver flank.
+- Directional flow: Front of vehicle starts on the LEFT, sweeping and flowing back towards the TAIL on the RIGHT.
+- LET IT FLOW: Create a solid, rich, continuous street-art / livery design pattern (speedlines, tech patterns, graffiti, splatter, geometric motifs) that flows edge-to-edge.
+- NO CAR PROFILE CUTOUTS: Do NOT cut out wheel wells, wheel arches, or windows. Do NOT leave hollow circular bites or gaping holes in the artwork! Let the graphic artwork flow continuous and unbroken across the horizontal banner so it wraps cleanly.`;
       } else if (panelKey === 'side_passenger') {
-        layoutSpec = `PASSENGER SIDE (RIGHT) DECAL STICKER:
-- Isolated horizontal 2D livery graphic strip for the PASSENGER (RIGHT) side.
-- MANDATORY REVERSED ORIENTATION: NOSE / FRONT is on the FAR RIGHT, REAR / TAIL is on the FAR LEFT. (Flows opposite of driver side so front faces forward on the car's right flank).
-- STRICT NO-TEXT RULE: Render pure graphic livery artwork only. DO NOT INVENT OR GENERATE ANY RANDOM WORDS, LETTERS, SLOGANS, OR PHONIC GIBBERISH.`;
+        layoutSpec = `PASSENGER SIDE (RIGHT) FLOW GRAPHIC BANNER:
+- Full continuous horizontal 2D livery graphic strip / pattern flow for the car's passenger flank.
+- MANDATORY FLOW ORIENTATION: Front of vehicle starts on the FAR RIGHT, sweeping and flowing back towards the TAIL on the FAR LEFT.
+- LET IT FLOW: Create a solid, continuous street-art / livery design pattern that flows edge-to-edge without hollow wheel holes or window voids.`;
       } else if (panelKey === 'roof') {
-        layoutSpec = `ROOF PANEL DECAL:
-- Isolated top-down rectangular 2D decal artwork that sits directly on top of the vehicle roof.
-- DO NOT draw the car, windshield, windows, or roof pillars. Only the flat graphic pattern / livery design.
-- STRICT NO-TEXT RULE: Render pure graphic artwork only. No fake sponsor words.`;
+        layoutSpec = `ROOF PANEL FLOW GRAPHIC BANNER:
+- Isolated 2D top-down rectangular graphic pattern flow for the vehicle roof surface.
+- LET IT FLOW: Full longitudinal graphic stripe, dynamic symmetrical motif, or continuous surface pattern matching the vehicle livery.
+- PURE GRAPHIC ART: Do NOT draw car roof gutters, car sheet metal, glass, or gray boxes. Render only the rich flowing graphic pattern artwork.`;
       } else if (panelKey === 'hood') {
-        layoutSpec = `HOOD PANEL DECAL:
-- Isolated top-down 2D decal artwork that sits directly on top of the front hood.
-- DO NOT draw headlights, grille, bumper, or car body. Only the flat graphic pattern / livery design.
-- STRICT NO-TEXT RULE: Render pure graphic artwork only. No fake sponsor words.`;
+        layoutSpec = `HOOD PANEL FLOW GRAPHIC BANNER:
+- Isolated 2D top-down graphic pattern flow for the front hood surface.
+- Symmetrical racing chevron, aggressive tech badge, or flowing pattern art matching the livery.
+- PURE GRAPHIC ART: Render only the flat flowing graphic artwork.`;
       } else {
-        layoutSpec = `Isolated 2D decal graphic for ${panelLabel}. STRICT NO-TEXT RULE: Render pure graphic artwork only.`;
+        layoutSpec = `Continuous 2D graphic livery flow for ${panelLabel}.`;
       }
 
-      return `ISOLATED 2D VECTOR DECAL STICKER GRAPHICS ONLY FOR DIECAST PREPRESS (EUFYMAKE UV PRINT). ${fbText}
+      return `CONTINUOUS 2D SURFACE FLOW LIVERY GRAPHICS FOR 1:64 SCALE DIECAST (EUFYMAKE UV PRINT / WATERSLIDE DECAL). ${fbText}
 Panel: ${panelLabel}.
 Casting: 1:64 scale ${casting}.
 ${layoutSpec}
 
-ABSOLUTE STRICT ZERO-CAR-BODY & ZERO-SILHOUETTE CONSTRAINTS (MANDATORY):
-- DO NOT DRAW ANY VEHICLE! ABSOLUTELY ZERO CAR BODY, ZERO GREEN SHEET METAL, ZERO CAR SILHOUETTES, ZERO 3D SHADING!
-- DO NOT DRAW WHEELS, TIRES, WINDOWS, WINDSHIELDS, LIGHTS, BUMPERS, OR SEAMS!
-- THIS IS NOT A 3D CAR RENDER. THIS IS NOT A FLATTENED UV CAR MESH.
-- STRICT NO-TEXT & NO-SPONSOR RULE: DO NOT DRAW ANY WORDS, LETTERS, SPONSOR LOGOS, SLOGANS, OR BROKEN TYPOGRAPHY UNLESS EXPLICITLY TYPED IN USER DIRECT TWEAK REQUEST! Render pure graphic livery art only!
-- ZERO WHITE HALOS, ZERO WHITE BOXES: All graphics MUST be drawn cleanly directly against the pure solid white background (#FFFFFF). DO NOT put white rectangles, white bounding boxes, or white borders behind graphics!
-- Keep edges crisp and vector-sharp so the pure white background can be keyed out to a 100% transparent PNG.`;
+CORE LIVERY & PRODUCTION RULES:
+1. CONTINUOUS FLOW ARTWORK: Let the design flow freely across the banner as a cohesive, unbroken graphic pattern. DO NOT carve out jagged wheel arches or hollow window holes from the artwork. Builders trim decals during application—AI must deliver rich, uninterrupted surface art.
+2. PURE GRAPHIC LIVERY ONLY: Zero 3D car bodies, zero green/metallic car sheet metal, zero wheels or tires, zero bumpers or glass frames. This is a flat 2D graphic pattern banner.
+3. ZERO FAKE TEXT: Render pure abstract/geometric livery art, racing stripes, splatter, cyber motifs, or organic flows. DO NOT invent or generate random broken words, gibberish letters, or fake sponsor text.
+4. CLEAN BACKGROUND: Render the flowing graphic cleanly on a pure solid white background (#FFFFFF) with zero gray boxes, zero bounding rectangles, and zero drop shadows, so background keys cleanly for 600 DPI printing.`;
     }
 
     async function generatePureFlatDecals() {
@@ -5039,10 +5045,11 @@ ABSOLUTE STRICT ZERO-CAR-BODY & ZERO-SILHOUETTE CONSTRAINTS (MANDATORY):
         if (donor && !photoList.some(p => p.image === donor)) {
           photoList.push({ label: 'Donor Casting', type: 'PHYSICAL DONOR', image: donor });
         }
-        // Include user camera capture or hero photo
-        const camShot = st?.heroPhotoDataUrl || b.heroPhoto;
+        // Include user camera capture, glory shot photo, or hero photograph
+        const camShot = st?.heroPhotoDataUrl || b.heroPhoto || (b.hero && !b.hero.startsWith('data:') && !b.hero.includes('donor') && (b.hero.endsWith('.png') || b.hero.endsWith('.jpg') || b.hero.startsWith('http')) ? b.hero : null);
         if (camShot && !photoList.some(p => p.image === camShot)) {
-          photoList.unshift({ label: 'Glory Shot (Cam)', type: 'GLORY SHOT', image: camShot });
+          const isLlamaCam = !!(st?.heroPhotoDataUrl);
+          photoList.unshift({ label: isLlamaCam ? 'Glory Shot (Cam)' : 'Loose Glory Shot', type: 'GLORY SHOT', image: camShot });
         }
 
         if (photoList.length > 0) {
