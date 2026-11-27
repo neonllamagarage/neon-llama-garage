@@ -178,6 +178,9 @@
 
       <!-- GLOBAL CONTROLS -->
       <div class="flex items-center gap-2 flex-wrap">
+        <button onclick="syncWithLiveGASFeed()" id="btnSyncSheets" class="px-2.5 py-1.5 rounded-lg bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 font-orbitron font-bold text-xs border border-emerald-500/40 flex items-center gap-1.5 transition active:scale-95 shadow-sm" title="Sync live inventory with Google Sheets">
+          <span id="gasSyncIcon">📊</span> <span id="gasSyncText">SYNC SHEETS</span>
+        </button>
         <button onclick="showFleetView()" id="navFleetBtn" class="px-3.5 py-1.5 rounded-lg bg-cyan-600/30 text-cyan-300 font-orbitron font-bold text-xs border border-cyan-500/50 shadow-lg transition">
           📂 ALL BATCHES
         </button>
@@ -188,7 +191,7 @@
           <span>🖼️</span> ALBUMS <span id="albumsCountBadge" class="px-1.5 py-0.2 rounded bg-purple-950 text-purple-200 text-[10px] font-mono border border-purple-500/40">0</span>
         </button>
         <button onclick="openConceptGenModal(true)" class="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-orbitron font-black text-xs border border-pink-400/50 shadow-lg shadow-pink-900/40 transition active:scale-95 flex items-center gap-1.5">
-          <span>✨</span> + NEW CAR (v5.2.3)
+          <span>✨</span> + NEW CAR (v5.3.0)
         </button>
         <div class="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-[10px] font-mono text-cyan-400">
           STORE: <a href="https://neonllamagarage.com" target="_blank" class="hover:underline font-bold text-white">NEONLLAMAGARAGE.COM</a>
@@ -645,7 +648,7 @@
           <div>
             <h2 class="font-orbitron font-black text-base text-pink-400 flex items-center gap-2 tracking-wide flex-wrap">
               <span>UNIVERSAL DIECAST WIZARD</span>
-              <span class="px-2.5 py-0.5 rounded bg-cyan-950 text-cyan-300 text-[10px] font-mono border border-cyan-400 font-black shadow-[0_0_10px_rgba(6,182,212,0.5)]">v5.1.2 LIVE</span>
+              <span class="px-2.5 py-0.5 rounded bg-cyan-950 text-cyan-300 text-[10px] font-mono border border-cyan-400 font-black shadow-[0_0_10px_rgba(6,182,212,0.5)]">v5.3.0 LIVE</span>
               <span class="px-2 py-0.5 rounded bg-purple-950 text-purple-300 text-[10px] font-mono border border-purple-400/50">💎 GEMINI 3.1 • AUTO-ALBUMS</span>
             </h2>
             <p class="text-xs text-slate-400">1. Car & Printable Panels → 2. Photos → 3. 8-to-3 Concepts (+Feedback) → 4. Pure Flat Print-Ready Decals (+Tweak & Export)</p>
@@ -990,6 +993,94 @@
   <!-- ========================================================================= -->
   <!-- FULL-SCREEN IMAGE LIGHTBOX MODAL (CLICK ANY IMAGE TO EXPAND FULL SCREEN)  -->
   <!-- ========================================================================= -->
+  
+  <!-- ========================================================================= -->
+  <!-- 1-CLICK STOREFRONT DEPLOYMENT & CAPCUT SOCIAL STORYBOARD MODAL -->
+  <!-- ========================================================================= -->
+  <div id="deployModal" class="hidden fixed inset-0 bg-black/90 backdrop-blur-md z-[90] flex items-center justify-center p-4">
+    <div class="w-full max-w-2xl bg-[#070b14] border border-cyan-500/50 rounded-2xl p-6 shadow-2xl max-h-[90vh] overflow-y-auto space-y-5">
+      
+      <!-- HEADER -->
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2.5">
+          <span class="text-2xl">🚀</span>
+          <div>
+            <h2 class="font-orbitron font-black text-base text-white">1-CLICK STOREFRONT DEPLOYMENT</h2>
+            <p class="text-xs text-slate-400">Launch drop to neonllamagarage.com, schedule countdown clock, and generate social scripts</p>
+          </div>
+        </div>
+        <button type="button" onclick="toggleModal('deployModal')" class="text-slate-400 hover:text-white font-bold text-sm px-2 py-1 rounded">✕</button>
+      </div>
+
+      <!-- CAR RECAP -->
+      <div class="flex items-center gap-4 bg-slate-950 p-3 rounded-xl border border-slate-800">
+        <div class="w-24 h-16 rounded-lg bg-black overflow-hidden shrink-0 border border-slate-800 flex items-center justify-center">
+          <img id="deployCarImg" src="" class="w-full h-full object-contain" />
+        </div>
+        <div class="flex-grow">
+          <div class="font-orbitron font-black text-sm text-cyan-300" id="deployCarTheme">NEON FREEZE</div>
+          <div class="text-xs font-mono text-slate-400" id="deployCarModel">Dairy Delivery • 8 Units • $50.00 MSRP</div>
+        </div>
+        <div class="text-right font-mono text-xs">
+          <span class="px-2 py-1 rounded bg-emerald-950 text-emerald-400 border border-emerald-500/40 font-bold">READY TO DROP</span>
+        </div>
+      </div>
+
+      <!-- DROP CONFIGURATION -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="text-[10px] font-mono text-slate-400 block uppercase mb-1">Launch Date & Drop Time (CST)</label>
+          <input type="datetime-local" id="deployLaunchDate" class="w-full bg-black/80 border border-slate-800 focus:border-cyan-400 rounded-lg p-2 text-white font-mono text-xs outline-none" />
+          <span class="text-[10px] text-slate-500 block mt-1">Powers the live T-MINUS countdown clock on the storefront billboard</span>
+        </div>
+        <div>
+          <label class="text-[10px] font-mono text-slate-400 block uppercase mb-1">Stripe Checkout Link (Buy Now)</label>
+          <input type="url" id="deployStripeLink" placeholder="https://buy.stripe.com/..." class="w-full bg-black/80 border border-slate-800 focus:border-cyan-400 rounded-lg p-2 text-cyan-300 font-mono text-xs outline-none" />
+          <span class="text-[10px] text-slate-500 block mt-1">Direct buy link for collectors on neonllamagarage.com</span>
+        </div>
+      </div>
+
+      <!-- CAPCUT SOCIAL STORYBOARD (RESTORED!) -->
+      <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-3">
+        <div class="flex items-center justify-between">
+          <h3 class="font-orbitron font-bold text-xs text-yellow-400 flex items-center gap-1.5">
+            <span>🎬</span> 3-Stage CapCut Social Storyboard & ASMR Cues
+          </h3>
+          <button type="button" onclick="copyFullSocialPack()" class="text-cyan-400 hover:underline text-[11px] font-mono font-bold">Copy All Cues 📋</button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
+          <div class="p-2.5 rounded-lg bg-black/80 border border-slate-850 space-y-1">
+            <span class="text-pink-400 font-orbitron font-bold text-[10px]">T-72h TEASER</span>
+            <p class="text-slate-300 font-mono text-[10px] leading-relaxed" id="capcutTeaser">Macro headlights flare → drill rivet spin → deep synthwave bass drop.</p>
+            <button type="button" onclick="copyText(document.getElementById('capcutTeaser').innerText)" class="text-cyan-400 text-[9px] hover:underline block pt-1">Copy Teaser Cue</button>
+          </div>
+          <div class="p-2.5 rounded-lg bg-black/80 border border-slate-850 space-y-1">
+            <span class="text-cyan-400 font-orbitron font-bold text-[10px]">T-48h PROCESS ASMR</span>
+            <p class="text-slate-300 font-mono text-[10px] leading-relaxed" id="capcutAsmr">eufyMake UV head pass sounds → waterslide float → heat press 280° clunk.</p>
+            <button type="button" onclick="copyText(document.getElementById('capcutAsmr').innerText)" class="text-cyan-400 text-[9px] hover:underline block pt-1">Copy ASMR Cue</button>
+          </div>
+          <div class="p-2.5 rounded-lg bg-black/80 border border-slate-850 space-y-1">
+            <span class="text-yellow-400 font-orbitron font-bold text-[10px]">T-24h REVEAL</span>
+            <p class="text-slate-300 font-mono text-[10px] leading-relaxed" id="capcutReveal">360 turntable spin under blacklight → blister seal peel → drop countdown.</p>
+            <button type="button" onclick="copyText(document.getElementById('capcutReveal').innerText)" class="text-cyan-400 text-[9px] hover:underline block pt-1">Copy Reveal Cue</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ACTION BUTTONS -->
+      <div class="flex items-center justify-between pt-2 border-t border-slate-800">
+        <button type="button" onclick="toggleModal('deployModal')" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-orbitron font-bold text-xs transition">
+          Cancel
+        </button>
+        <button type="button" onclick="nlgConfirmPublishToStorefront()" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-black font-orbitron font-black text-xs shadow-lg transition active:scale-95 flex items-center gap-2">
+          <span>🚀</span> PUBLISH TO LIVE STOREFRONT (NEONLLAMAGARAGE.COM)
+        </button>
+      </div>
+
+    </div>
+  </div>
+
   <div id="imageLightboxModal" onclick="closeImageLightbox()" class="hidden fixed inset-0 bg-black/95 backdrop-blur-xl z-[90] flex flex-col items-center justify-center p-4 sm:p-8 cursor-zoom-out">
     <div class="w-full max-w-6xl flex items-center justify-between mb-3" onclick="event.stopPropagation()">
       <span id="lightboxCaption" class="font-orbitron font-bold text-xs sm:text-sm text-cyan-300 tracking-wide">IMAGE PREVIEW</span>
@@ -4145,9 +4236,147 @@ ABSOLUTE ZERO-VEHICLE & ZERO-HALLUCINATION RULES (CRITICAL):
     }
 
     // Initialize album count badge on page load
+    
+    // =========================================================================
+    // GOOGLE APPS SCRIPT (GAS) LIVE SYNC & STOREFRONT DEPLOY ENGINE
+    // =========================================================================
+        let currentDeployingBatchId = null;
+
+    async function syncWithLiveGASFeed() {
+      const syncBtn = document.getElementById('btnSyncSheets');
+      const syncText = document.getElementById('gasSyncText');
+      const syncIcon = document.getElementById('gasSyncIcon');
+      const syncInd = document.getElementById('syncIndicator');
+      
+      if (syncText) syncText.innerText = 'SYNCING...';
+      if (syncIcon) syncIcon.innerText = '⏳';
+
+      try {
+        const res = await fetch(GAS_ENDPOINT + '?feed=public');
+        const data = await res.json();
+        if (data && data.success && Array.isArray(data.batches)) {
+          let mergedCount = 0;
+          data.batches.forEach(remote => {
+            const local = workshopBatches.find(x => x.id === remote.id);
+            if (local) {
+              if (remote.stripeLink) local.stripeLink = remote.stripeLink;
+              if (remote.launchDate) local.launchDate = remote.launchDate;
+              if (remote.desc) local.desc = remote.desc;
+              if (remote.tags) local.tags = remote.tags;
+              if (remote.totalStock !== undefined) local.totalStock = remote.totalStock;
+              if (remote.heroImg && !local.hero) local.hero = remote.heroImg;
+              mergedCount++;
+            }
+          });
+          saveBatchesToStorage();
+          renderFleetRows();
+          if (syncText) syncText.innerText = 'SYNCED ✅';
+          if (syncIcon) syncIcon.innerText = '📊';
+          if (syncInd) syncInd.innerText = `SHEETS LIVE (${mergedCount} SYNCED) ✅`;
+          showToast(`Successfully synced ${mergedCount} catalog drops with Google Sheets!`, '📊');
+        }
+      } catch (e) {
+        console.warn('Could not sync with GAS feed:', e);
+        if (syncText) syncText.innerText = 'OFFLINE ⚠️';
+        if (syncIcon) syncIcon.innerText = '⚪';
+        showToast('Using local offline workshop fleet', 'ℹ️');
+      }
+    }
+
+    function nlgDeployBatchToLiveStore(batchId) {
+      currentDeployingBatchId = batchId || currentActiveBatchId;
+      const b = workshopBatches.find(x => x.id === currentDeployingBatchId);
+      if (!b) return;
+
+      const imgEl = document.getElementById('deployCarImg');
+      if (imgEl) imgEl.src = b.hero || '';
+      const themeEl = document.getElementById('deployCarTheme');
+      if (themeEl) themeEl.innerText = `${b.theme.toUpperCase()} (${b.id})`;
+      const modelEl = document.getElementById('deployCarModel');
+      if (modelEl) modelEl.innerText = `${b.model} • ${b.qty} • $${b.price || 50} MSRP`;
+
+      // Pre-fill launch date (default to next Friday at 7:00 PM CST if not set)
+      const dateInp = document.getElementById('deployLaunchDate');
+      if (dateInp) {
+        if (b.launchDate) {
+          const d = new Date(b.launchDate);
+          const localIso = new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+          dateInp.value = localIso;
+        } else {
+          // Upcoming Friday 19:00 CST
+          const now = new Date();
+          const day = now.getDay();
+          const diffToFri = (5 - day + 7) % 7 || 7;
+          const nextFri = new Date(now.getFullYear(), now.getMonth(), now.getDate() + diffToFri, 19, 0, 0);
+          const localIso = new Date(nextFri.getTime() - nextFri.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+          dateInp.value = localIso;
+        }
+      }
+
+      // Pre-fill Stripe link
+      const stripeInp = document.getElementById('deployStripeLink');
+      if (stripeInp) stripeInp.value = b.stripeLink || '';
+
+      // Populate CapCut Social Storyboard customized for this car
+      const teaserEl = document.getElementById('capcutTeaser');
+      if (teaserEl) {
+        teaserEl.innerText = `POV: You build custom Hot Wheels. Close-up: Raw casting stripped → ${b.color || 'ice blue'} base coat → drill rivet spin → deep 80s bass drop. Drops Friday! #neonllamagarage #hotwheelscustom`;
+      }
+      const asmrEl = document.getElementById('capcutAsmr');
+      if (asmrEl) {
+        asmrEl.innerText = `ASMR custom diecast build: eufyMake UV head printing ${b.theme} livery → waterslide floating in warm bath → 280° heat press seal clunk → Real Riders wheel click. #satisfying #asmrsounds`;
+      }
+      const revealEl = document.getElementById('capcutReveal');
+      if (revealEl) {
+        revealEl.innerText = `The 1 of 8 "${b.theme}" ${b.model} is finished! 360 loose turntable blacklight spin → blister packaging peel → Live countdown: neonllamagarage.com. Only ${b.qty.split('•')[0].trim()} exist!`;
+      }
+
+      const modal = document.getElementById('deployModal');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function nlgConfirmPublishToStorefront() {
+      const b = workshopBatches.find(x => x.id === currentDeployingBatchId);
+      if (!b) return;
+
+      const dateInp = document.getElementById('deployLaunchDate');
+      if (dateInp && dateInp.value) {
+        b.launchDate = new Date(dateInp.value).toISOString();
+      }
+      const stripeInp = document.getElementById('deployStripeLink');
+      if (stripeInp) {
+        b.stripeLink = stripeInp.value.trim();
+      }
+
+      b.section = 'active';
+      b.status = 'Live Drop on Storefront';
+      b.progress = 100;
+      if (!b.completedSteps) b.completedSteps = [];
+      if (!b.completedSteps.includes(8)) b.completedSteps.push(8);
+
+      saveBatchesToStorage();
+      renderFleetRows();
+      renderMasterChecklist(b);
+
+      const modal = document.getElementById('deployModal');
+      if (modal) modal.classList.add('hidden');
+
+      showToast(`🚀 "${b.theme}" successfully published to live storefront with countdown timer!`, '🎉');
+    }
+
+    function copyFullSocialPack() {
+      const t = document.getElementById('capcutTeaser')?.innerText || '';
+      const a = document.getElementById('capcutAsmr')?.innerText || '';
+      const r = document.getElementById('capcutReveal')?.innerText || '';
+      const full = `=== T-72h TEASER ===\n${t}\n\n=== T-48h PROCESS ASMR ===\n${a}\n\n=== T-24h REVEAL ===\n${r}`;
+      copyText(full);
+      showToast('All 3 social storyboard cues copied to clipboard!', '📋');
+    }
+
     window.addEventListener('DOMContentLoaded', async () => {
       await seedInitialIdeaAlbum();
       await updateAlbumsBadge();
+      syncWithLiveGASFeed();
     });
     function backToStarterShowcase() {
       const showcaseView = document.getElementById('ideaStarterShowcaseView');

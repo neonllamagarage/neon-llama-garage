@@ -269,6 +269,43 @@
         }
         
         globalBatches = data.batches || [];
+
+        // Seamlessly merge any active/deployed batches from Neon Llama Studio!
+        try {
+          const localSaved = localStorage.getItem('neon_llama_workshop_fleet_v8');
+          if (localSaved) {
+            const studioBatches = JSON.parse(localSaved);
+            if (Array.isArray(studioBatches)) {
+              studioBatches.filter(b => b.section === 'active').forEach(sb => {
+                const existingIdx = globalBatches.findIndex(x => x.id === sb.id);
+                const mappedBatch = {
+                  id: sb.id,
+                  theme: sb.theme,
+                  model: sb.model,
+                  color: sb.color || 'Custom',
+                  totalStock: typeof sb.totalStock === 'number' ? sb.totalStock : (parseInt(sb.qty) || 8),
+                  plannedTotal: parseInt(sb.qty) || 8,
+                  plannedChase: (sb.qty && sb.qty.includes('Chase')) ? 1 : 0,
+                  launchDate: sb.launchDate || new Date(Date.now() + 86400000 * 2).toISOString(),
+                  heroImg: sb.hero,
+                  images: [sb.hero],
+                  title: `Neon Llama Garage: "${sb.theme}" - ${sb.model} 1/64 Custom Diecast`,
+                  desc: sb.desc || `<p>Exclusive limited edition custom 1/64 diecast build from Neon Llama Garage. Upgraded with authentic Real Riders rubber wheels, bespoke livery, and custom packaging.</p>`,
+                  minPrice: typeof sb.price === 'number' ? sb.price : 50,
+                  stripeLink: sb.stripeLink || ''
+                };
+                if (existingIdx !== -1) {
+                  globalBatches[existingIdx] = { ...globalBatches[existingIdx], ...mappedBatch };
+                } else {
+                  globalBatches.unshift(mappedBatch);
+                }
+              });
+            }
+          }
+        } catch (e) {
+          console.warn("Studio local active batch merge note:", e);
+        }
+
         processTimeData(); 
         
         tabList.innerHTML = `
